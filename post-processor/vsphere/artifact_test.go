@@ -1,4 +1,4 @@
-package vagrant
+package vsphere
 
 import (
 	"testing"
@@ -15,8 +15,8 @@ func TestArtifact_ImplementsArtifact(t *testing.T) {
 }
 
 func TestArtifact_Id(t *testing.T) {
-	artifact := NewArtifact("vmware", "./")
-	if artifact.Id() != "vmware" {
-		t.Fatalf("should return name as Id")
+	artifact := NewArtifact("datastore", "vmfolder", "vmname", nil)
+	if artifact.Id() != "datastore::vmfolder::vmname" {
+		t.Fatalf("must return datastore, vmfolder and vmname splitted by :: as Id")
 	}
 }
