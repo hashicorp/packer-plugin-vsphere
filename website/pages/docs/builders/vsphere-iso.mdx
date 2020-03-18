@@ -2,11 +2,11 @@
 modeline: |
   vim: set ft=pandoc:
 description: |
-    This VMware Packer builder starts from an ISO and creates a vm using the
-    vSphere API to build on a remote VMWare machine.
+  This VMware Packer builder starts from an ISO and creates a vm using the
+  vSphere API to build on a remote VMWare machine.
 layout: docs
-page_title: 'VSphere ISO - Builders'
-sidebar_current: 'docs-builders-vsphere-iso'
+page_title: VSphere ISO - Builders
+sidebar_current: docs-builders-vsphere-iso
 ---
 
 # Packer Builder for VMware vSphere
@@ -42,37 +42,43 @@ references for [HTTP](#http-directory-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
-<%= partial "partials/builder/vsphere/iso/Config-not-required" %>
+@include 'partials/builder/vsphere/iso/Config-not-required.mdx'
 
 ### Connection Configuration
-<%= partial "partials/builder/vsphere/common/ConnectConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/ConnectConfig-not-required.mdx'
 
 ### Hardware Configuration
-<%= partial "partials/builder/vsphere/common/HardwareConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/HardwareConfig-not-required.mdx'
 
 ### Location Configuration
-<%= partial "partials/builder/vsphere/common/LocationConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/LocationConfig-not-required.mdx'
 
 ### Run Configuration
-<%= partial "partials/builder/vsphere/common/RunConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/RunConfig-not-required.mdx'
 
 ### Shutdown Configuration
-<%= partial "partials/builder/vsphere/common/ShutdownConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/ShutdownConfig-not-required.mdx'
 
 ### Wait Configuration
-<%= partial "partials/builder/vsphere/common/WaitIpConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/WaitIpConfig-not-required.mdx'
 
 ### ISO Configuration
 
-<%= partial "partials/common/ISOConfig" %>
+@include 'partials/common/ISOConfig.mdx'
 
 #### Required:
 
-<%= partial "partials/common/ISOConfig-required" %>
+@include 'partials/common/ISOConfig-required.mdx'
 
 #### Optional:
 
-<%= partial "partials/common/ISOConfig-not-required" %>
+@include 'partials/common/ISOConfig-not-required.mdx'
 
 ### CDRom Configuration
 
@@ -91,20 +97,24 @@ from the datastore. Example:
 ],
 ```
 
-<%= partial "partials/builder/vsphere/iso/CDRomConfig-not-required" %>
+@include 'partials/builder/vsphere/iso/CDRomConfig-not-required.mdx'
 
 ### Create Configuration
-<%= partial "partials/builder/vsphere/iso/CreateConfig-not-required" %>
+
+@include 'partials/builder/vsphere/iso/CreateConfig-not-required.mdx'
 
 ### Network Adapter Configuration
-<%= partial "partials/builder/vsphere/iso/NIC-required" %>
+
+@include 'partials/builder/vsphere/iso/NIC-required.mdx'
 
 ### Storage Configuration
-<%= partial "partials/builder/vsphere/iso/DiskConfig-required" %>
-<%= partial "partials/builder/vsphere/iso/DiskConfig-not-required" %>
+
+@include 'partials/builder/vsphere/iso/DiskConfig-required.mdx'
+@include 'partials/builder/vsphere/iso/DiskConfig-not-required.mdx'
 
 ### Floppy Configuration
-<%= partial "partials/builder/vsphere/iso/FloppyConfig-not-required" %>
+
+@include 'partials/builder/vsphere/iso/FloppyConfig-not-required.mdx'
 
 ### Export Configuration
 <%= partial "partials/builder/vsphere/common/ExportConfig" %>
@@ -118,43 +128,51 @@ from the datastore. Example:
 <%= partial "partials/builder/vsphere/common/OutputConfig-not-required" %>
 
 ### Extra Configuration Parameters
-<%= partial "partials/builder/vsphere/common/ConfigParamsConfig-not-required" %>
+
+@include 'partials/builder/vsphere/common/ConfigParamsConfig-not-required.mdx'
 
 ### Communicator configuration
 
 #### Optional common fields:
 
-<%= partial "partials/helper/communicator/Config-not-required" %>
+@include 'partials/helper/communicator/Config-not-required.mdx'
 
 #### Optional Network Adapter fields:
 
-<%= partial "partials/builder/vsphere/iso/NIC-not-required" %>
+@include 'partials/builder/vsphere/iso/NIC-not-required.mdx'
 
 #### Optional SSH fields:
 
-<%= partial "partials/helper/communicator/SSH-not-required" %>
+@include 'partials/helper/communicator/SSH-not-required.mdx'
 
 #### Optional WinRM fields:
 
-<%= partial "partials/helper/communicator/WinRM-not-required" %>
+@include 'partials/helper/communicator/WinRM-not-required.mdx'
 
 ## Working with Clusters
+
 #### Standalone Hosts
+
 Only use the `host` option. Optionally specify a `resource_pool`:
+
 ```
 "host": "esxi-1.vsphere65.test",
 "resource_pool": "pool1",
 ```
 
 #### Clusters Without DRS
-Use the `cluster` and `host `parameters:
+
+Use the `cluster` and `host`parameters:
+
 ```
 "cluster": "cluster1",
 "host": "esxi-2.vsphere65.test",
 ```
 
 #### Clusters With DRS
+
 Only use the `cluster` option. Optionally specify a `resource_pool`:
+
 ```
 "cluster": "cluster2",
 "resource_pool": "pool1",
@@ -162,45 +180,45 @@ Only use the `cluster` option. Optionally specify a `resource_pool`:
 
 ## Required vSphere Permissions
 
-* VM folder (this object and children):
-    ```
-    Virtual machine -> Inventory
-    Virtual machine -> Configuration
-    Virtual machine -> Interaction
-    Virtual machine -> Snapshot management
-    Virtual machine -> Provisioning
-    ```
-    Individual privileges are listed in https://github.com/jetbrains-infra/packer-builder-vsphere/issues/97#issuecomment-436063235.
-* Resource pool, host, or cluster (this object):
-    ```
-    Resource -> Assign virtual machine to resource pool
-    ```
-* Host in clusters without DRS (this object):
-    ```
-    Read-only
-    ```
-* Datastore (this object):
-    ```
-    Datastore -> Allocate space
-    Datastore -> Browse datastore
-    Datastore -> Low level file operations
-    ```
-* Network (this object):
-    ```
-    Network -> Assign network
-    ```
-* Distributed switch (this object):
-    ```
-    Read-only
-    ```
+- VM folder (this object and children):
+  ```
+  Virtual machine -> Inventory
+  Virtual machine -> Configuration
+  Virtual machine -> Interaction
+  Virtual machine -> Snapshot management
+  Virtual machine -> Provisioning
+  ```
+  Individual privileges are listed in https://github.com/jetbrains-infra/packer-builder-vsphere/issues/97#issuecomment-436063235.
+- Resource pool, host, or cluster (this object):
+  ```
+  Resource -> Assign virtual machine to resource pool
+  ```
+- Host in clusters without DRS (this object):
+  ```
+  Read-only
+  ```
+- Datastore (this object):
+  ```
+  Datastore -> Allocate space
+  Datastore -> Browse datastore
+  Datastore -> Low level file operations
+  ```
+- Network (this object):
+  ```
+  Network -> Assign network
+  ```
+- Distributed switch (this object):
+  ```
+  Read-only
+  ```
 
 For floppy image upload:
 
-* Datacenter (this object):
-    ```
-    Datastore -> Low level file operations
-    ```
-* Host (this object):
-    ```
-    Host -> Configuration -> System Management
-    ```
+- Datacenter (this object):
+  ```
+  Datastore -> Low level file operations
+  ```
+- Host (this object):
+  ```
+  Host -> Configuration -> System Management
+  ```
