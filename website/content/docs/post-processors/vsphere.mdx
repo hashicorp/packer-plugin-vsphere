@@ -2,7 +2,6 @@
 description: >
   The Packer vSphere post-processor takes an artifact and uploads it to a
   vSphere endpoint.
-layout: docs
 page_title: vSphere - Post-Processors
 sidebar_title: vSphere
 ---
@@ -83,7 +82,7 @@ You can also use this post-processor with the vmx artifact from a vmware build.
 <Tabs>
 <Tab heading="JSON">
 
-``` json
+```json
 {
   "builders": [
     {
@@ -95,19 +94,19 @@ You can also use this post-processor with the vmx artifact from a vmware build.
     [
       {
         "type": "artifice",
-        "files":["output-vmware-iso/packer-vmware-iso.vmx"]
+        "files": ["output-vmware-iso/packer-vmware-iso.vmx"]
       },
       {
-          "type": "vsphere",
-          "keep_input_artifact": true,
-          "vm_name": "packerparty",
-          "vm_network": "VM Network",
-          "cluster": "123.45.678.1",
-          "datacenter": "PackerDatacenter",
-          "datastore": "datastore1",
-          "host": "123.45.678.9",
-          "password": "SuperSecretPassword",
-          "username": "Administrator@vsphere.local"
+        "type": "vsphere",
+        "keep_input_artifact": true,
+        "vm_name": "packerparty",
+        "vm_network": "VM Network",
+        "cluster": "123.45.678.1",
+        "datacenter": "PackerDatacenter",
+        "datastore": "datastore1",
+        "host": "123.45.678.9",
+        "password": "SuperSecretPassword",
+        "username": "Administrator@vsphere.local"
       }
     ]
   ]

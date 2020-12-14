@@ -4,7 +4,6 @@ modeline: |
 description: |
   This VMware Packer builder starts from an ISO and creates a vm using the
   vSphere API to build on a remote VMWare machine.
-layout: docs
 page_title: VSphere ISO - Builders
 sidebar_title: VSphere ISO
 ---
@@ -19,8 +18,8 @@ starts from an ISO file and creates new VMs from scratch.
 - VMware Player is not required.
 - It uses the official vCenter API, and does not require ESXi host [modification](/docs/builders/vmware-iso#building-on-a-remote-vsphere-hypervisor)
 - This builder is supported for vSphere version 6.5 and greater. Builds on lower
-versions may work, but some configuration options may throw errors because they
-do not exist in the older versions of the vSphere API.
+  versions may work, but some configuration options may throw errors because they
+  do not exist in the older versions of the vSphere API.
 
 ## Examples
 
