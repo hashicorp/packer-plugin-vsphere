@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer/builder/vsphere/common"
-	"github.com/hashicorp/packer/builder/vsphere/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 type Builder struct {

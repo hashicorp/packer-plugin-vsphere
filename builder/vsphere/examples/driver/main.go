@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/hashicorp/packer/builder/vsphere/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func main() {

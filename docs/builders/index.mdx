@@ -1,0 +1,24 @@
+---
+description: |
+  The vSphere Packer builder is able to create vSphere virtual machines for use
+  with any vSphere product.
+page_title: vSphere - Builders
+---
+
+# vSphere Builder
+
+The vSphere Packer builder is able to create vSphere virtual machines for use
+with any VMware product.
+
+Packer actually comes with two builders able to create vSphere machines,
+depending on the strategy you want to use to build the image. Packer supports
+the following vSphere builders:
+
+- [vsphere-iso](/docs/builders/vsphere-iso) - This builder starts from an
+  ISO file and utilizes the vSphere API to build on a remote esx instance.
+  This allows you to build vms even if you do not have SSH access to your vSphere cluster.
+
+- [vsphere-clone](/docs/builders/vsphere-clone) - This builder clones a
+  vm from an existing template, then modifies it and saves it as a new
+  template. It uses the vSphere API to build on a remote esx instance.
+  This allows you to build vms even if you do not have SSH access to your vSphere cluster.

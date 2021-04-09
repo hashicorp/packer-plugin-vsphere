@@ -17,18 +17,25 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	vmwcommon "github.com/hashicorp/packer/builder/vmware/common"
-	vsphere "github.com/hashicorp/packer/builder/vsphere/common"
-	"github.com/hashicorp/packer/post-processor/artifice"
-	vspherepost "github.com/hashicorp/packer/post-processor/vsphere"
+	vsphere "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	vspherepost "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
 	"github.com/vmware/govmomi"
 )
 
+const (
+	// BuilderId for the local artifacts
+	BuilderIdESX = "mitchellh.vmware-esx"
+
+	ArtifactConfFormat         = "artifact.conf.format"
+	ArtifactConfKeepRegistered = "artifact.conf.keep_registered"
+	ArtifactConfSkipExport     = "artifact.conf.skip_export"
+)
+
 var builtins = map[string]string{
-	vspherepost.BuilderId:  "vmware",
-	vmwcommon.BuilderIdESX: "vmware",
-	vsphere.BuilderId:      "vsphere",
-	artifice.BuilderId:     "artifice",
+	vspherepost.BuilderId:            "vmware",
+	BuilderIdESX:                     "vmware",
+	vsphere.BuilderId:                "vsphere",
+	"packer.post-processor.artifice": "artifice",
 }
 
 type Config struct {
@@ -111,9 +118,9 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 			"Artifact type %s does not fit this requirement", artifact.BuilderId())
 	}
 
-	f := artifact.State(vmwcommon.ArtifactConfFormat)
-	k := artifact.State(vmwcommon.ArtifactConfKeepRegistered)
-	s := artifact.State(vmwcommon.ArtifactConfSkipExport)
+	f := artifact.State(ArtifactConfFormat)
+	k := artifact.State(ArtifactConfKeepRegistered)
+	s := artifact.State(ArtifactConfSkipExport)
 
 	if f != "" && k != "true" && s == "false" {
 		return nil, false, false, errors.New("To use this post-processor with exporting behavior you need set keep_registered as true")

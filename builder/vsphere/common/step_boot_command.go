@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	"github.com/hashicorp/packer/builder/vsphere/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"golang.org/x/mobile/event/key"
 )
 

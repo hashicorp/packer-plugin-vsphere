@@ -9,8 +9,8 @@ import (
 	"time"
 
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer/builder/vsphere/common"
-	"github.com/hashicorp/packer/builder/vsphere/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func NewVMName() string {

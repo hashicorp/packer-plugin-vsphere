@@ -3,7 +3,7 @@ package common
 import (
 	"os"
 
-	"github.com/hashicorp/packer/builder/vsphere/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 const BuilderId = "jetbrains.vsphere"
