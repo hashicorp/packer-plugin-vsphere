@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"testing"
 	"time"
 
-	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
@@ -18,11 +15,11 @@ func NewVMName() string {
 	return fmt.Sprintf("test-%v", rand.Intn(1000))
 }
 
-func RenderConfig(config map[string]interface{}) string {
+func RenderConfig(builderType string, config map[string]interface{}) string {
 	t := map[string][]map[string]interface{}{
 		"builders": {
 			map[string]interface{}{
-				"type": "test",
+				"type": builderType,
 			},
 		},
 	}
@@ -34,7 +31,7 @@ func RenderConfig(config map[string]interface{}) string {
 	return string(j)
 }
 
-func TestConn(t *testing.T) driver.Driver {
+func TestConn() (driver.Driver, error) {
 	username := os.Getenv("VSPHERE_USERNAME")
 	if username == "" {
 		username = "root"
@@ -51,19 +48,24 @@ func TestConn(t *testing.T) driver.Driver {
 		InsecureConnection: true,
 	})
 	if err != nil {
-		t.Fatal("Cannot connect: ", err)
+		return nil, fmt.Errorf("Cannot connect: ", err)
 	}
-	return d
+	return d, nil
 }
 
-func GetVM(t *testing.T, d driver.Driver, artifacts []packersdk.Artifact) driver.VirtualMachine {
-	artifactRaw := artifacts[0]
-	artifact, _ := artifactRaw.(*common.Artifact)
-
-	vm, err := d.FindVM(artifact.Name)
+func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
+	vm, err := d.FindVM(name)
 	if err != nil {
-		t.Fatalf("Cannot find VM: %v", err)
+		return nil, fmt.Errorf("Cannot find VM: %v", err)
 	}
 
-	return vm
+	return vm, nil
+}
+
+func CleanupVM(d driver.Driver, name string) error {
+	vm, err := GetVM(d, name)
+	if err != nil {
+		return fmt.Errorf("Cannot find VM: %v", err)
+	}
+	return vm.Destroy()
 }
