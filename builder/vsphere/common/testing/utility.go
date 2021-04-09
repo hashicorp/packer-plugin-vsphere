@@ -48,7 +48,7 @@ func TestConn() (driver.Driver, error) {
 		InsecureConnection: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Cannot connect: ", err)
+		return nil, fmt.Errorf("Cannot connect: %#v", err)
 	}
 	return d, nil
 }

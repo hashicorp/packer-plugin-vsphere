@@ -108,7 +108,7 @@ func checkDefault(name string, host string, datastore string) error {
 	h := d.NewHost(vmInfo.Runtime.Host)
 	hostInfo, err := h.Info("name")
 	if err != nil {
-		return fmt.Errorf("Cannot read host properties: ", err)
+		return fmt.Errorf("Cannot read host properties: %#v", err)
 	}
 	if hostInfo.Name != host {
 		return fmt.Errorf("Invalid host name: expected '%v', got '%v'", host, hostInfo.Name)
@@ -127,7 +127,7 @@ func checkDefault(name string, host string, datastore string) error {
 	ds := d.NewDatastore(&dsr)
 	dsInfo, err := ds.Info("name")
 	if err != nil {
-		return fmt.Errorf("Cannot read datastore properties: ", err)
+		return fmt.Errorf("Cannot read datastore properties: %#v", err)
 	}
 	if dsInfo.Name != datastore {
 		return fmt.Errorf("Invalid datastore name: expected '%v', got '%v'", datastore, dsInfo.Name)
