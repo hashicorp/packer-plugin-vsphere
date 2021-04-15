@@ -3,6 +3,7 @@ description: |
   The vSphere Packer builder is able to create vSphere virtual machines for use
   with any vSphere product.
 page_title: vSphere - Builders
+sidebar_title: Overview
 ---
 
 # vSphere Builder
@@ -22,3 +23,19 @@ the following vSphere builders:
   vm from an existing template, then modifies it and saves it as a new
   template. It uses the vSphere API to build on a remote esx instance.
   This allows you to build vms even if you do not have SSH access to your vSphere cluster.
+
+## How to use this plugin
+
+From Packer v1.7.0, copy and paste this code into your Packer configuration to install this plugin.
+Then, run [`packer init`](/docs/commands/init).
+
+```hcl
+packer {
+  required_plugins {
+    vsphere = {
+      version = ">= 0.0.1"
+      source = "github.com/hashicorp/vsphere"
+    }
+  }
+}
+```
