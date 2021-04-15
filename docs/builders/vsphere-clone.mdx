@@ -39,47 +39,13 @@ references for [Hardware](#hardware-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
-- `create_snapshot` (bool) - Create a snapshot when set to `true`, so the VM can be used as a base
-  for linked clones. Defaults to `false`.
-
-- `convert_to_template` (bool) - Convert VM to a template. Defaults to `false`.
-
-- `export` (\*common.ExportConfig) - Configuration for exporting VM to an ovf file.
-  The VM will not be exported if no [Export Configuration](#export-configuration) is specified.
-
-- `content_library_destination` (\*common.ContentLibraryDestinationConfig) - Configuration for importing a VM template or OVF template to a Content Library.
-  The template will not be imported if no [Content Library Import Configuration](#content-library-import-configuration) is specified.
-  The import doesn't work if [convert_to_template](#convert_to_template) is set to true.
-
-- `customize` (\*CustomizeConfig) - Customize the cloned VM to configure host, network, or licensing settings. See the [customization options](#customization).
+@include 'builder/vsphere/clone/Config-not-required.mdx'
 
 ### Clone Configuration
 
-- `template` (string) - Name of source VM. Path is optional.
+@include 'builder/vsphere/clone/CloneConfig-not-required.mdx'
 
-- `disk_size` (int64) - The size of the disk in MB.
-
-- `linked_clone` (bool) - Create VM as a linked clone from latest snapshot. Defaults to `false`.
-
-- `network` (string) - Set the network in which the VM will be connected to. If no network is
-  specified, `host` must be specified to allow Packer to look for the
-  available network. If the network is inside a network folder in vCenter,
-  you need to provide the full path to the network.
-
-- `mac_address` (string) - Sets a custom Mac Address to the network adapter. If set, the [network](#network) must be also specified.
-
-- `notes` (string) - VM notes.
-
-- `vapp` (vAppConfig) - Set the vApp Options to a virtual machine.
-  See the [vApp Options Configuration](/docs/builders/vmware/vsphere-clone#vapp-options-configuration)
-  to know the available options and how to use it.
-
-- `disk_controller_type` ([]string) - Set VM disk controller type. Example `lsilogic`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
-  Defaults to `lsilogic`. See
-  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html#GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362)
-  for additional details.
-
-- `storage` ([]DiskConfig) - Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).
+@include 'builder/vsphere/common/StorageConfig-not-required.mdx'
 
 ### Storage Configuration
 

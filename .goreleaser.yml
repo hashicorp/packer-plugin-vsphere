@@ -9,7 +9,7 @@ before:
     - go test ./...
     # As part of the release doc files are included as a separate deliverable for
     # consumption by Packer.io. To include a separate docs.zip uncomment the following command.
-    - /bin/sh -c "[ -d docs ] && zip -r docs.zip docs/"
+    - make ci-release-docs
 builds:
   # A separated build to run the packer-plugins-check only once for a linux_amd64 binary
   -
