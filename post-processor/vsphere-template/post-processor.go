@@ -135,7 +135,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil, false, false, fmt.Errorf("Error connecting to vSphere: %s", err)
 	}
 
-	defer c.Logout(context.Background())
+	defer p.Logout(c)
 
 	state := new(multistep.BasicStateBag)
 	state.Put("ui", ui)
@@ -157,4 +157,8 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil, false, false, rawErr.(error)
 	}
 	return artifact, true, true, nil
+}
+
+func (p *PostProcessor) Logout(c *govmomi.Client) {
+	_ = c.Logout(context.Background())
 }

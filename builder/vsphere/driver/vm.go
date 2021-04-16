@@ -151,7 +151,7 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool) e
 		ui.Say(fmt.Sprintf("the vm/template %s already exists, but deleting it due to -force flag", vmPath))
 
 		// power off just in case it is still on
-		vm.PowerOff()
+		_ = vm.PowerOff()
 
 		err := vm.Destroy()
 		if err != nil {

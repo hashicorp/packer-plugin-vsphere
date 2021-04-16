@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/clone"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/iso"
-	"github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
-	vsphere_template "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere-template"
 	"os"
 
 	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"github.com/hashicorp/packer-plugin-sdk/version"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/clone"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/iso"
+	"github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
+	vsphere_template "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere-template"
 )
 
 var (
