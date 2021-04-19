@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    vsphere = {
+      version = ">= v0.0.1"
+      source  = "github.com/hashicorp/vsphere"
+    }
+  }
+}
+
 build {
   sources  = [
     "source.vsphere-iso.example"
