@@ -783,6 +783,21 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	template.Library = l.library.ID
 	template.SourceVM = vm.vm.Reference().Value
 
+	if template.Placement.ResourcePool != "" {
+		rp, err := vm.driver.FindResourcePool(template.Placement.Cluster, template.Placement.Host, template.Placement.ResourcePool)
+		if err != nil {
+			return err
+		}
+		template.Placement.ResourcePool = rp.pool.Reference().Value
+	}
+	if template.VMHomeStorage != nil {
+		d, err := vm.driver.FindDatastore(template.VMHomeStorage.Datastore, template.Placement.Host)
+		if err != nil {
+			return err
+		}
+		template.VMHomeStorage.Datastore = d.Reference().Value
+	}
+
 	if template.Placement.Cluster != "" {
 		c, err := vm.driver.FindCluster(template.Placement.Cluster)
 		if err != nil {
@@ -803,21 +818,6 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 			return err
 		}
 		template.Placement.Host = h.host.Reference().Value
-	}
-	if template.Placement.ResourcePool != "" {
-		rp, err := vm.driver.FindResourcePool(template.Placement.Cluster, template.Placement.Host, template.Placement.ResourcePool)
-		if err != nil {
-			return err
-		}
-		template.Placement.ResourcePool = rp.pool.Reference().Value
-	}
-
-	if template.VMHomeStorage != nil {
-		d, err := vm.driver.FindDatastore(template.VMHomeStorage.Datastore, template.Placement.Host)
-		if err != nil {
-			return err
-		}
-		template.VMHomeStorage.Datastore = d.Reference().Value
 	}
 
 	vcm := vcenter.NewManager(vm.driver.restClient.client)
