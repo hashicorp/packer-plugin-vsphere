@@ -12,8 +12,6 @@ type StepConvertToTemplate struct {
 	ConvertToTemplate bool
 }
 
-func (s *StepConvertToTemplate) Cleanup(state multistep.StateBag) {}
-
 func (s *StepConvertToTemplate) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
@@ -29,3 +27,5 @@ func (s *StepConvertToTemplate) Run(_ context.Context, state multistep.StateBag)
 
 	return multistep.ActionContinue
 }
+
+func (s *StepConvertToTemplate) Cleanup(state multistep.StateBag) {}
