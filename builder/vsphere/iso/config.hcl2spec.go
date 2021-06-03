@@ -26,6 +26,7 @@ type FlatConfig struct {
 	HTTPAddress                     *string                                     `mapstructure:"http_bind_address" cty:"http_bind_address" hcl:"http_bind_address"`
 	HTTPInterface                   *string                                     `mapstructure:"http_interface" undocumented:"true" cty:"http_interface" hcl:"http_interface"`
 	CDFiles                         []string                                    `mapstructure:"cd_files" cty:"cd_files" hcl:"cd_files"`
+	CDContent                       map[string]string                           `mapstructure:"cd_content" cty:"cd_content" hcl:"cd_content"`
 	CDLabel                         *string                                     `mapstructure:"cd_label" cty:"cd_label" hcl:"cd_label"`
 	VCenterServer                   *string                                     `mapstructure:"vcenter_server" cty:"vcenter_server" hcl:"vcenter_server"`
 	Username                        *string                                     `mapstructure:"username" cty:"username" hcl:"username"`
@@ -168,6 +169,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"http_bind_address":              &hcldec.AttrSpec{Name: "http_bind_address", Type: cty.String, Required: false},
 		"http_interface":                 &hcldec.AttrSpec{Name: "http_interface", Type: cty.String, Required: false},
 		"cd_files":                       &hcldec.AttrSpec{Name: "cd_files", Type: cty.List(cty.String), Required: false},
+		"cd_content":                     &hcldec.AttrSpec{Name: "cd_content", Type: cty.Map(cty.String), Required: false},
 		"cd_label":                       &hcldec.AttrSpec{Name: "cd_label", Type: cty.String, Required: false},
 		"vcenter_server":                 &hcldec.AttrSpec{Name: "vcenter_server", Type: cty.String, Required: false},
 		"username":                       &hcldec.AttrSpec{Name: "username", Type: cty.String, Required: false},
