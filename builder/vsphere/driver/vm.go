@@ -385,7 +385,11 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 
 		current := adapter.GetVirtualEthernetCard()
 		current.Backing = backing
-		current.MacAddress = config.MacAddress
+
+		if config.MacAddress != "" {
+			current.AddressType = string(types.VirtualEthernetCardMacTypeManual)
+			current.MacAddress = config.MacAddress
+		}
 
 		config := &types.VirtualDeviceConfigSpec{
 			Device:    adapter.(types.BaseVirtualDevice),
