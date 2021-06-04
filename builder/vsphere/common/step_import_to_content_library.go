@@ -121,6 +121,13 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 	var err error
 
+	ui.Say("Clear boot order...")
+	err = vm.SetBootOrder([]string{"-"})
+	if err != nil {
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+
 	if s.ContentLibConfig.Ovf {
 		ui.Say(fmt.Sprintf("Importing VM OVF template %s to Content Library...", s.ContentLibConfig.Name))
 		err = s.importOvfTemplate(vm)
