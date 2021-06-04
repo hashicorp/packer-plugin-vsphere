@@ -185,3 +185,62 @@ func TestVirtualMachineDriver_CloneWithPrimaryDiskResize(t *testing.T) {
 		t.Fatalf("unexpected disk size for primary disk: %d", disks[2].CapacityInKB)
 	}
 }
+
+func TestVirtualMachineDriver_CloneWithMacAddress(t *testing.T) {
+	sim, err := NewVCenterSimulator()
+	if err != nil {
+		t.Fatalf("should not fail: %s", err.Error())
+	}
+	defer sim.Close()
+
+	_, datastore := sim.ChooseSimulatorPreCreatedDatastore()
+	vm, _ := sim.ChooseSimulatorPreCreatedVM()
+
+	devices, err := vm.Devices()
+	if err != nil {
+		t.Fatalf("unexpected error %s", err.Error())
+	}
+
+	adapter, err := findNetworkAdapter(devices)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err.Error())
+	}
+
+	network := adapter.GetVirtualEthernetCard()
+	oldMacAddress := network.MacAddress
+
+	newMacAddress := "D4:B4:D4:96:70:26"
+	config := &CloneConfig{
+		Name:       "mock name",
+		Host:       "DC0_H0",
+		Datastore:  datastore.Name,
+		Network:    "/DC0/network/VM Network",
+		MacAddress: newMacAddress,
+	}
+
+	ctx := context.TODO()
+	clonedVM, err := vm.Clone(ctx, config)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err.Error())
+	}
+
+	devices, err = clonedVM.Devices()
+	if err != nil {
+		t.Fatalf("unexpected error %s", err.Error())
+	}
+	adapter, err = findNetworkAdapter(devices)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err.Error())
+	}
+
+	network = adapter.GetVirtualEthernetCard()
+	if network.AddressType != string(types.VirtualEthernetCardMacTypeManual) {
+		t.Fatalf("unexpected address type")
+	}
+	if network.MacAddress == oldMacAddress {
+		t.Fatalf("expected mac address to be different from old one")
+	}
+	if network.MacAddress != newMacAddress {
+		t.Fatalf("unexpected mac address")
+	}
+}
