@@ -311,6 +311,15 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	datastoreRef := datastore.Reference()
 	relocateSpec.Datastore = &datastoreRef
 
+	if config.Cluster != "" && config.Host != "" {
+		h, err := vm.driver.FindHost(config.Host)
+		if err != nil {
+			return nil, err
+		}
+		hostRef := h.host.Reference()
+		relocateSpec.Host = &hostRef
+	}
+
 	var cloneSpec types.VirtualMachineCloneSpec
 	cloneSpec.Location = relocateSpec
 	cloneSpec.PowerOn = false
