@@ -78,7 +78,7 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 	d := state.Get("driver").(driver.Driver)
 	vmPath := path.Join(s.Location.Folder, s.Location.VMName)
 
-	err := d.PreCleanVM(ui, vmPath, s.Force)
+	err := d.PreCleanVM(ui, vmPath, s.Force, s.Location.Cluster, s.Location.Host, s.Location.ResourcePool)
 	if err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt

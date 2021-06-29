@@ -22,7 +22,7 @@ type Driver interface {
 	NewVM(ref *types.ManagedObjectReference) VirtualMachine
 	FindVM(name string) (VirtualMachine, error)
 	FindCluster(name string) (*Cluster, error)
-	PreCleanVM(ui packersdk.Ui, vmPath string, force bool) error
+	PreCleanVM(ui packersdk.Ui, vmPath string, force bool, vsphereCluster string, vsphereHost string, vsphereResourcePool string) error
 	CreateVM(config *CreateConfig) (VirtualMachine, error)
 
 	NewDatastore(ref *types.ManagedObjectReference) Datastore

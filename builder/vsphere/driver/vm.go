@@ -41,6 +41,8 @@ type VirtualMachine interface {
 	WaitForShutdown(ctx context.Context, timeout time.Duration) error
 	CreateSnapshot(name string) error
 	ConvertToTemplate() error
+	IsTemplate() (bool, error)
+	ConvertToVirtualMachine(vsphereCluster string, vsphereHost string, vsphereResourcePool string) error
 	ImportOvfToContentLibrary(ovf vcenter.OVF) error
 	ImportToContentLibrary(template vcenter.Template) error
 	GetDir() (string, error)
@@ -140,7 +142,7 @@ func (d *VCenterDriver) FindVM(name string) (VirtualMachine, error) {
 	}, nil
 }
 
-func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool) error {
+func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, vsphereCluster string, vsphereHost string, vsphereResourcePool string) error {
 	vm, err := d.FindVM(vmPath)
 	if err != nil {
 		if _, ok := err.(*find.NotFoundError); !ok {
@@ -153,7 +155,19 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool) e
 		// power off just in case it is still on
 		_ = vm.PowerOff()
 
-		err := vm.Destroy()
+		// covert to a vm if it is a template so it can be deleted
+		isTemplate, err := vm.IsTemplate()
+		if err != nil {
+			return fmt.Errorf("error determing if the vm is a template%s: %v", vmPath, err)
+		} else if isTemplate {
+			ui.Say(fmt.Sprintf("%s is a template, attempting to convert it to a vm", vmPath))
+			err := vm.ConvertToVirtualMachine(vsphereCluster, vsphereHost, vsphereResourcePool)
+			if err != nil {
+				return fmt.Errorf("error convertng template back to virtual machine for cleanup %s: %v", vmPath, err)
+			}
+		}
+
+		err = vm.Destroy()
 		if err != nil {
 			return fmt.Errorf("error destroying %s: %v", vmPath, err)
 		}
@@ -733,6 +747,33 @@ func (vm *VirtualMachineDriver) CreateSnapshot(name string) error {
 
 func (vm *VirtualMachineDriver) ConvertToTemplate() error {
 	return vm.vm.MarkAsTemplate(vm.driver.ctx)
+}
+
+func (vm *VirtualMachineDriver) IsTemplate() (bool, error) {
+	state, err := vm.vm.IsTemplate(vm.driver.ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return state, nil
+}
+
+func (vm *VirtualMachineDriver) ConvertToVirtualMachine(vsphereCluster string, vsphereHost string, vsphereResourcePool string) error {
+	var host *object.HostSystem
+	if vsphereCluster != "" && vsphereHost != "" {
+		h, err := vm.driver.FindHost(vsphereHost)
+		if err != nil {
+			return err
+		}
+		host = h.host
+	}
+
+	resourcePool, err := vm.driver.FindResourcePool(vsphereCluster, vsphereHost, vsphereResourcePool)
+	if err != nil {
+		return err
+	}
+
+	return vm.vm.MarkAsVirtualMachine(vm.driver.ctx, *resourcePool.pool, host)
 }
 
 func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error {

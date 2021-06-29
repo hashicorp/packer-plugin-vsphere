@@ -60,7 +60,7 @@ func (d *DriverMock) FindCluster(name string) (*Cluster, error) {
 	return nil, nil
 }
 
-func (d *DriverMock) PreCleanVM(ui packersdk.Ui, vmPath string, force bool) error {
+func (d *DriverMock) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, vsphereCluster string, vsphereHost string, vsphereResourcePool string) error {
 	d.PreCleanVMCalled = true
 	if d.PreCleanShouldFail {
 		return fmt.Errorf("pre clean failed")

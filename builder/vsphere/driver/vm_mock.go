@@ -148,6 +148,14 @@ func (vm *VirtualMachineMock) ConvertToTemplate() error {
 	return nil
 }
 
+func (vm *VirtualMachineMock) IsTemplate() (bool, error) {
+	return false, nil
+}
+
+func (vm *VirtualMachineMock) ConvertToVirtualMachine(vsphereCluster string, vsphereHost string, vsphereResourcePool string) error {
+	return nil
+}
+
 func (vm *VirtualMachineMock) ImportOvfToContentLibrary(ovf vcenter.OVF) error {
 	return nil
 }
