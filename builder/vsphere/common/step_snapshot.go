@@ -10,6 +10,7 @@ import (
 
 type StepCreateSnapshot struct {
 	CreateSnapshot bool
+	SnapshotName string
 }
 
 func (s *StepCreateSnapshot) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
@@ -19,7 +20,13 @@ func (s *StepCreateSnapshot) Run(_ context.Context, state multistep.StateBag) mu
 	if s.CreateSnapshot {
 		ui.Say("Creating snapshot...")
 
-		err := vm.CreateSnapshot("Created by Packer")
+		snapshotName := "Created By Packer"
+
+		if s.SnapshotName != "" {
+			snapshotName = s.SnapshotName
+		}
+
+		err := vm.CreateSnapshot(snapshotName)
 		if err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
