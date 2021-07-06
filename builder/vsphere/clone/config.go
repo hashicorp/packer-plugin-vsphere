@@ -36,6 +36,9 @@ type Config struct {
 	// Create a snapshot when set to `true`, so the VM can be used as a base
 	// for linked clones. Defaults to `false`.
 	CreateSnapshot bool `mapstructure:"create_snapshot"`
+	// When `create_snapshot` is `true`, `snapshot_name` determines the name of the snapshot.
+	// Defaults to `Created By Packer`.
+	SnapshotName string `mapstructure:"snapshot_name"`
 	// Convert VM to a template. Defaults to `false`.
 	ConvertToTemplate bool `mapstructure:"convert_to_template"`
 	// Configuration for exporting VM to an ovf file.
