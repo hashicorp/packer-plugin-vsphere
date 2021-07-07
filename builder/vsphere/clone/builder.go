@@ -42,8 +42,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Config: &b.config.ConnectConfig,
 		},
 		&commonsteps.StepCreateCD{
-			Files: b.config.CDConfig.CDFiles,
-			Label: b.config.CDConfig.CDLabel,
+			Files:   b.config.CDConfig.CDFiles,
+			Content: b.config.CDConfig.CDContent,
+			Label:   b.config.CDConfig.CDLabel,
 		},
 		&common.StepRemoteUpload{
 			Datastore:                  b.config.Datastore,
@@ -129,7 +130,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		},
 		&common.StepCreateSnapshot{
 			CreateSnapshot: b.config.CreateSnapshot,
-			SnapshotName: b.config.SnapshotName,
+			SnapshotName:   b.config.SnapshotName,
 		},
 		&common.StepConvertToTemplate{
 			ConvertToTemplate: b.config.ConvertToTemplate,
