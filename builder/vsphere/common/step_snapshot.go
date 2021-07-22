@@ -10,7 +10,7 @@ import (
 
 type StepCreateSnapshot struct {
 	CreateSnapshot bool
-	SnapshotName string
+	SnapshotName   string
 }
 
 func (s *StepCreateSnapshot) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
