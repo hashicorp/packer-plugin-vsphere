@@ -91,7 +91,7 @@ type DiskConfig struct {
 }
 
 type StorageConfig struct {
-	// Set VM disk controller type. Example `lsilogic`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
+	// Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
 	// Defaults to `lsilogic`. See
 	// [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html#GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362)
 	// for additional details.
