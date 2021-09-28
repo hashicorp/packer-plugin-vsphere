@@ -55,6 +55,20 @@ type VCenterDriver struct {
 	datacenter *object.Datacenter
 }
 
+func NewVCenterDriver(ctx context.Context, client *govmomi.Client, vimClient *vim25.Client, user *url.Userinfo, finder *find.Finder, datacenter *object.Datacenter) *VCenterDriver {
+	return &VCenterDriver{
+		ctx:       ctx,
+		client:    client,
+		vimClient: vimClient,
+		restClient: &RestClient{
+			client:      rest.NewClient(vimClient),
+			credentials: user,
+		},
+		datacenter: datacenter,
+		finder:     finder,
+	}
+}
+
 type ConnectConfig struct {
 	VCenterServer      string
 	Username           string

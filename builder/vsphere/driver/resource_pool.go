@@ -74,7 +74,7 @@ func (p *ResourcePool) Path() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if poolInfo.Parent.Type == "ComputeResource" {
+	if poolInfo.Parent.Type == "ComputeResource" || poolInfo.Parent.Type == "ClusterComputeResource" {
 		return "", nil
 	} else {
 		parent := p.driver.NewResourcePool(poolInfo.Parent)
