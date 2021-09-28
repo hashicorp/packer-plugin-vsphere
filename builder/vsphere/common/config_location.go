@@ -51,3 +51,10 @@ func (c *LocationConfig) Prepare() []error {
 
 	return errs
 }
+
+func (c *LocationConfig) String() string {
+	if c.Cluster != "" {
+		return c.Cluster
+	}
+	return c.Host
+}

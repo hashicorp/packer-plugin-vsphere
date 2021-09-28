@@ -1146,6 +1146,18 @@ func (vm *VirtualMachineDriver) GetOvfExportOptions(m *ovf.Manager) ([]types.Ovf
 	return mgr.OvfExportOption, nil
 }
 
+func (vm *VirtualMachineDriver) NewHost(ref *types.ManagedObjectReference) *Host {
+	return vm.driver.NewHost(ref)
+}
+
+func (vm *VirtualMachineDriver) NewResourcePool(ref *types.ManagedObjectReference) *ResourcePool {
+	return vm.driver.NewResourcePool(ref)
+}
+
+func (vm *VirtualMachineDriver) NewDatastore(ref *types.ManagedObjectReference) Datastore {
+	return vm.driver.NewDatastore(ref)
+}
+
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {
 	c := l.SelectByType((*types.VirtualEthernetCard)(nil))
 	if len(c) == 0 {
