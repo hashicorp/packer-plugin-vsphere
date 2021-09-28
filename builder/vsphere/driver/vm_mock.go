@@ -108,6 +108,10 @@ func (vm *VirtualMachineMock) Configure(config *HardwareConfig) error {
 	return nil
 }
 
+func (vm *VirtualMachineMock) Reconfigure(confSpec types.VirtualMachineConfigSpec) error {
+	return nil
+}
+
 func (vm *VirtualMachineMock) Customize(spec types.CustomizationSpec) error {
 	return nil
 }

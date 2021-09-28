@@ -31,6 +31,7 @@ type VirtualMachine interface {
 	Properties(ctx context.Context) (*mo.VirtualMachine, error)
 	Destroy() error
 	Configure(config *HardwareConfig) error
+	Reconfigure(spec types.VirtualMachineConfigSpec) error
 	Customize(spec types.CustomizationSpec) error
 	ResizeDisk(diskSize int64) ([]types.BaseVirtualDeviceConfigSpec, error)
 	WaitForIP(ctx context.Context, ipNet *net.IPNet) (string, error)
@@ -626,6 +627,16 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	return err
 }
 
+func (vm *VirtualMachineDriver) Reconfigure(confSpec types.VirtualMachineConfigSpec) error {
+	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	if err != nil {
+		return err
+	}
+
+	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	return err
+}
+
 func (vm *VirtualMachineDriver) Customize(spec types.CustomizationSpec) error {
 	task, err := vm.vm.Customize(vm.driver.ctx, spec)
 	if err != nil {
@@ -1144,6 +1155,18 @@ func (vm *VirtualMachineDriver) GetOvfExportOptions(m *ovf.Manager) ([]types.Ovf
 		return nil, err
 	}
 	return mgr.OvfExportOption, nil
+}
+
+func (vm *VirtualMachineDriver) NewHost(ref *types.ManagedObjectReference) *Host {
+	return vm.driver.NewHost(ref)
+}
+
+func (vm *VirtualMachineDriver) NewResourcePool(ref *types.ManagedObjectReference) *ResourcePool {
+	return vm.driver.NewResourcePool(ref)
+}
+
+func (vm *VirtualMachineDriver) NewDatastore(ref *types.ManagedObjectReference) Datastore {
+	return vm.driver.NewDatastore(ref)
 }
 
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {
