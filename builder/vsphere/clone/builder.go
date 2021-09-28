@@ -165,10 +165,11 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		return nil, nil
 	}
 	artifact := &common.Artifact{
-		Name:      b.config.VMName,
-		Location:  b.config.LocationConfig,
-		VM:        state.Get("vm").(*driver.VirtualMachineDriver),
-		StateData: map[string]interface{}{"generated_data": state.Get("generated_data")},
+		Name:                 b.config.VMName,
+		Location:             b.config.LocationConfig,
+		ContentLibraryConfig: b.config.ContentLibraryDestinationConfig,
+		VM:                   state.Get("vm").(*driver.VirtualMachineDriver),
+		StateData:            map[string]interface{}{"generated_data": state.Get("generated_data")},
 	}
 	if b.config.Export != nil {
 		artifact.Outconfig = &b.config.Export.OutputDir

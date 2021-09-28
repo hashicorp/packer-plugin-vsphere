@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/vmware/govmomi/vim25/types"
-
 	"github.com/google/go-cmp/cmp"
 	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/simulator"
+	"github.com/vmware/govmomi/vim25/types"
 )
 
 func TestArtifactHCPPackerMetadata(t *testing.T) {
@@ -34,6 +33,10 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 			Host:      host.Name,
 			Datastore: datastore.Name,
 		},
+		ContentLibraryConfig: &ContentLibraryDestinationConfig{
+			Library: "Library-Name",
+			Name:    "Item-Name",
+		},
 		VM:        vm.(*driver.VirtualMachineDriver),
 		StateData: nil,
 	}
@@ -55,13 +58,14 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	// Validate Labels
 	dir, _ := vm.GetDir()
 	expectedLabels := map[string]string{
-		"vm_dir":               dir,
-		"annotation":           vmSim.Config.Annotation,
-		"num_cpu":              fmt.Sprintf("%d", vmSim.Config.Hardware.NumCPU),
-		"num_cores_per_socket": fmt.Sprintf("%d", vmSim.Config.Hardware.NumCoresPerSocket),
-		"memory_mb":            fmt.Sprintf("%d", vmSim.Config.Hardware.MemoryMB),
-		"host":                 host.Name,
-		"datastore":            datastore.Name,
+		"vm_dir":                      dir,
+		"annotation":                  vmSim.Config.Annotation,
+		"num_cpu":                     fmt.Sprintf("%d", vmSim.Config.Hardware.NumCPU),
+		"num_cores_per_socket":        fmt.Sprintf("%d", vmSim.Config.Hardware.NumCoresPerSocket),
+		"memory_mb":                   fmt.Sprintf("%d", vmSim.Config.Hardware.MemoryMB),
+		"host":                        host.Name,
+		"datastore":                   datastore.Name,
+		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
 	}
 	for i, network := range vmSim.Network {
 		key := fmt.Sprintf("network_%d", i)

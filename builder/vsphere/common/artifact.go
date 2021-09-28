@@ -12,10 +12,11 @@ import (
 const BuilderId = "jetbrains.vsphere"
 
 type Artifact struct {
-	Outconfig *OutputConfig
-	Name      string
-	Location  LocationConfig
-	VM        *driver.VirtualMachineDriver
+	Outconfig            *OutputConfig
+	Name                 string
+	Location             LocationConfig
+	VM                   *driver.VirtualMachineDriver
+	ContentLibraryConfig *ContentLibraryDestinationConfig
 
 	// StateData should store data such as GeneratedData
 	// to be shared with post-processors
@@ -110,6 +111,10 @@ func (a *Artifact) getVMInfo(labels map[string]interface{}) map[string]interface
 	for i, network := range info.Network {
 		key := fmt.Sprintf("network_%d", i)
 		labels[key] = network.String()
+	}
+
+	if a.ContentLibraryConfig != nil {
+		labels["content_library_destination"] = fmt.Sprintf("%s/%s", a.ContentLibraryConfig.Library, a.ContentLibraryConfig.Name)
 	}
 
 	return labels
