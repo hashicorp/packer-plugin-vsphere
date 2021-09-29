@@ -89,26 +89,41 @@ func (a *Artifact) getVMInfo(labels map[string]interface{}) map[string]interface
 		labels["memory_mb"] = fmt.Sprintf("%d", info.Config.Hardware.MemoryMB)
 	}
 
-	h := a.VM.NewHost(info.Runtime.Host)
-	hostInfo, err := h.Info("name")
-	if err == nil && hostInfo.Name != "" {
-		labels["host"] = hostInfo.Name
+	if info.Runtime.Host != nil {
+		h := a.VM.NewHost(info.Runtime.Host)
+		hostInfo, err := h.Info("name")
+		if err == nil && hostInfo.Name != "" {
+			labels["host"] = hostInfo.Name
+		}
 	}
 
-	p := a.VM.NewResourcePool(info.ResourcePool)
-	poolPath, err := p.Path()
-	if err == nil && poolPath != "" {
-		labels["resurce_pool"] = poolPath
+	if info.ResourcePool != nil {
+		p := a.VM.NewResourcePool(info.ResourcePool)
+		poolPath, err := p.Path()
+		if err == nil && poolPath != "" {
+			labels["resurce_pool"] = poolPath
+		}
 	}
 
-	dsr := info.Datastore[0].Reference()
-	ds := a.VM.NewDatastore(&dsr)
-	dsInfo, err := ds.Info("name")
-	if err == nil && dsInfo.Name != "" {
-		labels["datastore"] = dsInfo.Name
+	for i, datastore := range info.Datastore {
+		dsr := datastore.Reference()
+		ds := a.VM.NewDatastore(&dsr)
+		dsInfo, err := ds.Info("name")
+		if err == nil && dsInfo.Name != "" {
+			if i == 0 {
+				labels["datastore"] = dsInfo.Name
+				continue
+			}
+			key := fmt.Sprintf("datastore_%d", i)
+			labels[key] = dsInfo.Name
+		}
 	}
 
 	for i, network := range info.Network {
+		if i == 0 {
+			labels["network"] = network.String()
+			continue
+		}
 		key := fmt.Sprintf("network_%d", i)
 		labels[key] = network.String()
 	}

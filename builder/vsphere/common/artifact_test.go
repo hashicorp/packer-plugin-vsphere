@@ -66,11 +66,9 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 		"host":                        host.Name,
 		"datastore":                   datastore.Name,
 		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
+		"network":                     vmSim.Network[0].String(),
 	}
-	for i, network := range vmSim.Network {
-		key := fmt.Sprintf("network_%d", i)
-		expectedLabels[key] = network.String()
-	}
+
 	if diff := cmp.Diff(expectedLabels, metadata.Labels); diff != "" {
 		t.Fatalf("wrong labels: %s", diff)
 	}
