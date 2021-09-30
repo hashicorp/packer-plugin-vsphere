@@ -17,10 +17,10 @@ type Artifact struct {
 	Location             LocationConfig
 	VM                   *driver.VirtualMachineDriver
 	ContentLibraryConfig *ContentLibraryDestinationConfig
-
 	// StateData should store data such as GeneratedData
 	// to be shared with post-processors
 	StateData map[string]interface{}
+	labels    map[string]interface{}
 }
 
 func (a *Artifact) BuilderId() string {
@@ -52,48 +52,44 @@ func (a *Artifact) State(name string) interface{} {
 
 // stateHCPPackerRegistryMetadata will write the metadata as an hcpRegistryImage
 func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
-	labels := make(map[string]interface{})
 	floppyPath, ok := a.StateData["uploaded_floppy_path"].(string)
 	if ok && floppyPath != "" {
-		labels["uploaded_floppy_path"] = floppyPath
+		a.labels["uploaded_floppy_path"] = floppyPath
 	}
-	labels = a.getVMInfo(labels)
 
 	img, _ := registryimage.FromArtifact(a,
 		registryimage.WithID(a.Name),
 		registryimage.WithRegion(a.Location.String()),
 		registryimage.WithProvider("vsphere"),
-		registryimage.SetLabels(labels),
+		registryimage.SetLabels(a.labels),
 	)
 	return img
 }
 
-func (a *Artifact) getVMInfo(labels map[string]interface{}) map[string]interface{} {
-	if dir, err := a.VM.GetDir(); err == nil {
-		labels["vm_dir"] = dir
+func (a *Artifact) WriteVMInfoIntoLabels() {
+	if a.labels == nil {
+		a.labels = make(map[string]interface{})
 	}
-
 	info, err := a.VM.Info("config.annotation", "config.hardware", "runtime.host", "resourcePool", "datastore", "network", "summary")
 	if err != nil || info == nil {
 		log.Printf("[TRACE] error extracting VM metadata: %s", err)
-		return labels
+		return
 	}
 	if info.Config != nil {
 		if info.Config.Annotation != "" {
 			// VM description
-			labels["annotation"] = info.Config.Annotation
+			a.labels["annotation"] = info.Config.Annotation
 		}
 		// Hardware
-		labels["num_cpu"] = fmt.Sprintf("%d", info.Config.Hardware.NumCPU)
-		labels["num_cores_per_socket"] = fmt.Sprintf("%d", info.Config.Hardware.NumCoresPerSocket)
-		labels["memory_mb"] = fmt.Sprintf("%d", info.Config.Hardware.MemoryMB)
+		a.labels["num_cpu"] = fmt.Sprintf("%d", info.Config.Hardware.NumCPU)
+		a.labels["memory_mb"] = fmt.Sprintf("%d", info.Config.Hardware.MemoryMB)
 	}
 
 	if info.Runtime.Host != nil {
 		h := a.VM.NewHost(info.Runtime.Host)
 		hostInfo, err := h.Info("name")
 		if err == nil && hostInfo.Name != "" {
-			labels["host"] = hostInfo.Name
+			a.labels["host"] = hostInfo.Name
 		}
 	}
 
@@ -101,7 +97,7 @@ func (a *Artifact) getVMInfo(labels map[string]interface{}) map[string]interface
 		p := a.VM.NewResourcePool(info.ResourcePool)
 		poolPath, err := p.Path()
 		if err == nil && poolPath != "" {
-			labels["resurce_pool"] = poolPath
+			a.labels["resurce_pool"] = poolPath
 		}
 	}
 
@@ -111,28 +107,31 @@ func (a *Artifact) getVMInfo(labels map[string]interface{}) map[string]interface
 		dsInfo, err := ds.Info("name")
 		if err == nil && dsInfo.Name != "" {
 			if i == 0 {
-				labels["datastore"] = dsInfo.Name
+				a.labels["datastore"] = dsInfo.Name
 				continue
 			}
 			key := fmt.Sprintf("datastore_%d", i)
-			labels[key] = dsInfo.Name
+			a.labels[key] = dsInfo.Name
 		}
 	}
 
 	for i, network := range info.Network {
-		if i == 0 {
-			labels["network"] = network.String()
-			continue
+		net := network.Reference()
+		n := a.VM.NewNetwork(&net)
+		networkInfo, err := n.Info("name")
+		if err == nil && networkInfo.Name != "" {
+			if i == 0 {
+				a.labels["network"] = networkInfo.Name
+				continue
+			}
+			key := fmt.Sprintf("network_%d", i)
+			a.labels[key] = network.String()
 		}
-		key := fmt.Sprintf("network_%d", i)
-		labels[key] = network.String()
 	}
 
 	if a.ContentLibraryConfig != nil {
-		labels["content_library_destination"] = fmt.Sprintf("%s/%s", a.ContentLibraryConfig.Library, a.ContentLibraryConfig.Name)
+		a.labels["content_library_destination"] = fmt.Sprintf("%s/%s", a.ContentLibraryConfig.Library, a.ContentLibraryConfig.Name)
 	}
-
-	return labels
 }
 
 func (a *Artifact) Destroy() error {

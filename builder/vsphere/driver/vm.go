@@ -1169,6 +1169,10 @@ func (vm *VirtualMachineDriver) NewDatastore(ref *types.ManagedObjectReference) 
 	return vm.driver.NewDatastore(ref)
 }
 
+func (vm *VirtualMachineDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
+	return vm.driver.NewNetwork(ref)
+}
+
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {
 	c := l.SelectByType((*types.VirtualEthernetCard)(nil))
 	if len(c) == 0 {

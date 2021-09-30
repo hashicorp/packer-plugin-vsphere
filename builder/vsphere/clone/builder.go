@@ -174,6 +174,8 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	if b.config.Export != nil {
 		artifact.Outconfig = &b.config.Export.OutputDir
 	}
-
+	// Before the artifact is destroyed, we make sure the VM info is
+	// saved into labels
+	artifact.WriteVMInfoIntoLabels()
 	return artifact, nil
 }
