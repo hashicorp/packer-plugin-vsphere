@@ -10,10 +10,11 @@ import (
 // FlatFloppyConfig is an auto-generated flat version of FloppyConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatFloppyConfig struct {
-	FloppyIMGPath     *string  `mapstructure:"floppy_img_path" cty:"floppy_img_path" hcl:"floppy_img_path"`
-	FloppyFiles       []string `mapstructure:"floppy_files" cty:"floppy_files" hcl:"floppy_files"`
-	FloppyDirectories []string `mapstructure:"floppy_dirs" cty:"floppy_dirs" hcl:"floppy_dirs"`
-	FloppyLabel       *string  `mapstructure:"floppy_label" cty:"floppy_label" hcl:"floppy_label"`
+	FloppyIMGPath     *string           `mapstructure:"floppy_img_path" cty:"floppy_img_path" hcl:"floppy_img_path"`
+	FloppyFiles       []string          `mapstructure:"floppy_files" cty:"floppy_files" hcl:"floppy_files"`
+	FloppyDirectories []string          `mapstructure:"floppy_dirs" cty:"floppy_dirs" hcl:"floppy_dirs"`
+	FloppyContent     map[string]string `mapstructure:"floppy_content" cty:"floppy_content" hcl:"floppy_content"`
+	FloppyLabel       *string           `mapstructure:"floppy_label" cty:"floppy_label" hcl:"floppy_label"`
 }
 
 // FlatMapstructure returns a new FlatFloppyConfig.
@@ -31,6 +32,7 @@ func (*FlatFloppyConfig) HCL2Spec() map[string]hcldec.Spec {
 		"floppy_img_path": &hcldec.AttrSpec{Name: "floppy_img_path", Type: cty.String, Required: false},
 		"floppy_files":    &hcldec.AttrSpec{Name: "floppy_files", Type: cty.List(cty.String), Required: false},
 		"floppy_dirs":     &hcldec.AttrSpec{Name: "floppy_dirs", Type: cty.List(cty.String), Required: false},
+		"floppy_content":  &hcldec.AttrSpec{Name: "floppy_content", Type: cty.Map(cty.String), Required: false},
 		"floppy_label":    &hcldec.AttrSpec{Name: "floppy_label", Type: cty.String, Required: false},
 	}
 	return s
