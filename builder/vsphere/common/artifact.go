@@ -7,6 +7,7 @@ import (
 
 	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/govmomi/object"
 )
 
 const BuilderId = "jetbrains.vsphere"
@@ -15,6 +16,7 @@ type Artifact struct {
 	Outconfig            *OutputConfig
 	Name                 string
 	Location             LocationConfig
+	Datacenter           *object.Datacenter
 	VM                   *driver.VirtualMachineDriver
 	ContentLibraryConfig *ContentLibraryDestinationConfig
 	// StateData should store data such as GeneratedData
@@ -59,7 +61,7 @@ func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
 
 	img, _ := registryimage.FromArtifact(a,
 		registryimage.WithID(a.Name),
-		registryimage.WithRegion(a.Location.String()),
+		registryimage.WithRegion(a.Datacenter.Name()),
 		registryimage.WithProvider("vsphere"),
 		registryimage.SetLabels(a.labels),
 	)
@@ -70,27 +72,31 @@ func (a *Artifact) WriteVMInfoIntoLabels() {
 	if a.labels == nil {
 		a.labels = make(map[string]interface{})
 	}
-	info, err := a.VM.Info("config.annotation", "config.hardware", "runtime.host", "resourcePool", "datastore", "network", "summary")
+
+	if a.Location.Cluster != "" {
+		a.labels["cluster"] = a.Location.Cluster
+	}
+
+	if a.Location.Host != "" {
+		a.labels["host"] = a.Location.Host
+	}
+
+	info, err := a.VM.Info("config.uuid", "config.annotation", "config.hardware", "resourcePool", "datastore", "network", "summary")
 	if err != nil || info == nil {
 		log.Printf("[TRACE] error extracting VM metadata: %s", err)
 		return
 	}
 	if info.Config != nil {
+		a.labels["vsphere_uuid"] = info.Config.Uuid
+
+		// VM description
 		if info.Config.Annotation != "" {
-			// VM description
 			a.labels["annotation"] = info.Config.Annotation
 		}
+
 		// Hardware
 		a.labels["num_cpu"] = fmt.Sprintf("%d", info.Config.Hardware.NumCPU)
 		a.labels["memory_mb"] = fmt.Sprintf("%d", info.Config.Hardware.MemoryMB)
-	}
-
-	if info.Runtime.Host != nil {
-		h := a.VM.NewHost(info.Runtime.Host)
-		hostInfo, err := h.Info("name")
-		if err == nil && hostInfo.Name != "" {
-			a.labels["host"] = hostInfo.Name
-		}
 	}
 
 	if info.ResourcePool != nil {

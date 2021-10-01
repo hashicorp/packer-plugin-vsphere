@@ -56,6 +56,7 @@ type VirtualMachine interface {
 	CreateDescriptor(m *ovf.Manager, cdp types.OvfCreateDescriptorParams) (*types.OvfCreateDescriptorResult, error)
 	NewOvfManager() *ovf.Manager
 	GetOvfExportOptions(m *ovf.Manager) ([]types.OvfOptionInfo, error)
+	Datacenter() *object.Datacenter
 
 	AddCdrom(controllerType string, datastoreIsoPath string) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
@@ -1171,6 +1172,10 @@ func (vm *VirtualMachineDriver) NewDatastore(ref *types.ManagedObjectReference) 
 
 func (vm *VirtualMachineDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
 	return vm.driver.NewNetwork(ref)
+}
+
+func (vm *VirtualMachineDriver) Datacenter() *object.Datacenter {
+	return vm.driver.datacenter
 }
 
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {

@@ -27,8 +27,9 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	host := simulator.Map.Get(*vmSim.Runtime.Host).(*simulator.HostSystem)
 
 	artifact := &Artifact{
-		Outconfig: nil,
-		Name:      vmSim.Name,
+		Outconfig:  nil,
+		Name:       vmSim.Name,
+		Datacenter: vm.Datacenter(),
 		Location: LocationConfig{
 			Host:      host.Name,
 			Datastore: datastore.Name,
@@ -52,7 +53,7 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	if metadata.ProviderName != "vsphere" {
 		t.Fatalf("unexpected provider name: %s", metadata.ProviderName)
 	}
-	if metadata.ProviderRegion != host.Name {
+	if metadata.ProviderRegion != vm.Datacenter().Name() {
 		t.Fatalf("unexpected provider region: %s", metadata.ProviderRegion)
 	}
 
@@ -65,6 +66,7 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 		"datastore":                   datastore.Name,
 		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
 		"network":                     "DC0_DVPG0",
+		"vsphere_uuid":                vmSim.Config.Uuid,
 	}
 
 	if diff := cmp.Diff(expectedLabels, metadata.Labels); diff != "" {

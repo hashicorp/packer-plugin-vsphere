@@ -245,3 +245,7 @@ func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
 	return vm.EjectCdromsErr
 }
+
+func (vm *VirtualMachineMock) Datacenter() *object.Datacenter {
+	return nil
+}
