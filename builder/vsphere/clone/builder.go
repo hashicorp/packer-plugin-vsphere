@@ -171,13 +171,13 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		Location:             b.config.LocationConfig,
 		ContentLibraryConfig: b.config.ContentLibraryDestinationConfig,
 		VM:                   vm,
-		StateData:            map[string]interface{}{"generated_data": state.Get("generated_data")},
+		StateData: map[string]interface{}{
+			"generated_data": state.Get("generated_data"),
+			"metadata":       state.Get("metadata"),
+		},
 	}
 	if b.config.Export != nil {
 		artifact.Outconfig = &b.config.Export.OutputDir
 	}
-	// Before the artifact is destroyed, we make sure the VM info is
-	// saved into labels
-	artifact.WriteVMInfoIntoLabels()
 	return artifact, nil
 }

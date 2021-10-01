@@ -26,6 +26,16 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	datastore := simulator.Map.Get(vmSim.Datastore[0]).(*simulator.Datastore)
 	host := simulator.Map.Get(*vmSim.Runtime.Host).(*simulator.HostSystem)
 
+	expectedLabels := map[string]string{
+		"annotation":                  vmSim.Config.Annotation,
+		"num_cpu":                     fmt.Sprintf("%d", vmSim.Config.Hardware.NumCPU),
+		"memory_mb":                   fmt.Sprintf("%d", vmSim.Config.Hardware.MemoryMB),
+		"host":                        host.Name,
+		"datastore":                   datastore.Name,
+		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
+		"network":                     "DC0_DVPG0",
+		"vsphere_uuid":                vmSim.Config.Uuid,
+	}
 	artifact := &Artifact{
 		Outconfig:  nil,
 		Name:       vmSim.Name,
@@ -38,10 +48,11 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 			Library: "Library-Name",
 			Name:    "Item-Name",
 		},
-		VM:        vm.(*driver.VirtualMachineDriver),
-		StateData: nil,
+		VM: vm.(*driver.VirtualMachineDriver),
+		StateData: map[string]interface{}{
+			"metadata": expectedLabels,
+		},
 	}
-	artifact.WriteVMInfoIntoLabels()
 
 	metadata, ok := artifact.State(registryimage.ArtifactStateURI).(*registryimage.Image)
 	if !ok {
@@ -56,19 +67,6 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	if metadata.ProviderRegion != vm.Datacenter().Name() {
 		t.Fatalf("unexpected provider region: %s", metadata.ProviderRegion)
 	}
-
-	// Validate Labels
-	expectedLabels := map[string]string{
-		"annotation":                  vmSim.Config.Annotation,
-		"num_cpu":                     fmt.Sprintf("%d", vmSim.Config.Hardware.NumCPU),
-		"memory_mb":                   fmt.Sprintf("%d", vmSim.Config.Hardware.MemoryMB),
-		"host":                        host.Name,
-		"datastore":                   datastore.Name,
-		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
-		"network":                     "DC0_DVPG0",
-		"vsphere_uuid":                vmSim.Config.Uuid,
-	}
-
 	if diff := cmp.Diff(expectedLabels, metadata.Labels); diff != "" {
 		t.Fatalf("wrong labels: %s", diff)
 	}
