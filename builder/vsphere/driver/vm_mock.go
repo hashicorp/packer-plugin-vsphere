@@ -108,6 +108,10 @@ func (vm *VirtualMachineMock) Configure(config *HardwareConfig) error {
 	return nil
 }
 
+func (vm *VirtualMachineMock) Reconfigure(confSpec types.VirtualMachineConfigSpec) error {
+	return nil
+}
+
 func (vm *VirtualMachineMock) Customize(spec types.CustomizationSpec) error {
 	return nil
 }
@@ -240,4 +244,8 @@ func (vm *VirtualMachineMock) RemoveCdroms() error {
 func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
 	return vm.EjectCdromsErr
+}
+
+func (vm *VirtualMachineMock) Datacenter() *object.Datacenter {
+	return nil
 }

@@ -146,6 +146,14 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 		state.Put("destroy_vm", s.ContentLibConfig.Destroy)
 	}
 
+	// For HCP Packer metadata, we save the template's datastore in state.
+	datastores, err := vm.FindContentLibraryTemplateDatastoreName(s.ContentLibConfig.Library)
+	if err != nil {
+		ui.Say(fmt.Sprintf("[TRACE] Failed to get Content Library datastore name: %s", err.Error()))
+	} else {
+		state.Put("content_library_datastore", datastores)
+	}
+
 	return multistep.ActionContinue
 }
 
