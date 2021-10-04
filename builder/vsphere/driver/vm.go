@@ -1178,6 +1178,28 @@ func (vm *VirtualMachineDriver) Datacenter() *object.Datacenter {
 	return vm.driver.datacenter
 }
 
+func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library string) ([]string, error) {
+	err := vm.driver.restClient.Login(vm.driver.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	l, err := vm.driver.FindContentLibraryByName(library)
+	if err != nil {
+		return nil, err
+	}
+	datastores := []string{}
+	for _, storage := range l.library.Storage {
+		name, err := vm.driver.GetDatastoreName(storage.DatastoreID)
+		if err != nil {
+			log.Printf("Failed to get Content Library datastore name: %s", err.Error())
+			continue
+		}
+		datastores = append(datastores, name)
+	}
+	return datastores, nil
+}
+
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {
 	c := l.SelectByType((*types.VirtualEthernetCard)(nil))
 	if len(c) == 0 {

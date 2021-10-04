@@ -15,7 +15,7 @@ func CleanupVM(state multistep.StateBag) {
 
 	if vmDriver, ok := vm.(*driver.VirtualMachineDriver); ok {
 		// Make sure we get VM metadata before destroying it
-		state.Put("metadata", GetVMMetadata(vmDriver))
+		state.Put("metadata", GetVMMetadata(vmDriver, state))
 	}
 
 	_, cancelled := state.GetOk(multistep.StateCancelled)

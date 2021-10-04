@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
-func GetVMMetadata(vm *driver.VirtualMachineDriver) map[string]string {
+func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) map[string]string {
 	labels := make(map[string]string)
 
 	info, err := vm.Info("config.uuid", "config.annotation", "config.hardware", "resourcePool", "datastore", "network", "summary")
@@ -63,5 +64,17 @@ func GetVMMetadata(vm *driver.VirtualMachineDriver) map[string]string {
 			labels[key] = network.String()
 		}
 	}
+
+	if datastores, ok := state.Get("content_library_datastore").([]string); ok {
+		for i, ds := range datastores {
+			if i == 0 {
+				labels["template_datastore"] = ds
+				continue
+			}
+			key := fmt.Sprintf("template_datastore_%d", i)
+			labels[key] = ds
+		}
+	}
+
 	return labels
 }
