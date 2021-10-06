@@ -49,6 +49,7 @@ func TestVirtualMachineDriver_Configure(t *testing.T) {
 		VGPUProfile:    "grid_m10-8q",
 		Firmware:       "efi-secure",
 		ForceBIOSSetup: true,
+		VTPMEnabled:    true,
 	}
 	if err = vm.Configure(hardwareConfig); err != nil {
 		t.Fatalf("should not fail: %s", err.Error())

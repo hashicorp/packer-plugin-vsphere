@@ -24,6 +24,7 @@ type FlatHardwareConfig struct {
 	NestedHV            *bool   `mapstructure:"NestedHV" cty:"NestedHV" hcl:"NestedHV"`
 	Firmware            *string `mapstructure:"firmware" cty:"firmware" hcl:"firmware"`
 	ForceBIOSSetup      *bool   `mapstructure:"force_bios_setup" cty:"force_bios_setup" hcl:"force_bios_setup"`
+	VTPMEnabled         *bool   `mapstructure:"vTPM" cty:"vTPM" hcl:"vTPM"`
 }
 
 // FlatMapstructure returns a new FlatHardwareConfig.
@@ -52,6 +53,7 @@ func (*FlatHardwareConfig) HCL2Spec() map[string]hcldec.Spec {
 		"NestedHV":         &hcldec.AttrSpec{Name: "NestedHV", Type: cty.Bool, Required: false},
 		"firmware":         &hcldec.AttrSpec{Name: "firmware", Type: cty.String, Required: false},
 		"force_bios_setup": &hcldec.AttrSpec{Name: "force_bios_setup", Type: cty.Bool, Required: false},
+		"vTPM":             &hcldec.AttrSpec{Name: "vTPM", Type: cty.Bool, Required: false},
 	}
 	return s
 }
