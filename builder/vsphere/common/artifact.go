@@ -76,7 +76,7 @@ func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
 	// this is where the iso was downloaded from
 	sourceURL, ok := a.StateData["SourceImageURL"].(string)
 	if ok {
-		labels["source_image_url"] = a.StateData["SourceImageURL"].(string)
+		labels["source_image_url"] = sourceURL
 	}
 	// This is where the iso was uploaded to on the remote vsphere datastore
 	var sourceID string
@@ -95,7 +95,7 @@ func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
 		registryimage.WithID(a.Name),
 		registryimage.WithRegion(a.Datacenter.Name()),
 		registryimage.WithProvider("vsphere"),
-		registryimage.WithSourceID(a.template),
+		registryimage.WithSourceID(sourceID),
 		registryimage.SetLabels(labels),
 	)
 

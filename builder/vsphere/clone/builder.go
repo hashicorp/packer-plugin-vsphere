@@ -174,7 +174,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		StateData: map[string]interface{}{
 			"generated_data":  state.Get("generated_data"),
 			"metadata":        state.Get("metadata"),
-			"source_template": s.Config.Template,
+			"source_template": b.config.Template,
 		},
 	}
 	if b.config.Export != nil {
