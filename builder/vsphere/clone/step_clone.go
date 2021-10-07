@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
@@ -68,9 +69,10 @@ func (c *CloneConfig) Prepare() []error {
 }
 
 type StepCloneVM struct {
-	Config   *CloneConfig
-	Location *common.LocationConfig
-	Force    bool
+	Config        *CloneConfig
+	Location      *common.LocationConfig
+	Force         bool
+	GeneratedData *packerbuilderdata.GeneratedData
 }
 
 func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
