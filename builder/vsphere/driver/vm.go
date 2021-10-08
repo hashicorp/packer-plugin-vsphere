@@ -31,6 +31,7 @@ type VirtualMachine interface {
 	Properties(ctx context.Context) (*mo.VirtualMachine, error)
 	Destroy() error
 	Configure(config *HardwareConfig) error
+	Reconfigure(spec types.VirtualMachineConfigSpec) error
 	Customize(spec types.CustomizationSpec) error
 	ResizeDisk(diskSize int64) ([]types.BaseVirtualDeviceConfigSpec, error)
 	WaitForIP(ctx context.Context, ipNet *net.IPNet) (string, error)
@@ -55,6 +56,7 @@ type VirtualMachine interface {
 	CreateDescriptor(m *ovf.Manager, cdp types.OvfCreateDescriptorParams) (*types.OvfCreateDescriptorResult, error)
 	NewOvfManager() *ovf.Manager
 	GetOvfExportOptions(m *ovf.Manager) ([]types.OvfOptionInfo, error)
+	Datacenter() *object.Datacenter
 
 	AddCdrom(controllerType string, datastoreIsoPath string) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
@@ -626,6 +628,16 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	return err
 }
 
+func (vm *VirtualMachineDriver) Reconfigure(confSpec types.VirtualMachineConfigSpec) error {
+	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	if err != nil {
+		return err
+	}
+
+	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	return err
+}
+
 func (vm *VirtualMachineDriver) Customize(spec types.CustomizationSpec) error {
 	task, err := vm.vm.Customize(vm.driver.ctx, spec)
 	if err != nil {
@@ -1144,6 +1156,48 @@ func (vm *VirtualMachineDriver) GetOvfExportOptions(m *ovf.Manager) ([]types.Ovf
 		return nil, err
 	}
 	return mgr.OvfExportOption, nil
+}
+
+func (vm *VirtualMachineDriver) NewHost(ref *types.ManagedObjectReference) *Host {
+	return vm.driver.NewHost(ref)
+}
+
+func (vm *VirtualMachineDriver) NewResourcePool(ref *types.ManagedObjectReference) *ResourcePool {
+	return vm.driver.NewResourcePool(ref)
+}
+
+func (vm *VirtualMachineDriver) NewDatastore(ref *types.ManagedObjectReference) Datastore {
+	return vm.driver.NewDatastore(ref)
+}
+
+func (vm *VirtualMachineDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
+	return vm.driver.NewNetwork(ref)
+}
+
+func (vm *VirtualMachineDriver) Datacenter() *object.Datacenter {
+	return vm.driver.datacenter
+}
+
+func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library string) ([]string, error) {
+	err := vm.driver.restClient.Login(vm.driver.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	l, err := vm.driver.FindContentLibraryByName(library)
+	if err != nil {
+		return nil, err
+	}
+	datastores := []string{}
+	for _, storage := range l.library.Storage {
+		name, err := vm.driver.GetDatastoreName(storage.DatastoreID)
+		if err != nil {
+			log.Printf("Failed to get Content Library datastore name: %s", err.Error())
+			continue
+		}
+		datastores = append(datastores, name)
+	}
+	return datastores, nil
 }
 
 func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCard, error) {
