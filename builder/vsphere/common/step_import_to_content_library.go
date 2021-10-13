@@ -63,6 +63,8 @@ type ContentLibraryDestinationConfig struct {
 	Destroy bool `mapstructure:"destroy"`
 	// When set to true, Packer will import and OVF template to the content library item. Defaults to `false`.
 	Ovf bool `mapstructure:"ovf"`
+	// When set to true, the VM won't be imported to the content library item. Useful for setting to `true` during a build test stage. Defaults to `false`.
+	SkipImport bool `mapstructure:"skip_import"`
 }
 
 func (c *ContentLibraryDestinationConfig) Prepare(lc *LocationConfig) []error {
@@ -118,6 +120,11 @@ type StepImportToContentLibrary struct {
 
 func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
+	if s.ContentLibConfig.SkipImport {
+		ui.Say("Skipping import...")
+		return multistep.ActionContinue
+	}
+
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 	var err error
 

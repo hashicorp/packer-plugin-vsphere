@@ -20,6 +20,7 @@ type FlatContentLibraryDestinationConfig struct {
 	Datastore    *string `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
 	Destroy      *bool   `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
 	Ovf          *bool   `mapstructure:"ovf" cty:"ovf" hcl:"ovf"`
+	SkipImport   *bool   `mapstructure:"skip_import" cty:"skip_import" hcl:"skip_import"`
 }
 
 // FlatMapstructure returns a new FlatContentLibraryDestinationConfig.
@@ -44,6 +45,7 @@ func (*FlatContentLibraryDestinationConfig) HCL2Spec() map[string]hcldec.Spec {
 		"datastore":     &hcldec.AttrSpec{Name: "datastore", Type: cty.String, Required: false},
 		"destroy":       &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
 		"ovf":           &hcldec.AttrSpec{Name: "ovf", Type: cty.Bool, Required: false},
+		"skip_import":   &hcldec.AttrSpec{Name: "skip_import", Type: cty.Bool, Required: false},
 	}
 	return s
 }
