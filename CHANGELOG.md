@@ -1,3 +1,14 @@
+## 1.0.2 (October 18, 2021)
+
+## IMPROVEMENTS:
+* Add `floppy_content` parameter, which is similar to `http_content` and
+    `cd_content`, but for floppy. [GH-117]
+* Add HCP Packer registry image metadata to all artifacts. [GH-115]
+    [GH-120]
+* Add skip_import parameter in content_library_destination configuration.
+    [GH-121]
+* Update packer-plugin-sdk to latest version v0.2.7 [GH-118]
+
 ## 1.0.1 (July 22, 2021)
 
 * Pass `cd_content` config to vSphere ISO and Clone builders [GH-87]
