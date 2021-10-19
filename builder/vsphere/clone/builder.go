@@ -173,8 +173,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		ContentLibraryConfig: b.config.ContentLibraryDestinationConfig,
 		VM:                   vm,
 		StateData: map[string]interface{}{
-			"generated_data": state.Get("generated_data"),
-			"metadata":       state.Get("metadata"),
+			"generated_data":  state.Get("generated_data"),
+			"metadata":        state.Get("metadata"),
+			"source_template": b.config.Template,
 		},
 	}
 	if b.config.Export != nil {

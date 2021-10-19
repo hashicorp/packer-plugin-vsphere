@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
@@ -117,9 +118,10 @@ func (c *CreateConfig) Prepare() []error {
 }
 
 type StepCreateVM struct {
-	Config   *CreateConfig
-	Location *common.LocationConfig
-	Force    bool
+	Config        *CreateConfig
+	Location      *common.LocationConfig
+	Force         bool
+	GeneratedData *packerbuilderdata.GeneratedData
 }
 
 func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {

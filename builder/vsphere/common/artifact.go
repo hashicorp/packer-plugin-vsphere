@@ -73,13 +73,32 @@ func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
 	if a.ContentLibraryConfig != nil {
 		labels["content_library_destination"] = fmt.Sprintf("%s/%s", a.ContentLibraryConfig.Library, a.ContentLibraryConfig.Name)
 	}
+	// this is where the iso was downloaded from
+	sourceURL, ok := a.StateData["SourceImageURL"].(string)
+	if ok {
+		labels["source_image_url"] = sourceURL
+	}
+	// This is where the iso was uploaded to on the remote vsphere datastore
+	var sourceID string
+	isoPath, ok := a.StateData["iso_path"].(string)
+	if ok {
+		sourceID = isoPath
+	}
+
+	// If a clone, the source comes from a different place.
+	templatePath, ok := a.StateData["source_template"].(string)
+	if ok {
+		sourceID = templatePath
+	}
 
 	img, _ := registryimage.FromArtifact(a,
 		registryimage.WithID(a.Name),
 		registryimage.WithRegion(a.Datacenter.Name()),
 		registryimage.WithProvider("vsphere"),
+		registryimage.WithSourceID(sourceID),
 		registryimage.SetLabels(labels),
 	)
+
 	return img
 }
 

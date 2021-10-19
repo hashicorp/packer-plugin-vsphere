@@ -178,6 +178,8 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		StateData: map[string]interface{}{
 			"generated_data": state.Get("generated_data"),
 			"metadata":       state.Get("metadata"),
+			"SourceImageURL": state.Get("SourceImageURL"),
+			"iso_path":       state.Get("iso_path"),
 		},
 	}
 

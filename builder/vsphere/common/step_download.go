@@ -55,6 +55,7 @@ func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multis
 		if exists := ds.FileExists(remotePath); exists {
 			ui.Say(fmt.Sprintf("File %s already uploaded; continuing", targetPath))
 			state.Put(s.ResultKey, targetPath)
+			state.Put("SourceImageURL", source)
 			return multistep.ActionContinue
 		}
 	}
