@@ -59,13 +59,13 @@ import (
 // ./output_vsphere/example-ubuntu.ovf
 // ```
 type ExportConfig struct {
-	// name of the ovf. defaults to the name of the VM
+	// Name of the ovf. defaults to the name of the VM
 	Name string `mapstructure:"name"`
-	// overwrite ovf if it exists
+	// Overwrite ovf if it exists
 	Force bool `mapstructure:"force"`
-	// include iso and img image files that are attached to the VM
+	// Include additional image files that are attached to the VM, such as nvram, iso, img.
 	Images bool `mapstructure:"images"`
-	// generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
+	// Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
 	Manifest string `mapstructure:"manifest"`
 	// Directory on the computer running Packer to export files to
 	OutputDir OutputConfig `mapstructure:",squash"`
@@ -111,7 +111,7 @@ func (c *ExportConfig) Prepare(ctx *interpolate.Context, lc *LocationConfig, pc 
 		c.Manifest = "sha256"
 	}
 	if _, ok := sha[c.Manifest]; !ok {
-		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unknown hash: %s. available options include available options being 'none', 'sha1', 'sha256', 'sha512'", c.Manifest))
+		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unknown hash: %s: available options include available options being 'none', 'sha1', 'sha256', 'sha512'", c.Manifest))
 	}
 
 	if c.Name == "" {
