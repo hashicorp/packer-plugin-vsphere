@@ -148,12 +148,12 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 
 	if b.config.Export != nil {
 		steps = append(steps, &common.StepExport{
-			Name:      b.config.Export.Name,
-			Force:     b.config.Export.Force,
-			Images:    b.config.Export.Images,
-			Manifest:  b.config.Export.Manifest,
-			OutputDir: b.config.Export.OutputDir.OutputDir,
-			Options:   b.config.Export.Options,
+			Name:       b.config.Export.Name,
+			Force:      b.config.Export.Force,
+			ImageFiles: b.config.Export.Images,
+			Manifest:   b.config.Export.Manifest,
+			OutputDir:  b.config.Export.OutputDir.OutputDir,
+			Options:    b.config.Export.Options,
 		})
 	}
 

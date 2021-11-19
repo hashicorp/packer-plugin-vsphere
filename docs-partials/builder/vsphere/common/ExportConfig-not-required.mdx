@@ -4,7 +4,9 @@
 
 - `force` (bool) - Overwrite ovf if it exists
 
-- `images` (bool) - Include additional image files that are attached to the VM, such as nvram, iso, img.
+- `images` (bool) - Deprecated: Images will be removed in a future release. Please see `image_files` for more details on this argument.
+
+- `image_files` (bool) - Include additional image files that are attached to the VM, such as nvram, iso, img.
 
 - `manifest` (string) - Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
 
