@@ -65,7 +65,7 @@ type ExportConfig struct {
 	Force bool `mapstructure:"force"`
 	// Deprecated: Images will be removed in a future release. Please see `image_files` for more details on this argument.
 	Images bool `mapstructure:"images"`
-	// Include additional image files that are attached to the VM, such as nvram, iso, img.
+	// In exported files, include additional image files that are attached to the VM, such as nvram, iso, img.
 	ImageFiles bool `mapstructure:"image_files"`
 	// Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
 	Manifest string `mapstructure:"manifest"`
