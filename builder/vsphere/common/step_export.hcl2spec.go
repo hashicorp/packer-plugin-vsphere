@@ -12,13 +12,14 @@ import (
 // FlatExportConfig is an auto-generated flat version of ExportConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatExportConfig struct {
-	Name      *string      `mapstructure:"name" cty:"name" hcl:"name"`
-	Force     *bool        `mapstructure:"force" cty:"force" hcl:"force"`
-	Images    *bool        `mapstructure:"images" cty:"images" hcl:"images"`
-	Manifest  *string      `mapstructure:"manifest" cty:"manifest" hcl:"manifest"`
-	OutputDir *string      `mapstructure:"output_directory" required:"false" cty:"output_directory" hcl:"output_directory"`
-	DirPerm   *fs.FileMode `mapstructure:"directory_permission" required:"false" cty:"directory_permission" hcl:"directory_permission"`
-	Options   []string     `mapstructure:"options" cty:"options" hcl:"options"`
+	Name       *string      `mapstructure:"name" cty:"name" hcl:"name"`
+	Force      *bool        `mapstructure:"force" cty:"force" hcl:"force"`
+	Images     *bool        `mapstructure:"images" cty:"images" hcl:"images"`
+	ImageFiles *bool        `mapstructure:"image_files" cty:"image_files" hcl:"image_files"`
+	Manifest   *string      `mapstructure:"manifest" cty:"manifest" hcl:"manifest"`
+	OutputDir  *string      `mapstructure:"output_directory" required:"false" cty:"output_directory" hcl:"output_directory"`
+	DirPerm    *fs.FileMode `mapstructure:"directory_permission" required:"false" cty:"directory_permission" hcl:"directory_permission"`
+	Options    []string     `mapstructure:"options" cty:"options" hcl:"options"`
 }
 
 // FlatMapstructure returns a new FlatExportConfig.
@@ -36,6 +37,7 @@ func (*FlatExportConfig) HCL2Spec() map[string]hcldec.Spec {
 		"name":                 &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
 		"force":                &hcldec.AttrSpec{Name: "force", Type: cty.Bool, Required: false},
 		"images":               &hcldec.AttrSpec{Name: "images", Type: cty.Bool, Required: false},
+		"image_files":          &hcldec.AttrSpec{Name: "image_files", Type: cty.Bool, Required: false},
 		"manifest":             &hcldec.AttrSpec{Name: "manifest", Type: cty.String, Required: false},
 		"output_directory":     &hcldec.AttrSpec{Name: "output_directory", Type: cty.String, Required: false},
 		"directory_permission": &hcldec.AttrSpec{Name: "directory_permission", Type: cty.Number, Required: false},

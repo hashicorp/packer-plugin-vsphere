@@ -59,13 +59,15 @@ import (
 // ./output_vsphere/example-ubuntu.ovf
 // ```
 type ExportConfig struct {
-	// name of the ovf. defaults to the name of the VM
+	// Name of the ovf. defaults to the name of the VM
 	Name string `mapstructure:"name"`
-	// overwrite ovf if it exists
+	// Overwrite ovf if it exists
 	Force bool `mapstructure:"force"`
-	// include iso and img image files that are attached to the VM
+	// Deprecated: Images will be removed in a future release. Please see `image_files` for more details on this argument.
 	Images bool `mapstructure:"images"`
-	// generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
+	// In exported files, include additional image files that are attached to the VM, such as nvram, iso, img.
+	ImageFiles bool `mapstructure:"image_files"`
+	// Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
 	Manifest string `mapstructure:"manifest"`
 	// Directory on the computer running Packer to export files to
 	OutputDir OutputConfig `mapstructure:",squash"`
@@ -110,8 +112,13 @@ func (c *ExportConfig) Prepare(ctx *interpolate.Context, lc *LocationConfig, pc 
 	if c.Manifest == "" {
 		c.Manifest = "sha256"
 	}
+
+	if c.Images {
+		c.ImageFiles = c.Images
+	}
+
 	if _, ok := sha[c.Manifest]; !ok {
-		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unknown hash: %s. available options include available options being 'none', 'sha1', 'sha256', 'sha512'", c.Manifest))
+		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unknown hash: %s: available options include available options being 'none', 'sha1', 'sha256', 'sha512'", c.Manifest))
 	}
 
 	if c.Name == "" {
@@ -140,13 +147,13 @@ func getTarget(dir string, name string) string {
 }
 
 type StepExport struct {
-	Name      string
-	Force     bool
-	Images    bool
-	Manifest  string
-	OutputDir string
-	Options   []string
-	mf        bytes.Buffer
+	Name       string
+	Force      bool
+	ImageFiles bool
+	Manifest   string
+	OutputDir  string
+	Options    []string
+	mf         bytes.Buffer
 }
 
 func (s *StepExport) Cleanup(multistep.StateBag) {
@@ -296,7 +303,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 }
 
 func (s *StepExport) include(item *nfc.FileItem) bool {
-	if s.Images {
+	if s.ImageFiles {
 		return true
 	}
 
