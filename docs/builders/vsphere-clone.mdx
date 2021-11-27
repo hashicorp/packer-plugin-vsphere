@@ -2,13 +2,13 @@
 modeline: |
   vim: set ft=pandoc:
 description: >
-  This VMware Packer builder uses the vSphere API to clone an existing vSphere
+  The Packer builder uses the vSphere API to clone an existing vSphere
   template and create a new virtual machine remotely.
-page_title: VSphere Clone - Builders
+page_title: vSphere Clone - Builders
 sidebar_title: Clone
 ---
 
-# VMWare Vsphere Clone Builder
+# VMware vSphere Clone Builder
 
 Type: `vsphere-clone`
 Artifact BuilderId: `jetbrains.vsphere`
@@ -25,7 +25,7 @@ This builder clones VMs from existing templates.
 
 See complete Ubuntu, Windows, and macOS templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/master/builder/vsphere/examples/).
 
-## VSphere-Clone Configuration Reference
+## Configuration Reference
 
 There are many configuration options available for this builder. In addition to
 the items listed here, you will want to look at the general configuration
@@ -371,7 +371,7 @@ resource_pool = "pool1"
 </Tab>
 </Tabs>
 
-## Required vSphere Permissions
+## Required vSphere Privileges
 
 - VM folder (this object and children):
   ```text
