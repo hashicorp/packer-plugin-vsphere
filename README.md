@@ -26,7 +26,7 @@ The plugin includes two builders which are able to create images, depending on y
 
 #### Automatic Installation
 
-Packer v1.7.0 and later supports the `packer init` command whoch enables the automatic installation of Packer plugins. For more information, see the [Packer documentation][docs-packer-init].
+Packer v1.7.0 and later supports the `packer init` command which enables the automatic installation of Packer plugins. For more information, see the [Packer documentation][docs-packer-init].
 
 To install this plugin, copy and paste this code (HCL2) into your Packer configuration and run `packer init`.
 
