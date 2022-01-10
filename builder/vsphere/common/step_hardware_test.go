@@ -61,6 +61,39 @@ func TestHardwareConfig_Prepare(t *testing.T) {
 			},
 			fail: false,
 		},
+		{
+			name: "Validate 'vTPM' and 'efi' firmware",
+			config: &HardwareConfig{
+				Firmware:    "efi",
+				VTPMEnabled: true,
+			},
+			fail: false,
+		},
+		{
+			name: "Validate 'vTPM' and 'efi-secure' firmware",
+			config: &HardwareConfig{
+				Firmware:    "efi-secure",
+				VTPMEnabled: true,
+			},
+			fail: false,
+		},
+		{
+			name: "Validate 'vTPM' and unsupported firmware",
+			config: &HardwareConfig{
+				Firmware:    "bios",
+				VTPMEnabled: true,
+			},
+			fail:           true,
+			expectedErrMsg: "'vTPM' could be enabled only when 'firmware' set to 'efi' or 'efi-secure'",
+		},
+		{
+			name: "Validate 'vTPM' and empty firmware",
+			config: &HardwareConfig{
+				VTPMEnabled: true,
+			},
+			fail:           true,
+			expectedErrMsg: "'vTPM' could be enabled only when 'firmware' set to 'efi' or 'efi-secure'",
+		},
 	}
 	for _, c := range tc {
 		t.Run(c.name, func(t *testing.T) {

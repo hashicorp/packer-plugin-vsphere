@@ -102,6 +102,7 @@ type HardwareConfig struct {
 	VGPUProfile         string
 	Firmware            string
 	ForceBIOSSetup      bool
+	VTPMEnabled         bool
 }
 
 type NIC struct {
@@ -625,6 +626,28 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	devices, err := vm.Devices()
+	if err != nil {
+		return err
+	}
+	TPMs := devices.SelectByType((*types.VirtualTPM)(nil))
+	hasTPM := len(TPMs) > 0
+	if config.VTPMEnabled != hasTPM {
+		if !hasTPM {
+			device := &types.VirtualTPM{}
+			err = vm.addDevice(device)
+		} else {
+			err = vm.RemoveDevice(false, TPMs...)
+		}
+	}
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 

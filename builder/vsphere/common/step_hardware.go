@@ -43,6 +43,8 @@ type HardwareConfig struct {
 	Firmware string `mapstructure:"firmware"`
 	// During the boot, force entry into the BIOS setup screen. Defaults to `false`.
 	ForceBIOSSetup bool `mapstructure:"force_bios_setup"`
+	// Add virtual TPM device for virtual machine. Defaults to `false`.
+	VTPMEnabled bool `mapstructure:"vTPM"`
 }
 
 func (c *HardwareConfig) Prepare() []error {
@@ -54,6 +56,9 @@ func (c *HardwareConfig) Prepare() []error {
 
 	if c.Firmware != "" && c.Firmware != "bios" && c.Firmware != "efi" && c.Firmware != "efi-secure" {
 		errs = append(errs, fmt.Errorf("'firmware' must be '', 'bios', 'efi' or 'efi-secure'"))
+	}
+	if c.VTPMEnabled && c.Firmware != "efi" && c.Firmware != "efi-secure" {
+		errs = append(errs, fmt.Errorf("'vTPM' could be enabled only when 'firmware' set to 'efi' or 'efi-secure'"))
 	}
 
 	return errs
@@ -85,6 +90,7 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 			VGPUProfile:         s.Config.VGPUProfile,
 			Firmware:            s.Config.Firmware,
 			ForceBIOSSetup:      s.Config.ForceBIOSSetup,
+			VTPMEnabled:         s.Config.VTPMEnabled,
 		})
 		if err != nil {
 			state.Put("error", err)
