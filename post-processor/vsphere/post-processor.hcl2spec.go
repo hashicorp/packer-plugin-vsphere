@@ -33,6 +33,7 @@ type FlatConfig struct {
 	VMFolder            *string           `mapstructure:"vm_folder" cty:"vm_folder" hcl:"vm_folder"`
 	VMName              *string           `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	VMNetwork           *string           `mapstructure:"vm_network" cty:"vm_network" hcl:"vm_network"`
+	HardwareVersion     *string           `mapstructure:"hardware_version" cty:"hardware_version" hcl:"hardware_version"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -70,6 +71,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"vm_folder":                  &hcldec.AttrSpec{Name: "vm_folder", Type: cty.String, Required: false},
 		"vm_name":                    &hcldec.AttrSpec{Name: "vm_name", Type: cty.String, Required: false},
 		"vm_network":                 &hcldec.AttrSpec{Name: "vm_network", Type: cty.String, Required: false},
+		"hardware_version":           &hcldec.AttrSpec{Name: "hardware_version", Type: cty.String, Required: false},
 	}
 	return s
 }
