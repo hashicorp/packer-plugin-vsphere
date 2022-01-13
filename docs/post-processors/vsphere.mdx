@@ -69,6 +69,13 @@ Optional:
 - `overwrite` (boolean) - If it's true force the system to overwrite the
   existing files instead create new ones. Default is `false`
 
+- `hardware_version` (string) - The virtual hardware version that the VM
+  should be deployed with. Use when deploying to vsphere/esxi host whose version
+  is different than the vsphere/esxi host used to create the artifact. See
+  [VMWare's virtual hardware KB article]
+  (https://kb.vmware.com/s/article/1003746) for more information about the
+  virtual hardware versions supported by the versions of Vsphere.
+
 - `options` (array of strings) - Custom options to add in `ovftool`. See
   `ovftool --help` to list all the options
 

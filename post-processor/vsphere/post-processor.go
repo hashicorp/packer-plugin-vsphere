@@ -37,21 +37,22 @@ var (
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
-	Cluster      string   `mapstructure:"cluster"`
-	Datacenter   string   `mapstructure:"datacenter"`
-	Datastore    string   `mapstructure:"datastore"`
-	DiskMode     string   `mapstructure:"disk_mode"`
-	Host         string   `mapstructure:"host"`
-	ESXiHost     string   `mapstructure:"esxi_host"`
-	Insecure     bool     `mapstructure:"insecure"`
-	Options      []string `mapstructure:"options"`
-	Overwrite    bool     `mapstructure:"overwrite"`
-	Password     string   `mapstructure:"password"`
-	ResourcePool string   `mapstructure:"resource_pool"`
-	Username     string   `mapstructure:"username"`
-	VMFolder     string   `mapstructure:"vm_folder"`
-	VMName       string   `mapstructure:"vm_name"`
-	VMNetwork    string   `mapstructure:"vm_network"`
+	Cluster         string   `mapstructure:"cluster"`
+	Datacenter      string   `mapstructure:"datacenter"`
+	Datastore       string   `mapstructure:"datastore"`
+	DiskMode        string   `mapstructure:"disk_mode"`
+	Host            string   `mapstructure:"host"`
+	ESXiHost        string   `mapstructure:"esxi_host"`
+	Insecure        bool     `mapstructure:"insecure"`
+	Options         []string `mapstructure:"options"`
+	Overwrite       bool     `mapstructure:"overwrite"`
+	Password        string   `mapstructure:"password"`
+	ResourcePool    string   `mapstructure:"resource_pool"`
+	Username        string   `mapstructure:"username"`
+	VMFolder        string   `mapstructure:"vm_folder"`
+	VMName          string   `mapstructure:"vm_name"`
+	VMNetwork       string   `mapstructure:"vm_network"`
+	HardwareVersion string   `mapstructure:"hardware_version"`
 
 	ctx interpolate.Context
 }
@@ -259,6 +260,10 @@ func (p *PostProcessor) BuildArgs(source, ovftool_uri string) ([]string, error) 
 
 	if p.config.VMFolder != "" {
 		args = append(args, fmt.Sprintf(`--vmFolder=%s`, p.config.VMFolder))
+	}
+
+	if p.config.HardwareVersion != "" {
+		args = append(args, fmt.Sprintf(`--maxVirtualHardwareVersion=%s`, p.config.HardwareVersion))
 	}
 
 	if p.config.VMNetwork != "" {
