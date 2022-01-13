@@ -22,59 +22,54 @@ each category, the available configuration keys are alphabetized.
 
 Required:
 
-- `cluster` (string) - The cluster or host to upload the VM to. This can be
-  either the name of the cluster, or the IP address of the esx host that you
-  want to upload to.
+- `cluster` (string) - The vSphere cluster or ESXi host to upload the VM. This can be
+  either the name of the vSphere cluster or the FQDN/IP address of an ESXi host.
 
-- `datacenter` (string) - The name of the datacenter within vSphere to add
-  the VM to.
+- `datacenter` (string) - The name of the datacenter within the vSphere environemnt
+   to add the VM.
 
-- `datastore` (string) - The name of the datastore to store this VM. This is
+- `datastore` (string) - The name of the datastore to place the VM. This is
   _not required_ if `resource_pool` is specified.
 
-- `host` (string) - The vSphere host that will be contacted to perform the VM
-  upload.
+- `host` (string) - The vSphere endpoint that will be contacted to perform
+  the VM upload.
 
-- `password` (string) - Password to use to authenticate to the vSphere
-  endpoint.
+- `password` (string) - The password to use to authenticate to the endpoint.
 
-- `username` (string) - The username to use to authenticate to the vSphere
-  endpoint.
+- `username` (string) - The username to use to authenticate to the endpoint.
 
-- `vm_name` (string) - The name of the VM once it is uploaded.
+- `vm_name` (string) - The name of the VM after upload.
 
 Optional:
 
-- `esxi_host` (string) - Target vSphere host. Used to assign specific esx
-  host to upload the resulting VM to, when a vCenter Server is used as
-  `host`. Can be either a hostname (e.g. "packer-esxi1", requires proper DNS
+- `esxi_host` (string) - Target ESXi host. Used to assign specific ESXi
+  host to upload the resulting VM, when a vCenter Server is used as
+  `host`. Can be either an FQDN (e.g., "esxi-01.example.com", requires proper DNS
   setup and/or correct DNS search domain setting) or an IPv4 address.
 
 - `disk_mode` (string) - Target disk format. See `ovftool` manual for
-  available options. By default, `thick` will be used.
+  available options. Default: `thick`.
 
-- `insecure` (boolean) - Whether or not the connection to vSphere can be done
-  over an insecure connection. By default this is `false`.
+- `insecure` (boolean) - Whether or not the connection can be done
+  over an insecure connection. Default: `false`
 
 - `keep_input_artifact` (boolean) - When `true`, preserve the local VM files,
-  even after importing them to vsphere. Defaults to `false`.
+  even after importing them to the vSphere endpoint. Default: `false`.
 
-- `resource_pool` (string) - The resource pool to upload the VM to.
+- `resource_pool` (string) - The resource pool in which to upload the VM.
 
-- `vm_folder` (string) - The folder within the datastore to store the VM.
+- `vm_folder` (string) - The folder within the datastore to place the VM.
 
-- `vm_network` (string) - The name of the VM network this VM will be added
-  to.
+- `vm_network` (string) - The name of the network in which to place the VM.
 
-- `overwrite` (boolean) - If it's true force the system to overwrite the
-  existing files instead create new ones. Default is `false`
+- `overwrite` (boolean) - If `true`, force the system to overwrite the
+  existing files instead create new ones. Default: `false`
 
 - `hardware_version` (string) - The virtual hardware version that the VM
-  should be deployed with. Use when deploying to vsphere/esxi host whose version
-  is different than the vsphere/esxi host used to create the artifact. See
-  [VMWare's virtual hardware KB article]
-  (https://kb.vmware.com/s/article/1003746) for more information about the
-  virtual hardware versions supported by the versions of Vsphere.
+  should be deployed with. Use when deploying to vSphere / ESXi host whose version
+  is different than the the one used to create the artifact. See
+  [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information 
+  on the virtual hardware versions supported by each vSphere / ESXi version.
 
 - `options` (array of strings) - Custom options to add in `ovftool`. See
   `ovftool --help` to list all the options
@@ -85,7 +80,7 @@ The following is an example of the vSphere post-processor being used in
 conjunction with the null builder and artifice post-processor to upload a vmx
 to a vSphere cluster.
 
-You can also use this post-processor with the vmx artifact from a vmware build.
+You can also use this post-processor with the vmx artifact from a VMware build.
 
 <Tabs>
 <Tab heading="HCL2">
@@ -106,15 +101,15 @@ build {
       }
 
       post-processor "vsphere"{
+          vm_name             = "packer"
+          host                = "vcenter.example.com"
+          username            = "administrator@vsphere.local"
+          password            = "VMw@re1!"
+          datacenter          = "dc-01"   
+          cluster             = "cluster-01"
+          datastore           = "datastore-01"
+          vm_network          = "VM Network"
           keep_input_artifact = true
-          vm_name    = "packerparty"
-          vm_network = "VM Network"
-          cluster    = "123.45.678.1"
-          datacenter = "PackerDatacenter"
-          datastore  = "datastore1"
-          host       = "123.45.678.9"
-          password   = "SuperSecretPassword"
-          username   = "Administrator@vsphere.local"
       }
     }
 }
@@ -139,15 +134,15 @@ build {
       },
       {
         "type": "vsphere",
-        "keep_input_artifact": true,
-        "vm_name": "packerparty",
+        "vm_name": "packer",
+        "host": "vcenter.example.com",
+        "username": "administrator@vsphere.local",
+        "password": "VMw@re1!",
+        "datacenter": "dc-01",
+        "cluster": "cluster-01",
+        "datastore": "datastore-01",
         "vm_network": "VM Network",
-        "cluster": "123.45.678.1",
-        "datacenter": "PackerDatacenter",
-        "datastore": "datastore1",
-        "host": "123.45.678.9",
-        "password": "SuperSecretPassword",
-        "username": "Administrator@vsphere.local"
+        "keep_input_artifact": true,
       }
     ]
   ]
@@ -157,15 +152,15 @@ build {
 </Tab>
 </Tabs>
 
-# Permissions
+# Privileges
 
-The vsphere post processor uses `ovftool` and therefore needs the same privileges
+The post-processor uses `ovftool` and therefore needs the same privileges
 as `ovftool`. Rather than giving full administrator access, you can create a role
 to give the post-processor the permissions necessary to run. Below is an example
 role. Please note that this is a user-supplied list so there may be a few
 extraneous permissions that are not strictly required.
 
-For Vsphere 5.5 the role needs the following privileges:
+For vSphere the role needs the following privileges:
 
     Datastore.AllocateSpace
     Host.Config.AdvancedConfig
@@ -183,6 +178,6 @@ For Vsphere 5.5 the role needs the following privileges:
 And this role must be authorized on the:
 
     Cluster of the host
-    The destination folder (not on Datastore, on the Vsphere logical view)
+    The destination folder (not on Datastore, on the vSphere logical view)
     The network to be assigned
     The destination datastore.
