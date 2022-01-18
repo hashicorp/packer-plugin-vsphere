@@ -1,7 +1,9 @@
+Please see [releases](https://github.com/hashicorp/packer-plugin-vsphere/releases) for the latest CHANGELOG information.
+
 ## 1.0.2 (October 18, 2021)
 
 ### NOTES:
-Support for the HCP Packer registry is currently in beta and requires 
+Support for the HCP Packer registry is currently in beta and requires
 Packer v1.7.7 [GH-115] [GH-120]
 
 ### FEATURES:
