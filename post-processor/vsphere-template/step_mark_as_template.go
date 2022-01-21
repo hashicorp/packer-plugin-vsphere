@@ -128,7 +128,7 @@ func datastorePath(vm *object.VirtualMachine) (*object.DatastorePath, error) {
 		return nil, fmt.Errorf("disk not found in '%v'", vm.Name())
 	}
 
-	re := regexp.MustCompile(`\\[(.*?)\\]`)
+	re := regexp.MustCompile(`\[(.*?)\]`)
 
 	datastore := re.FindStringSubmatch(disk)[1]
 	vmxPath := path.Join("/", path.Dir(strings.Split(disk, " ")[1]), vm.Name()+".vmx")
