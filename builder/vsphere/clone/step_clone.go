@@ -35,7 +35,7 @@ type CloneConfig struct {
 	LinkedClone bool `mapstructure:"linked_clone"`
 	// Set the network in which the VM will be connected to. If no network is
 	// specified, `host` must be specified to allow Packer to look for the
-	// available network. If the network is inside a network folder in vCenter,
+	// available network. If the network is inside a network folder in vSphere inventory,
 	// you need to provide the full path to the network.
 	Network string `mapstructure:"network"`
 	// Sets a custom Mac Address to the network adapter. If set, the [network](#network) must be also specified.

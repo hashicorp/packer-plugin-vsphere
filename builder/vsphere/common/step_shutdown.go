@@ -18,8 +18,8 @@ import (
 
 type ShutdownConfig struct {
 	// Specify a VM guest shutdown command. This command will be executed using
-	// the `communicator`. Otherwise the VMware guest tools are used to gracefully
-	// shutdown the VM guest.
+	// the `communicator`. Otherwise, the VMware Tools are used to gracefully shutdown
+	// the VM.
 	Command string `mapstructure:"shutdown_command"`
 	// Amount of time to wait for graceful VM shutdown.
 	// Defaults to 5m or five minutes.

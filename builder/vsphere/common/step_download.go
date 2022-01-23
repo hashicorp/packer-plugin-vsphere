@@ -18,13 +18,13 @@ type DownloadStep interface {
 	UseSourceToFindCacheTarget(source string) (*url.URL, string, error)
 }
 
-// VSphere has a specialized need -- before we waste time downloading an iso,
+// vSphere has a specialized need -- before we waste time downloading an iso,
 // we need to check whether that iso already exists on the remote datastore.
 // if it does, we skip the download. This wrapping-step still uses the common
 // StepDownload but only if the image isn't already present on the datastore.
 type StepDownload struct {
 	DownloadStep DownloadStep
-	// These keys are VSphere-specific and used to check the remote datastore.
+	// These keys are vSphere-specific and used to check the remote datastore.
 	Url       []string
 	ResultKey string
 	Datastore string

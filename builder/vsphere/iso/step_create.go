@@ -59,12 +59,12 @@ type NIC struct {
 
 type CreateConfig struct {
 	// Set VM hardware version. Defaults to the most current VM hardware
-	// version supported by vCenter. See
-	// [VMWare article 1003746](https://kb.vmware.com/s/article/1003746) for
+	// version supported by the vCenter Server version. See
+	// [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for
 	// the full list of supported VM hardware versions.
 	Version uint `mapstructure:"vm_version"`
 	// Set VM OS type. Defaults to `otherGuest`. See [
-	// here](https://code.vmware.com/apis/358/vsphere/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html)
+	// here](https://developer.vmware.com/apis/358/vsphere/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html)
 	// for a full list of possible values.
 	GuestOSType   string               `mapstructure:"guest_os_type"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
