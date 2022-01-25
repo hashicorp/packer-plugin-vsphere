@@ -4,7 +4,7 @@
 
 - `folder` (string) - VM folder to create the VM in.
 
-- `cluster` (string) - ESXi cluster where target VM is created. See the
+- `cluster` (string) - vSphere cluster where target VM is created. See the
   [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
   section above for more details.
 
@@ -13,11 +13,11 @@
   [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
   section above for more details.
 
-- `resource_pool` (string) - VMWare resource pool. If not set, it will look for the root resource
+- `resource_pool` (string) - vSphere resource pool. If not set, it will look for the root resource
   pool of the `host` or `cluster`. If a root resource is not found, it
   will then look for a default resource pool.
 
-- `datastore` (string) - VMWare datastore. Required if `host` is a cluster, or if `host` has
+- `datastore` (string) - vSphere datastore. Required if `host` is a cluster, or if `host` has
   multiple datastores.
 
 - `set_host_for_datastore_uploads` (bool) - Set this to true if packer should use the host for uploading files

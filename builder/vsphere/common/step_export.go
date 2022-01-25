@@ -27,7 +27,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-// You may optionally export an ovf from VSphere to the instance running Packer.
+// You may optionally export an ovf from vSphere to the instance running Packer.
 //
 // Example usage:
 //

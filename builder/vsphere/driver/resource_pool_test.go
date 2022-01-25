@@ -27,7 +27,7 @@ func TestVCenterDriver_FindResourcePool(t *testing.T) {
 }
 
 func TestVCenterDriver_FindResourcePoolStandaloneESX(t *testing.T) {
-	// standalone ESX host without any vCenter
+	// Standalone ESXi host without a vCenter Server instance
 	model := simulator.ESX()
 	defer model.Remove()
 

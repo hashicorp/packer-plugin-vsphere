@@ -127,7 +127,7 @@ func NewDriver(config *ConnectConfig) (Driver, error) {
 
 // The rest.Client requires vCenter.
 // RestClient is to modularize the rest.Client session and use it only when is necessary.
-// This will allow users without vCenter to use the other features that doesn't use the rest.Client.
+// This will allow users without vCenter Server to use the other features that do not use the rest.Client.
 // To use the client login/logout must be done to create an authenticated session.
 type RestClient struct {
 	client      *rest.Client

@@ -14,7 +14,7 @@ type LocationConfig struct {
 	VMName string `mapstructure:"vm_name"`
 	// VM folder to create the VM in.
 	Folder string `mapstructure:"folder"`
-	// ESXi cluster where target VM is created. See the
+	// vSphere cluster where target VM is created. See the
 	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
 	// section above for more details.
 	Cluster string `mapstructure:"cluster"`
@@ -23,11 +23,11 @@ type LocationConfig struct {
 	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
 	// section above for more details.
 	Host string `mapstructure:"host"`
-	// VMWare resource pool. If not set, it will look for the root resource
+	// vSphere resource pool. If not set, it will look for the root resource
 	// pool of the `host` or `cluster`. If a root resource is not found, it
 	// will then look for a default resource pool.
 	ResourcePool string `mapstructure:"resource_pool"`
-	// VMWare datastore. Required if `host` is a cluster, or if `host` has
+	// vSphere datastore. Required if `host` is a cluster, or if `host` has
 	// multiple datastores.
 	Datastore string `mapstructure:"datastore"`
 	// Set this to true if packer should use the host for uploading files
