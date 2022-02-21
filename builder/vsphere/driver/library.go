@@ -51,7 +51,7 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 	libraryFilePath := &LibraryFilePath{path: isoPath}
 	err = libraryFilePath.Validate()
 	if err != nil {
-		log.Printf("ISO path not identified as a Content Library path")
+		log.Printf("ISO path not identified as a Content Library path as it does not follow the pattern libraryName/itemName/itemFilename")
 		return isoPath, err
 	}
 	libraryName := libraryFilePath.GetLibraryName()
@@ -60,7 +60,7 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 
 	lib, err := d.FindContentLibraryByName(libraryName)
 	if err != nil {
-		log.Printf("ISO path not identified as a Content Library path")
+		log.Printf("ISO path assumed to not be a Content Library path as no Content Library named '%s' can be found", libraryName)
 		return isoPath, err
 	}
 	log.Printf("ISO path identified as a Content Library path")
