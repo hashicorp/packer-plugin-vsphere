@@ -64,6 +64,8 @@ type VirtualMachine interface {
 	EjectCdroms() error
 	AddSATAController() error
 	FindSATAController() (*types.VirtualAHCIController, error)
+
+	FindCustomizationSpec(name string) (*types.CustomizationSpec, error)
 }
 
 type VirtualMachineDriver struct {
@@ -710,6 +712,7 @@ func (vm *VirtualMachineDriver) WaitForIP(ctx context.Context, ipNet *net.IPNet)
 			parseIP := net.ParseIP(ip)
 			if ipNet != nil && !ipNet.Contains(parseIP) {
 				// ip address is not in range
+				log.Printf("VM has one IP %s, but it is not in the expected range\n", ip)
 				continue
 			}
 			// default to an ipv4 addresses if no ipNet is defined
@@ -1230,4 +1233,24 @@ func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCa
 	}
 
 	return c[0].(types.BaseVirtualEthernetCard), nil
+}
+
+func (vm *VirtualMachineDriver) FindCustomizationSpec(name string) (*types.CustomizationSpec, error) {
+	m := object.NewCustomizationSpecManager(vm.driver.vimClient)
+
+	exists, err := m.DoesCustomizationSpecExist(vm.driver.ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, fmt.Errorf("specification %q does not exist", name)
+	}
+
+	item, err := m.GetCustomizationSpec(vm.driver.ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	spec := &item.Spec
+	return spec, nil
 }

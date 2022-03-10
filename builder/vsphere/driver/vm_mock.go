@@ -249,3 +249,7 @@ func (vm *VirtualMachineMock) EjectCdroms() error {
 func (vm *VirtualMachineMock) Datacenter() *object.Datacenter {
 	return nil
 }
+
+func (vm *VirtualMachineMock) FindCustomizationSpec(name string) (*types.CustomizationSpec, error) {
+	return nil, nil
+}

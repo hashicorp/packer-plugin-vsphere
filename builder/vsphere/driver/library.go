@@ -18,6 +18,15 @@ func (d *VCenterDriver) FindContentLibraryByName(name string) (*Library, error) 
 	lm := library.NewManager(d.restClient.client)
 	l, err := lm.GetLibraryByName(d.ctx, name)
 	if err != nil {
+		cls, err2 := lm.GetLibraries(d.ctx)
+		if err2 != nil {
+			log.Printf("WARN: Could not list the Content Libraries: %v", err2)
+		} else {
+			log.Printf("TRACE: There are %d Content Libraries:", len(cls))
+			for _, cl := range cls {
+				log.Printf("  found CL %s", cl.Name)
+			}
+		}
 		return nil, err
 	}
 	return &Library{
@@ -32,12 +41,14 @@ func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*
 	if err != nil {
 		return nil, err
 	}
+	allNames := make([]string, 0)
 	for _, item := range items {
 		if item.Name == name {
 			return &item, nil
 		}
+		allNames = append(allNames, item.Name)
 	}
-	return nil, fmt.Errorf("Item %s not found", name)
+	return nil, fmt.Errorf("Item %s not found - known items: %s", name, strings.Join(allNames, ", "))
 }
 
 func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
@@ -60,7 +71,7 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 
 	lib, err := d.FindContentLibraryByName(libraryName)
 	if err != nil {
-		log.Printf("ISO path assumed to not be a Content Library path as no Content Library named '%s' can be found", libraryName)
+		log.Printf("ISO path assumed to not be a Content Library path as no Content Library named '%s' can be found: %v", libraryName, err)
 		return isoPath, err
 	}
 	log.Printf("ISO path identified as a Content Library path")

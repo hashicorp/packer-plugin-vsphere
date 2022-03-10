@@ -1,11 +1,17 @@
-<!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the CustomizeConfig struct in builder\vsphere\clone\step_customize.go; DO NOT EDIT MANUALLY -->
+
+- `customization_spec_name` (string) - Use a customization profile already defined on the vCenter
 
 - `linux_options` (\*LinuxOptions) - Settings to Linux guest OS customization. See [Linux customization settings](#linux-customization-settings).
 
+- `windows_options` (\*WindowsOptions) - Settings to Linux guest OS customization.
+
 - `windows_sysprep_file` (string) - Supply your own sysprep.xml file to allow full control of the customization process out-of-band of vSphere.
+
+- `windows_sysprep_text` (string) - Supply your own sysprep.xml text to allow full control of the customization process out-of-band of vSphere.
 
 - `network_interface` (NetworkInterfaces) - Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
   To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.
   See [Network interface settings](#network-interface-settings).
 
-<!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
+<!-- End of code generated from the comments of the CustomizeConfig struct in builder\vsphere\clone\step_customize.go; -->
