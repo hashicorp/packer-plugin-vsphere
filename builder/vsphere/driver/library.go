@@ -51,6 +51,16 @@ func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*
 	return nil, fmt.Errorf("Item %s not found - known items: %s", name, strings.Join(allNames, ", "))
 }
 
+func (d *VCenterDriver) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
+	lm := library.NewManager(d.restClient.client)
+	item.Patch(&library.Item{
+		ID:          item.ID,
+		Name:        name,
+		Description: description,
+	})
+	return lm.UpdateLibraryItem(d.ctx, item)
+}
+
 func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
 	log.Printf("Check if ISO path is a Content Library path")
 	err := d.restClient.Login(d.ctx)

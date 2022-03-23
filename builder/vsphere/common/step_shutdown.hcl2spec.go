@@ -10,9 +10,11 @@ import (
 // FlatShutdownConfig is an auto-generated flat version of ShutdownConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatShutdownConfig struct {
-	Command         *string `mapstructure:"shutdown_command" cty:"shutdown_command" hcl:"shutdown_command"`
-	Timeout         *string `mapstructure:"shutdown_timeout" cty:"shutdown_timeout" hcl:"shutdown_timeout"`
-	DisableShutdown *bool   `mapstructure:"disable_shutdown" cty:"disable_shutdown" hcl:"disable_shutdown"`
+	Command             *string `mapstructure:"shutdown_command" cty:"shutdown_command" hcl:"shutdown_command"`
+	Timeout             *string `mapstructure:"shutdown_timeout" cty:"shutdown_timeout" hcl:"shutdown_timeout"`
+	DisableShutdown     *bool   `mapstructure:"disable_shutdown" cty:"disable_shutdown" hcl:"disable_shutdown"`
+	PollingInterval     *string `mapstructure:"shutdown_polling_interval" cty:"shutdown_polling_interval" hcl:"shutdown_polling_interval"`
+	PauseBeforeShutdown *string `mapstructure:"pause_before_shutdown" cty:"pause_before_shutdown" hcl:"pause_before_shutdown"`
 }
 
 // FlatMapstructure returns a new FlatShutdownConfig.
@@ -27,9 +29,11 @@ func (*ShutdownConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hclde
 // The decoded values from this spec will then be applied to a FlatShutdownConfig.
 func (*FlatShutdownConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"shutdown_command": &hcldec.AttrSpec{Name: "shutdown_command", Type: cty.String, Required: false},
-		"shutdown_timeout": &hcldec.AttrSpec{Name: "shutdown_timeout", Type: cty.String, Required: false},
-		"disable_shutdown": &hcldec.AttrSpec{Name: "disable_shutdown", Type: cty.Bool, Required: false},
+		"shutdown_command":          &hcldec.AttrSpec{Name: "shutdown_command", Type: cty.String, Required: false},
+		"shutdown_timeout":          &hcldec.AttrSpec{Name: "shutdown_timeout", Type: cty.String, Required: false},
+		"disable_shutdown":          &hcldec.AttrSpec{Name: "disable_shutdown", Type: cty.Bool, Required: false},
+		"shutdown_polling_interval": &hcldec.AttrSpec{Name: "shutdown_polling_interval", Type: cty.String, Required: false},
+		"pause_before_shutdown":     &hcldec.AttrSpec{Name: "pause_before_shutdown", Type: cty.String, Required: false},
 	}
 	return s
 }

@@ -140,7 +140,7 @@ func (vm *VirtualMachineMock) StartShutdown() error {
 	return nil
 }
 
-func (vm *VirtualMachineMock) WaitForShutdown(ctx context.Context, timeout time.Duration) error {
+func (vm *VirtualMachineMock) WaitForShutdown(ctx context.Context, timeout time.Duration, pollingInterval time.Duration) error {
 	return nil
 }
 

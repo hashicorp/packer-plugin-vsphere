@@ -26,8 +26,6 @@ import (
 //
 // The settings for customize are as follows:
 type CustomizeConfig struct {
-	// Use a customization profile already defined on the vCenter
-	CustomizationSpecName string `mapstructure:"customization_spec_name"`
 	// Settings to Linux guest OS customization. See [Linux customization settings](#linux-customization-settings).
 	LinuxOptions *LinuxOptions `mapstructure:"linux_options"`
 	// Settings to Linux guest OS customization.
@@ -186,11 +184,10 @@ func (s *StepCustomize) Run(ctx context.Context, state multistep.StateBag) multi
 	ui.Say("Customizing VM...")
 	err = vm.Customize(spec)
 	if err != nil {
-		ui.Say("there was an error during customization")
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
-	ui.Say("Customization did not return an error")
+
 	return multistep.ActionContinue
 }
 

@@ -247,9 +247,9 @@ func startAndStopCheck(t *testing.T, vm VirtualMachine, config *CloneConfig) {
 		t.Fatalf("Failed to initiate guest shutdown: %v", err)
 	}
 	log.Printf("[DEBUG] Waiting max 1m0s for shutdown to complete")
-	err = vm.WaitForShutdown(context.TODO(), 1*time.Minute)
+	err = vm.WaitForShutdown(context.TODO(), 1*time.Minute, 20*time.Second)
 	if err != nil {
-		t.Fatalf("Failed to wait for giest shutdown: %v", err)
+		t.Fatalf("Failed to wait for guest shutdown: %v", err)
 	}
 }
 

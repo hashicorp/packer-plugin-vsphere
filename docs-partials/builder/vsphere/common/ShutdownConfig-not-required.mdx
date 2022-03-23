@@ -1,4 +1,4 @@
-<!-- Code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the ShutdownConfig struct in builder\vsphere\common\step_shutdown.go; DO NOT EDIT MANUALLY -->
 
 - `shutdown_command` (string) - Specify a VM guest shutdown command. This command will be executed using
   the `communicator`. Otherwise, the VMware Tools are used to gracefully shutdown
@@ -15,4 +15,8 @@
   Packer will wait for a default of five minutes until the virtual machine is shutdown.
   The timeout can be changed using `shutdown_timeout` option.
 
-<!-- End of code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; -->
+- `shutdown_polling_interval` (duration string | ex: "1h5m2s") - Wait duration between polling if the VM is shutdown. Defaults to 10 seconds wait between each IsVMDown() call
+
+- `pause_before_shutdown` (duration string | ex: "1h5m2s") - Time to wait before packer checks if the VM is off and send the shutdown command. Defaults to 0
+
+<!-- End of code generated from the comments of the ShutdownConfig struct in builder\vsphere\common\step_shutdown.go; -->

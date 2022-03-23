@@ -39,7 +39,7 @@ type VirtualMachine interface {
 	PowerOff() error
 	IsPoweredOff() (bool, error)
 	StartShutdown() error
-	WaitForShutdown(ctx context.Context, timeout time.Duration) error
+	WaitForShutdown(ctx context.Context, timeout time.Duration, pollingInterval time.Duration) error
 	CreateSnapshot(name string) error
 	ConvertToTemplate() error
 	IsTemplate() (bool, error)
@@ -759,25 +759,31 @@ func (vm *VirtualMachineDriver) StartShutdown() error {
 	return err
 }
 
-func (vm *VirtualMachineDriver) WaitForShutdown(ctx context.Context, timeout time.Duration) error {
+func (vm *VirtualMachineDriver) WaitForShutdown(ctx context.Context,
+	timeout time.Duration, pollingInterval time.Duration) error {
+	log.Printf("WaitForShutdown starting\n")
 	shutdownTimer := time.After(timeout)
+	log.Printf("WaitForShutdown shutdownTimer is created\n")
+	attempt := 0
 	for {
-		off, err := vm.IsPoweredOff()
-		if err != nil {
-			return err
-		}
-		if off {
-			break
-		}
+		attempt++
 
 		select {
 		case <-shutdownTimer:
-			err := errors.New("Timeout while waiting for machine to shut down.")
+			err := errors.New("Timeout while waiting for machine to c.")
 			return err
 		case <-ctx.Done():
 			return nil
 		default:
-			time.Sleep(1 * time.Second)
+			time.Sleep(pollingInterval)
+		}
+		off, err := vm.IsPoweredOff()
+		log.Printf("WaitForShutdown vm.IsPoweredOff: off=%v err=%v attempt=%d\n", off, err, attempt)
+		if err != nil {
+			return err
+		}
+		if off && attempt > 5 {
+			break
 		}
 	}
 	return nil
@@ -824,6 +830,7 @@ func (vm *VirtualMachineDriver) ConvertToVirtualMachine(vsphereCluster string, v
 }
 
 func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error {
+	log.Printf("Importing ovf name=%s, description=%s", ovf.Spec.Name, ovf.Spec.Description)
 	err := vm.driver.restClient.Login(vm.driver.ctx)
 	if err != nil {
 		return err
@@ -842,6 +849,12 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 	if err == nil {
 		// Updates existing library item
 		ovf.Target.LibraryItemID = item.ID
+		if ovf.Spec.Description != item.Description {
+			err = vm.driver.UpdateContentLibraryItem(item, ovf.Spec.Name, ovf.Spec.Description)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	ovf.Target.LibraryID = l.library.ID

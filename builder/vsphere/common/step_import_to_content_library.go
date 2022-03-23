@@ -31,7 +31,6 @@ type ContentLibraryDestinationConfig struct {
 	//
 	Name string `mapstructure:"name"`
 	// Description of the library item that will be created.
-	// This option is not used when importing OVF templates.
 	// Defaults to "Packer imported [vm_name](#vm_name) VM template".
 	Description string `mapstructure:"description"`
 	// Cluster onto which the virtual machine template should be placed.
@@ -102,9 +101,9 @@ func (c *ContentLibraryDestinationConfig) Prepare(lc *LocationConfig) []error {
 		if c.ResourcePool == "" {
 			c.ResourcePool = lc.ResourcePool
 		}
-		if c.Description == "" {
-			c.Description = fmt.Sprintf("Packer imported %s VM template", lc.VMName)
-		}
+	}
+	if c.Description == "" {
+		c.Description = fmt.Sprintf("Packer imported %s VM template", lc.VMName)
 	}
 
 	if errs != nil && len(errs.Errors) > 0 {
@@ -135,11 +134,15 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 		return multistep.ActionHalt
 	}
 
+	vmTypeLabel := "VM"
 	if s.ContentLibConfig.Ovf {
-		ui.Say(fmt.Sprintf("Importing VM OVF template %s to Content Library...", s.ContentLibConfig.Name))
+		vmTypeLabel = "VM OVF"
+	}
+	ui.Say(fmt.Sprintf("Importing %s template %s to Content Library '%s' as the item '%s' with the description '%s'...",
+		vmTypeLabel, s.ContentLibConfig.Name, s.ContentLibConfig.Library, s.ContentLibConfig.Name, s.ContentLibConfig.Description))
+	if s.ContentLibConfig.Ovf {
 		err = s.importOvfTemplate(vm)
 	} else {
-		ui.Say(fmt.Sprintf("Importing VM template %s to Content Library...", s.ContentLibConfig.Name))
 		err = s.importVmTemplate(vm)
 	}
 
@@ -167,7 +170,8 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 func (s *StepImportToContentLibrary) importOvfTemplate(vm *driver.VirtualMachineDriver) error {
 	ovf := vcenter.OVF{
 		Spec: vcenter.CreateSpec{
-			Name: s.ContentLibConfig.Name,
+			Name:        s.ContentLibConfig.Name,
+			Description: s.ContentLibConfig.Description,
 		},
 		Target: vcenter.LibraryTarget{
 			LibraryID: s.ContentLibConfig.Library,
