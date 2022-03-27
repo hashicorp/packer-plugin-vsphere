@@ -11,6 +11,7 @@ import (
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatCustomizeConfig struct {
 	LinuxOptions       *FlatLinuxOptions      `mapstructure:"linux_options" cty:"linux_options" hcl:"linux_options"`
+	WindowsOptions     *FlatWindowsOptions    `mapstructure:"windows_options" cty:"windows_options" hcl:"windows_options"`
 	WindowsSysPrepFile *string                `mapstructure:"windows_sysprep_file" cty:"windows_sysprep_file" hcl:"windows_sysprep_file"`
 	NetworkInterfaces  []FlatNetworkInterface `mapstructure:"network_interface" cty:"network_interface" hcl:"network_interface"`
 	Ipv4Gateway        *string                `mapstructure:"ipv4_gateway" cty:"ipv4_gateway" hcl:"ipv4_gateway"`
@@ -32,6 +33,7 @@ func (*CustomizeConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcld
 func (*FlatCustomizeConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"linux_options":        &hcldec.BlockSpec{TypeName: "linux_options", Nested: hcldec.ObjectSpec((*FlatLinuxOptions)(nil).HCL2Spec())},
+		"windows_options":      &hcldec.BlockSpec{TypeName: "windows_options", Nested: hcldec.ObjectSpec((*FlatWindowsOptions)(nil).HCL2Spec())},
 		"windows_sysprep_file": &hcldec.AttrSpec{Name: "windows_sysprep_file", Type: cty.String, Required: false},
 		"network_interface":    &hcldec.BlockListSpec{TypeName: "network_interface", Nested: hcldec.ObjectSpec((*FlatNetworkInterface)(nil).HCL2Spec())},
 		"ipv4_gateway":         &hcldec.AttrSpec{Name: "ipv4_gateway", Type: cty.String, Required: false},
@@ -150,6 +152,53 @@ func (*FlatNetworkInterface) HCL2Spec() map[string]hcldec.Spec {
 		"ipv4_netmask":    &hcldec.AttrSpec{Name: "ipv4_netmask", Type: cty.Number, Required: false},
 		"ipv6_address":    &hcldec.AttrSpec{Name: "ipv6_address", Type: cty.String, Required: false},
 		"ipv6_netmask":    &hcldec.AttrSpec{Name: "ipv6_netmask", Type: cty.Number, Required: false},
+	}
+	return s
+}
+
+// FlatWindowsOptions is an auto-generated flat version of WindowsOptions.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatWindowsOptions struct {
+	RunOnceCommandList  []string `mapstructure:"run_once_command_list" cty:"run_once_command_list" hcl:"run_once_command_list"`
+	AutoLogon           *bool    `mapstructure:"auto_logon" cty:"auto_logon" hcl:"auto_logon"`
+	AutoLogonCount      *int32   `mapstructure:"auto_logon_count" cty:"auto_logon_count" hcl:"auto_logon_count"`
+	AdminPassword       *string  `mapstructure:"admin_password" cty:"admin_password" hcl:"admin_password"`
+	TimeZone            *int32   `mapstructure:"time_zone" cty:"time_zone" hcl:"time_zone"`
+	DomainAdminUser     *string  `mapstructure:"domain_admin_user" cty:"domain_admin_user" hcl:"domain_admin_user"`
+	DomainAdminPassword *string  `mapstructure:"domain_admin_password" cty:"domain_admin_password" hcl:"domain_admin_password"`
+	JoinDomain          *string  `mapstructure:"join_domain" cty:"join_domain" hcl:"join_domain"`
+	Workgroup           *string  `mapstructure:"workgroup" cty:"workgroup" hcl:"workgroup"`
+	ComputerName        *string  `mapstructure:"computer_name" cty:"computer_name" hcl:"computer_name"`
+	FullName            *string  `mapstructure:"full_name" cty:"full_name" hcl:"full_name"`
+	OrganizationName    *string  `mapstructure:"organization_name" cty:"organization_name" hcl:"organization_name"`
+	ProductKey          *string  `mapstructure:"product_key" cty:"product_key" hcl:"product_key"`
+}
+
+// FlatMapstructure returns a new FlatWindowsOptions.
+// FlatWindowsOptions is an auto-generated flat version of WindowsOptions.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*WindowsOptions) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatWindowsOptions)
+}
+
+// HCL2Spec returns the hcl spec of a WindowsOptions.
+// This spec is used by HCL to read the fields of WindowsOptions.
+// The decoded values from this spec will then be applied to a FlatWindowsOptions.
+func (*FlatWindowsOptions) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"run_once_command_list": &hcldec.AttrSpec{Name: "run_once_command_list", Type: cty.List(cty.String), Required: false},
+		"auto_logon":            &hcldec.AttrSpec{Name: "auto_logon", Type: cty.Bool, Required: false},
+		"auto_logon_count":      &hcldec.AttrSpec{Name: "auto_logon_count", Type: cty.Number, Required: false},
+		"admin_password":        &hcldec.AttrSpec{Name: "admin_password", Type: cty.String, Required: false},
+		"time_zone":             &hcldec.AttrSpec{Name: "time_zone", Type: cty.Number, Required: false},
+		"domain_admin_user":     &hcldec.AttrSpec{Name: "domain_admin_user", Type: cty.String, Required: false},
+		"domain_admin_password": &hcldec.AttrSpec{Name: "domain_admin_password", Type: cty.String, Required: false},
+		"join_domain":           &hcldec.AttrSpec{Name: "join_domain", Type: cty.String, Required: false},
+		"workgroup":             &hcldec.AttrSpec{Name: "workgroup", Type: cty.String, Required: false},
+		"computer_name":         &hcldec.AttrSpec{Name: "computer_name", Type: cty.String, Required: false},
+		"full_name":             &hcldec.AttrSpec{Name: "full_name", Type: cty.String, Required: false},
+		"organization_name":     &hcldec.AttrSpec{Name: "organization_name", Type: cty.String, Required: false},
+		"product_key":           &hcldec.AttrSpec{Name: "product_key", Type: cty.String, Required: false},
 	}
 	return s
 }
