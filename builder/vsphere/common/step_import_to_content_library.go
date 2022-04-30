@@ -40,7 +40,6 @@ type ContentLibraryDestinationConfig struct {
 	// Defaults to [cluster](#cluster).
 	Cluster string `mapstructure:"cluster"`
 	// Virtual machine folder into which the virtual machine template should be placed.
-	// This option is not used when importing OVF templates.
 	// Defaults to the same folder as the source virtual machine.
 	Folder string `mapstructure:"folder"`
 	// Host onto which the virtual machine template should be placed.

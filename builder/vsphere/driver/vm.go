@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"reflect"
@@ -18,6 +19,7 @@ import (
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/vcenter"
 	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 )
 
@@ -862,9 +864,84 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 	ovf.Source.Type = "VirtualMachine"
 
 	vcm := vcenter.NewManager(vm.driver.restClient.client)
-	_, err = vcm.CreateOVF(vm.driver.ctx, ovf)
+	itemID, err := vcm.CreateOVF(vm.driver.ctx, ovf)
 	if err != nil {
 		return err
+	}
+
+	// Remove the NVRAM references in the ovf file if the vm version is 13 which means compatibility with 6.5 id required
+	datastoreID := l.library.Storage[0].DatastoreID
+	datastoreName, err := vm.driver.GetDatastoreName(datastoreID)
+	if err != nil {
+		log.Printf("[WARN] Couldn't find datastore name for library %s", l.library.Name)
+		return err
+	}
+	datastorePath := &object.DatastorePath{
+		Datastore: datastoreName,
+		Path:      fmt.Sprintf("contentlib-%s/%s", l.library.ID, itemID),
+	}
+
+	ovfFileName := ovf.Spec.Name + ".ovf"
+	ovfFileActualName, err := vm.driver.GetDatastoreFilePath(datastoreID, datastorePath.String(), ovfFileName)
+	if err != nil {
+		log.Printf("[WARN] Couldn't find datastore ID path for %s\n", ovfFileName)
+		return fmt.Errorf("Error looking for %s in %s in datastore %s: %w", ovfFileName, datastorePath.String(), datastoreID, err)
+	}
+	ovfFilePath := datastorePath.Path + "/" + ovfFileActualName
+	log.Printf("Path to the ovf manifest in its datastore: [%s] %s\n", datastoreName, ovfFilePath)
+
+	// Setup a datastore able to download and upload the ovf file we found
+	// it is required to configure it with its datacenter and its datastore name.
+	ref := types.ManagedObjectReference{Type: "Datastore", Value: datastoreID}
+	ds := object.NewDatastore(vm.driver.vimClient, ref)
+	ds.InventoryPath = "/" + datastoreName
+	ds.DatacenterPath = "-"
+	ancestors, err := mo.Ancestors(vm.driver.ctx, vm.driver.client, vm.driver.client.ServiceContent.PropertyCollector, ref)
+	if err != nil {
+		return err
+	}
+	for i := range ancestors {
+		if ancestors[i].Reference().Type == "Datacenter" {
+			ds.DatacenterPath = "/" + ancestors[i].Name
+			break
+		}
+	}
+	if ds.DatacenterPath == "-" {
+		return fmt.Errorf("Could not find a datacenter in the parents of %s", datastoreName)
+	}
+	f, _, err := ds.Download(vm.driver.ctx, ovfFilePath, &soap.DefaultDownload)
+	if err != nil {
+		log.Printf("[WARN] Couldn't download the %s", ovfFilePath)
+		return fmt.Errorf("Couldn't download the %s in folder %s from datastore %s: %w", ovfFilePath, datastorePath.Path, datastoreName, err)
+	}
+	b, err := io.ReadAll(f)
+	if err != nil {
+		log.Printf("[WARN] Couldn't read the downloaded %s", ovfFilePath)
+		return fmt.Errorf("Couldn't read the downloaded %s in folder %s from datastore %s: %w", ovfFileName, datastorePath.Path, datastoreName, err)
+	}
+	ovStr := string(b)
+	if !strings.Contains(ovStr, "<vssd:VirtualSystemType>vmx-13</vssd:VirtualSystemType>") {
+		log.Printf("No need to edit %s as its vm version is not '13'\n", ovfFilePath)
+		log.Printf("Publish to Content Library is completed\n")
+		return nil
+	}
+	log.Printf("Removing nvram references from [%s] %s as the vm version is '13'\n", datastoreName, ovfFilePath)
+	ovfLines := strings.Split(ovStr, "\n")
+	// now we must remove the 2 references to ovf:
+	// 	<File ovf:id="file2" ovf:href="NAME_OF_VM-2.nvram" ovf:size="6789"/>
+	// 	<vmw:ExtraConfig ovf:required="false" vmw:key="nvram" vmw:value="ovf:/file/file2"/>
+	var noNvramLines []string
+	for _, line := range ovfLines {
+		if strings.Contains(line, "vmw:key=\"nvram\"") ||
+			(strings.Contains(line, ".nvram\"") && strings.Contains(line, "ovf:href=\"")) {
+			continue
+		}
+		noNvramLines = append(noNvramLines, line)
+	}
+	ovfStr := strings.Join(noNvramLines, "\n")
+
+	if err = ds.Upload(vm.driver.ctx, strings.NewReader(ovfStr), ovfFilePath, &soap.DefaultUpload); err != nil {
+		return fmt.Errorf("Failed to upload %s in datastore %s as %s", ovfFileName, datastoreName, ovfFilePath)
 	}
 
 	return vm.driver.restClient.Logout(vm.driver.ctx)
