@@ -31,7 +31,7 @@ type CloneConfig struct {
 	Template string `mapstructure:"template"`
 	// The size of the disk in MB.
 	DiskSize int64 `mapstructure:"disk_size"`
-	// Create VM as a linked clone from latest snapshot. Defaults to `false`.
+	// Create VM as a [linked clone](https://docs.vmware.com/en/vCenter-Converter-Standalone/6.2/com.vmware.convsa.guide/GUID-93894315-EFCA-4DD8-B583-FA24272DA180.html) from latest snapshot. Defaults to `false`.
 	LinkedClone bool `mapstructure:"linked_clone"`
 	// Set the network in which the VM will be connected to. If no network is
 	// specified, `host` must be specified to allow Packer to look for the

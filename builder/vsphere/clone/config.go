@@ -34,7 +34,7 @@ type Config struct {
 	common.ShutdownConfig    `mapstructure:",squash"`
 
 	// Create a snapshot when set to `true`, so the VM can be used as a base
-	// for linked clones. Defaults to `false`.
+	// for [linked clones](https://docs.vmware.com/en/vCenter-Converter-Standalone/6.2/com.vmware.convsa.guide/GUID-93894315-EFCA-4DD8-B583-FA24272DA180.html). Defaults to `false`.
 	CreateSnapshot bool `mapstructure:"create_snapshot"`
 	// When `create_snapshot` is `true`, `snapshot_name` determines the name of the snapshot.
 	// Defaults to `Created By Packer`.
