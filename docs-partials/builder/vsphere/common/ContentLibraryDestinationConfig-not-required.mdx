@@ -1,4 +1,4 @@
-<!-- Code generated from the comments of the ContentLibraryDestinationConfig struct in builder\vsphere\common\step_import_to_content_library.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; DO NOT EDIT MANUALLY -->
 
 - `library` (string) - Name of the library in which the new library item containing the template should be created/updated.
   The Content Library should be of type Local to allow deploying virtual machines.
@@ -13,7 +13,6 @@
   item is necessary, use an OVF template instead by setting the [ovf](#ovf) option as `true`.
 
 - `description` (string) - Description of the library item that will be created.
-  This option is not used when importing OVF templates.
   Defaults to "Packer imported [vm_name](#vm_name) VM template".
 
 - `cluster` (string) - Cluster onto which the virtual machine template should be placed.
@@ -23,7 +22,6 @@
   Defaults to [cluster](#cluster).
 
 - `folder` (string) - Virtual machine folder into which the virtual machine template should be placed.
-  This option is not used when importing OVF templates.
   Defaults to the same folder as the source virtual machine.
 
 - `host` (string) - Host onto which the virtual machine template should be placed.
@@ -47,4 +45,6 @@
 
 - `skip_import` (bool) - When set to true, the VM won't be imported to the content library item. Useful for setting to `true` during a build test stage. Defaults to `false`.
 
-<!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder\vsphere\common\step_import_to_content_library.go; -->
+- `ovf_flags` ([]string) - Flags to use for OVF package creation. The supported flags can be obtained using ExportFlag.list. If unset, no flags will be used. Known values: EXTRA_CONFIG, PRESERVE_MAC
+
+<!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->

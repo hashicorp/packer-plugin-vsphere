@@ -63,6 +63,8 @@ type ContentLibraryDestinationConfig struct {
 	Ovf bool `mapstructure:"ovf"`
 	// When set to true, the VM won't be imported to the content library item. Useful for setting to `true` during a build test stage. Defaults to `false`.
 	SkipImport bool `mapstructure:"skip_import"`
+	// Flags to use for OVF package creation. The supported flags can be obtained using ExportFlag.list. If unset, no flags will be used. Known values: EXTRA_CONFIG, PRESERVE_MAC
+	OvfFlags []string `mapstructure:"ovf_flags"`
 }
 
 func (c *ContentLibraryDestinationConfig) Prepare(lc *LocationConfig) []error {
@@ -171,6 +173,7 @@ func (s *StepImportToContentLibrary) importOvfTemplate(vm *driver.VirtualMachine
 		Spec: vcenter.CreateSpec{
 			Name:        s.ContentLibConfig.Name,
 			Description: s.ContentLibConfig.Description,
+			Flags:       s.ContentLibConfig.OvfFlags,
 		},
 		Target: vcenter.LibraryTarget{
 			LibraryID: s.ContentLibConfig.Library,
