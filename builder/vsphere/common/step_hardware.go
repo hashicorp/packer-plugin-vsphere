@@ -34,6 +34,8 @@ type HardwareConfig struct {
 	MemoryHotAddEnabled bool `mapstructure:"RAM_hot_plug"`
 	// Amount of video memory in KB.
 	VideoRAM int64 `mapstructure:"video_ram"`
+	// Number of video displays.
+	Displays int32 `mapstructure:"displays"`
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
 	// for examples of profile names. Defaults to none.
 	VGPUProfile string `mapstructure:"vgpu_profile"`
@@ -87,6 +89,7 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 			CpuHotAddEnabled:    s.Config.CpuHotAddEnabled,
 			MemoryHotAddEnabled: s.Config.MemoryHotAddEnabled,
 			VideoRAM:            s.Config.VideoRAM,
+			Displays:            s.Config.Displays,
 			VGPUProfile:         s.Config.VGPUProfile,
 			Firmware:            s.Config.Firmware,
 			ForceBIOSSetup:      s.Config.ForceBIOSSetup,
