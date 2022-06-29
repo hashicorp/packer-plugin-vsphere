@@ -562,48 +562,28 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	confSpec.CpuHotAddEnabled = &config.CpuHotAddEnabled
 	confSpec.MemoryHotAddEnabled = &config.MemoryHotAddEnabled
 
-	if config.VideoRAM != 0 {
-		devices, err := vm.vm.Device(vm.driver.ctx)
-		if err != nil {
-			return err
-		}
-		l := devices.SelectByType((*types.VirtualMachineVideoCard)(nil))
-		if len(l) != 1 {
-			return err
-		}
-		card := l[0].(*types.VirtualMachineVideoCard)
-
-		card.VideoRamSizeInKB = config.VideoRAM
-
-		spec := &types.VirtualDeviceConfigSpec{
-			Device:    card,
-			Operation: types.VirtualDeviceConfigSpecOperationEdit,
-		}
-		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
+	if config.Displays == 0 {
+		config.Displays = 1
 	}
 
-	if config.Displays != 0 {
-		devices, err := vm.vm.Device(vm.driver.ctx)
-		if err != nil {
-			return err
+	if config.VideoRAM != 0 || config.Displays != 0 {
+			devices, err := vm.vm.Device(vm.driver.ctx)
+			if err != nil {
+				return err
+			}
+			l := devices.SelectByType((*types.VirtualMachineVideoCard)(nil))
+			if len(l) != 1 {
+				return err
+			}
+			card := l[0].(*types.VirtualMachineVideoCard)
+			card.VideoRamSizeInKB = config.VideoRAM
+			card.NumDisplays = config.Displays
+			spec := &types.VirtualDeviceConfigSpec{
+				Device:    card,
+				Operation: types.VirtualDeviceConfigSpecOperationEdit,
+			}
+			confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
 		}
-
-		l := devices.SelectByType((*types.VirtualMachineVideoCard)(nil))
-		if len(l) != 1 {
-			return err
-		}
-		card := l[0].(*types.VirtualMachineVideoCard)
-
-		// The amount of video memory must be set along with the number of displays in the same config spec
-		card.VideoRamSizeInKB = config.VideoRAM
-		card.NumDisplays = config.Displays
-
-		spec := &types.VirtualDeviceConfigSpec{
-			Device:    card,
-			Operation: types.VirtualDeviceConfigSpecOperationEdit,
-		}
-		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
-	}
 
 	if config.VGPUProfile != "" {
 		devices, err := vm.vm.Device(vm.driver.ctx)
