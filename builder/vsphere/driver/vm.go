@@ -99,6 +99,7 @@ type HardwareConfig struct {
 	CpuHotAddEnabled    bool
 	MemoryHotAddEnabled bool
 	VideoRAM            int64
+	Displays            int32
 	VGPUProfile         string
 	Firmware            string
 	ForceBIOSSetup      bool
@@ -561,7 +562,11 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	confSpec.CpuHotAddEnabled = &config.CpuHotAddEnabled
 	confSpec.MemoryHotAddEnabled = &config.MemoryHotAddEnabled
 
-	if config.VideoRAM != 0 {
+	if config.Displays == 0 {
+		config.Displays = 1
+	}
+
+	if config.VideoRAM != 0 || config.Displays != 0 {
 		devices, err := vm.vm.Device(vm.driver.ctx)
 		if err != nil {
 			return err
@@ -571,15 +576,15 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 			return err
 		}
 		card := l[0].(*types.VirtualMachineVideoCard)
-
 		card.VideoRamSizeInKB = config.VideoRAM
-
+		card.NumDisplays = config.Displays
 		spec := &types.VirtualDeviceConfigSpec{
 			Device:    card,
 			Operation: types.VirtualDeviceConfigSpecOperationEdit,
 		}
 		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
 	}
+
 	if config.VGPUProfile != "" {
 		devices, err := vm.vm.Device(vm.driver.ctx)
 		if err != nil {
