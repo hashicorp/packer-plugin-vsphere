@@ -34,7 +34,7 @@ type HardwareConfig struct {
 	MemoryHotAddEnabled bool `mapstructure:"RAM_hot_plug"`
 	// Amount of video memory in KB.
 	VideoRAM int64 `mapstructure:"video_ram"`
-	// Number of video displays.
+	// Number of video displays. Defaults to 1. 
 	Displays int32 `mapstructure:"displays"`
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
 	// for examples of profile names. Defaults to none.
