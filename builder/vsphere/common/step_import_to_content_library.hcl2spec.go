@@ -10,17 +10,18 @@ import (
 // FlatContentLibraryDestinationConfig is an auto-generated flat version of ContentLibraryDestinationConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatContentLibraryDestinationConfig struct {
-	Library      *string `mapstructure:"library" cty:"library" hcl:"library"`
-	Name         *string `mapstructure:"name" cty:"name" hcl:"name"`
-	Description  *string `mapstructure:"description" cty:"description" hcl:"description"`
-	Cluster      *string `mapstructure:"cluster" cty:"cluster" hcl:"cluster"`
-	Folder       *string `mapstructure:"folder" cty:"folder" hcl:"folder"`
-	Host         *string `mapstructure:"host" cty:"host" hcl:"host"`
-	ResourcePool *string `mapstructure:"resource_pool" cty:"resource_pool" hcl:"resource_pool"`
-	Datastore    *string `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
-	Destroy      *bool   `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
-	Ovf          *bool   `mapstructure:"ovf" cty:"ovf" hcl:"ovf"`
-	SkipImport   *bool   `mapstructure:"skip_import" cty:"skip_import" hcl:"skip_import"`
+	Library      *string  `mapstructure:"library" cty:"library" hcl:"library"`
+	Name         *string  `mapstructure:"name" cty:"name" hcl:"name"`
+	Description  *string  `mapstructure:"description" cty:"description" hcl:"description"`
+	Cluster      *string  `mapstructure:"cluster" cty:"cluster" hcl:"cluster"`
+	Folder       *string  `mapstructure:"folder" cty:"folder" hcl:"folder"`
+	Host         *string  `mapstructure:"host" cty:"host" hcl:"host"`
+	ResourcePool *string  `mapstructure:"resource_pool" cty:"resource_pool" hcl:"resource_pool"`
+	Datastore    *string  `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
+	Destroy      *bool    `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
+	Ovf          *bool    `mapstructure:"ovf" cty:"ovf" hcl:"ovf"`
+	SkipImport   *bool    `mapstructure:"skip_import" cty:"skip_import" hcl:"skip_import"`
+	OvfFlags     []string `mapstructure:"ovf_flags" cty:"ovf_flags" hcl:"ovf_flags"`
 }
 
 // FlatMapstructure returns a new FlatContentLibraryDestinationConfig.
@@ -46,6 +47,7 @@ func (*FlatContentLibraryDestinationConfig) HCL2Spec() map[string]hcldec.Spec {
 		"destroy":       &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
 		"ovf":           &hcldec.AttrSpec{Name: "ovf", Type: cty.Bool, Required: false},
 		"skip_import":   &hcldec.AttrSpec{Name: "skip_import", Type: cty.Bool, Required: false},
+		"ovf_flags":     &hcldec.AttrSpec{Name: "ovf_flags", Type: cty.List(cty.String), Required: false},
 	}
 	return s
 }
