@@ -567,23 +567,23 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	if config.VideoRAM != 0 || config.Displays != 0 {
-			devices, err := vm.vm.Device(vm.driver.ctx)
-			if err != nil {
-				return err
-			}
-			l := devices.SelectByType((*types.VirtualMachineVideoCard)(nil))
-			if len(l) != 1 {
-				return err
-			}
-			card := l[0].(*types.VirtualMachineVideoCard)
-			card.VideoRamSizeInKB = config.VideoRAM
-			card.NumDisplays = config.Displays
-			spec := &types.VirtualDeviceConfigSpec{
-				Device:    card,
-				Operation: types.VirtualDeviceConfigSpecOperationEdit,
-			}
-			confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
+		devices, err := vm.vm.Device(vm.driver.ctx)
+		if err != nil {
+			return err
 		}
+		l := devices.SelectByType((*types.VirtualMachineVideoCard)(nil))
+		if len(l) != 1 {
+			return err
+		}
+		card := l[0].(*types.VirtualMachineVideoCard)
+		card.VideoRamSizeInKB = config.VideoRAM
+		card.NumDisplays = config.Displays
+		spec := &types.VirtualDeviceConfigSpec{
+			Device:    card,
+			Operation: types.VirtualDeviceConfigSpecOperationEdit,
+		}
+		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
+	}
 
 	if config.VGPUProfile != "" {
 		devices, err := vm.vm.Device(vm.driver.ctx)
