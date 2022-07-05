@@ -1,19 +1,19 @@
 # Packer Plugin for VMware vSphere
 
-The Packer Plugin for VMware vSphere is a multi-component plugin can be used with [HashiCorp Packer][packer] to create virtual machine images for [VMware vSphere][docs-vsphere]. 
+The Packer Plugin for VMware vSphere is a multi-component plugin can be used with [HashiCorp Packer][packer] to create virtual machine images for [VMware vSphere][docs-vsphere].
 
 The plugin includes two builders which are able to create images, depending on your desired strategy:
 
-* `vsphere-iso` - This builder starts from an ISO file and utilizes the vSphere API to build images on a vSphere cluster or ESXi host by connecting to a vCenter Server instance. 
+* `vsphere-iso` - This builder starts from an ISO file and utilizes the vSphere API to build images on a vSphere cluster or ESXi host by connecting to a vCenter Server instance.
 
-* `vsphere-clone` - This builder clones an existing virtual machine template, modifies the template, and then saves it as a new image. The builder uses the vSphere API to build images on a vSphere cluster or ESXi host by connecting to a vCenter Server instance.  
+* `vsphere-clone` - This builder clones an existing virtual machine template, modifies the template, and then saves it as a new image. The builder uses the vSphere API to build images on a vSphere cluster or ESXi host by connecting to a vCenter Server instance.
 
 ## Requirements
 
 * [VMware vSphere][docs-vsphere] 6.5 or later.
 
-    The provider supports versions in accordance with the VMware Product Lifecycle Matrix from General Availability to End of General Support. 
-    
+    The provider supports versions in accordance with the VMware Product Lifecycle Matrix from General Availability to End of General Support.
+
     Learn more: [VMware Product Lifecycle Matrix][vmware-product-lifecycle-matrix]
 
 * [Go 1.17][golang-install]
@@ -32,10 +32,10 @@ To install this plugin, copy and paste this code (HCL2) into your Packer configu
 
 ```hcl
 packer {
-  required_version = ">= 0.0.1"
+  required_version = ">= 1.7.0"
   required_plugins {
     vsphere = {
-      version = ">= 0.0.1"
+      version = ">= 1.0.6"
       source  = "github.com/hashicorp/vsphere"
     }
   }
@@ -50,7 +50,7 @@ To install the downloaded plugin, please follow the Packer documentation on [ins
 
 ### Using the Source
 
-If you prefer to build the plugin from sources, clone the GitHub repository locally and run the command `go build` from the repository root directory. Upon successful compilation, a `packer-plugin-vsphere` plugin binary file can be found in the root directory. 
+If you prefer to build the plugin from sources, clone the GitHub repository locally and run the command `go build` from the repository root directory. Upon successful compilation, a `packer-plugin-vsphere` plugin binary file can be found in the root directory.
 
 To install the compiled plugin, please follow the Packer documentation on [installing a plugin][docs-packer-plugin-install].
 
