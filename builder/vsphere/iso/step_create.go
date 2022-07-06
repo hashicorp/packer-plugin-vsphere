@@ -69,7 +69,7 @@ type CreateConfig struct {
 	// for a full list of possible values.
 	GuestOSType   string               `mapstructure:"guest_os_type"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
-	//Sets the network adapters, if no adapter is specified, every network related task is not applicable.
+	// Sets the network adapters, if no adapter is specified, every network related task is not applicable.
 	NICs []NIC `mapstructure:"network_adapters"`
 	// Create USB controllers for the virtual machine. "usb" for a usb 2.0 controller. "xhci" for a usb 3.0 controller. There can only be at most one of each.
 	USBController []string `mapstructure:"usb_controller"`
