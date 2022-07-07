@@ -43,6 +43,7 @@ type Driver interface {
 	FindContentLibraryByName(name string) (*Library, error)
 	FindContentLibraryItem(libraryId string, name string) (*library.Item, error)
 	FindContentLibraryFileDatastorePath(isoPath string) (string, error)
+	UpdateContentLibraryItem(item *library.Item, name string, description string) error
 }
 
 type VCenterDriver struct {
