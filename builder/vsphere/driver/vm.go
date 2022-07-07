@@ -945,10 +945,6 @@ func (vm *VirtualMachineDriver) GetDir() (string, error) {
 }
 
 func addNetwork(d *VCenterDriver, devices object.VirtualDeviceList, config *CreateConfig) (object.VirtualDeviceList, error) {
-	if len(config.NICs) == 0 {
-		return nil, errors.New("no network adapters have been defined")
-	}
-
 	for _, nic := range config.NICs {
 		network, err := findNetwork(nic.Network, config.Host, d)
 		if err != nil {
