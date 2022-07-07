@@ -52,6 +52,8 @@ type Config struct {
 	// The import doesn't work if [convert_to_template](#convert_to_template) is set to true.
 	ContentLibraryDestinationConfig *common.ContentLibraryDestinationConfig `mapstructure:"content_library_destination"`
 
+	CleanupConfig `mapstructure:",squash"`
+
 	ctx interpolate.Context
 }
 
@@ -101,6 +103,8 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	if c.ContentLibraryDestinationConfig != nil {
 		errs = packersdk.MultiErrorAppend(errs, c.ContentLibraryDestinationConfig.Prepare(&c.LocationConfig)...)
 	}
+
+	errs = packersdk.MultiErrorAppend(errs, c.CleanupConfig.Prepare()...)
 
 	if len(errs.Errors) > 0 {
 		return warnings, errs
