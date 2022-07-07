@@ -23,7 +23,7 @@ func (vm *ReconfigureFail) ReconfigVMTask(req *types.ReconfigVM_Task) soap.HasFa
 
 	return &methods.ReconfigVM_TaskBody{
 		Res: &types.ReconfigVM_TaskResponse{
-			Returnval: task.Run(),
+			Returnval: task.Run(simulator.SpoofContext()),
 		},
 	}
 }

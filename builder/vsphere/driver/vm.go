@@ -844,6 +844,12 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 	if err == nil {
 		// Updates existing library item
 		ovf.Target.LibraryItemID = item.ID
+		if ovf.Spec.Description != item.Description {
+			err = vm.driver.UpdateContentLibraryItem(item, ovf.Spec.Name, ovf.Spec.Description)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	ovf.Target.LibraryID = l.library.ID

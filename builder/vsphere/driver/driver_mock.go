@@ -117,3 +117,7 @@ func (d *DriverMock) FindContentLibraryItem(libraryId string, name string) (*lib
 func (d *DriverMock) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
 	return "", nil
 }
+
+func (d *DriverMock) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
+	return nil
+}

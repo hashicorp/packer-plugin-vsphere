@@ -87,6 +87,16 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 	return path.Join(libItemDir, isoFilePath), nil
 }
 
+func (d *VCenterDriver) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
+	lm := library.NewManager(d.restClient.client)
+	item.Patch(&library.Item{
+		ID:          item.ID,
+		Name:        name,
+		Description: description,
+	})
+	return lm.UpdateLibraryItem(d.ctx, item)
+}
+
 type LibraryFilePath struct {
 	path string
 }
