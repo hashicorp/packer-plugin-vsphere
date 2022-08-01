@@ -74,6 +74,8 @@ type CreateConfig struct {
 	USBController []string `mapstructure:"usb_controller"`
 	// VM notes.
 	Notes string `mapstructure:"notes"`
+	// If set to true, the VM will be destroyed after the builder completes
+	Destroy bool `mapstructure:"destroy"`
 }
 
 func (c *CreateConfig) Prepare() []error {
@@ -179,6 +181,9 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 	if err != nil {
 		state.Put("error", fmt.Errorf("error creating vm: %v", err))
 		return multistep.ActionHalt
+	}
+	if s.Config.Destroy {
+		state.Put("destroy_vm", s.Config.Destroy)
 	}
 	state.Put("vm", vm)
 

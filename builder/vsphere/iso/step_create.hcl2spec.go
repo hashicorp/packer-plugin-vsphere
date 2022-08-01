@@ -18,6 +18,7 @@ type FlatCreateConfig struct {
 	NICs               []FlatNIC               `mapstructure:"network_adapters" cty:"network_adapters" hcl:"network_adapters"`
 	USBController      []string                `mapstructure:"usb_controller" cty:"usb_controller" hcl:"usb_controller"`
 	Notes              *string                 `mapstructure:"notes" cty:"notes" hcl:"notes"`
+	Destroy            *bool                   `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
 }
 
 // FlatMapstructure returns a new FlatCreateConfig.
@@ -39,6 +40,7 @@ func (*FlatCreateConfig) HCL2Spec() map[string]hcldec.Spec {
 		"network_adapters":     &hcldec.BlockListSpec{TypeName: "network_adapters", Nested: hcldec.ObjectSpec((*FlatNIC)(nil).HCL2Spec())},
 		"usb_controller":       &hcldec.AttrSpec{Name: "usb_controller", Type: cty.List(cty.String), Required: false},
 		"notes":                &hcldec.AttrSpec{Name: "notes", Type: cty.String, Required: false},
+		"destroy":              &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
 	}
 	return s
 }
