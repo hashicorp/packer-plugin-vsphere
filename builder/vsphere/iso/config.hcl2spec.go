@@ -144,7 +144,6 @@ type FlatConfig struct {
 	ConvertToTemplate               *bool                                       `mapstructure:"convert_to_template" cty:"convert_to_template" hcl:"convert_to_template"`
 	Export                          *common.FlatExportConfig                    `mapstructure:"export" cty:"export" hcl:"export"`
 	ContentLibraryDestinationConfig *common.FlatContentLibraryDestinationConfig `mapstructure:"content_library_destination" cty:"content_library_destination" hcl:"content_library_destination"`
-	Destroy                         *bool                                       `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -292,7 +291,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"convert_to_template":            &hcldec.AttrSpec{Name: "convert_to_template", Type: cty.Bool, Required: false},
 		"export":                         &hcldec.BlockSpec{TypeName: "export", Nested: hcldec.ObjectSpec((*common.FlatExportConfig)(nil).HCL2Spec())},
 		"content_library_destination":    &hcldec.BlockSpec{TypeName: "content_library_destination", Nested: hcldec.ObjectSpec((*common.FlatContentLibraryDestinationConfig)(nil).HCL2Spec())},
-		"destroy":                        &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
 	}
 	return s
 }
