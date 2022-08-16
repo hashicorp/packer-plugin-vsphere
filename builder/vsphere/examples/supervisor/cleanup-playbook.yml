@@ -1,0 +1,78 @@
+---
+- name: Clean up source VM
+  hosts: default
+  become: true
+  no_log: true
+  tasks:
+    - name: Truncate machine id
+      file:
+        state: "{{ item.state }}"
+        path: "{{ item.path }}"
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      loop:
+      - { path: /etc/machine-id, state: absent, mode: "0644" }
+      - { path: /etc/machine-id, state: touch,  mode: "0644" }
+
+    - name: Truncate audit logs
+      file:
+        state: "{{ item.state }}"
+        path: "{{ item.path }}"
+        owner: root
+        group: utmp
+        mode: "{{ item.mode }}"
+      loop:
+      - { path: /var/log/wtmp,    state: absent, mode: "0664" }
+      - { path: /var/log/lastlog, state: absent, mode: "0644" }
+      - { path: /var/log/wtmp,    state: touch,  mode: "0664" }
+      - { path: /var/log/lastlog, state: touch,  mode: "0644" }
+
+    - name: Remove cloud-init lib dir and logs
+      file:
+        state: absent
+        path: "{{ item }}"
+      loop:
+      - /var/lib/cloud
+      - /var/log/cloud-init.log
+      - /var/log/cloud-init-output.log
+      - /var/run/cloud-init
+
+    - name: Remove VMware created logs
+      shell:
+        cmd: |
+          find /var/log -type f -iname 'vmware-*.log*' -exec rm {} +
+
+    - name: Truncate all remaining log files in /var/log
+      shell:
+        cmd: |
+          find /var/log -type f -iname '*.log*' | xargs truncate -s 0
+
+    - name: Delete all logrotated log zips
+      shell:
+        cmd: |
+          find /var/log -type f -name '*.gz' -exec rm {} +
+
+    - name: Find temp files
+      find:
+        depth: 1
+        file_type: any
+        paths:
+        - /tmp
+        - /var/tmp
+        pattern: '*'
+      register: temp_files
+
+    - name: Reset temp space
+      file:
+        state: absent
+        path: "{{ item.path }}"
+      loop: "{{ temp_files.files }}"
+
+    - name: Truncate shell history
+      file:
+        state: absent
+        path: "{{ item.path }}"
+      loop:
+      - { path: /root/.bash_history }
+      - { path: "/home/{{ ansible_env.SUDO_USER | default(ansible_user_id) }}/.bash_history" }

@@ -1,0 +1,204 @@
+---
+modeline: |
+  vim: set ft=pandoc:
+description: >
+  The Packer builder that deploys a VM-Service vm to a vSphere Supervisor cluster.
+page_title: vSphere Supervisor - Builders
+sidebar_title: Supervisor
+---
+
+# VMware vSphere Supervisor Builder
+
+Type: `vsphere-supervisor`
+Artifact BuilderId: `jetbrains.vsphere`
+
+This builder deploys new VMs to a vSphere Supervisor cluster.
+
+- It uses kubeconfig file to connect to the vSphere Supervisor cluster.
+- It uses the VM-Service API to deploy and configure the source VM.
+- It uses the Packer provisioners to customize the VM after deployment.
+- A new feature will be available soon to publish customized VM as a new VM image to the vSphere endpoint.
+
+## Examples
+
+Example Packer template:
+
+<Tabs>
+<Tab heading="HCL2">
+
+```hcl
+source "vsphere-supervisor" "example-vm" {
+  image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
+  class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
+  storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+}
+
+build {
+  sources = ["source.vsphere-supervisor.example-vm"]
+}
+```
+
+</Tab>
+<Tab heading="JSON">
+
+```json
+{
+  "builders": [
+    {
+      "type": "vsphere-supervisor",
+      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
+      "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
+      "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+    }
+  ]
+}
+```
+
+</Tab>
+</Tabs>
+
+Please check the [examples/supervisor folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/supervisor) for more complete examples.
+
+## Configuration Reference
+There are various configuration options available for each step in this builder. The _required_ items are listed below as well as the _optional_ configs further down the page.
+
+### Required
+
+@include 'builder/vsphere/supervisor/CreateSourceConfig-required.mdx'
+
+### Optional
+
+#### Supervisor Cluster Connection
+
+@include 'builder/vsphere/supervisor/ConnectSupervisorConfig-not-required.mdx'
+
+#### Source VM Creation
+
+@include 'builder/vsphere/supervisor/CreateSourceConfig-not-required.mdx'
+
+#### Source VM Watching
+
+@include 'builder/vsphere/supervisor/WatchSourceConfig-not-required.mdx'
+
+#### SSH Configuration
+
+@include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
+
+@include 'packer-plugin-sdk/communicator/SSHTemporaryKeyPair-not-required.mdx'
+
+## Deprovisioning Tasks
+
+If you would like to clean up the VM after the build is complete, you can use the Ansible provisioner to run the following tasks to delete machine-specific files and data.
+
+<Tabs>
+<Tab heading="HCL2">
+
+```hcl
+build {
+  sources = ["source.vsphere-supervisor.vm"]
+
+  provisioner "ansible" {
+    playbook_file = "cleanup-playbook.yml"
+  }
+}
+```
+
+</Tab>
+<Tab heading="JSON">
+
+```json
+{
+  "builders": [
+    {
+      "type": "vsphere-supervisor"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "./cleanup-playbook.yml"
+    }
+  ]
+}
+```
+
+</Tab>
+</Tabs>
+
+Content of `cleanup-playbook.yml`:
+
+```yaml
+---
+# cleanup-playbook.yml
+- name: Clean up source VM
+  hosts: default
+  become: true
+  tasks:
+    - name: Truncate machine id
+      file:
+        state: "{{ item.state }}"
+        path: "{{ item.path }}"
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      loop:
+      - { path: /etc/machine-id, state: absent, mode: "0644" }
+      - { path: /etc/machine-id, state: touch,  mode: "0644" }
+
+    - name: Truncate audit logs
+      file:
+        state: "{{ item.state }}"
+        path: "{{ item.path }}"
+        owner: root
+        group: utmp
+        mode: "{{ item.mode }}"
+      loop:
+      - { path: /var/log/wtmp,    state: absent, mode: "0664" }
+      - { path: /var/log/lastlog, state: absent, mode: "0644" }
+      - { path: /var/log/wtmp,    state: touch,  mode: "0664" }
+      - { path: /var/log/lastlog, state: touch,  mode: "0644" }
+
+    - name: Remove cloud-init lib dir and logs
+      file:
+        state: absent
+        path: "{{ item }}"
+      loop:
+      - /var/lib/cloud
+      - /var/log/cloud-init.log
+      - /var/log/cloud-init-output.log
+      - /var/run/cloud-init
+
+    - name: Truncate all remaining log files in /var/log
+      shell:
+        cmd: |
+          find /var/log -type f -iname '*.log' | xargs truncate -s 0
+
+    - name: Delete all logrotated log zips
+      shell:
+        cmd: |
+          find /var/log -type f -name '*.gz' -exec rm {} +
+
+    - name: Find temp files
+      find:
+        depth: 1
+        file_type: any
+        paths:
+        - /tmp
+        - /var/tmp
+        pattern: '*'
+      register: temp_files
+
+    - name: Reset temp space
+      file:
+        state: absent
+        path: "{{ item.path }}"
+      loop: "{{ temp_files.files }}"
+
+    - name: Truncate shell history
+      file:
+        state: absent
+        path: "{{ item.path }}"
+      loop:
+      - { path: /root/.bash_history }
+      - { path: "/home/{{ ansible_env.SUDO_USER | default(ansible_user_id) }}/.bash_history" }
+```

@@ -1,7 +1,7 @@
 # VMware vSphere Components
 
 The vSphere plugin is able to create vSphere virtual machines for use with any VMware product. 
-To achieve this, the plugin comes with two builders, and two post-processors 
+To achieve this, the plugin comes with three builders, and two post-processors
 to build the VM depending on the strategy you want to use.
 
 ### Builders:
@@ -13,6 +13,10 @@ to build the VM depending on the strategy you want to use.
   vm from an existing template, then modifies it and saves it as a new
   template. It uses the vSphere API to build on a remote esx instance.
   This allows you to build vms even if you do not have SSH access to your vSphere cluster.
+
+- [vsphere-supervisor](/docs/builders/vsphere-supervisor.mdx) - This builder deploys a
+  vm to a vSphere Supervisor cluster, using the VM-Service API. This allows you to build
+  vms without spec yaml files and configure them after using the Packer provisioners.
 
 ### Post-Processors
 - [vsphere](/docs/post-processors/vsphere.mdx) - The Packer vSphere post-processor takes an artifact 

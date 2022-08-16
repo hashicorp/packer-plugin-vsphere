@@ -8,6 +8,8 @@ The plugin includes two builders which are able to create images, depending on y
 
 * `vsphere-clone` - This builder clones an existing virtual machine template, modifies the template, and then saves it as a new image. The builder uses the vSphere API to build images on a vSphere cluster or ESXi host by connecting to a vCenter Server instance.
 
+* `vsphere-supervisor` - This builder deploys a vm to a vSphere Supervisor cluster by using the VM-Service API.
+
 ## Requirements
 
 * [VMware vSphere][docs-vsphere] 6.5 or later.
