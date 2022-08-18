@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	defaultSourceName  = "packer-supervisor-builder-source"
+	defaultSourceName  = "packer-supervisor-built-source"
 	vmSelectorLabelKey = defaultSourceName + "-selector"
 
 	stateKeyVMCreated               = "vm_created"
@@ -44,6 +44,7 @@ type CreateSourceConfig struct {
 	SourceName  string `mapstructure:"source_name"`
 	NetworkType string `mapstructure:"network_type"`
 	NetworkName string `mapstructure:"network_name"`
+	KeepSource  bool   `mapstructure:"keep_source"`
 }
 
 func (c *CreateSourceConfig) Prepare() []error {
@@ -281,8 +282,13 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 
 func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Cleaning up the previously created source objects from Supervisor cluster...")
 
+	if s.Config.KeepSource {
+		logger.Info("Skip cleaning up the previously created source objects as configured")
+		return
+	}
+
+	logger.Info("Cleaning up the previously created source objects from Supervisor cluster...")
 	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
 	if kubeClient == nil {
 		logger.Error("kube client is nil from the StateBag")

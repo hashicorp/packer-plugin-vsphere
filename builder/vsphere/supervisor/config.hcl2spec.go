@@ -75,6 +75,7 @@ type FlatConfig struct {
 	SourceName                *string           `mapstructure:"source_name" cty:"source_name" hcl:"source_name"`
 	NetworkType               *string           `mapstructure:"network_type" cty:"network_type" hcl:"network_type"`
 	NetworkName               *string           `mapstructure:"network_name" cty:"network_name" hcl:"network_name"`
+	KeepSource                *bool             `mapstructure:"keep_source" cty:"keep_source" hcl:"keep_source"`
 	TimeoutSecond             *int64            `mapstructure:"watch_source_timeout_sec" cty:"watch_source_timeout_sec" hcl:"watch_source_timeout_sec"`
 }
 
@@ -155,6 +156,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"source_name":                  &hcldec.AttrSpec{Name: "source_name", Type: cty.String, Required: false},
 		"network_type":                 &hcldec.AttrSpec{Name: "network_type", Type: cty.String, Required: false},
 		"network_name":                 &hcldec.AttrSpec{Name: "network_name", Type: cty.String, Required: false},
+		"keep_source":                  &hcldec.AttrSpec{Name: "keep_source", Type: cty.Bool, Required: false},
 		"watch_source_timeout_sec":     &hcldec.AttrSpec{Name: "watch_source_timeout_sec", Type: cty.Number, Required: false},
 	}
 	return s

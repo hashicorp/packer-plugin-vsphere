@@ -17,6 +17,7 @@ type FlatCreateSourceConfig struct {
 	SourceName   *string `mapstructure:"source_name" cty:"source_name" hcl:"source_name"`
 	NetworkType  *string `mapstructure:"network_type" cty:"network_type" hcl:"network_type"`
 	NetworkName  *string `mapstructure:"network_name" cty:"network_name" hcl:"network_name"`
+	KeepSource   *bool   `mapstructure:"keep_source" cty:"keep_source" hcl:"keep_source"`
 }
 
 // FlatMapstructure returns a new FlatCreateSourceConfig.
@@ -38,6 +39,7 @@ func (*FlatCreateSourceConfig) HCL2Spec() map[string]hcldec.Spec {
 		"source_name":   &hcldec.AttrSpec{Name: "source_name", Type: cty.String, Required: false},
 		"network_type":  &hcldec.AttrSpec{Name: "network_type", Type: cty.String, Required: false},
 		"network_name":  &hcldec.AttrSpec{Name: "network_name", Type: cty.String, Required: false},
+		"keep_source":   &hcldec.AttrSpec{Name: "keep_source", Type: cty.Bool, Required: false},
 	}
 	return s
 }
