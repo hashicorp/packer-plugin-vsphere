@@ -74,7 +74,7 @@ type StepCreateSource struct {
 }
 
 func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
-	logger.Info("Initializing source VMService object")
+	logger.Info("Initializing a source VMService object for setting up communication")
 
 	sshPort := int32(s.CommunicatorConfig.SSHPort)
 	vmService := vmopv1alpha1.VirtualMachineService{
@@ -107,7 +107,7 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 		return err
 	}
 
-	logger.Info("Creating VMService object with the kube REST client")
+	logger.Info("Creating the VMService object with the kube REST client")
 	data, err := kubeClient.RESTClient().
 		Post().
 		AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
@@ -124,12 +124,12 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 		return err
 	}
 
-	logger.Info("Successfully created source VMService object")
+	logger.Info("Created the source VMService object")
 	return nil
 }
 
 func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
-	logger.Info("Initializing source VirtualMachine object")
+	logger.Info("Initializing a source VirtualMachine object for customization")
 
 	vm := &vmopv1alpha1.VirtualMachine{
 		TypeMeta: metav1.TypeMeta{
@@ -170,7 +170,7 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, k
 		return err
 	}
 
-	logger.Info("Creating VM object with the kube REST client")
+	logger.Info("Creating the source VirtualMachine object with the kube REST client")
 	data, err := kubeClient.RESTClient().
 		Post().
 		AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
@@ -187,12 +187,12 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, k
 		return err
 	}
 
-	logger.Info("Successfully created source VirtualMachine object")
+	logger.Info("Created the source VirtualMachine object")
 	return nil
 }
 
 func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
-	logger.Info("Initializing source Secret object")
+	logger.Info("Initializing a source K8s Secret object for providing VM metadata")
 	cloudInitFmt := `#cloud-config
 users:
   - name: %s
@@ -227,20 +227,20 @@ write_files:
 		StringData: data,
 	}
 
-	logger.Info("Creating Secret object with the kube CoreV1Client")
+	logger.Info("Applying the source K8s Secret object with the kube CoreV1Client")
 	_, err := kubeClient.CoreV1().Secrets(s.Config.Namespace).Create(ctx, kubeSecret, metav1.CreateOptions{})
 	if err != nil {
 		logger.Error("Failed to create source Secret object")
 		return err
 	}
 
-	logger.Info("Successfully created source Secret object")
+	logger.Info("Created the source K8s Secret object")
 	return nil
 }
 
 func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Creating source objects...")
+	logger.Info("Creating source VM and its required objects in the connected Supervisor cluster...")
 
 	var err error
 	defer func() {
@@ -275,13 +275,13 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 	state.Put(stateKeySourceNamespace, s.Config.Namespace)
 	state.Put(stateKeySourceName, s.Config.SourceName)
 
-	logger.Info("Step CreateSource DONE")
+	logger.Info("Successfully created all required objects in the Supervisor cluster")
 	return multistep.ActionContinue
 }
 
 func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Cleaning up source objects...")
+	logger.Info("Cleaning up the previously created source objects from Supervisor cluster...")
 
 	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
 	if kubeClient == nil {
@@ -290,7 +290,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	}
 
 	if state.Get(stateKeyVMServiceCreated) == true {
-		logger.Info("Deleting source VirtualMachineService object")
+		logger.Info("Deleting the source VirtualMachineService object")
 		data, err := kubeClient.RESTClient().
 			Delete().
 			AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
@@ -300,11 +300,13 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 			DoRaw(context.Background())
 		if err != nil {
 			logger.Error("Failed to delete source VirtualMachineService object: %s", string(data))
+		} else {
+			logger.Info("Deleted the source VirtualMachineService object")
 		}
 	}
 
 	if state.Get(stateKeyVMCreated) == true {
-		logger.Info("Deleting source VirtualMachine object")
+		logger.Info("Deleting the source VirtualMachine object")
 		data, err := kubeClient.RESTClient().
 			Delete().
 			AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
@@ -314,6 +316,8 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 			DoRaw(context.Background())
 		if err != nil {
 			logger.Error("Failed to delete source VirtualMachine object: %v", string(data))
+		} else {
+			logger.Info("Deleted the source VirtualMachine object")
 		}
 	}
 
@@ -323,6 +327,8 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 			context.Background(), s.Config.SourceName, metav1.DeleteOptions{})
 		if err != nil {
 			logger.Error("Failed to delete source VMMetadata K8s Secret object: %s", err)
+		} else {
+			logger.Info("Deleted the source VMMetadata Secret object")
 		}
 	}
 }

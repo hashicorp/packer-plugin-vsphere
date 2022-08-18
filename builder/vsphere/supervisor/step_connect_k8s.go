@@ -57,7 +57,7 @@ func (s *StepConnectK8s) getKubeClients() (*kubernetes.Clientset, dynamic.Interf
 
 func (s *StepConnectK8s) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Connecting to Kubernetes cluster...")
+	logger.Info("Connecting to Supervisor K8s cluster...")
 
 	kubeClient, dynamicClient, err := s.getKubeClients()
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *StepConnectK8s) Run(ctx context.Context, state multistep.StateBag) mult
 	state.Put(stateKeyKubeClient, kubeClient)
 	state.Put(stateKeyDynamicClient, dynamicClient)
 
-	logger.Info("Step ConnectK8s DONE")
+	logger.Info("Successfully connected to the Supervisor cluster")
 	return multistep.ActionContinue
 }
 

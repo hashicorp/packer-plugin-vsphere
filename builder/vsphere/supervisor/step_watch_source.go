@@ -108,7 +108,7 @@ func (s *StepWatchSource) waitForVMReady(
 
 func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Waiting for source VM to be ready...")
+	logger.Info("Waiting for the source VM to be up and ready...")
 
 	var err error
 	defer func() {
@@ -144,7 +144,7 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	state.Put(stateKeyConnectIP, ingressIP)
 
-	logger.Info("Step WatchSource DONE")
+	logger.Info("Source VM is now up and ready for customization")
 	return multistep.ActionContinue
 }
 
