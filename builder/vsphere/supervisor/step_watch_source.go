@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	defaultWatchTimeoutSec = 300
+	defaultWatchTimeoutSec = 600
 
 	stateKeyVMIP      = "vm_ip"
 	stateKeyConnectIP = "ip"

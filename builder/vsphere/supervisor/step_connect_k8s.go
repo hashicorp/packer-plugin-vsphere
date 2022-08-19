@@ -5,7 +5,7 @@ package supervisor
 
 import (
 	"context"
-	"fmt"
+	"os"
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -24,12 +24,17 @@ type ConnectK8sConfig struct {
 }
 
 func (c *ConnectK8sConfig) Prepare() []error {
-	var errs []error
 	if c.KubeconfigPath == "" {
-		errs = append(errs, fmt.Errorf("'kubeconfig_path' is required for connecting to the Kubernetes cluster"))
+		if val := os.Getenv(clientcmd.RecommendedConfigPathEnvVar); val != "" {
+			// Set to what KUBECONFIG env var has defined.
+			c.KubeconfigPath = val
+		} else {
+			// Set to the default path ("~/.kube/config").
+			c.KubeconfigPath = clientcmd.RecommendedHomeFile
+		}
 	}
 
-	return errs
+	return nil
 }
 
 type StepConnectK8s struct {
