@@ -117,28 +117,28 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 		}
 	}()
 
+	if err = checkRequiredStates(state,
+		stateKeyKubeClient,
+		stateKeyDynamicClient,
+		stateKeyK8sNamespace,
+		stateKeySourceName,
+	); err != nil {
+		return multistep.ActionHalt
+	}
+
 	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
 	dynamicClient := state.Get(stateKeyDynamicClient).(dynamic.Interface)
-	if kubeClient == nil || dynamicClient == nil {
-		err = fmt.Errorf("required K8s clients are nil from the StateBag")
-		return multistep.ActionHalt
-	}
-
+	namespace := state.Get(stateKeyK8sNamespace).(string)
 	sourceName := state.Get(stateKeySourceName).(string)
-	sourceNamespace := state.Get(stateKeySourceNamespace).(string)
-	if sourceName == "" || sourceNamespace == "" {
-		err = fmt.Errorf("required source name or namespace is empty from the StateBag")
-		return multistep.ActionHalt
-	}
 
 	// Wait for the source VM to power up and have an IP assigned.
-	vmIP, err := s.waitForVMReady(ctx, logger, dynamicClient, sourceName, sourceNamespace)
+	vmIP, err := s.waitForVMReady(ctx, logger, dynamicClient, sourceName, namespace)
 	if err != nil {
 		return multistep.ActionHalt
 	}
 	state.Put(stateKeyVMIP, vmIP)
 
-	ingressIP, err := s.getVMIngressIP(ctx, logger, kubeClient, sourceName, sourceNamespace)
+	ingressIP, err := s.getVMIngressIP(ctx, logger, kubeClient, sourceName, namespace)
 	if err != nil {
 		return multistep.ActionHalt
 	}

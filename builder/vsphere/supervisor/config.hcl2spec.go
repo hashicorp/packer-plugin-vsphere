@@ -68,7 +68,7 @@ type FlatConfig struct {
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
 	KubeconfigPath            *string           `mapstructure:"kubeconfig_path" cty:"kubeconfig_path" hcl:"kubeconfig_path"`
-	Namespace                 *string           `mapstructure:"namespace" cty:"namespace" hcl:"namespace"`
+	K8sNamespace              *string           `mapstructure:"k8s_namespace" cty:"k8s_namespace" hcl:"k8s_namespace"`
 	ImageName                 *string           `mapstructure:"image_name" cty:"image_name" hcl:"image_name"`
 	ClassName                 *string           `mapstructure:"class_name" cty:"class_name" hcl:"class_name"`
 	StorageClass              *string           `mapstructure:"storage_class" cty:"storage_class" hcl:"storage_class"`
@@ -149,7 +149,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
 		"kubeconfig_path":              &hcldec.AttrSpec{Name: "kubeconfig_path", Type: cty.String, Required: false},
-		"namespace":                    &hcldec.AttrSpec{Name: "namespace", Type: cty.String, Required: false},
+		"k8s_namespace":                &hcldec.AttrSpec{Name: "k8s_namespace", Type: cty.String, Required: false},
 		"image_name":                   &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"class_name":                   &hcldec.AttrSpec{Name: "class_name", Type: cty.String, Required: false},
 		"storage_class":                &hcldec.AttrSpec{Name: "storage_class", Type: cty.String, Required: false},

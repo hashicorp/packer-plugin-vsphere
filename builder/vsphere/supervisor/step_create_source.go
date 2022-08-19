@@ -10,7 +10,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -22,11 +21,10 @@ const (
 	defaultSourceName  = "packer-supervisor-built-source"
 	vmSelectorLabelKey = defaultSourceName + "-selector"
 
+	stateKeySourceName              = "source_name"
 	stateKeyVMCreated               = "vm_created"
 	stateKeyVMServiceCreated        = "vm_service_created"
 	stateKeyVMMetadataSecretCreated = "vm_metadata_secret_created"
-	stateKeySourceName              = "source_name"
-	stateKeySourceNamespace         = "source_namespace"
 )
 
 var (
@@ -35,7 +33,6 @@ var (
 
 type CreateSourceConfig struct {
 	// Required configs.
-	Namespace    string `mapstructure:"namespace"`
 	ImageName    string `mapstructure:"image_name"`
 	ClassName    string `mapstructure:"class_name"`
 	StorageClass string `mapstructure:"storage_class"`
@@ -49,9 +46,7 @@ type CreateSourceConfig struct {
 
 func (c *CreateSourceConfig) Prepare() []error {
 	var errs []error
-	if c.Namespace == "" {
-		errs = append(errs, fmt.Errorf("'namespace' is required for creating the source VM"))
-	}
+
 	if c.ImageName == "" {
 		errs = append(errs, fmt.Errorf("'image_name' is required for creating the source VM"))
 	}
@@ -72,9 +67,12 @@ func (c *CreateSourceConfig) Prepare() []error {
 type StepCreateSource struct {
 	Config             *CreateSourceConfig
 	CommunicatorConfig *communicator.Config
+
+	k8sNamespace string
+	kubeClient   *kubernetes.Clientset
 }
 
-func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
+func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Initializing a source VMService object for setting up communication")
 
 	sshPort := int32(s.CommunicatorConfig.SSHPort)
@@ -85,7 +83,7 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
-			Namespace: s.Config.Namespace,
+			Namespace: s.k8sNamespace,
 		},
 		Spec: vmopv1alpha1.VirtualMachineServiceSpec{
 			Type: vmopv1alpha1.VirtualMachineServiceTypeLoadBalancer,
@@ -109,10 +107,10 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 	}
 
 	logger.Info("Creating the VMService object with the kube REST client")
-	data, err := kubeClient.RESTClient().
+	data, err := s.kubeClient.RESTClient().
 		Post().
 		AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
-		Namespace(s.Config.Namespace).
+		Namespace(s.k8sNamespace).
 		Resource("virtualmachineservices").
 		Body(vmServiceJSON).
 		DoRaw(ctx)
@@ -129,7 +127,7 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 	return nil
 }
 
-func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
+func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Initializing a source VirtualMachine object for customization")
 
 	vm := &vmopv1alpha1.VirtualMachine{
@@ -139,7 +137,7 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, k
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
-			Namespace: s.Config.Namespace,
+			Namespace: s.k8sNamespace,
 			Labels: map[string]string{
 				vmSelectorLabelKey: s.Config.SourceName,
 			},
@@ -172,10 +170,10 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, k
 	}
 
 	logger.Info("Creating the source VirtualMachine object with the kube REST client")
-	data, err := kubeClient.RESTClient().
+	data, err := s.kubeClient.RESTClient().
 		Post().
 		AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
-		Namespace(s.Config.Namespace).
+		Namespace(s.k8sNamespace).
 		Resource("virtualmachines").
 		Body(vmJSON).
 		DoRaw(ctx)
@@ -192,7 +190,7 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger, k
 	return nil
 }
 
-func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset) error {
+func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Initializing a source K8s Secret object for providing VM metadata")
 	cloudInitFmt := `#cloud-config
 users:
@@ -223,13 +221,13 @@ write_files:
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
-			Namespace: s.Config.Namespace,
+			Namespace: s.k8sNamespace,
 		},
 		StringData: data,
 	}
 
 	logger.Info("Applying the source K8s Secret object with the kube CoreV1Client")
-	_, err := kubeClient.CoreV1().Secrets(s.Config.Namespace).Create(ctx, kubeSecret, metav1.CreateOptions{})
+	_, err := s.kubeClient.CoreV1().Secrets(s.k8sNamespace).Create(ctx, kubeSecret, metav1.CreateOptions{})
 	if err != nil {
 		logger.Error("Failed to create source Secret object")
 		return err
@@ -250,30 +248,32 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		}
 	}()
 
-	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
-	dynamicClient := state.Get(stateKeyDynamicClient).(dynamic.Interface)
-	if kubeClient == nil || dynamicClient == nil {
-		err = fmt.Errorf("required K8s clients are nil from the StateBag")
+	if err = checkRequiredStates(state,
+		stateKeyKubeClient,
+		stateKeyK8sNamespace,
+	); err != nil {
 		return multistep.ActionHalt
 	}
 
-	if err = s.createVMMetadataSecret(ctx, logger, kubeClient); err != nil {
+	s.kubeClient = state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
+	s.k8sNamespace = state.Get("k8s_namespace").(string)
+
+	if err = s.createVMMetadataSecret(ctx, logger); err != nil {
 		return multistep.ActionHalt
 	}
 	state.Put(stateKeyVMMetadataSecretCreated, true)
 
-	if err = s.createVM(ctx, logger, kubeClient); err != nil {
+	if err = s.createVM(ctx, logger); err != nil {
 		return multistep.ActionHalt
 	}
 	state.Put(stateKeyVMCreated, true)
 
-	if err = s.createVMService(ctx, logger, kubeClient); err != nil {
+	if err = s.createVMService(ctx, logger); err != nil {
 		return multistep.ActionHalt
 	}
 	state.Put(stateKeyVMServiceCreated, true)
 
 	// Storing the created source info to be used in the next step.
-	state.Put(stateKeySourceNamespace, s.Config.Namespace)
 	state.Put(stateKeySourceName, s.Config.SourceName)
 
 	logger.Info("Successfully created all required objects in the Supervisor cluster")
@@ -300,7 +300,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 		data, err := kubeClient.RESTClient().
 			Delete().
 			AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
-			Namespace(s.Config.Namespace).
+			Namespace(s.k8sNamespace).
 			Resource("virtualmachineservices").
 			Name(s.Config.SourceName).
 			DoRaw(context.Background())
@@ -316,7 +316,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 		data, err := kubeClient.RESTClient().
 			Delete().
 			AbsPath(fmt.Sprintf("/apis/%s", vmopAPIVersion)).
-			Namespace(s.Config.Namespace).
+			Namespace(s.k8sNamespace).
 			Resource("virtualmachines").
 			Name(s.Config.SourceName).
 			DoRaw(context.Background())
@@ -329,7 +329,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 
 	if state.Get(stateKeyVMMetadataSecretCreated) == true {
 		logger.Info("Deleting source VMMetadata Secret object")
-		err := kubeClient.CoreV1().Secrets(s.Config.Namespace).Delete(
+		err := kubeClient.CoreV1().Secrets(s.k8sNamespace).Delete(
 			context.Background(), s.Config.SourceName, metav1.DeleteOptions{})
 		if err != nil {
 			logger.Error("Failed to delete source VMMetadata K8s Secret object: %s", err)

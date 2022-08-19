@@ -11,6 +11,7 @@ import (
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatConnectK8sConfig struct {
 	KubeconfigPath *string `mapstructure:"kubeconfig_path" cty:"kubeconfig_path" hcl:"kubeconfig_path"`
+	K8sNamespace   *string `mapstructure:"k8s_namespace" cty:"k8s_namespace" hcl:"k8s_namespace"`
 }
 
 // FlatMapstructure returns a new FlatConnectK8sConfig.
@@ -26,6 +27,7 @@ func (*ConnectK8sConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcl
 func (*FlatConnectK8sConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"kubeconfig_path": &hcldec.AttrSpec{Name: "kubeconfig_path", Type: cty.String, Required: false},
+		"k8s_namespace":   &hcldec.AttrSpec{Name: "k8s_namespace", Type: cty.String, Required: false},
 	}
 	return s
 }

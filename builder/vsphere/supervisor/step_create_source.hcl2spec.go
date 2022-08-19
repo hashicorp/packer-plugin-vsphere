@@ -10,7 +10,6 @@ import (
 // FlatCreateSourceConfig is an auto-generated flat version of CreateSourceConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatCreateSourceConfig struct {
-	Namespace    *string `mapstructure:"namespace" cty:"namespace" hcl:"namespace"`
 	ImageName    *string `mapstructure:"image_name" cty:"image_name" hcl:"image_name"`
 	ClassName    *string `mapstructure:"class_name" cty:"class_name" hcl:"class_name"`
 	StorageClass *string `mapstructure:"storage_class" cty:"storage_class" hcl:"storage_class"`
@@ -32,7 +31,6 @@ func (*CreateSourceConfig) FlatMapstructure() interface{ HCL2Spec() map[string]h
 // The decoded values from this spec will then be applied to a FlatCreateSourceConfig.
 func (*FlatCreateSourceConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"namespace":     &hcldec.AttrSpec{Name: "namespace", Type: cty.String, Required: false},
 		"image_name":    &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"class_name":    &hcldec.AttrSpec{Name: "class_name", Type: cty.String, Required: false},
 		"storage_class": &hcldec.AttrSpec{Name: "storage_class", Type: cty.String, Required: false},
