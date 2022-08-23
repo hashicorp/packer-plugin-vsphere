@@ -13,6 +13,10 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 )
 
+const (
+	defaultSSHUsername = "root"
+)
+
 type Config struct {
 	packercommon.PackerConfig `mapstructure:",squash"`
 	CommunicatorConfig        communicator.Config `mapstructure:",squash"`
@@ -37,6 +41,11 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	// Set a default value for "ssh_username" if it wasn't specified.
+	if c.CommunicatorConfig.SSHUsername == "" {
+		c.CommunicatorConfig.SSHUsername = defaultSSHUsername
 	}
 
 	errs := new(packersdk.MultiError)
