@@ -159,19 +159,16 @@ func (*FlatNetworkInterface) HCL2Spec() map[string]hcldec.Spec {
 // FlatWindowsOptions is an auto-generated flat version of WindowsOptions.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatWindowsOptions struct {
-	RunOnceCommandList  []string `mapstructure:"run_once_command_list" cty:"run_once_command_list" hcl:"run_once_command_list"`
-	AutoLogon           *bool    `mapstructure:"auto_logon" cty:"auto_logon" hcl:"auto_logon"`
-	AutoLogonCount      *int32   `mapstructure:"auto_logon_count" cty:"auto_logon_count" hcl:"auto_logon_count"`
-	AdminPassword       *string  `mapstructure:"admin_password" cty:"admin_password" hcl:"admin_password"`
-	TimeZone            *int32   `mapstructure:"time_zone" cty:"time_zone" hcl:"time_zone"`
-	DomainAdminUser     *string  `mapstructure:"domain_admin_user" cty:"domain_admin_user" hcl:"domain_admin_user"`
-	DomainAdminPassword *string  `mapstructure:"domain_admin_password" cty:"domain_admin_password" hcl:"domain_admin_password"`
-	JoinDomain          *string  `mapstructure:"join_domain" cty:"join_domain" hcl:"join_domain"`
-	Workgroup           *string  `mapstructure:"workgroup" cty:"workgroup" hcl:"workgroup"`
-	ComputerName        *string  `mapstructure:"computer_name" cty:"computer_name" hcl:"computer_name"`
-	FullName            *string  `mapstructure:"full_name" cty:"full_name" hcl:"full_name"`
-	OrganizationName    *string  `mapstructure:"organization_name" cty:"organization_name" hcl:"organization_name"`
-	ProductKey          *string  `mapstructure:"product_key" cty:"product_key" hcl:"product_key"`
+	RunOnceCommandList []string `mapstructure:"run_once_command_list" cty:"run_once_command_list" hcl:"run_once_command_list"`
+	AutoLogon          *bool    `mapstructure:"auto_logon" cty:"auto_logon" hcl:"auto_logon"`
+	AutoLogonCount     *int32   `mapstructure:"auto_logon_count" cty:"auto_logon_count" hcl:"auto_logon_count"`
+	AdminPassword      *string  `mapstructure:"admin_password" cty:"admin_password" hcl:"admin_password"`
+	TimeZone           *int32   `mapstructure:"time_zone" cty:"time_zone" hcl:"time_zone"`
+	Workgroup          *string  `mapstructure:"workgroup" cty:"workgroup" hcl:"workgroup"`
+	ComputerName       *string  `mapstructure:"computer_name" cty:"computer_name" hcl:"computer_name"`
+	FullName           *string  `mapstructure:"full_name" cty:"full_name" hcl:"full_name"`
+	OrganizationName   *string  `mapstructure:"organization_name" cty:"organization_name" hcl:"organization_name"`
+	ProductKey         *string  `mapstructure:"product_key" cty:"product_key" hcl:"product_key"`
 }
 
 // FlatMapstructure returns a new FlatWindowsOptions.
@@ -191,9 +188,6 @@ func (*FlatWindowsOptions) HCL2Spec() map[string]hcldec.Spec {
 		"auto_logon_count":      &hcldec.AttrSpec{Name: "auto_logon_count", Type: cty.Number, Required: false},
 		"admin_password":        &hcldec.AttrSpec{Name: "admin_password", Type: cty.String, Required: false},
 		"time_zone":             &hcldec.AttrSpec{Name: "time_zone", Type: cty.Number, Required: false},
-		"domain_admin_user":     &hcldec.AttrSpec{Name: "domain_admin_user", Type: cty.String, Required: false},
-		"domain_admin_password": &hcldec.AttrSpec{Name: "domain_admin_password", Type: cty.String, Required: false},
-		"join_domain":           &hcldec.AttrSpec{Name: "join_domain", Type: cty.String, Required: false},
 		"workgroup":             &hcldec.AttrSpec{Name: "workgroup", Type: cty.String, Required: false},
 		"computer_name":         &hcldec.AttrSpec{Name: "computer_name", Type: cty.String, Required: false},
 		"full_name":             &hcldec.AttrSpec{Name: "full_name", Type: cty.String, Required: false},

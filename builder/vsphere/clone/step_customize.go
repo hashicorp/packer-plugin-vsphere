@@ -65,13 +65,7 @@ type WindowsOptions struct {
 	// The new time zone for the virtual machine. This is a sysprep-dictated timezone code. Default 85 (GMT)
 	TimeZone *int32 `mapstructure:"time_zone"`
 	// CustomizationIdentification
-	// The user account of the domain administrator used to join this virtual machine to the domain.
-	DomainAdminUser string `mapstructure:"domain_admin_user"`
-	// The password of the domain administrator used to join this virtual machine to the domain.
-	DomainAdminPassword string `mapstructure:"domain_admin_password"`
-	// The domain that the virtual machine should join.
-	JoinDomain string `mapstructure:"join_domain"`
-	// The workgroup for this virtual machine if not joining a domain.
+	// The workgroup for this virtual machine - AD Join is not supported
 	Workgroup string `mapstructure:"workgroup"`
 	// CustomizationUserData
 	// The host name for this virtual machine.
@@ -335,19 +329,6 @@ func (w *WindowsOptions) prepare(errs []error) []error {
 	if w.ComputerName == "" {
 		errs = append(errs, fmt.Errorf("The `computer_name` is required"))
 	}
-	if w.Workgroup != "" {
-		if w.JoinDomain != "" {
-			errs = append(errs, fmt.Errorf("The `workgroup` and `join_domain` must not be set together"))
-		}
-	}
-	if w.JoinDomain != "" {
-		if w.DomainAdminUser == "" {
-			errs = append(errs, fmt.Errorf("The `domain_admin_user` is required when `join_domain` is specified"))
-		}
-		if w.DomainAdminPassword == "" {
-			errs = append(errs, fmt.Errorf("The `domain_admin_password` is required when `join_domain` is specified"))
-		}
-	}
 	if w.FullName == "" {
 		w.FullName = "Administrator"
 	}
@@ -409,14 +390,6 @@ func (w *WindowsOptions) guiUnattended() types.CustomizationGuiUnattended {
 func (w *WindowsOptions) identification() types.CustomizationIdentification {
 	obj := types.CustomizationIdentification{
 		JoinWorkgroup: w.Workgroup,
-		JoinDomain:    w.JoinDomain,
-		DomainAdmin:   w.DomainAdminUser,
-	}
-	if w.AdminPassword != nil {
-		obj.DomainAdminPassword = &types.CustomizationPassword{
-			Value:     *w.AdminPassword,
-			PlainText: true,
-		}
 	}
 	return obj
 }
