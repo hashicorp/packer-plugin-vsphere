@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	stateKeyKubeClient    = "kube_client"
-	stateKeyDynamicClient = "dynamic_client"
-	stateKeyK8sNamespace  = "k8s_namespace"
+	StateKeyKubeClient    = "kube_client"
+	StateKeyDynamicClient = "dynamic_client"
+	StateKeyK8sNamespace  = "k8s_namespace"
 )
 
 type ConnectK8sConfig struct {
@@ -89,9 +89,9 @@ func (s *StepConnectK8s) Run(ctx context.Context, state multistep.StateBag) mult
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
-	state.Put(stateKeyKubeClient, kubeClient)
-	state.Put(stateKeyDynamicClient, dynamicClient)
-	state.Put(stateKeyK8sNamespace, s.Config.K8sNamespace)
+	state.Put(StateKeyKubeClient, kubeClient)
+	state.Put(StateKeyDynamicClient, dynamicClient)
+	state.Put(StateKeyK8sNamespace, s.Config.K8sNamespace)
 
 	logger.Info("Successfully connected to the Supervisor cluster")
 	return multistep.ActionContinue

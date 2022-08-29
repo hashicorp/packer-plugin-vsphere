@@ -117,18 +117,18 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 		}
 	}()
 
-	if err = checkRequiredStates(state,
-		stateKeyKubeClient,
-		stateKeyDynamicClient,
-		stateKeyK8sNamespace,
+	if err = CheckRequiredStates(state,
+		StateKeyKubeClient,
+		StateKeyDynamicClient,
+		StateKeyK8sNamespace,
 		stateKeySourceName,
 	); err != nil {
 		return multistep.ActionHalt
 	}
 
-	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
-	dynamicClient := state.Get(stateKeyDynamicClient).(dynamic.Interface)
-	namespace := state.Get(stateKeyK8sNamespace).(string)
+	kubeClient := state.Get(StateKeyKubeClient).(*kubernetes.Clientset)
+	dynamicClient := state.Get(StateKeyDynamicClient).(dynamic.Interface)
+	namespace := state.Get(StateKeyK8sNamespace).(string)
 	sourceName := state.Get(stateKeySourceName).(string)
 
 	// Wait for the source VM to power up and have an IP assigned.

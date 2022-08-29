@@ -33,7 +33,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	state.Put("debug", b.config.PackerDebug)
 	state.Put("hook", hook)
 	state.Put("ui", ui)
-	state.Put("logger", &PackerLogger{ui: ui})
+	state.Put("logger", &PackerLogger{UI: ui})
 
 	var steps []multistep.Step
 	steps = append(steps,

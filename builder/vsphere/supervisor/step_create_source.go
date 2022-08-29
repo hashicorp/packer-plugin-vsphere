@@ -248,14 +248,14 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		}
 	}()
 
-	if err = checkRequiredStates(state,
-		stateKeyKubeClient,
-		stateKeyK8sNamespace,
+	if err = CheckRequiredStates(state,
+		StateKeyKubeClient,
+		StateKeyK8sNamespace,
 	); err != nil {
 		return multistep.ActionHalt
 	}
 
-	s.kubeClient = state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
+	s.kubeClient = state.Get(StateKeyKubeClient).(*kubernetes.Clientset)
 	s.k8sNamespace = state.Get("k8s_namespace").(string)
 
 	if err = s.createVMMetadataSecret(ctx, logger); err != nil {
@@ -289,7 +289,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	}
 
 	logger.Info("Cleaning up the previously created source objects from Supervisor cluster...")
-	kubeClient := state.Get(stateKeyKubeClient).(*kubernetes.Clientset)
+	kubeClient := state.Get(StateKeyKubeClient).(*kubernetes.Clientset)
 	if kubeClient == nil {
 		logger.Error("kube client is nil from the StateBag")
 		return
