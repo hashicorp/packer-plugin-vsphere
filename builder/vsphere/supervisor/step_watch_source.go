@@ -40,7 +40,7 @@ type StepWatchSource struct {
 }
 
 func (s *StepWatchSource) getVMIngressIP(
-	ctx context.Context, logger *PackerLogger, kubeClient *kubernetes.Clientset, name, ns string) (string, error) {
+	ctx context.Context, logger *PackerLogger, kubeClient kubernetes.Interface, name, ns string) (string, error) {
 	logger.Info("Getting source VM ingress IP from its K8s Service object")
 
 	svc, err := kubeClient.CoreV1().Services(ns).Get(ctx, name, metav1.GetOptions{})
@@ -118,18 +118,18 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	}()
 
 	if err = CheckRequiredStates(state,
-		StateKeyKubeClient,
-		StateKeyDynamicClient,
+		// StateKeyKubeCoreClient,
+		StateKeyKubeDynamicClient,
 		StateKeyK8sNamespace,
-		stateKeySourceName,
+		StateKeySourceName,
 	); err != nil {
 		return multistep.ActionHalt
 	}
 
-	kubeClient := state.Get(StateKeyKubeClient).(*kubernetes.Clientset)
-	dynamicClient := state.Get(StateKeyDynamicClient).(dynamic.Interface)
+	kubeClientSet := state.Get(StateKeyKubeClientSet).(kubernetes.Interface)
+	dynamicClient := state.Get(StateKeyKubeDynamicClient).(dynamic.Interface)
 	namespace := state.Get(StateKeyK8sNamespace).(string)
-	sourceName := state.Get(stateKeySourceName).(string)
+	sourceName := state.Get(StateKeySourceName).(string)
 
 	// Wait for the source VM to power up and have an IP assigned.
 	vmIP, err := s.waitForVMReady(ctx, logger, dynamicClient, sourceName, namespace)
@@ -138,7 +138,7 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	state.Put(stateKeyVMIP, vmIP)
 
-	ingressIP, err := s.getVMIngressIP(ctx, logger, kubeClient, sourceName, namespace)
+	ingressIP, err := s.getVMIngressIP(ctx, logger, kubeClientSet, sourceName, namespace)
 	if err != nil {
 		return multistep.ActionHalt
 	}

@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	StateKeyKubeClient    = "kube_client"
-	StateKeyDynamicClient = "dynamic_client"
-	StateKeyK8sNamespace  = "k8s_namespace"
+	StateKeyK8sNamespace      = "k8s_namespace"
+	StateKeyKubeClientSet     = "kube_client_set"
+	StateKeyKubeDynamicClient = "kube_dynamic_client"
 )
 
 type ConnectK8sConfig struct {
@@ -67,7 +67,7 @@ func (s *StepConnectK8s) getKubeClients() (*kubernetes.Clientset, dynamic.Interf
 		return nil, nil, err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(config)
+	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -77,20 +77,20 @@ func (s *StepConnectK8s) getKubeClients() (*kubernetes.Clientset, dynamic.Interf
 		return nil, nil, err
 	}
 
-	return kubeClient, dynamicClient, nil
+	return clientSet, dynamicClient, nil
 }
 
 func (s *StepConnectK8s) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	logger := state.Get("logger").(*PackerLogger)
 	logger.Info("Connecting to Supervisor K8s cluster...")
 
-	kubeClient, dynamicClient, err := s.getKubeClients()
+	clientSet, dynamicClient, err := s.getKubeClients()
 	if err != nil {
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
-	state.Put(StateKeyKubeClient, kubeClient)
-	state.Put(StateKeyDynamicClient, dynamicClient)
+	state.Put(StateKeyKubeClientSet, clientSet)
+	state.Put(StateKeyKubeDynamicClient, dynamicClient)
 	state.Put(StateKeyK8sNamespace, s.Config.K8sNamespace)
 
 	logger.Info("Successfully connected to the Supervisor cluster")
