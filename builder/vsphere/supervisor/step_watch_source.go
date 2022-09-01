@@ -17,10 +17,14 @@ import (
 )
 
 const (
-	defaultWatchTimeoutSec = 600
+	DefaultWatchTimeoutSec = 600
 
-	stateKeyVMIP      = "vm_ip"
-	stateKeyConnectIP = "ip"
+	StateKeyVMIP      = "vm_ip"
+	StateKeyConnectIP = "ip"
+)
+
+var (
+	IsWatchingVM bool
 )
 
 type WatchSourceConfig struct {
@@ -29,7 +33,7 @@ type WatchSourceConfig struct {
 
 func (c *WatchSourceConfig) Prepare() []error {
 	if c.TimeoutSecond == 0 {
-		c.TimeoutSecond = defaultWatchTimeoutSec
+		c.TimeoutSecond = DefaultWatchTimeoutSec
 	}
 
 	return nil
@@ -76,6 +80,11 @@ func (s *StepWatchSource) waitForVMReady(
 		return "", err
 	}
 
+	IsWatchingVM = true
+	defer func() {
+		IsWatchingVM = false
+	}()
+
 	for {
 		select {
 		case event := <-vmWatch.ResultChan():
@@ -118,8 +127,8 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	}()
 
 	if err = CheckRequiredStates(state,
-		// StateKeyKubeCoreClient,
-		StateKeyKubeDynamicClient,
+		StateKeyKubeClientSet,
+		// StateKeyKubeDynamicClient,
 		StateKeyK8sNamespace,
 		StateKeySourceName,
 	); err != nil {
@@ -136,13 +145,13 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	if err != nil {
 		return multistep.ActionHalt
 	}
-	state.Put(stateKeyVMIP, vmIP)
+	state.Put(StateKeyVMIP, vmIP)
 
 	ingressIP, err := s.getVMIngressIP(ctx, logger, kubeClientSet, sourceName, namespace)
 	if err != nil {
 		return multistep.ActionHalt
 	}
-	state.Put(stateKeyConnectIP, ingressIP)
+	state.Put(StateKeyConnectIP, ingressIP)
 
 	logger.Info("Source VM is now up and ready for customization")
 	return multistep.ActionContinue

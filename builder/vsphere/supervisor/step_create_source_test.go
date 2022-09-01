@@ -101,7 +101,7 @@ func mockRESTClientForCreateSourceRun(t *testing.T) *restfake.RESTClient {
 }
 
 func TestCreateSource_Prepare(t *testing.T) {
-	// Check error output from missing the required configs.
+	// Check error output when missing the required config.
 	config := &supervisor.CreateSourceConfig{}
 	var actualErrs []error
 	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
@@ -117,7 +117,7 @@ func TestCreateSource_Prepare(t *testing.T) {
 		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
 	}
 
-	// Check default values from the optional configs.
+	// Check default values for the optional configs.
 	config = &supervisor.CreateSourceConfig{
 		ImageName:    "fake-image",
 		ClassName:    "fake-class",
@@ -160,9 +160,9 @@ func TestCreateSource_Run(t *testing.T) {
 	action := step.Run(context.TODO(), state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running StepCreateSource: %s", rawErr.(error))
+			t.Errorf("Error from running the step: %s", rawErr.(error))
 		}
-		t.Fatal("StepCreateSource should NOT halt")
+		t.Fatal("Step should NOT halt")
 	}
 
 	// Check if the source Secret (VM-Metadata) object is created as expected.
@@ -266,8 +266,9 @@ func TestCreateSource_Cleanup(t *testing.T) {
 	}
 	testWriter := &bytes.Buffer{}
 	state := newBasicTestState(testWriter)
-	expectedOutput := []string{"Skip cleaning up the previously created source objects as configured"}
 	step.Cleanup(state)
+
+	expectedOutput := []string{"Skip cleaning up the previously created source objects as configured"}
 	checkOutputLines(t, testWriter, expectedOutput)
 
 	// Test when 'keep_source' config is false (should delete all created source objects).
@@ -287,7 +288,8 @@ func TestCreateSource_Cleanup(t *testing.T) {
 	state.Put(supervisor.StateKeyVMMetadataSecretCreated, true)
 	step.Cleanup(state)
 
-	// Check if the Secret object got deleted (it's NOT checked by the mock REST client above)
+	// Check if the Secret object got deleted from the Kube ClientSet.
+	// The other objects deletion is checked in the mock REST client.
 	_, err := testKubeClientSet.CoreV1().Secrets(step.K8sNamespace).
 		Get(context.TODO(), step.Config.SourceName, metav1.GetOptions{})
 	if !errors.IsNotFound(err) {

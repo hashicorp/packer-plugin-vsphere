@@ -59,11 +59,12 @@ func TestConnectK8s_Prepare(t *testing.T) {
 	}
 
 	// Check kubeconfig path when the KUBECONFIG env var is NOT set.
+	config.KubeconfigPath = ""
 	os.Unsetenv(clientcmd.RecommendedConfigPathEnvVar)
 	if errs := config.Prepare(); len(errs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %s", errs[0])
 	}
-	if config.KubeconfigPath == clientcmd.RecommendedHomeFile {
+	if config.KubeconfigPath != clientcmd.RecommendedHomeFile {
 		t.Errorf("KubeconfigPath should be '%s', but got '%s'", clientcmd.RecommendedHomeFile, config.KubeconfigPath)
 	}
 
@@ -95,9 +96,9 @@ func TestConnectK8s_Run(t *testing.T) {
 	action := step.Run(context.TODO(), state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running StepConnectK8s: %s", rawErr.(error))
+			t.Errorf("Error from running the step: %s", rawErr.(error))
 		}
-		t.Fatalf("StepConnectK8s should NOT halt")
+		t.Fatalf("step should NOT halt")
 	}
 
 	// Check if all the required states are set after the step is run.
@@ -115,8 +116,8 @@ func TestConnectK8s_Run(t *testing.T) {
 		t.Errorf("State '%s' should be 'test-ns', but got '%s'", supervisor.StateKeyK8sNamespace, k8sNamespace)
 	}
 
-	// Check the logging output from running this step.
-	expectedLines := []string {
+	// Check the output lines from the step runs.
+	expectedLines := []string{
 		"Connecting to Supervisor K8s cluster...",
 		"Successfully connected to the Supervisor cluster",
 	}
