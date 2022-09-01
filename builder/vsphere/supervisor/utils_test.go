@@ -11,9 +11,27 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
-// TODO: Add testings for utils.go
+func TestCheckRequiredStates(t *testing.T) {
+	state := newBasicTestState(nil)
+	err := supervisor.CheckRequiredStates(state, "logger")
+	if err != nil {
+		t.Errorf("Expected no error but got: %s", err.Error())
+	}
 
-// Utility functions used in other testings.
+	state.Put("test-key-1", "test-val-1")
+	state.Put("test-key-2", "test-val-2")
+	err = supervisor.CheckRequiredStates(state, "test-key-1", "test-key-2")
+	if err != nil {
+		t.Errorf("Expected no error but got: %s", err.Error())
+	}
+
+	expectErr := supervisor.CheckRequiredStates(state, "test-key-non-exist")
+	if expectErr == nil {
+		t.Errorf("Expected error but got nil")
+	}
+}
+
+// Utility functions that are used in multiple test code.
 
 func newBasicTestState(writer *bytes.Buffer) *multistep.BasicStateBag {
 	state := new(multistep.BasicStateBag)
