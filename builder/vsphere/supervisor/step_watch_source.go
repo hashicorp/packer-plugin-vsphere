@@ -6,6 +6,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -24,6 +25,7 @@ const (
 )
 
 var (
+	Mu           sync.Mutex
 	IsWatchingVM bool
 )
 
@@ -80,10 +82,10 @@ func (s *StepWatchSource) waitForVMReady(
 		return "", err
 	}
 
+	// IsWatchingVM is used when mocking the watch process in tests.
+	Mu.Lock()
 	IsWatchingVM = true
-	defer func() {
-		IsWatchingVM = false
-	}()
+	Mu.Unlock()
 
 	for {
 		select {

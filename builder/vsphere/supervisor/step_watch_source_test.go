@@ -124,7 +124,13 @@ func TestWatchSource_Run(t *testing.T) {
 	}()
 
 	// Wait for the watch to be established before updating the fake VM resource below.
-	for i := 0; !supervisor.IsWatchingVM && i < int(step.Config.TimeoutSecond); i++ {
+	for i := 0; i < int(step.Config.TimeoutSecond); i++ {
+		supervisor.Mu.Lock()
+		if supervisor.IsWatchingVM {
+			supervisor.Mu.Unlock()
+			break
+		}
+		supervisor.Mu.Unlock()
 		time.Sleep(time.Second)
 	}
 
