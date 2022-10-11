@@ -6,6 +6,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -190,20 +191,20 @@ func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *P
 	logger.Info("Creating a K8s Secret object for providing source VM metadata")
 
 	cloudInitFmt := `#cloud-config
+ssh_pwauth: true
 users:
   - name: %s
-    lock_passwd: false
     plain_text_passwd: %s
-    ssh_authorized_keys:
-    - %s
+    lock_passwd: false
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
-ssh_pwauth: true
+    ssh_authorized_keys:
+    - %s
 `
 	cloudInitStr := fmt.Sprintf(cloudInitFmt,
 		s.CommunicatorConfig.SSHUsername,
 		s.CommunicatorConfig.SSHPassword,
-		s.CommunicatorConfig.SSHPublicKey,
+		strings.TrimSpace(string(s.CommunicatorConfig.SSHPublicKey)),
 	)
 	stringData := map[string]string{
 		"user-data": cloudInitStr,

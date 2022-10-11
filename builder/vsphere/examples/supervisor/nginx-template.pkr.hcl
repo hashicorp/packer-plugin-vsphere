@@ -1,7 +1,7 @@
 # Note: this is an example template file to show you how to use the vsphere-supervisor builder
 # to deploy a VM with Nginx installed. You can use this file as a starting point for your own.
 
-source "vsphere-supervisor" "vm" {
+source "vsphere-supervisor" "example-vm" {
   image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg>'"
   class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
   storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
@@ -20,9 +20,9 @@ build {
   sources = ["source.vsphere-supervisor.example-vm"]
   provisioner "shell" {
     inline = [
-      "yum install -qy nginx",
-      "systemctl restart nginx",
-      "systemctl status nginx",
+      "sudo apt update && sudo apt install -y nginx",
+      "sudo systemctl restart nginx",
+      "sudo systemctl status nginx",
       "echo 'Testing Nginx connectivity...'",
       "curl -sI http://localhost:80",
     ]
