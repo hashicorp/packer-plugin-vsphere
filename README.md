@@ -16,6 +16,10 @@ The plugin includes two builders which are able to create images, depending on y
 
     Learn more: [VMware Product Lifecycle Matrix][vmware-product-lifecycle-matrix]
 
+    > **Note**
+    >
+    > This plugin requires API write access and is therefore not supported for use with a free VMware vSphere Hypervisor license.
+
 * [Go 1.17][golang-install]
 
     Required if building the plugin.
@@ -35,7 +39,7 @@ packer {
   required_version = ">= 1.7.0"
   required_plugins {
     vsphere = {
-      version = ">= 1.0.6"
+      version = ">= 1.0.8"
       source  = "github.com/hashicorp/vsphere"
     }
   }
@@ -68,12 +72,12 @@ For more information on how to configure the plugin, please see the plugin docum
 
 * Contributions to this project are welcome: if you want to add a feature or a fix a bug, please do so by opening a pull request in this GitHub repository. In case of feature contribution, we kindly ask you to open an issue to discuss it beforehand.
 
-[docs-packer-init]: https://www.packer.io/docs/commands/init
-[docs-packer-plugin-install]: https://www.packer.io/docs/extending/plugins/#installing-plugins
+[docs-packer-init]: https://developer.hashicorp.com/packer/docs/commands/init
+[docs-packer-plugin-install]: https://developer.hashicorp.com/packer/docs/plugins/install-plugins
 [docs-vsphere]: https://docs.vmware.com/en/VMware-vSphere/
-[docs-vsphere-clone]: https://www.packer.io/docs/builders/vsphere/vsphere-clone
-[docs-vsphere-iso]: https://www.packer.io/docs/builders/vsphere/vsphere-iso
-[docs-vsphere-plugin]: https://www.packer.io/docs/builders/vsphere
+[docs-vsphere-clone]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-clone
+[docs-vsphere-iso]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso
+[docs-vsphere-plugin]: https://developer.hashicorp.com/packer/plugins/builders/vsphere
 [golang-install]: https://golang.org/doc/install
 [packer]: https://www.packer.io
 [releases-vsphere-plugin]: https://github.com/hashicorp/packer-plugin-vsphere/releases
