@@ -2,6 +2,9 @@ package supervisor_test
 
 import (
 	"bytes"
+	"fmt"
+	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -31,7 +34,7 @@ func TestCheckRequiredStates(t *testing.T) {
 	}
 }
 
-// Utility functions that are used in multiple test code.
+// Utility functions that are used in multiple test files.
 
 func newBasicTestState(writer *bytes.Buffer) *multistep.BasicStateBag {
 	state := new(multistep.BasicStateBag)
@@ -54,4 +57,34 @@ func checkOutputLines(t *testing.T, writer *bytes.Buffer, expectedLines []string
 			t.Fatalf("Expected output '%s' but got '%s'", expected, actual)
 		}
 	}
+}
+
+func getTestKubeconfigFile(t *testing.T, namespace string) *os.File {
+	fakeKubeconfigDataFmt := `
+apiVersion: v1
+clusters:
+- cluster:
+    server: test-server
+  name: test-cluster
+contexts:
+- context:
+    cluster: test-cluster
+    namespace: %s
+  name: test-context
+current-context: test-context
+kind: Config
+`
+	tmpDir := t.TempDir()
+	fakeFile, err := os.CreateTemp(tmpDir, "fake-test-file")
+	if err != nil {
+		t.Fatalf("Failed to create a fake kubeconfig file: %s", err)
+	}
+	defer fakeFile.Close()
+
+	_, err = io.WriteString(fakeFile, fmt.Sprintf(fakeKubeconfigDataFmt, namespace))
+	if err != nil {
+		t.Fatalf("Failed to write to the fake kubeconfig file: %s", err)
+	}
+
+	return fakeFile
 }

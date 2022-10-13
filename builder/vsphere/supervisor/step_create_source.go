@@ -10,6 +10,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -18,8 +19,8 @@ import (
 )
 
 const (
-	DefaultSourceName  = "packer-vsphere-supervisor-built-source"
-	VMSelectorLabelKey = DefaultSourceName + "-selector"
+	DefaultSourceNamePrefix = "packer-vsphere-supervisor"
+	VMSelectorLabelKey      = DefaultSourceNamePrefix + "-selector"
 
 	StateKeySourceName              = "source_name"
 	StateKeyVMCreated               = "vm_created"
@@ -28,7 +29,7 @@ const (
 )
 
 type CreateSourceConfig struct {
-	// Name of the the source virtual machine (VM) image.
+	// Name of the source virtual machine (VM) image.
 	ImageName string `mapstructure:"image_name" required:"true"`
 	// Name of the VM class that describes virtual hardware settings.
 	ClassName string `mapstructure:"class_name" required:"true"`
@@ -59,7 +60,7 @@ func (c *CreateSourceConfig) Prepare() []error {
 	}
 
 	if c.SourceName == "" {
-		c.SourceName = DefaultSourceName
+		c.SourceName = fmt.Sprintf("%s-%s", DefaultSourceNamePrefix, rand.String(5))
 	}
 
 	return errs

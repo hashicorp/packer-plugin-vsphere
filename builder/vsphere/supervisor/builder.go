@@ -55,18 +55,15 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepWatchSource{
 			Config: &b.config.WatchSourceConfig,
 		},
+		// Connect to the source VM via Packer provided SSH communicator.
+		&communicator.StepConnect{
+			Config:    &b.config.CommunicatorConfig,
+			Host:      common.CommHost(b.config.CommunicatorConfig.Host()),
+			SSHConfig: b.config.CommunicatorConfig.SSHConfigFunc(),
+		},
+		// Run provisioners defined in the Packer template.
+		new(commonsteps.StepProvision),
 	)
-
-	if b.config.CommunicatorConfig.Type != "none" {
-		steps = append(steps,
-			&communicator.StepConnect{
-				Config:    &b.config.CommunicatorConfig,
-				Host:      common.CommHost(b.config.CommunicatorConfig.Host()),
-				SSHConfig: b.config.CommunicatorConfig.SSHConfigFunc(),
-			},
-			&commonsteps.StepProvision{},
-		)
-	}
 
 	b.runner = commonsteps.NewRunnerWithPauseFn(steps, b.config.PackerConfig, ui, state)
 	b.runner.Run(ctx, state)

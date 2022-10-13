@@ -4,6 +4,8 @@
 package supervisor
 
 import (
+	"errors"
+
 	packercommon "github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -14,7 +16,7 @@ import (
 )
 
 const (
-	defaultSSHUsername = "default-user"
+	DefaultSSHUsername = "packer"
 )
 
 type Config struct {
@@ -43,9 +45,10 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		return nil, err
 	}
 
-	// Set a default value for "ssh_username" if it wasn't specified.
+	// Set a default value to "ssh_username" as it's required for the SSH communicator.
+	// This must call before the CommunicatorConfig.Prepare to avoid it erroring out.
 	if c.CommunicatorConfig.SSHUsername == "" {
-		c.CommunicatorConfig.SSHUsername = defaultSSHUsername
+		c.CommunicatorConfig.SSHUsername = DefaultSSHUsername
 	}
 
 	errs := new(packersdk.MultiError)
@@ -53,6 +56,12 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	errs = packersdk.MultiErrorAppend(errs, c.ConnectSupervisorConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.CreateSourceConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.WatchSourceConfig.Prepare()...)
+
+	// Verify that SSH communicator is used for connecting to the source VM.
+	// This must call after the CommunicatorConfig.Prepare to get the value properly.
+	if c.CommunicatorConfig.Type != "ssh" {
+		errs = packersdk.MultiErrorAppend(errs, errors.New("only SSH communicator is supported"))
+	}
 
 	if len(errs.Errors) > 0 {
 		return nil, errs

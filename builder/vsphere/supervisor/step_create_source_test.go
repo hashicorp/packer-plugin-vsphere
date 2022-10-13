@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 
 	corev1 "k8s.io/api/core/v1"
@@ -45,8 +46,9 @@ func TestCreateSource_Prepare(t *testing.T) {
 	if actualErrs = config.Prepare(); len(actualErrs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %v", actualErrs)
 	}
-	if config.SourceName != supervisor.DefaultSourceName {
-		t.Errorf("Expected default SourceName %s, got %s", supervisor.DefaultSourceName, config.SourceName)
+	if !strings.HasPrefix(config.SourceName, supervisor.DefaultSourceNamePrefix) {
+		t.Errorf("Expected default SourceName has prefix %s, got %s",
+			supervisor.DefaultSourceNamePrefix, config.SourceName)
 	}
 }
 

@@ -39,16 +39,21 @@ func (c *ConnectSupervisorConfig) Prepare() []error {
 		}
 	}
 
+	// Check if the kubeconfig file exists and contains valid content.
+	if _, err := os.Stat(c.KubeconfigPath); os.IsNotExist(err) {
+		return []error{errors.Errorf("kubeconfig file not found at %s", c.KubeconfigPath)}
+	}
+	data, err := os.ReadFile(c.KubeconfigPath)
+	if err != nil {
+		return []error{errors.Wrap(err, "failed to read the kubeconfig file")}
+	}
+	kubeConfig, err := clientcmd.NewClientConfigFromBytes(data)
+	if err != nil {
+		return []error{errors.Wrap(err, "kubeconfig file is not valid")}
+	}
+
 	// Set the Supervisor namespace from current context if not provided.
 	if c.SupervisorNamespace == "" {
-		data, err := os.ReadFile(c.KubeconfigPath)
-		if err != nil {
-			return []error{errors.Wrap(err, "failed to read kubeconfig file")}
-		}
-		kubeConfig, err := clientcmd.NewClientConfigFromBytes(data)
-		if err != nil {
-			return []error{errors.Wrap(err, "failed to parse kubeconfig file")}
-		}
 		ns, _, err := kubeConfig.Namespace()
 		if err != nil {
 			return []error{errors.Wrap(err, "failed to get current context's namespace in kubeconfig file")}

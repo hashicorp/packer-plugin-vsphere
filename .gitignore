@@ -1,6 +1,5 @@
 main
 dist/*
-packer-plugin-scaffolding
-packer-plugin-vsphere
 .docs/*
 .vscode/*
+packer-plugin-vsphere

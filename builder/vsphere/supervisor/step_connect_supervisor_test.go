@@ -3,8 +3,6 @@ package supervisor_test
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"io"
 	"os"
 	"testing"
 
@@ -17,31 +15,38 @@ import (
 )
 
 func TestConnectSupervisor_Prepare(t *testing.T) {
-	// Check kubeconfig path when the KUBECONFIG env var is set.
-	os.Setenv(clientcmd.RecommendedConfigPathEnvVar, "test-path")
+	// Check when non-existing kubeconfig file is provided.
 	config := &supervisor.ConnectSupervisorConfig{
-		SupervisorNamespace: "fake", // avoid reading the config file
+		KubeconfigPath: "non-existing-file",
 	}
+	if err := config.Prepare(); err == nil {
+		t.Fatalf("Prepare should fail by non-existing kubeconfig file")
+	}
+
+	// Check when an invalid kubeconfig file is provided.
+	fakeFile, err := os.CreateTemp(t.TempDir(), "invalid-kubeconfig-file")
+	if err != nil {
+		t.Fatalf("Failed to create an invalid kubeconfig file: %v", err)
+	}
+	defer fakeFile.Close()
+	config.KubeconfigPath = fakeFile.Name()
+	if err := config.Prepare(); err == nil {
+		t.Fatalf("Prepare should fail by an invalid kubeconfig file")
+	}
+
+	// Check kubeconfig path value when the KUBECONFIG env var is set.
+	config.KubeconfigPath = ""
+	validKubeconfigPath := getTestKubeconfigFile(t, "test-ns").Name()
+	os.Setenv(clientcmd.RecommendedConfigPathEnvVar, validKubeconfigPath)
 	if errs := config.Prepare(); len(errs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %v", errs)
 	}
-	if config.KubeconfigPath != "test-path" {
-		t.Errorf("config.KubeconfigPath should be 'test-path', but got '%s'", config.KubeconfigPath)
+	if config.KubeconfigPath != validKubeconfigPath {
+		t.Fatalf("config.KubeconfigPath should be '%s', but got '%s'",
+			validKubeconfigPath, config.KubeconfigPath)
 	}
 
-	// Check kubeconfig path when the KUBECONFIG env var is NOT set.
-	config.KubeconfigPath = ""
-	os.Unsetenv(clientcmd.RecommendedConfigPathEnvVar)
-	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %s", errs[0])
-	}
-	if config.KubeconfigPath != clientcmd.RecommendedHomeFile {
-		t.Errorf("config.KubeconfigPath should be '%s', but got '%s'", clientcmd.RecommendedHomeFile, config.KubeconfigPath)
-	}
-
-	// Check Supervisor namespace from the given kubeconfig file context.
-	testFile := getTestKubeconfigFile(t, "test-ns")
-	config.KubeconfigPath = testFile.Name()
+	// Check if Supervisor namespace is set from the given kubeconfig file context.
 	config.SupervisorNamespace = ""
 	if errs := config.Prepare(); len(errs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %s", errs[0])
@@ -101,34 +106,4 @@ func TestConnectSupervisor_Run(t *testing.T) {
 		"Successfully connected to Supervisor cluster",
 	}
 	checkOutputLines(t, testWriter, expectedLines)
-}
-
-func getTestKubeconfigFile(t *testing.T, namespace string) *os.File {
-	fakeKubeconfigDataFmt := `
-apiVersion: v1
-clusters:
-- cluster:
-    server: test-server
-  name: test-cluster
-contexts:
-- context:
-    cluster: test-cluster
-    namespace: %s
-  name: test-context
-current-context: test-context
-kind: Config
-`
-	tmpDir := t.TempDir()
-	fakeFile, err := os.CreateTemp(tmpDir, "fake-test-file")
-	if err != nil {
-		t.Fatalf("Failed to create a fake kubeconfig file: %s", err)
-	}
-	defer fakeFile.Close()
-
-	_, err = io.WriteString(fakeFile, fmt.Sprintf(fakeKubeconfigDataFmt, namespace))
-	if err != nil {
-		t.Fatalf("Failed to write to the fake kubeconfig file: %s", err)
-	}
-
-	return fakeFile
 }
