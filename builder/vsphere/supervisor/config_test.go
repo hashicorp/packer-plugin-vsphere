@@ -148,11 +148,11 @@ func TestConfig_SSH(t *testing.T) {
 		t.Errorf("expected no errors, got: %s", err)
 	}
 	if c.CommunicatorConfig.Type != "ssh" {
-		t.Errorf("expected default communicator to be: 'ssh', got: '%s'",
+		t.Errorf("expected default communicator to be: 'ssh', got: %q",
 			c.CommunicatorConfig.Type)
 	}
 	if c.CommunicatorConfig.SSHUsername != supervisor.DefaultSSHUsername {
-		t.Errorf("expected default ssh_username to be: '%s', got: '%s'",
+		t.Errorf("expected default ssh_username to be: %q, got: %q",
 			supervisor.DefaultSSHUsername, c.CommunicatorConfig.SSHUsername)
 	}
 }

@@ -108,23 +108,23 @@ func TestCreateSource_Run(t *testing.T) {
 		t.Fatalf("Failed to get the expected VM object, err: %s", err.Error())
 	}
 	if vmObj.Name != "test-source" {
-		t.Errorf("Expected VM name to be 'test-vm', got '%s'", vmObj.Name)
+		t.Errorf("Expected VM name to be 'test-vm', got %q", vmObj.Name)
 	}
 	if vmObj.Namespace != "test-namespace" {
-		t.Errorf("Expected VM namespace to be 'test-namespace', got '%s'", vmObj.Namespace)
+		t.Errorf("Expected VM namespace to be 'test-namespace', got %q", vmObj.Namespace)
 	}
 	if vmObj.Spec.ImageName != "test-image" {
-		t.Errorf("Expected VM image name to be 'test-image', got '%s'", vmObj.Spec.ImageName)
+		t.Errorf("Expected VM image name to be 'test-image', got %q", vmObj.Spec.ImageName)
 	}
 	if vmObj.Spec.ClassName != "test-class" {
-		t.Errorf("Expected VM class name to be 'test-class', got '%s'", vmObj.Spec.ClassName)
+		t.Errorf("Expected VM class name to be 'test-class', got %q", vmObj.Spec.ClassName)
 	}
 	if vmObj.Spec.StorageClass != "test-storage-class" {
-		t.Errorf("Expected VM storage class to be 'test-storage-class', got '%s'", vmObj.Spec.StorageClass)
+		t.Errorf("Expected VM storage class to be 'test-storage-class', got %q", vmObj.Spec.StorageClass)
 	}
 	selectorLabelVal := vmObj.Labels[supervisor.VMSelectorLabelKey]
 	if selectorLabelVal != "test-source" {
-		t.Errorf("Expected source VM label '%s' to be 'test-source', got '%s'", supervisor.VMSelectorLabelKey, selectorLabelVal)
+		t.Errorf("Expected source VM label %q to be 'test-source', got %q", supervisor.VMSelectorLabelKey, selectorLabelVal)
 	}
 
 	// Check if the source VMService object is created with expected spec.
@@ -133,13 +133,13 @@ func TestCreateSource_Run(t *testing.T) {
 		t.Fatalf("Failed to get the expected VMService object, err: %s", err.Error())
 	}
 	if vmServiceObj.Name != "test-source" {
-		t.Errorf("Expected VMService name to be 'test-source', got '%s'", vmServiceObj.Name)
+		t.Errorf("Expected VMService name to be 'test-source', got %q", vmServiceObj.Name)
 	}
 	if vmServiceObj.Namespace != "test-namespace" {
-		t.Errorf("Expected VMService namespace to be 'test-namespace', got '%s'", vmServiceObj.Namespace)
+		t.Errorf("Expected VMService namespace to be 'test-namespace', got %q", vmServiceObj.Namespace)
 	}
 	if vmServiceObj.Spec.Type != "LoadBalancer" {
-		t.Errorf("Expected VMService type to be 'LoadBalancer', got '%s'", vmServiceObj.Spec.Type)
+		t.Errorf("Expected VMService type to be 'LoadBalancer', got %q", vmServiceObj.Spec.Type)
 	}
 	ports := vmServiceObj.Spec.Ports
 	if len(ports) == 0 || ports[0].Port != 123 || ports[0].TargetPort != 123 {
@@ -147,22 +147,22 @@ func TestCreateSource_Run(t *testing.T) {
 	}
 	selectorMap := vmServiceObj.Spec.Selector
 	if val, ok := selectorMap[supervisor.VMSelectorLabelKey]; !ok || val != "test-source" {
-		t.Errorf("Expected VMService selector '%s' to be 'test-source', got '%s'", supervisor.VMSelectorLabelKey, val)
+		t.Errorf("Expected VMService selector %q to be 'test-source', got %q", supervisor.VMSelectorLabelKey, val)
 	}
 
 	// Check if all the required states are set correctly after the step is run.
 	sourceName := state.Get(supervisor.StateKeySourceName)
 	if sourceName != "test-source" {
-		t.Errorf("State '%s' should be 'test-source', but got '%s'", supervisor.StateKeySourceName, sourceName)
+		t.Errorf("State %q should be 'test-source', but got %q", supervisor.StateKeySourceName, sourceName)
 	}
 	if state.Get(supervisor.StateKeyVMCreated) != true {
-		t.Errorf("State '%s' should be 'true'", supervisor.StateKeyVMCreated)
+		t.Errorf("State %q should be 'true'", supervisor.StateKeyVMCreated)
 	}
 	if state.Get(supervisor.StateKeyVMServiceCreated) != true {
-		t.Errorf("State '%s' should be 'true'", supervisor.StateKeyVMServiceCreated)
+		t.Errorf("State %q should be 'true'", supervisor.StateKeyVMServiceCreated)
 	}
 	if state.Get(supervisor.StateKeyVMMetadataSecretCreated) != true {
-		t.Errorf("State '%s' should be 'true'", supervisor.StateKeyVMMetadataSecretCreated)
+		t.Errorf("State %q should be 'true'", supervisor.StateKeyVMMetadataSecretCreated)
 	}
 
 	// Check the output lines from the step runs.

@@ -106,11 +106,11 @@ func TestWatchSource_Run(t *testing.T) {
 		// Check if all the required states are set correctly after the step is run.
 		vmIP := state.Get(supervisor.StateKeyVMIP)
 		if vmIP != testVMIP {
-			t.Errorf("State '%s' should be '%s', but got '%s'", supervisor.StateKeyCommunicateIP, testVMIP, vmIP)
+			t.Errorf("State %q should be %q, but got %q", supervisor.StateKeyCommunicateIP, testVMIP, vmIP)
 		}
 		connectIP := state.Get(supervisor.StateKeyCommunicateIP)
 		if connectIP != testIngressIP {
-			t.Errorf("State '%s' should be '%s', but got '%s'", supervisor.StateKeyCommunicateIP, testIngressIP, connectIP)
+			t.Errorf("State %q should be %q, but got %q", supervisor.StateKeyCommunicateIP, testIngressIP, connectIP)
 		}
 
 		// Check the output lines from the step runs.

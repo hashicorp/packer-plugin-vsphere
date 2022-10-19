@@ -177,10 +177,10 @@ func (s *StepCreateSource) initStep(state multistep.StateBag) error {
 	)
 
 	if namespace, ok = state.Get(StateKeySupervisorNamespace).(string); !ok {
-		return fmt.Errorf("failed to cast '%s' from state bag as type 'string'", StateKeySupervisorNamespace)
+		return fmt.Errorf("failed to cast %q from state bag as type 'string'", StateKeySupervisorNamespace)
 	}
 	if kubeClient, ok = state.Get(StateKeyKubeClient).(client.Client); !ok {
-		return fmt.Errorf("failed to cast '%s' from state bag as type 'client.Client'", StateKeyKubeClient)
+		return fmt.Errorf("failed to cast %q from state bag as type 'client.Client'", StateKeyKubeClient)
 	}
 
 	s.Namespace = namespace

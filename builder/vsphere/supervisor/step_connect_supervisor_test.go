@@ -37,12 +37,12 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 	// Check kubeconfig path value when the KUBECONFIG env var is set.
 	config.KubeconfigPath = ""
 	validKubeconfigPath := getTestKubeconfigFile(t, "test-ns").Name()
-	os.Setenv(clientcmd.RecommendedConfigPathEnvVar, validKubeconfigPath)
+	t.Setenv(clientcmd.RecommendedConfigPathEnvVar, validKubeconfigPath)
 	if errs := config.Prepare(); len(errs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %v", errs)
 	}
 	if config.KubeconfigPath != validKubeconfigPath {
-		t.Fatalf("config.KubeconfigPath should be '%s', but got '%s'",
+		t.Fatalf("config.KubeconfigPath should be %q, but got %q",
 			validKubeconfigPath, config.KubeconfigPath)
 	}
 
@@ -52,7 +52,7 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 		t.Fatalf("Prepare should NOT fail: %s", errs[0])
 	}
 	if config.SupervisorNamespace != "test-ns" {
-		t.Errorf("Supervisor namespace should be 'test-ns' but got '%s'", config.SupervisorNamespace)
+		t.Errorf("Supervisor namespace should be 'test-ns' but got %q", config.SupervisorNamespace)
 	}
 }
 
@@ -97,7 +97,7 @@ func TestConnectSupervisor_Run(t *testing.T) {
 	// Check if the Supervisor namespace value is set correctly in the state.
 	namespace := state.Get(supervisor.StateKeySupervisorNamespace)
 	if namespace != "test-ns" {
-		t.Errorf("State '%s' should be 'test-ns', but got '%s'", supervisor.StateKeySupervisorNamespace, namespace)
+		t.Errorf("State %q should be 'test-ns', but got %q", supervisor.StateKeySupervisorNamespace, namespace)
 	}
 
 	// Check the output lines from the step runs.

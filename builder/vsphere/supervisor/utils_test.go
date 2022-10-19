@@ -54,7 +54,7 @@ func checkOutputLines(t *testing.T, writer *bytes.Buffer, expectedLines []string
 			t.Fatalf("Failed to read line from writer, err: %s", err.Error())
 		}
 		if actual != expected {
-			t.Fatalf("Expected output '%s' but got '%s'", expected, actual)
+			t.Fatalf("Expected output %q but got %q", expected, actual)
 		}
 	}
 }
