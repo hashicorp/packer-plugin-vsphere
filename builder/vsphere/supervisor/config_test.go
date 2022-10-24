@@ -33,6 +33,10 @@ func getMinimalConfig() map[string]interface{} {
 }
 
 func TestConfig_Minimal(t *testing.T) {
+	// Using a minimal config requires that a valid kubeconfig is loaded automatially
+	validPath := getTestKubeconfigFile(t, "").Name()
+	t.Setenv("KUBECONFIG", validPath)
+
 	c := new(supervisor.Config)
 	minConfigs := getMinimalConfig()
 	// The 'supervisor_namespace' is an optional config but it
