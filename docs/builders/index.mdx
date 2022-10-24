@@ -11,9 +11,8 @@ sidebar_title: Overview
 The vSphere Packer builder is able to create vSphere virtual machines for use
 with any VMware product.
 
-Packer actually comes with two builders able to create vSphere machines,
-depending on the strategy you want to use to build the image. Packer supports
-the following vSphere builders:
+This Packer plugin includes three builders to create vSphere machines,
+depending on the strategy you want to use to build the image:
 
 - [vsphere-iso](/docs/builders/vsphere/vsphere-iso) - This builder starts from an
   ISO file and utilizes the vSphere API to build on a remote esx instance.
@@ -23,6 +22,10 @@ the following vSphere builders:
   vm from an existing template, then modifies it and saves it as a new
   template. It uses the vSphere API to build on a remote esx instance.
   This allows you to build vms even if you do not have SSH access to your vSphere cluster.
+
+- [vsphere-supervisor](/docs/builders/vsphere-supervisor) - This builder deploys a
+  vm to a vSphere Supervisor cluster, using the VM-Service API. This allows you to build
+  vms without spec yaml files and configure them after using the Packer provisioners.
 
 ## How to use this plugin
 
