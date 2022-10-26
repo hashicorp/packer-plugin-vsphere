@@ -36,6 +36,7 @@ func TestVMAcc_create(t *testing.T) {
 	}
 }
 
+//nolint:unused // createDefaultCheck is used as a functional argument
 func createDefaultCheck(t *testing.T, vm VirtualMachine, config *CreateConfig) {
 	d := vm.(*VirtualMachineDriver).driver
 

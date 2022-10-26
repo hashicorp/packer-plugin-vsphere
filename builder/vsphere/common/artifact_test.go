@@ -32,7 +32,7 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 		"memory_mb":                   fmt.Sprintf("%d", vmSim.Config.Hardware.MemoryMB),
 		"host":                        host.Name,
 		"datastore":                   datastore.Name,
-		"content_library_destination": fmt.Sprintf("Library-Name/Item-Name"),
+		"content_library_destination": "Library-Name/Item-Name",
 		"network":                     "DC0_DVPG0",
 		"vsphere_uuid":                vmSim.Config.Uuid,
 	}
