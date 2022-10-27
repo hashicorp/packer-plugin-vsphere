@@ -105,7 +105,7 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 func TestGetEncodedPassword(t *testing.T) {
 
 	// Password is encoded, and contains a colon
-	ovftool_uri := fmt.Sprintf("vi://hostname/Datacenter/host/cluster")
+	ovftool_uri := "vi://hostname/Datacenter/host/cluster"
 
 	u, _ := url.Parse(ovftool_uri)
 	u.User = url.UserPassword("us:ername", "P@ssW:rd")

@@ -1,3 +1,4 @@
+//nolint:unused // The majority of helper functions are used as functional arguments in test cases
 package driver
 
 import (
