@@ -41,7 +41,7 @@ packer {
   required_version = ">= 1.7.0"
   required_plugins {
     vsphere = {
-      version = ">= 1.0.8"
+      version = ">= 1.1.0"
       source  = "github.com/hashicorp/vsphere"
     }
   }
@@ -68,6 +68,8 @@ For more information on how to configure the plugin, please see the plugin docum
 
 * `vsphere-clone` [builder documentation][docs-vsphere-clone]
 
+* `vsphere-supervisor` [builder documentation][docs-vsphere-supervisor]
+
 ## Contributing
 
 * If you think you've found a bug in the code or you have a question regarding the usage of this software, please reach out to us by opening an issue in this GitHub repository.
@@ -79,6 +81,7 @@ For more information on how to configure the plugin, please see the plugin docum
 [docs-vsphere]: https://docs.vmware.com/en/VMware-vSphere/
 [docs-vsphere-clone]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-clone
 [docs-vsphere-iso]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso
+[docs-vsphere-supervisor]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-supervisor
 [docs-vsphere-plugin]: https://developer.hashicorp.com/packer/plugins/builders/vsphere
 [golang-install]: https://golang.org/doc/install
 [packer]: https://www.packer.io
