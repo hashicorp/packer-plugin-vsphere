@@ -16,7 +16,7 @@ This builder uses the vSphere API, and creates virtual machines remotely. It
 starts from an ISO file and creates new VMs from scratch.
 
 - VMware Player is not required.
-- It uses the official vCenter Server API, and does not require ESXi host [modification](/docs/builders/vmware-iso#building-on-a-remote-vsphere-hypervisor)
+- It uses the official vCenter Server API, and does not require ESXi host [modification](/packer/plugins/builders/vsphere/vsphere-iso#building-on-a-remote-vsphere-hypervisor)
 - This builder is supported for vSphere version 6.5 and greater. Builds on lower
   versions may work, but some configuration options may throw errors because they
   do not exist in the older versions of the vSphere API.
