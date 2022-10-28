@@ -43,7 +43,7 @@ type CloneConfig struct {
 	// VM notes.
 	Notes string `mapstructure:"notes"`
 	// Set the vApp Options to a virtual machine.
-	// See the [vApp Options Configuration](/docs/builders/vmware/vsphere-clone#vapp-options-configuration)
+	// See the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
 	// to know the available options and how to use it.
 	VAppConfig    vAppConfig           `mapstructure:"vapp"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
