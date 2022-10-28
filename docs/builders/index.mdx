@@ -14,16 +14,16 @@ with any VMware product.
 This Packer plugin includes three builders to create vSphere machines,
 depending on the strategy you want to use to build the image:
 
-- [vsphere-iso](plugins/builders/vsphere/vsphere-iso) - This builder starts from an
+- [vsphere-iso](builders/vsphere/vsphere-iso) - This builder starts from an
   ISO file and utilizes the vSphere API to build on a remote esx instance.
   This allows you to build vms even if you do not have SSH access to your vSphere cluster.
 
-- [vsphere-clone](plugins/docs/builders/vsphere/vsphere-clone) - This builder clones a
+- [vsphere-clone](builders/vsphere/vsphere-clone) - This builder clones a
   vm from an existing template, then modifies it and saves it as a new
   template. It uses the vSphere API to build on a remote esx instance.
   This allows you to build vms even if you do not have SSH access to your vSphere cluster.
 
-- [vsphere-supervisor](plugins/docs/builders/vsphere-supervisor) - This builder deploys a
+- [vsphere-supervisor](builders/vsphere/vsphere-supervisor) - This builder deploys a
   vm to a vSphere Supervisor cluster, using the VM-Service API. This allows you to build
   vms without spec yaml files and configure them after using the Packer provisioners.
 
