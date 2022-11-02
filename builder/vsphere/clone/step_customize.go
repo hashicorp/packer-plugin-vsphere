@@ -333,7 +333,7 @@ func (w *WindowsOptions) prepare(errs []error) []error {
 		w.FullName = "Administrator"
 	}
 	if w.OrganizationName == "" {
-		w.OrganizationName = "Managed by Packer"
+		w.OrganizationName = "Built by Packer"
 	}
 	return errs
 }
