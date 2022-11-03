@@ -22,7 +22,7 @@ The plugin includes two builders which are able to create images, depending on y
     >
     > This plugin requires API write access and is therefore not supported for use with a free VMware vSphere Hypervisor license.
 
-* [Go 1.17][golang-install]
+* [Go 1.18][golang-install]
 
     Required if building the plugin.
 
