@@ -73,6 +73,14 @@ func TestConfig_Values(t *testing.T) {
 		t.Errorf("expected storage_class to be: %s, got: %s",
 			providedConfigs["storage_class"], c.StorageClass)
 	}
+	if c.PublishLocationName != providedConfigs["publish_location_name"] {
+		t.Errorf("expected publish_location_name to be: %s, got: %s",
+			providedConfigs["publish_location_name"], c.PublishLocationName)
+	}
+	if c.PublishImageName != providedConfigs["publish_image_name"] {
+		t.Errorf("expected publish_image_name to be: %s, got: %s",
+			providedConfigs["publish_image_name"], c.PublishImageName)
+	}
 	if c.KubeconfigPath != providedConfigs["kubeconfig_path"] {
 		t.Errorf("expected kubeconfig_path to be: %s, got: %s",
 			providedConfigs["kubeconfig_path"], c.KubeconfigPath)
@@ -97,6 +105,10 @@ func TestConfig_Values(t *testing.T) {
 		t.Errorf("expected watch_source_timeout_sec to be: %d, got: %d",
 			providedConfigs["watch_source_timeout_sec"], c.WatchSourceTimeoutSec)
 	}
+	if c.WatchPublishTimeoutSec != providedConfigs["watch_publish_timeout_sec"] {
+		t.Errorf("expected watch_publish_timeout_sec to be: %d, got: %d",
+			providedConfigs["watch_publish_timeout_sec"], c.WatchPublishTimeoutSec)
+	}
 	if c.KeepInputArtifact != providedConfigs["keep_input_artifact"] {
 		t.Errorf("expected keep_input_artifact to be: true, got: false")
 	}
@@ -115,15 +127,18 @@ func getCompleteConfig(t *testing.T) map[string]interface{} {
 	validPath := getTestKubeconfigFile(t, "").Name()
 
 	return map[string]interface{}{
-		"image_name":               "test-image",
-		"class_name":               "test-class",
-		"storage_class":            "test-storage",
-		"supervisor_namespace":     "test-namespace",
-		"source_name":              "test-source",
-		"network_type":             "test-networkType",
-		"network_name":             "test-networkName",
-		"watch_source_timeout_sec": 60,
-		"keep_input_artifact":      true,
-		"kubeconfig_path":          validPath,
+		"image_name":                "test-image",
+		"class_name":                "test-class",
+		"storage_class":             "test-storage",
+		"supervisor_namespace":      "test-namespace",
+		"source_name":               "test-source",
+		"network_type":              "test-networkType",
+		"network_name":              "test-networkName",
+		"publish_location_name":     "test-publish-location",
+		"publish_image_name":        "test-publish-image",
+		"watch_source_timeout_sec":  60,
+		"watch_publish_timeout_sec": 60,
+		"keep_input_artifact":       true,
+		"kubeconfig_path":           validPath,
 	}
 }

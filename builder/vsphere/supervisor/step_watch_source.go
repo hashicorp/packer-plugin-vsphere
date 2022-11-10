@@ -71,7 +71,8 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	timedCtx, cancel := context.WithTimeout(ctx, time.Duration(s.Config.WatchSourceTimeoutSec)*time.Second)
 	defer cancel()
 
-	vmIP, err := s.waitForVMReady(timedCtx, logger)
+	vmIP := ""
+	vmIP, err = s.waitForVMReady(timedCtx, logger)
 	if err != nil {
 		return multistep.ActionHalt
 	}
@@ -79,7 +80,8 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 
 	// Only get the VM ingress IP if the VM service has been created (i.e. communicator is not 'none').
 	if state.Get(StateKeyVMServiceCreated) == true {
-		ingressIP, err := s.getVMIngressIP(timedCtx, logger)
+		ingressIP := ""
+		ingressIP, err = s.getVMIngressIP(timedCtx, logger)
 		if err != nil {
 			return multistep.ActionHalt
 		}

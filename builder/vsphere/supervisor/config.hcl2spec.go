@@ -67,6 +67,7 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool             `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
+	PublishLocationName       *string           `mapstructure:"publish_location_name" cty:"publish_location_name" hcl:"publish_location_name"`
 	KubeconfigPath            *string           `mapstructure:"kubeconfig_path" cty:"kubeconfig_path" hcl:"kubeconfig_path"`
 	SupervisorNamespace       *string           `mapstructure:"supervisor_namespace" cty:"supervisor_namespace" hcl:"supervisor_namespace"`
 	ImageName                 *string           `mapstructure:"image_name" required:"true" cty:"image_name" hcl:"image_name"`
@@ -79,6 +80,8 @@ type FlatConfig struct {
 	BootstrapProvider         *string           `mapstructure:"bootstrap_provider" cty:"bootstrap_provider" hcl:"bootstrap_provider"`
 	BootstrapDataFile         *string           `mapstructure:"bootstrap_data_file" cty:"bootstrap_data_file" hcl:"bootstrap_data_file"`
 	WatchSourceTimeoutSec     *int              `mapstructure:"watch_source_timeout_sec" cty:"watch_source_timeout_sec" hcl:"watch_source_timeout_sec"`
+	PublishImageName          *string           `mapstructure:"publish_image_name" cty:"publish_image_name" hcl:"publish_image_name"`
+	WatchPublishTimeoutSec    *int              `mapstructure:"watch_publish_timeout_sec" cty:"watch_publish_timeout_sec" hcl:"watch_publish_timeout_sec"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -150,6 +153,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ssl":                &hcldec.AttrSpec{Name: "winrm_use_ssl", Type: cty.Bool, Required: false},
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
+		"publish_location_name":        &hcldec.AttrSpec{Name: "publish_location_name", Type: cty.String, Required: false},
 		"kubeconfig_path":              &hcldec.AttrSpec{Name: "kubeconfig_path", Type: cty.String, Required: false},
 		"supervisor_namespace":         &hcldec.AttrSpec{Name: "supervisor_namespace", Type: cty.String, Required: false},
 		"image_name":                   &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
@@ -162,6 +166,8 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"bootstrap_provider":           &hcldec.AttrSpec{Name: "bootstrap_provider", Type: cty.String, Required: false},
 		"bootstrap_data_file":          &hcldec.AttrSpec{Name: "bootstrap_data_file", Type: cty.String, Required: false},
 		"watch_source_timeout_sec":     &hcldec.AttrSpec{Name: "watch_source_timeout_sec", Type: cty.Number, Required: false},
+		"publish_image_name":           &hcldec.AttrSpec{Name: "publish_image_name", Type: cty.String, Required: false},
+		"watch_publish_timeout_sec":    &hcldec.AttrSpec{Name: "watch_publish_timeout_sec", Type: cty.Number, Required: false},
 	}
 	return s
 }

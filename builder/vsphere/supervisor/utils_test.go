@@ -13,6 +13,12 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	imgregv1a1 "github.com/vmware-tanzu/image-registry-operator-api/api/v1alpha1"
+	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
@@ -90,4 +96,13 @@ kind: Config
 	}
 
 	return fakeFile
+}
+
+func newFakeKubeClient(initObjs ...client.Object) client.WithWatch {
+	scheme := runtime.NewScheme()
+	_ = corev1.AddToScheme(scheme)
+	_ = vmopv1alpha1.AddToScheme(scheme)
+	_ = imgregv1a1.AddToScheme(scheme)
+
+	return fake.NewClientBuilder().WithObjects(initObjs...).WithScheme(scheme).Build()
 }

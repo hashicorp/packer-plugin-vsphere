@@ -23,9 +23,11 @@ const (
 type Config struct {
 	packercommon.PackerConfig `mapstructure:",squash"`
 	CommunicatorConfig        communicator.Config `mapstructure:",squash"`
+	ValidatePublishConfig     `mapstructure:",squash"`
 	ConnectSupervisorConfig   `mapstructure:",squash"`
 	CreateSourceConfig        `mapstructure:",squash"`
 	WatchSourceConfig         `mapstructure:",squash"`
+	PublishSourceConfig       `mapstructure:",squash"`
 
 	ctx interpolate.Context
 }
@@ -59,8 +61,10 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	errs := new(packersdk.MultiError)
 	errs = packersdk.MultiErrorAppend(errs, c.CommunicatorConfig.Prepare(&c.ctx)...)
 	errs = packersdk.MultiErrorAppend(errs, c.ConnectSupervisorConfig.Prepare()...)
+	errs = packersdk.MultiErrorAppend(errs, c.ValidatePublishConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.CreateSourceConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.WatchSourceConfig.Prepare()...)
+	errs = packersdk.MultiErrorAppend(errs, c.PublishSourceConfig.Prepare()...)
 
 	if len(errs.Errors) > 0 {
 		return nil, errs

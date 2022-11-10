@@ -9,10 +9,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/hashicorp/packer-plugin-sdk/multistep"
 
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
