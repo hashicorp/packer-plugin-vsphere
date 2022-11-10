@@ -1,8 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
-# A Packer template to deploy a VM-Service VM using the vsphere-supervisor builder.
-# It runs Nginx and cleans up the VM using the Ansible provisioner.
+# A Packer template to deploy and publish a VM-Service VM using the vsphere-supervisor builder.
 
 # VM-Service source VM configs.
 variable "image_name" {
@@ -81,6 +77,16 @@ variable "publish_image_name" {
   default = null
 }
 
+# Watch timeout related configs.
+variable "watch_source_timeout_sec" {
+  type = number
+  default = 1800
+}
+variable "watch_publish_timeout_sec" {
+  type = number
+  default = 600
+}
+
 source "vsphere-supervisor" "vm" {
   kubeconfig_path = "${var.kubeconfig_path}"
   supervisor_namespace = "${var.supervisor_namespace}"
@@ -99,17 +105,15 @@ source "vsphere-supervisor" "vm" {
   keep_input_artifact = "${var.keep_input_artifact}"
   publish_location_name = "${var.publish_location_name}"
   publish_image_name = "${var.publish_image_name}"
+  watch_source_timeout_sec = "${var.watch_source_timeout_sec}"
+  watch_publish_timeout_sec = "${var.watch_publish_timeout_sec}"
 }
 
 build {
   sources = ["source.vsphere-supervisor.vm"]
   provisioner "shell" {
     inline = [
-      "yum install -qy nginx",
-      "systemctl restart nginx",
-      "systemctl status nginx",
-      "echo 'Testing Nginx connectivity...'",
-      "curl -sI http://localhost:80",
+      "echo 'Hello from Packer!' > ./hello-packer.txt",
     ]
   }
 }

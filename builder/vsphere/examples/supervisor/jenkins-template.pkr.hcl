@@ -1,8 +1,5 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 # A Packer template to deploy a VM-Service VM using the vsphere-supervisor builder.
-# It runs Nginx and cleans up the VM using the Ansible provisioner.
+# It installs Jenkins and runs a sample hello-world job in the deployed VM.
 
 # VM-Service source VM configs.
 variable "image_name" {
@@ -103,13 +100,44 @@ source "vsphere-supervisor" "vm" {
 
 build {
   sources = ["source.vsphere-supervisor.vm"]
+
+  # Jenkins job configuration file.
+  provisioner "file" {
+    destination = "/tmp/sample-job.xml"
+    content = <<EOF
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <description>A sample job</description>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo "Hello VM-Service from Jenkins"</command>
+    </hudson.tasks.Shell>
+  </builders>
+</project>
+EOF
+  }
+
   provisioner "shell" {
     inline = [
-      "yum install -qy nginx",
-      "systemctl restart nginx",
-      "systemctl status nginx",
-      "echo 'Testing Nginx connectivity...'",
-      "curl -sI http://localhost:80",
+      # Install Jenkins and its dependencies.
+      "curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null",
+      "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null",
+      # Sometimes apt-get uses IPv6 and causes failure, force to use IPv4 address.
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true update",
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y ca-certificates openjdk-11-jre-headless",
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y jenkins",
+      # Restart Jenkins service, in case it didn't initialize successfully.
+      "sudo systemctl restart jenkins",
+
+      "export JENKINS_URL=http://localhost:8080/",
+      "export USER=admin",
+      "export PASSWORD=$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword)",
+      # Download Jenkins CLI to create and check job status.
+      "wget -q -O /tmp/jenkins-cli.jar $JENKINS_URL/jnlpJars/jenkins-cli.jar",      
+      # Create a new job from the above sample-job.xml file.
+      "java -jar /tmp/jenkins-cli.jar -s $JENKINS_URL -auth $USER:$PASSWORD create-job sample-job < /tmp/sample-job.xml",
+      # Build and wait for a successful completion of the job.
+      "java -jar /tmp/jenkins-cli.jar -s $JENKINS_URL -auth $USER:$PASSWORD build sample-job -s -v",
     ]
   }
 }

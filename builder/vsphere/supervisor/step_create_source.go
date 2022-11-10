@@ -30,6 +30,7 @@ const (
 	StateKeyVMCreated               = "vm_created"
 	StateKeyVMServiceCreated        = "vm_service_created"
 	StateKeyVMMetadataSecretCreated = "vm_metadata_secret_created"
+	StateKeyKeepInputArtifact       = "keep_input_artifact"
 
 	ProviderCloudInit  = string(vmopv1alpha1.VirtualMachineMetadataCloudInitTransport)
 	ProviderSysprep    = string(vmopv1alpha1.VirtualMachineMetadataSysprepTransport)
@@ -50,7 +51,7 @@ type CreateSourceConfig struct {
 	NetworkType string `mapstructure:"network_type"`
 	// Name of the network to attach to the source VM's network interface. Defaults to empty.
 	NetworkName string `mapstructure:"network_name"`
-	// Preserve the created objects even after importing them to the vSphere endpoint. Defaults to `false`.
+	// Preserve all the created objects in Supervisor cluster after the build finishes. Defaults to `false`.
 	KeepInputArtifact bool `mapstructure:"keep_input_artifact"`
 	// Name of the bootstrap provider to use for configuring the source VM.
 	// Supported values are `CloudInit`, `Sysprep`, and `vAppConfig`. Defaults to `CloudInit`.
@@ -132,8 +133,9 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		state.Put(StateKeyVMServiceCreated, true)
 	}
 
-	// Make the source name retrievable in later step.
+	// Make the source_name and keep_input_artifact retrievable in later step.
 	state.Put(StateKeySourceName, s.Config.SourceName)
+	state.Put(StateKeyKeepInputArtifact, s.Config.KeepInputArtifact)
 
 	logger.Info("Finished creating all required source objects in Supervisor cluster")
 	return multistep.ActionContinue

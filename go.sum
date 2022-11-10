@@ -564,6 +564,8 @@ github.com/ulikunitz/xz v0.5.10/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0o
 github.com/urfave/cli v0.0.0-20171014202726-7bc6a0acffa5/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/vmihailenco/msgpack/v4 v4.3.12/go.mod h1:gborTTJjAo/GWTqqRjrLCn9pgNN+NXzzngzBKDPIqw4=
 github.com/vmihailenco/tagparser v0.1.1/go.mod h1:OeAg3pn3UbLjkWt+rN9oFYB6u/cQgqMEUPoW2WPyhdI=
+github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097 h1:QRNNClvbHlX+ZLYzeJpT8CbAaMvXbXfW9x0GMtenXHs=
+github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097/go.mod h1:S0HMBgdo3S/0a5hwq+Ya4XZI2aEDtGkSGeojU1cINOg=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1 h1:krW4K3Vj8DkVqLMUOlW1OMLr1BY9Lg+PLZ7mAzlJz/A=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1/go.mod h1:vauVboD3sQxP+pb28TnI9wfrj+0nH2zSEc9Q7AzWJ54=
 github.com/vmware/govmomi v0.29.0 h1:SHJQ7DUc4fltFZv16znJNGHR1/XhiDK5iKxm2OqwkuU=

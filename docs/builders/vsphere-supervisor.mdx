@@ -2,7 +2,7 @@
 modeline: |
   vim: set ft=pandoc:
 description: >
-  The Packer builder that deploys a VM-Service vm to a vSphere Supervisor cluster.
+  The Packer builder that deploys, customizes, and publishes a VM-Service VM to vSphere Supervisor.
 page_title: vSphere Supervisor - Builders
 sidebar_title: Supervisor
 ---
@@ -12,13 +12,14 @@ sidebar_title: Supervisor
 Type: `vsphere-supervisor`
 Artifact BuilderId: `vsphere.supervisor`
 
-This builder deploys new VMs to a vSphere Supervisor cluster.
+This builder deploys and publishes new VMs to a vSphere Supervisor cluster using VM Service.
+If you are new to VM Service, please refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu
+](https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-tanzu/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html) for more information.
 
-- It uses kubeconfig file to connect to the vSphere Supervisor cluster.
-- It uses the [VM-Service API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
-- It uses the Packer provisioners to customize the VM after deployment.
-- Planned enhancements that will introduce the ability to publish the
-  customized VM as a new VM image to the vSphere endpoint.
+- It uses a kubeconfig file to connect to the vSphere Supervisor cluster.
+- It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
+- It uses the Packer provisioners to customize the VM after establishing a successful connection.
+- It publishes the customized VM as a new VM image to the designated content library in vSphere.
 - The builder supports versions following the VMware Product Lifecycle Matrix
   from General Availability to End of General Support. Builds on versions that
   are end of support may work, but configuration options may throw errors if
@@ -53,7 +54,7 @@ build {
   "builders": [
     {
       "type": "vsphere-supervisor",
-      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
+      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>",
       "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
       "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
       "bootstrap_provider": "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>",
@@ -77,7 +78,7 @@ There are various configuration options available for each step in this builder.
 
 ### Optional
 
-#### Supervisor Cluster Connection
+#### Supervisor Connection
 
 @include 'builder/vsphere/supervisor/ConnectSupervisorConfig-not-required.mdx'
 
@@ -89,6 +90,10 @@ There are various configuration options available for each step in this builder.
 
 @include 'builder/vsphere/supervisor/WatchSourceConfig-not-required.mdx'
 
+#### Source VM Publishing
+
+@include 'builder/vsphere/supervisor/PublishSourceConfig-not-required.mdx'
+
 #### Communicator Configuration
 
 @include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
@@ -99,7 +104,8 @@ There are various configuration options available for each step in this builder.
 
 ## Deprovisioning Tasks
 
-If you would like to clean up the VM after the build is complete, you can use the Ansible provisioner to run the following tasks to delete machine-specific files and data.
+If you would like to clean up the VM after the build is complete, you could use the Ansible
+provisioner to run the following tasks to delete machine-specific files and data.
 
 <Tabs>
 <Tab heading="HCL2">
