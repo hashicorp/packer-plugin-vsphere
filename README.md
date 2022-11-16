@@ -12,7 +12,7 @@ The plugin includes two builders which are able to create images, depending on y
 
 ## Requirements
 
-* [VMware vSphere][docs-vsphere] 6.5 or later.
+* [VMware vSphere][docs-vsphere]
 
     The provider supports versions in accordance with the VMware Product Lifecycle Matrix from General Availability to End of General Support.
 
@@ -62,7 +62,7 @@ To install the compiled plugin, please follow the Packer documentation on [insta
 
 ### Configuration
 
-For more information on how to configure the plugin, please see the plugin documentation
+For more information on how to configure the plugin, please see the [plugin documentation][docs-vsphere-plugin].
 
 * `vsphere-iso` [builder documentation][docs-vsphere-iso]
 
