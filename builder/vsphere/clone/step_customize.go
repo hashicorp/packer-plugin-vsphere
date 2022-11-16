@@ -121,6 +121,10 @@ type StepCustomize struct {
 func (c *CustomizeConfig) Prepare() []error {
 	var errs []error
 
+	if len(c.NetworkInterfaces) == 0 {
+		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided."))
+	}
+
 	options_number := 0
 	if c.LinuxOptions != nil {
 		options_number = options_number + 1
