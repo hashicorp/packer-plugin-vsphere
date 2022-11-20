@@ -17,7 +17,12 @@ This builder deploys new VMs to a vSphere Supervisor cluster.
 - It uses kubeconfig file to connect to the vSphere Supervisor cluster.
 - It uses the VM-Service API to deploy and configure the source VM.
 - It uses the Packer provisioners to customize the VM after deployment.
-- Planned enhancements that will introduce the ability to publish the customized VM as a new VM image to the vSphere endpoint.
+- Planned enhancements that will introduce the ability to publish the
+  customized VM as a new VM image to the vSphere endpoint.
+- The builder supports versions following the VMware Product Lifecycle Matrix
+  from General Availability to End of General Support. Builds on versions that
+  are end of support may work, but configuration options may throw errors if
+  they do not exist in the vSphere API for those versions.
 
 ## Examples
 
