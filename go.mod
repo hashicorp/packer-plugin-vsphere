@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/packer-plugin-sdk v0.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20220829180940-668c997eb271
-	github.com/vmware/govmomi v0.26.1
+	github.com/vmware/govmomi v0.29.0
 	github.com/zclconf/go-cty v1.10.0
 	golang.org/x/mobile v0.0.0-20210901025245-1fde1d6c3ca1
 	k8s.io/api v0.24.3
@@ -97,6 +97,7 @@ require (
 	github.com/packer-community/winrmcp v0.0.0-20180921211025-c76d91c1e7db // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pkg/sftp v1.13.2 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
