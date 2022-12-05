@@ -1,0 +1,27 @@
+<!-- Code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
+
+- `run_once_command_list` (\*[]string) - CustomizationGuiRunOnce
+  A list of commands to run at first user logon, after guest customization.
+
+- `auto_logon` (\*bool) - CustomizationGuiUnattended
+  Specifies whether or not the VM automatically logs on as Administrator.
+
+- `auto_logon_count` (\*int32) - Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true. Default 1
+
+- `admin_password` (\*string) - The new administrator password for this virtual machine.
+
+- `time_zone` (\*int32) - The new time zone for the virtual machine. This is a sysprep-dictated timezone code. Default 85 (GMT)
+
+- `workgroup` (string) - CustomizationIdentification
+  The workgroup for this virtual machine - AD Join is not supported
+
+- `computer_name` (string) - CustomizationUserData
+  The host name for this virtual machine.
+
+- `full_name` (string) - The full name of the user of this virtual machine. Default: "Administrator"
+
+- `organization_name` (string) - The organization name this virtual machine is being installed for. Default: "Managed by Packer"
+
+- `product_key` (string) - The product key for this virtual machine.
+
+<!-- End of code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; -->

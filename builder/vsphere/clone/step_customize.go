@@ -1,5 +1,5 @@
 //go:generate packer-sdc struct-markdown
-//go:generate packer-sdc mapstructure-to-hcl2 -type CustomizeConfig,LinuxOptions,NetworkInterfaces,NetworkInterface,GlobalDnsSettings,GlobalRoutingSettings
+//go:generate packer-sdc mapstructure-to-hcl2 -type CustomizeConfig,LinuxOptions,WindowsOptions,WindowsOptionsGuiUnattended,WindowsOptionsUserData,WindowsOptionsGuiRunOnce,WindowsOptionsIdentification,WindowsOptionsLicenseFilePrintData,NetworkInterfaces,NetworkInterface,GlobalDnsSettings,GlobalRoutingSettings
 package clone
 
 import (
@@ -28,6 +28,8 @@ import (
 type CustomizeConfig struct {
 	// Settings to Linux guest OS customization. See [Linux customization settings](#linux-customization-settings).
 	LinuxOptions *LinuxOptions `mapstructure:"linux_options"`
+	// Settings to Windows guest OS customization.
+	WindowsOptions *WindowsOptions `mapstructure:"windows_options"`
 	// Supply your own sysprep.xml file to allow full control of the customization process out-of-band of vSphere.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
 	// Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
@@ -47,6 +49,33 @@ type LinuxOptions struct {
 	HWClockUTC config.Trilean `mapstructure:"hw_clock_utc"`
 	// Sets the time zone. The default is UTC.
 	Timezone string `mapstructure:"time_zone"`
+}
+
+type WindowsOptions struct {
+	// CustomizationGuiRunOnce
+	// A list of commands to run at first user logon, after guest customization.
+	RunOnceCommandList *[]string `mapstructure:"run_once_command_list"`
+	// CustomizationGuiUnattended
+	// Specifies whether or not the VM automatically logs on as Administrator.
+	AutoLogon *bool `mapstructure:"auto_logon"`
+	// Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true. Default 1
+	AutoLogonCount *int32 `mapstructure:"auto_logon_count"`
+	// The new administrator password for this virtual machine.
+	AdminPassword *string `mapstructure:"admin_password"`
+	// The new time zone for the virtual machine. This is a sysprep-dictated timezone code. Default 85 (GMT)
+	TimeZone *int32 `mapstructure:"time_zone"`
+	// CustomizationIdentification
+	// The workgroup for this virtual machine - AD Join is not supported
+	Workgroup string `mapstructure:"workgroup"`
+	// CustomizationUserData
+	// The host name for this virtual machine.
+	ComputerName string `mapstructure:"computer_name"`
+	// The full name of the user of this virtual machine. Default: "Administrator"
+	FullName string `mapstructure:"full_name"`
+	// The organization name this virtual machine is being installed for. Default: "Managed by Packer"
+	OrganizationName string `mapstructure:"organization_name"`
+	// The product key for this virtual machine.
+	ProductKey string `mapstructure:"product_key"`
 }
 
 type NetworkInterface struct {
@@ -92,37 +121,38 @@ type StepCustomize struct {
 func (c *CustomizeConfig) Prepare() []error {
 	var errs []error
 
-	if c.LinuxOptions == nil && c.WindowsSysPrepFile == "" {
-		errs = append(errs, fmt.Errorf("customize is empty"))
+	if len(c.NetworkInterfaces) == 0 {
+		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided."))
 	}
-	if c.LinuxOptions != nil && c.WindowsSysPrepFile != "" {
-		errs = append(errs, fmt.Errorf("`linux_options` and `windows_sysprep_text` both set - one must not be included if the other is specified"))
+
+	options_number := 0
+	if c.LinuxOptions != nil {
+		options_number = options_number + 1
+	}
+	if c.WindowsOptions != nil {
+		options_number = options_number + 1
+	}
+	if c.WindowsSysPrepFile != "" {
+		options_number = options_number + 1
+	}
+
+	if options_number > 1 {
+		errs = append(errs, fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set"))
+	} else if options_number == 0 {
+		errs = append(errs, fmt.Errorf("One of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
 	}
 
 	if c.LinuxOptions != nil {
-		if c.LinuxOptions.Hostname == "" {
-			errs = append(errs, fmt.Errorf("linux options `host_name` is empty"))
-		}
-		if c.LinuxOptions.Domain == "" {
-			errs = append(errs, fmt.Errorf("linux options `domain` is empty"))
-		}
-
-		if c.LinuxOptions.HWClockUTC == config.TriUnset {
-			c.LinuxOptions.HWClockUTC = config.TriTrue
-		}
-		if c.LinuxOptions.Timezone == "" {
-			c.LinuxOptions.Timezone = "UTC"
-		}
+		errs = c.LinuxOptions.prepare(errs)
 	}
-
-	if len(c.NetworkInterfaces) == 0 {
-		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided"))
+	if c.WindowsOptions != nil {
+		errs = c.WindowsOptions.prepare(errs)
 	}
 
 	return errs
 }
 
-func (s *StepCustomize) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCustomize) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 	ui := state.Get("ui").(packersdk.Ui)
 
@@ -152,14 +182,11 @@ func (s *StepCustomize) Run(_ context.Context, state multistep.StateBag) multist
 
 func (s *StepCustomize) identitySettings() (types.BaseCustomizationIdentitySettings, error) {
 	if s.Config.LinuxOptions != nil {
-		return &types.CustomizationLinuxPrep{
-			HostName: &types.CustomizationFixedName{
-				Name: s.Config.LinuxOptions.Hostname,
-			},
-			Domain:     s.Config.LinuxOptions.Domain,
-			TimeZone:   s.Config.LinuxOptions.Timezone,
-			HwClockUTC: s.Config.LinuxOptions.HWClockUTC.ToBoolPointer(),
-		}, nil
+		return s.Config.LinuxOptions.linuxPrep(), nil
+	}
+
+	if s.Config.WindowsOptions != nil {
+		return s.Config.WindowsOptions.sysprep(), nil
 	}
 
 	if s.Config.WindowsSysPrepFile != "" {
@@ -271,6 +298,116 @@ func (s *StepCustomize) globalIpSettings() types.CustomizationGlobalIPSettings {
 		DnsServerList: s.Config.DnsServerList,
 		DnsSuffixList: s.Config.DnsSuffixList,
 	}
+}
+
+func (l *LinuxOptions) prepare(errs []error) []error {
+	if l.Hostname == "" {
+		errs = append(errs, fmt.Errorf("linux options `host_name` is empty"))
+	}
+	if l.Domain == "" {
+		errs = append(errs, fmt.Errorf("linux options `domain` is empty"))
+	}
+
+	if l.HWClockUTC == config.TriUnset {
+		l.HWClockUTC = config.TriTrue
+	}
+	if l.Timezone == "" {
+		l.Timezone = "UTC"
+	}
+	return errs
+}
+
+func (l *LinuxOptions) linuxPrep() *types.CustomizationLinuxPrep {
+	obj := &types.CustomizationLinuxPrep{
+		HostName: &types.CustomizationFixedName{
+			Name: l.Hostname,
+		},
+		Domain:     l.Domain,
+		TimeZone:   l.Timezone,
+		HwClockUTC: l.HWClockUTC.ToBoolPointer(),
+	}
+	return obj
+}
+
+func (w *WindowsOptions) prepare(errs []error) []error {
+	if w.ComputerName == "" {
+		errs = append(errs, fmt.Errorf("The `computer_name` is required"))
+	}
+	if w.FullName == "" {
+		w.FullName = "Administrator"
+	}
+	if w.OrganizationName == "" {
+		w.OrganizationName = "Built by Packer"
+	}
+	return errs
+}
+
+func (w *WindowsOptions) sysprep() *types.CustomizationSysprep {
+	obj := &types.CustomizationSysprep{
+		GuiUnattended:  w.guiUnattended(),
+		UserData:       w.userData(),
+		GuiRunOnce:     w.guiRunOnce(),
+		Identification: w.identification(),
+	}
+	return obj
+}
+
+func (w *WindowsOptions) guiRunOnce() *types.CustomizationGuiRunOnce {
+	obj := &types.CustomizationGuiRunOnce{
+		CommandList: *w.RunOnceCommandList,
+	}
+	if len(obj.CommandList) < 1 {
+		return nil
+	}
+	return obj
+}
+
+func boolValue(p *bool, fallback bool) bool {
+	if p == nil {
+		return fallback
+	}
+	return *p
+}
+
+func intValue(p *int32, fallback int32) int32 {
+	if p == nil {
+		return fallback
+	}
+	return *p
+}
+
+func (w *WindowsOptions) guiUnattended() types.CustomizationGuiUnattended {
+	obj := types.CustomizationGuiUnattended{
+		TimeZone:       intValue(w.TimeZone, 85),
+		AutoLogon:      boolValue(w.AutoLogon, false),
+		AutoLogonCount: intValue(w.AutoLogonCount, 1),
+	}
+	if w.AdminPassword != nil {
+		obj.Password = &types.CustomizationPassword{
+			Value:     *w.AdminPassword,
+			PlainText: true,
+		}
+	}
+	return obj
+}
+
+func (w *WindowsOptions) identification() types.CustomizationIdentification {
+	obj := types.CustomizationIdentification{
+		JoinWorkgroup: w.Workgroup,
+	}
+	return obj
+}
+
+func (w *WindowsOptions) userData() types.CustomizationUserData {
+	obj := types.CustomizationUserData{
+		FullName: w.FullName,
+		OrgName:  w.OrganizationName,
+		ComputerName: &types.CustomizationFixedName{
+			Name: w.ComputerName,
+		},
+		ProductId: w.ProductKey,
+	}
+	return obj
 }
 
 func (s *StepCustomize) Cleanup(_ multistep.StateBag) {}
