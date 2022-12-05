@@ -686,6 +686,7 @@ func (vm *VirtualMachineDriver) ResizeDisk(diskSize int64) ([]types.BaseVirtualD
 	}
 
 	disk.CapacityInKB = diskSize * 1024
+	disk.CapacityInBytes = disk.CapacityInKB * 1024
 
 	return []types.BaseVirtualDeviceConfigSpec{
 		&types.VirtualDeviceConfigSpec{
