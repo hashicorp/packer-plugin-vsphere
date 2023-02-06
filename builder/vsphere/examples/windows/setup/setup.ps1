@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 $ErrorActionPreference = "Stop"
 
 # Switch network connection to private mode

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 source "vsphere-iso" "example" {
   datacenter        = var.datacenter_name
   vcenter_server    = var.vcenter_endpoint
