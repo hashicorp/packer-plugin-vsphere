@@ -42,6 +42,8 @@ type CloneConfig struct {
 	MacAddress string `mapstructure:"mac_address"`
 	// VM notes.
 	Notes string `mapstructure:"notes"`
+	// If set to true, the VM will be destroyed after the builder completes
+	Destroy bool `mapstructure:"destroy"`
 	// Set the vApp Options to a virtual machine.
 	// See the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
 	// to know the available options and how to use it.
@@ -127,6 +129,9 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 	}
 	if vm == nil {
 		return multistep.ActionHalt
+	}
+	if s.Config.Destroy {
+		state.Put("destroy_vm", s.Config.Destroy)
 	}
 	state.Put("vm", vm)
 	return multistep.ActionContinue
