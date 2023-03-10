@@ -103,6 +103,12 @@ source "vsphere-iso" "example" {
 
 @include 'builder/vsphere/common/HardwareConfig-not-required.mdx'
 
+### PCI Passthrough Configuration
+
+@include 'builder/vsphere/common/PCIPassthroughAllowedDevice.mdx'
+
+@include 'builder/vsphere/common/PCIPassthroughAllowedDevice-not-required.mdx'
+
 ## Location Configuration
 
 @include 'builder/vsphere/common/LocationConfig-not-required.mdx'
@@ -162,7 +168,6 @@ iso_paths = [
     "[] /usr/lib/vmware/isoimages/windows.iso"
 ]
 ```
-
 
 @include 'builder/vsphere/common/CDRomConfig-not-required.mdx'
 

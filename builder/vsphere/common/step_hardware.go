@@ -2,18 +2,62 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate packer-sdc struct-markdown
-//go:generate packer-sdc mapstructure-to-hcl2 -type HardwareConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type HardwareConfig,PCIPassthroughAllowedDevice
 
 package common
 
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
+
+// Dynamic DirectPath I/O is component of the Assignable Hardware framework in VMware vSphere.
+// Dynamic DirectPath I/O enables the Assignable Hardware intelligence for passthrough devices and
+// the hardware address of the PCIe device is no longer directly mapped to the virtual machine
+// configuration. Instead, the attributes, or capabilities, are exposed to the virtual machine.
+//
+// # JSON
+//
+// ```json
+//
+//	{
+//	  "pci_passthrough_allowed_device": {
+//	    "vendor_id": "8086",
+//	    "device_id": "100e",
+//	    "sub_device_id": "8086",
+//	    "sub_vendor_id": "100e"
+//	  }
+//	}
+//
+// ```
+//
+// # HCL2
+//
+// ```hcl
+//
+//	pci_passthrough_allowed_device {
+//	  "vendor_id": "8086",
+//	  "device_id": "100e",
+//	  "sub_device_id": "8086",
+//	  "sub_vendor_id": "100e"
+//	}
+//
+// ```
+type PCIPassthroughAllowedDevice struct {
+	// The sub-vendor ID of the PCI device.
+	VendorId string `mapstructure:"vendor_id"`
+	// The vendor ID of the PCI device.
+	DeviceId string `mapstructure:"device_id"`
+	// The sub-vendor ID of the PCI device.
+	SubVendorId string `mapstructure:"sub_vendor_id"`
+	// The sub-device ID of the PCI device.
+	SubDeviceId string `mapstructure:"sub_device_id"`
+}
 
 type HardwareConfig struct {
 	// Number of CPU cores.
@@ -41,6 +85,10 @@ type HardwareConfig struct {
 	// Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
 	// for supported maximums. Defaults to 1.
 	Displays int32 `mapstructure:"displays"`
+	// Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
+	// virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+	AllowedDevices []PCIPassthroughAllowedDevice `mapstructure:"pci_passthrough_allowed_device"`
+	// vGPU profile for accelerated graphics.
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
 	// for examples of profile names. Defaults to none.
 	VGPUProfile string `mapstructure:"vgpu_profile"`
@@ -86,8 +134,13 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	if *s.Config != (HardwareConfig{}) {
+	if !reflect.DeepEqual(*s.Config, HardwareConfig{}) {
 		ui.Say("Customizing hardware...")
+
+		var allowedDevices []driver.PCIPassthroughAllowedDevice
+		for _, device := range s.Config.AllowedDevices {
+			allowedDevices = append(allowedDevices, driver.PCIPassthroughAllowedDevice(device))
+		}
 
 		err := vm.Configure(&driver.HardwareConfig{
 			CPUs:                  s.Config.CPUs,
@@ -102,6 +155,7 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 			MemoryHotAddEnabled:   s.Config.MemoryHotAddEnabled,
 			VideoRAM:              s.Config.VideoRAM,
 			Displays:              s.Config.Displays,
+			AllowedDevices:        allowedDevices,
 			VGPUProfile:           s.Config.VGPUProfile,
 			Firmware:              s.Config.Firmware,
 			ForceBIOSSetup:        s.Config.ForceBIOSSetup,
