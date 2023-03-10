@@ -10,23 +10,24 @@ import (
 // FlatHardwareConfig is an auto-generated flat version of HardwareConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatHardwareConfig struct {
-	CPUs                  *int32  `mapstructure:"CPUs" cty:"CPUs" hcl:"CPUs"`
-	CpuCores              *int32  `mapstructure:"cpu_cores" cty:"cpu_cores" hcl:"cpu_cores"`
-	CPUReservation        *int64  `mapstructure:"CPU_reservation" cty:"CPU_reservation" hcl:"CPU_reservation"`
-	CPULimit              *int64  `mapstructure:"CPU_limit" cty:"CPU_limit" hcl:"CPU_limit"`
-	CpuHotAddEnabled      *bool   `mapstructure:"CPU_hot_plug" cty:"CPU_hot_plug" hcl:"CPU_hot_plug"`
-	RAM                   *int64  `mapstructure:"RAM" cty:"RAM" hcl:"RAM"`
-	RAMReservation        *int64  `mapstructure:"RAM_reservation" cty:"RAM_reservation" hcl:"RAM_reservation"`
-	RAMReserveAll         *bool   `mapstructure:"RAM_reserve_all" cty:"RAM_reserve_all" hcl:"RAM_reserve_all"`
-	MemoryHotAddEnabled   *bool   `mapstructure:"RAM_hot_plug" cty:"RAM_hot_plug" hcl:"RAM_hot_plug"`
-	VideoRAM              *int64  `mapstructure:"video_ram" cty:"video_ram" hcl:"video_ram"`
-	Displays              *int32  `mapstructure:"displays" cty:"displays" hcl:"displays"`
-	VGPUProfile           *string `mapstructure:"vgpu_profile" cty:"vgpu_profile" hcl:"vgpu_profile"`
-	NestedHV              *bool   `mapstructure:"NestedHV" cty:"NestedHV" hcl:"NestedHV"`
-	Firmware              *string `mapstructure:"firmware" cty:"firmware" hcl:"firmware"`
-	ForceBIOSSetup        *bool   `mapstructure:"force_bios_setup" cty:"force_bios_setup" hcl:"force_bios_setup"`
-	VTPMEnabled           *bool   `mapstructure:"vTPM" cty:"vTPM" hcl:"vTPM"`
-	VirtualPrecisionClock *string `mapstructure:"precision_clock" cty:"precision_clock" hcl:"precision_clock"`
+	CPUs                  *int32                            `mapstructure:"CPUs" cty:"CPUs" hcl:"CPUs"`
+	CpuCores              *int32                            `mapstructure:"cpu_cores" cty:"cpu_cores" hcl:"cpu_cores"`
+	CPUReservation        *int64                            `mapstructure:"CPU_reservation" cty:"CPU_reservation" hcl:"CPU_reservation"`
+	CPULimit              *int64                            `mapstructure:"CPU_limit" cty:"CPU_limit" hcl:"CPU_limit"`
+	CpuHotAddEnabled      *bool                             `mapstructure:"CPU_hot_plug" cty:"CPU_hot_plug" hcl:"CPU_hot_plug"`
+	RAM                   *int64                            `mapstructure:"RAM" cty:"RAM" hcl:"RAM"`
+	RAMReservation        *int64                            `mapstructure:"RAM_reservation" cty:"RAM_reservation" hcl:"RAM_reservation"`
+	RAMReserveAll         *bool                             `mapstructure:"RAM_reserve_all" cty:"RAM_reserve_all" hcl:"RAM_reserve_all"`
+	MemoryHotAddEnabled   *bool                             `mapstructure:"RAM_hot_plug" cty:"RAM_hot_plug" hcl:"RAM_hot_plug"`
+	VideoRAM              *int64                            `mapstructure:"video_ram" cty:"video_ram" hcl:"video_ram"`
+	Displays              *int32                            `mapstructure:"displays" cty:"displays" hcl:"displays"`
+	AllowedDevices        []FlatPCIPassthroughAllowedDevice `mapstructure:"pci_passthrough_allowed_device" cty:"pci_passthrough_allowed_device" hcl:"pci_passthrough_allowed_device"`
+	VGPUProfile           *string                           `mapstructure:"vgpu_profile" cty:"vgpu_profile" hcl:"vgpu_profile"`
+	NestedHV              *bool                             `mapstructure:"NestedHV" cty:"NestedHV" hcl:"NestedHV"`
+	Firmware              *string                           `mapstructure:"firmware" cty:"firmware" hcl:"firmware"`
+	ForceBIOSSetup        *bool                             `mapstructure:"force_bios_setup" cty:"force_bios_setup" hcl:"force_bios_setup"`
+	VTPMEnabled           *bool                             `mapstructure:"vTPM" cty:"vTPM" hcl:"vTPM"`
+	VirtualPrecisionClock *string                           `mapstructure:"precision_clock" cty:"precision_clock" hcl:"precision_clock"`
 }
 
 // FlatMapstructure returns a new FlatHardwareConfig.
@@ -41,23 +42,53 @@ func (*HardwareConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hclde
 // The decoded values from this spec will then be applied to a FlatHardwareConfig.
 func (*FlatHardwareConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"CPUs":             &hcldec.AttrSpec{Name: "CPUs", Type: cty.Number, Required: false},
-		"cpu_cores":        &hcldec.AttrSpec{Name: "cpu_cores", Type: cty.Number, Required: false},
-		"CPU_reservation":  &hcldec.AttrSpec{Name: "CPU_reservation", Type: cty.Number, Required: false},
-		"CPU_limit":        &hcldec.AttrSpec{Name: "CPU_limit", Type: cty.Number, Required: false},
-		"CPU_hot_plug":     &hcldec.AttrSpec{Name: "CPU_hot_plug", Type: cty.Bool, Required: false},
-		"RAM":              &hcldec.AttrSpec{Name: "RAM", Type: cty.Number, Required: false},
-		"RAM_reservation":  &hcldec.AttrSpec{Name: "RAM_reservation", Type: cty.Number, Required: false},
-		"RAM_reserve_all":  &hcldec.AttrSpec{Name: "RAM_reserve_all", Type: cty.Bool, Required: false},
-		"RAM_hot_plug":     &hcldec.AttrSpec{Name: "RAM_hot_plug", Type: cty.Bool, Required: false},
-		"video_ram":        &hcldec.AttrSpec{Name: "video_ram", Type: cty.Number, Required: false},
-		"displays":         &hcldec.AttrSpec{Name: "displays", Type: cty.Number, Required: false},
-		"vgpu_profile":     &hcldec.AttrSpec{Name: "vgpu_profile", Type: cty.String, Required: false},
-		"NestedHV":         &hcldec.AttrSpec{Name: "NestedHV", Type: cty.Bool, Required: false},
-		"firmware":         &hcldec.AttrSpec{Name: "firmware", Type: cty.String, Required: false},
-		"force_bios_setup": &hcldec.AttrSpec{Name: "force_bios_setup", Type: cty.Bool, Required: false},
-		"vTPM":             &hcldec.AttrSpec{Name: "vTPM", Type: cty.Bool, Required: false},
-		"precision_clock":  &hcldec.AttrSpec{Name: "precision_clock", Type: cty.String, Required: false},
+		"CPUs":                           &hcldec.AttrSpec{Name: "CPUs", Type: cty.Number, Required: false},
+		"cpu_cores":                      &hcldec.AttrSpec{Name: "cpu_cores", Type: cty.Number, Required: false},
+		"CPU_reservation":                &hcldec.AttrSpec{Name: "CPU_reservation", Type: cty.Number, Required: false},
+		"CPU_limit":                      &hcldec.AttrSpec{Name: "CPU_limit", Type: cty.Number, Required: false},
+		"CPU_hot_plug":                   &hcldec.AttrSpec{Name: "CPU_hot_plug", Type: cty.Bool, Required: false},
+		"RAM":                            &hcldec.AttrSpec{Name: "RAM", Type: cty.Number, Required: false},
+		"RAM_reservation":                &hcldec.AttrSpec{Name: "RAM_reservation", Type: cty.Number, Required: false},
+		"RAM_reserve_all":                &hcldec.AttrSpec{Name: "RAM_reserve_all", Type: cty.Bool, Required: false},
+		"RAM_hot_plug":                   &hcldec.AttrSpec{Name: "RAM_hot_plug", Type: cty.Bool, Required: false},
+		"video_ram":                      &hcldec.AttrSpec{Name: "video_ram", Type: cty.Number, Required: false},
+		"displays":                       &hcldec.AttrSpec{Name: "displays", Type: cty.Number, Required: false},
+		"pci_passthrough_allowed_device": &hcldec.BlockListSpec{TypeName: "pci_passthrough_allowed_device", Nested: hcldec.ObjectSpec((*FlatPCIPassthroughAllowedDevice)(nil).HCL2Spec())},
+		"vgpu_profile":                   &hcldec.AttrSpec{Name: "vgpu_profile", Type: cty.String, Required: false},
+		"NestedHV":                       &hcldec.AttrSpec{Name: "NestedHV", Type: cty.Bool, Required: false},
+		"firmware":                       &hcldec.AttrSpec{Name: "firmware", Type: cty.String, Required: false},
+		"force_bios_setup":               &hcldec.AttrSpec{Name: "force_bios_setup", Type: cty.Bool, Required: false},
+		"vTPM":                           &hcldec.AttrSpec{Name: "vTPM", Type: cty.Bool, Required: false},
+		"precision_clock":                &hcldec.AttrSpec{Name: "precision_clock", Type: cty.String, Required: false},
+	}
+	return s
+}
+
+// FlatPCIPassthroughAllowedDevice is an auto-generated flat version of PCIPassthroughAllowedDevice.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatPCIPassthroughAllowedDevice struct {
+	VendorId    *string `mapstructure:"vendor_id" cty:"vendor_id" hcl:"vendor_id"`
+	DeviceId    *string `mapstructure:"device_id" cty:"device_id" hcl:"device_id"`
+	SubVendorId *string `mapstructure:"sub_vendor_id" cty:"sub_vendor_id" hcl:"sub_vendor_id"`
+	SubDeviceId *string `mapstructure:"sub_device_id" cty:"sub_device_id" hcl:"sub_device_id"`
+}
+
+// FlatMapstructure returns a new FlatPCIPassthroughAllowedDevice.
+// FlatPCIPassthroughAllowedDevice is an auto-generated flat version of PCIPassthroughAllowedDevice.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*PCIPassthroughAllowedDevice) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatPCIPassthroughAllowedDevice)
+}
+
+// HCL2Spec returns the hcl spec of a PCIPassthroughAllowedDevice.
+// This spec is used by HCL to read the fields of PCIPassthroughAllowedDevice.
+// The decoded values from this spec will then be applied to a FlatPCIPassthroughAllowedDevice.
+func (*FlatPCIPassthroughAllowedDevice) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"vendor_id":     &hcldec.AttrSpec{Name: "vendor_id", Type: cty.String, Required: false},
+		"device_id":     &hcldec.AttrSpec{Name: "device_id", Type: cty.String, Required: false},
+		"sub_vendor_id": &hcldec.AttrSpec{Name: "sub_vendor_id", Type: cty.String, Required: false},
+		"sub_device_id": &hcldec.AttrSpec{Name: "sub_device_id", Type: cty.String, Required: false},
 	}
 	return s
 }

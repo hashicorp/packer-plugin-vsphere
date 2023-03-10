@@ -416,7 +416,11 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 - `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
   for supported maximums. Defaults to 1.
 
-- `vgpu_profile` (string) - vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
+- `pci_passthrough_allowed_device` ([]PCIPassthroughAllowedDevice) - Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
+  virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+
+- `vgpu_profile` (string) - vGPU profile for accelerated graphics.
+  vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
   for examples of profile names. Defaults to none.
 
 - `NestedHV` (bool) - Enable nested hardware virtualization for VM. Defaults to `false`.
@@ -430,6 +434,59 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 - `precision_clock` (string) - Add a precision clock device for virtual machine. Defaults to `none`.
 
 <!-- End of code generated from the comments of the HardwareConfig struct in builder/vsphere/common/step_hardware.go; -->
+
+
+### PCI Passthrough Configuration
+
+<!-- Code generated from the comments of the PCIPassthroughAllowedDevice struct in builder/vsphere/common/step_hardware.go; DO NOT EDIT MANUALLY -->
+
+Dynamic DirectPath I/O is component of the Assignable Hardware framework in VMware vSphere.
+Dynamic DirectPath I/O enables the Assignable Hardware intelligence for passthrough devices and
+the hardware address of the PCIe device is no longer directly mapped to the virtual machine
+configuration. Instead, the attributes, or capabilities, are exposed to the virtual machine.
+
+# JSON
+
+```json
+
+	{
+	  "pci_passthrough_allowed_device": {
+	    "vendor_id": "8086",
+	    "device_id": "100e",
+	    "sub_device_id": "8086",
+	    "sub_vendor_id": "100e"
+	  }
+	}
+
+```
+
+# HCL2
+
+```hcl
+
+	pci_passthrough_allowed_device {
+	  "vendor_id": "8086",
+	  "device_id": "100e",
+	  "sub_device_id": "8086",
+	  "sub_vendor_id": "100e"
+	}
+
+```
+
+<!-- End of code generated from the comments of the PCIPassthroughAllowedDevice struct in builder/vsphere/common/step_hardware.go; -->
+
+
+<!-- Code generated from the comments of the PCIPassthroughAllowedDevice struct in builder/vsphere/common/step_hardware.go; DO NOT EDIT MANUALLY -->
+
+- `vendor_id` (string) - The sub-vendor ID of the PCI device.
+
+- `device_id` (string) - The vendor ID of the PCI device.
+
+- `sub_vendor_id` (string) - The sub-vendor ID of the PCI device.
+
+- `sub_device_id` (string) - The sub-device ID of the PCI device.
+
+<!-- End of code generated from the comments of the PCIPassthroughAllowedDevice struct in builder/vsphere/common/step_hardware.go; -->
 
 
 ## Location Configuration
@@ -687,7 +744,6 @@ iso_paths = [
     "[] /usr/lib/vmware/isoimages/windows.iso"
 ]
 ```
-
 
 <!-- Code generated from the comments of the CDRomConfig struct in builder/vsphere/common/step_add_cdrom.go; DO NOT EDIT MANUALLY -->
 

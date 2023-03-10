@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -93,6 +94,13 @@ type CloneConfig struct {
 	StorageConfig   StorageConfig
 }
 
+type PCIPassthroughAllowedDevice struct {
+	VendorId    string
+	DeviceId    string
+	SubVendorId string
+	SubDeviceId string
+}
+
 type HardwareConfig struct {
 	CPUs                  int32
 	CpuCores              int32
@@ -106,6 +114,7 @@ type HardwareConfig struct {
 	MemoryHotAddEnabled   bool
 	VideoRAM              int64
 	Displays              int32
+	AllowedDevices        []PCIPassthroughAllowedDevice
 	VGPUProfile           string
 	Firmware              string
 	ForceBIOSSetup        bool
@@ -627,6 +636,15 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
 	}
 
+	if len(config.AllowedDevices) > 0 {
+		VirtualPCIPassthroughAllowedDevice := newVirtualPCIPassthroughAllowedDevice(config.AllowedDevices)
+		spec := &types.VirtualDeviceConfigSpec{
+			Device:    &VirtualPCIPassthroughAllowedDevice,
+			Operation: types.VirtualDeviceConfigSpecOperationAdd,
+		}
+		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
+	}
+
 	efiSecureBootEnabled := false
 	firmware := config.Firmware
 
@@ -1073,6 +1091,58 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 	}
 
 	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified.")
+}
+
+func newVirtualPCIPassthroughAllowedDevice(devices []PCIPassthroughAllowedDevice) types.VirtualPCIPassthrough {
+	allowedDevices := make([]types.VirtualPCIPassthroughAllowedDevice, len(devices))
+	for i, device := range devices {
+		deviceId, err := strconv.ParseInt(device.DeviceId, 16, 32)
+		if err != nil {
+			// handle error, for example:
+			log.Printf("Error parsing DeviceId: %v\n", err)
+			continue
+		}
+		vendorId, err := strconv.ParseUint(device.VendorId, 16, 32)
+		if err != nil {
+			log.Printf("Error parsing VendorId: %v\n", err)
+			continue
+		}
+		subVendorId, err := strconv.ParseUint(device.SubVendorId, 16, 32)
+		if err != nil {
+			log.Printf("Error parsing SubVendorId: %v\n", err)
+			continue
+		}
+		subDeviceId, err := strconv.ParseUint(device.SubDeviceId, 16, 32)
+		if err != nil {
+			log.Printf("Error parsing SubDeviceId: %v\n", err)
+			continue
+		}
+
+		allowedDevices[i] = types.VirtualPCIPassthroughAllowedDevice{
+			DeviceId:    int32(deviceId),
+			VendorId:    int32(vendorId),
+			SubVendorId: int32(subVendorId),
+			SubDeviceId: int32(subDeviceId),
+		}
+
+		log.Printf("adding pci dynamic direct i/o passthrough device with device_id '%s',vendor_id '%s',subsystem_id '%s',subsystem_vendor_id '%s'",
+			device.DeviceId,
+			device.VendorId,
+			device.SubDeviceId,
+			device.SubVendorId)
+	}
+
+	return types.VirtualPCIPassthrough{
+		VirtualDevice: types.VirtualDevice{
+			DeviceInfo: &types.Description{
+				Summary: "",
+				Label:   "New PCI device",
+			},
+			Backing: &types.VirtualPCIPassthroughDynamicBackingInfo{
+				AllowedDevice: allowedDevices,
+			},
+		},
+	}
 }
 
 func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {

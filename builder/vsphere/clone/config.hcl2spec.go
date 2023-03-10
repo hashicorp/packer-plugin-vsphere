@@ -61,6 +61,7 @@ type FlatConfig struct {
 	MemoryHotAddEnabled             *bool                                       `mapstructure:"RAM_hot_plug" cty:"RAM_hot_plug" hcl:"RAM_hot_plug"`
 	VideoRAM                        *int64                                      `mapstructure:"video_ram" cty:"video_ram" hcl:"video_ram"`
 	Displays                        *int32                                      `mapstructure:"displays" cty:"displays" hcl:"displays"`
+	AllowedDevices                  []common.FlatPCIPassthroughAllowedDevice    `mapstructure:"pci_passthrough_allowed_device" cty:"pci_passthrough_allowed_device" hcl:"pci_passthrough_allowed_device"`
 	VGPUProfile                     *string                                     `mapstructure:"vgpu_profile" cty:"vgpu_profile" hcl:"vgpu_profile"`
 	NestedHV                        *bool                                       `mapstructure:"NestedHV" cty:"NestedHV" hcl:"NestedHV"`
 	Firmware                        *string                                     `mapstructure:"firmware" cty:"firmware" hcl:"firmware"`
@@ -211,6 +212,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"RAM_hot_plug":                   &hcldec.AttrSpec{Name: "RAM_hot_plug", Type: cty.Bool, Required: false},
 		"video_ram":                      &hcldec.AttrSpec{Name: "video_ram", Type: cty.Number, Required: false},
 		"displays":                       &hcldec.AttrSpec{Name: "displays", Type: cty.Number, Required: false},
+		"pci_passthrough_allowed_device": &hcldec.BlockListSpec{TypeName: "pci_passthrough_allowed_device", Nested: hcldec.ObjectSpec((*common.FlatPCIPassthroughAllowedDevice)(nil).HCL2Spec())},
 		"vgpu_profile":                   &hcldec.AttrSpec{Name: "vgpu_profile", Type: cty.String, Required: false},
 		"NestedHV":                       &hcldec.AttrSpec{Name: "NestedHV", Type: cty.Bool, Required: false},
 		"firmware":                       &hcldec.AttrSpec{Name: "firmware", Type: cty.String, Required: false},
