@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 //nolint:unused // The majority of helper functions are used as functional arguments in test cases
 package driver
 

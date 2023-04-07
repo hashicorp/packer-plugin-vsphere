@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # Note: this is an example template file to show you how to use the vsphere-supervisor builder
 # to deploy a VM with Nginx installed. You can use this file as a starting point for your own.
 

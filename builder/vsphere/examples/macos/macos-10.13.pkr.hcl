@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # source blocks are analogous to the "builders" in json templates. They are used
 # in build blocks. A build block runs provisioners and post-processors on a
 # source. Read the documentation for source blocks here:

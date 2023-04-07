@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # "timestamp" template function replacement
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
