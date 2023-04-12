@@ -1,12 +1,9 @@
+name: JIRA Sync
 on:
   issues:
     types: [labeled]
-
 permissions:
   contents: read
-
-name: JIRA Sync
-
 jobs:
   sync:
     name: Sync to JIRA
@@ -23,7 +20,7 @@ jobs:
       - name: Search
         if: github.event.action == 'labeled'
         id: search
-        uses: tomhjp/gh-action-jira-search#04700b457f317c3e341ce90da5a3ff4ce058f2fa # v0.2.2
+        uses: tomhjp/gh-action-jira-search@04700b457f317c3e341ce90da5a3ff4ce058f2fa # v0.2.2
         with:
           # cf[10089] is Issue Link (use JIRA API to retrieve)
           jql: 'project = "HPR" AND cf[10089] = "${{ github.event.issue.html_url }}"'
