@@ -791,6 +791,8 @@ boot time.
 
 - `destroy` (bool) - If set to true, the VM will be destroyed after the builder completes
 
+- `vapp` (vAppConfig) - Set the vApp properties for a virtual machine.
+
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
 
 

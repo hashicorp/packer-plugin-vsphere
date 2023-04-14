@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate packer-sdc struct-markdown
-//go:generate packer-sdc mapstructure-to-hcl2 -type NIC,CreateConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type NIC,CreateConfig,vAppConfig
 
 package iso
 
@@ -95,7 +95,8 @@ type CreateConfig struct {
 	Notes string `mapstructure:"notes"`
 	// If set to true, the VM will be destroyed after the builder completes
 	Destroy bool `mapstructure:"destroy"`
-	VAppConfig    vAppConfig           `mapstructure:"vapp"`
+	// Set the vApp properties for a virtual machine.
+	VAppConfig vAppConfig `mapstructure:"vapp"`
 }
 
 func (c *CreateConfig) Prepare() []error {
@@ -182,7 +183,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	vm, err := d.CreateVM(&driver.CreateConfig{
-		VAppProperties:  s.Config.VAppConfig.Properties,
+		VAppProperties: s.Config.VAppConfig.Properties,
 		StorageConfig: driver.StorageConfig{
 			DiskControllerType: s.Config.StorageConfig.DiskControllerType,
 			Storage:            disks,
