@@ -19,6 +19,7 @@ type FlatCreateConfig struct {
 	USBController      []string                `mapstructure:"usb_controller" cty:"usb_controller" hcl:"usb_controller"`
 	Notes              *string                 `mapstructure:"notes" cty:"notes" hcl:"notes"`
 	Destroy            *bool                   `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
+	VAppConfig         *FlatvAppConfig         `mapstructure:"vapp" cty:"vapp" hcl:"vapp"`
 }
 
 // FlatMapstructure returns a new FlatCreateConfig.
@@ -41,6 +42,7 @@ func (*FlatCreateConfig) HCL2Spec() map[string]hcldec.Spec {
 		"usb_controller":       &hcldec.AttrSpec{Name: "usb_controller", Type: cty.List(cty.String), Required: false},
 		"notes":                &hcldec.AttrSpec{Name: "notes", Type: cty.String, Required: false},
 		"destroy":              &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
+		"vapp":                 &hcldec.BlockSpec{TypeName: "vapp", Nested: hcldec.ObjectSpec((*FlatvAppConfig)(nil).HCL2Spec())},
 	}
 	return s
 }
@@ -70,6 +72,29 @@ func (*FlatNIC) HCL2Spec() map[string]hcldec.Spec {
 		"network_card": &hcldec.AttrSpec{Name: "network_card", Type: cty.String, Required: false},
 		"mac_address":  &hcldec.AttrSpec{Name: "mac_address", Type: cty.String, Required: false},
 		"passthrough":  &hcldec.AttrSpec{Name: "passthrough", Type: cty.Bool, Required: false},
+	}
+	return s
+}
+
+// FlatvAppConfig is an auto-generated flat version of vAppConfig.
+// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
+type FlatvAppConfig struct {
+	Properties map[string]string `mapstructure:"properties" cty:"properties" hcl:"properties"`
+}
+
+// FlatMapstructure returns a new FlatvAppConfig.
+// FlatvAppConfig is an auto-generated flat version of vAppConfig.
+// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
+func (*vAppConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatvAppConfig)
+}
+
+// HCL2Spec returns the hcl spec of a vAppConfig.
+// This spec is used by HCL to read the fields of vAppConfig.
+// The decoded values from this spec will then be applied to a FlatvAppConfig.
+func (*FlatvAppConfig) HCL2Spec() map[string]hcldec.Spec {
+	s := map[string]hcldec.Spec{
+		"properties": &hcldec.AttrSpec{Name: "properties", Type: cty.Map(cty.String), Required: false},
 	}
 	return s
 }
