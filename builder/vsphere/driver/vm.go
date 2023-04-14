@@ -132,18 +132,19 @@ type NIC struct {
 }
 
 type CreateConfig struct {
-	Annotation    string
-	Name          string
-	Folder        string
-	Cluster       string
-	Host          string
-	ResourcePool  string
-	Datastore     string
-	GuestOS       string // example: otherGuest
-	NICs          []NIC
-	USBController []string
-	Version       uint // example: 10
-	StorageConfig StorageConfig
+	Annotation     string
+	Name           string
+	Folder         string
+	Cluster        string
+	Host           string
+	ResourcePool   string
+	Datastore      string
+	GuestOS        string // example: otherGuest
+	NICs           []NIC
+	USBController  []string
+	Version        uint // example: 10
+	StorageConfig  StorageConfig
+	VAppProperties map[string]string
 }
 
 func (d *VCenterDriver) NewVM(ref *types.ManagedObjectReference) VirtualMachine {

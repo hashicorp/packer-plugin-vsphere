@@ -312,6 +312,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 - `destroy` (bool) - Destroy the virtual machine after the build completes.
   Defaults to `false`.
 
+- `vapp` (vAppConfig) - Set the vApp properties for a virtual machine.
+
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
 
 
@@ -668,8 +670,8 @@ boot time.
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-If no adapter is defined, network tasks (communicators, most provisioners)
-will not work, so it's advised to define one.
+Defines a Network Adapter
+If no adapter is defined, network tasks (communicators, most provisioners) won't work, so it's advised to define one.
 
 Example configuration with two network adapters:
 

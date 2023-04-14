@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate packer-sdc struct-markdown
-//go:generate packer-sdc mapstructure-to-hcl2 -type NIC,CreateConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type NIC,CreateConfig,vAppConfig
 
 package iso
 
@@ -19,8 +19,19 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
-// If no adapter is defined, network tasks (communicators, most provisioners)
-// will not work, so it's advised to define one.
+type vAppConfig struct {
+	// Set values for the available vApp Properties to supply configuration parameters to a virtual machine cloned from
+	// a template that came from an imported OVF or OVA file.
+	//
+	// -> **Note:** The only supported usage path for vApp properties is for existing user-configurable keys.
+	// These generally come from an existing template that was created from an imported OVF or OVA file.
+	// You cannot set values for vApp properties on virtual machines created from scratch,
+	// virtual machines lacking a vApp configuration, or on property keys that do not exist.
+	Properties map[string]string `mapstructure:"properties"`
+}
+
+// Defines a Network Adapter
+// If no adapter is defined, network tasks (communicators, most provisioners) won't work, so it's advised to define one.
 //
 // Example configuration with two network adapters:
 //
@@ -123,6 +134,8 @@ type CreateConfig struct {
 	// Destroy the virtual machine after the build completes.
 	// Defaults to `false`.
 	Destroy bool `mapstructure:"destroy"`
+	// Set the vApp properties for a virtual machine.
+	VAppConfig vAppConfig `mapstructure:"vapp"`
 }
 
 func (c *CreateConfig) Prepare() []error {
@@ -211,6 +224,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	vm, err := d.CreateVM(&driver.CreateConfig{
+		VAppProperties: s.Config.VAppConfig.Properties,
 		StorageConfig: driver.StorageConfig{
 			DiskControllerType: s.Config.StorageConfig.DiskControllerType,
 			Storage:            disks,
