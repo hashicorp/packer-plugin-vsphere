@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
@@ -64,4 +65,15 @@ func (s *StepConnect) Run(_ context.Context, state multistep.StateBag) multistep
 	return multistep.ActionContinue
 }
 
-func (s *StepConnect) Cleanup(multistep.StateBag) {}
+func (s *StepConnect) Cleanup(state multistep.StateBag) {
+	ui := state.Get("ui").(packersdk.Ui)
+	ui.Message("Closing sessions ....")
+	driver := state.Get("driver").(driver.Driver)
+	errorRestClient, errorSoapClient := driver.Cleanup()
+	if errorRestClient != nil {
+		ui.Message("Error closing rest client session: " + errorRestClient.Error())
+	}
+	if errorSoapClient != nil {
+		ui.Message("Error closing soap client session: " + errorRestClient.Error())
+	}
+}
