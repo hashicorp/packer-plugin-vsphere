@@ -837,7 +837,8 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 
 	l, err := vm.driver.FindContentLibraryByName(ovf.Target.LibraryID)
 	if err != nil {
-		vm.driver.restClient.Logout(vm.driver.ctx)
+		errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+		fmt.Printf("can not logout due to %s ", errLogout.Error())
 		return err
 	}
 	if l.library.Type != "LOCAL" {
@@ -852,7 +853,8 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 		if ovf.Spec.Description != item.Description {
 			err = vm.driver.UpdateContentLibraryItem(item, ovf.Spec.Name, ovf.Spec.Description)
 			if err != nil {
-				vm.driver.restClient.Logout(vm.driver.ctx)
+				errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+				fmt.Printf("can not logout due to %s ", errLogout.Error())
 				return err
 			}
 		}
@@ -879,7 +881,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 
 	l, err := vm.driver.FindContentLibraryByName(template.Library)
 	if err != nil {
-		vm.driver.restClient.Logout(vm.driver.ctx)
+		errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+		fmt.Printf("can not logout due to %s ", errLogout.Error())
 		return err
 	}
 	if l.library.Type != "LOCAL" {
@@ -893,7 +896,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.ResourcePool != "" {
 		rp, err := vm.driver.FindResourcePool(template.Placement.Cluster, template.Placement.Host, template.Placement.ResourcePool)
 		if err != nil {
-			vm.driver.restClient.Logout(vm.driver.ctx)
+			errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+			fmt.Printf("can not logout due to %s ", errLogout.Error())
 			return err
 		}
 		template.Placement.ResourcePool = rp.pool.Reference().Value
@@ -901,7 +905,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.VMHomeStorage != nil {
 		d, err := vm.driver.FindDatastore(template.VMHomeStorage.Datastore, template.Placement.Host)
 		if err != nil {
-			vm.driver.restClient.Logout(vm.driver.ctx)
+			errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+			fmt.Printf("can not logout due to %s ", errLogout.Error())
 			return err
 		}
 		template.VMHomeStorage.Datastore = d.Reference().Value
@@ -917,7 +922,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.Folder != "" {
 		f, err := vm.driver.FindFolder(template.Placement.Folder)
 		if err != nil {
-			vm.driver.restClient.Logout(vm.driver.ctx)
+			errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+			fmt.Printf("can not logout due to %s ", errLogout.Error())
 			return err
 		}
 		template.Placement.Folder = f.folder.Reference().Value
@@ -925,7 +931,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.Host != "" {
 		h, err := vm.driver.FindHost(template.Placement.Host)
 		if err != nil {
-			vm.driver.restClient.Logout(vm.driver.ctx)
+			errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+			fmt.Printf("can not logout due to %s ", errLogout.Error())
 			return err
 		}
 		template.Placement.Host = h.host.Reference().Value
@@ -934,7 +941,8 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	vcm := vcenter.NewManager(vm.driver.restClient.client)
 	_, err = vcm.CreateTemplate(vm.driver.ctx, template)
 	if err != nil {
-		vm.driver.restClient.Logout(vm.driver.ctx)
+		errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+		fmt.Printf("can not logout due to %s ", errLogout.Error())
 		return err
 	}
 
@@ -1228,7 +1236,8 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 
 	l, err := vm.driver.FindContentLibraryByName(library)
 	if err != nil {
-		vm.driver.restClient.Logout(vm.driver.ctx)
+		errLogout := vm.driver.restClient.Logout(vm.driver.ctx)
+		fmt.Printf("can not logout due to %s ", errLogout.Error())
 		return nil, err
 	}
 	datastores := []string{}
