@@ -47,6 +47,7 @@ type Driver interface {
 	FindContentLibraryItem(libraryId string, name string) (*library.Item, error)
 	FindContentLibraryFileDatastorePath(isoPath string) (string, error)
 	UpdateContentLibraryItem(item *library.Item, name string, description string) error
+	Cleanup() (error, error)
 }
 
 type VCenterDriver struct {
@@ -127,6 +128,10 @@ func NewDriver(config *ConnectConfig) (Driver, error) {
 		finder:     finder,
 	}
 	return d, nil
+}
+
+func (d *VCenterDriver) Cleanup() (error, error) {
+	return d.restClient.client.Logout(d.ctx), d.client.SessionManager.Logout(d.ctx)
 }
 
 // The rest.Client requires vCenter.
