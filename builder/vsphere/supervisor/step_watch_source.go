@@ -9,18 +9,18 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"net"
 	"sync"
 	"time"
 
-	"k8s.io/apimachinery/pkg/fields"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/fields"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	DefaultWatchTimeoutSec = 600
+	DefaultWatchTimeoutSec = 1800
 
 	StateKeyVMIP          = "vm_ip"
 	StateKeyCommunicateIP = "ip"
@@ -49,6 +49,7 @@ type StepWatchSource struct {
 
 	SourceName, Namespace string
 	KubeWatchClient       client.WithWatch
+	timeoutCh             <-chan time.Time
 }
 
 func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -112,6 +113,8 @@ func (s *StepWatchSource) initStep(state multistep.StateBag) error {
 	s.SourceName = sourceName
 	s.Namespace = namespace
 	s.KubeWatchClient = kubeWatchClient
+	s.timeoutCh = time.After(time.Duration(s.Config.WatchSourceTimeoutSec) * time.Second)
+
 	return nil
 }
 
@@ -142,16 +145,16 @@ func (s *StepWatchSource) waitForVMReady(ctx context.Context, logger *PackerLogg
 		select {
 		case event := <-vmWatch.ResultChan():
 			if event.Object == nil {
-				return "", fmt.Errorf("watch event object is nil")
+				continue
 			}
 
 			vmObj, ok := event.Object.(*vmopv1alpha1.VirtualMachine)
 			if !ok {
-				return "", fmt.Errorf("failed to convert the watch event object")
+				continue
 			}
 
 			vmIP := vmObj.Status.VmIp
-			if vmIP != "" {
+			if vmIP != "" && net.ParseIP(vmIP) != nil && net.ParseIP(vmIP).To4() != nil {
 				logger.Info("Successfully obtained the source VM IP: %s", vmIP)
 				return vmIP, nil
 			}
@@ -165,7 +168,7 @@ func (s *StepWatchSource) waitForVMReady(ctx context.Context, logger *PackerLogg
 				logger.Info("Source VM is NOT powered-on yet, continue watching...")
 			}
 
-		case <-time.After(time.Duration(s.Config.WatchSourceTimeoutSec) * time.Second):
+		case <-s.timeoutCh:
 			return "", fmt.Errorf("timed out watching for source VM object to be ready")
 		}
 	}
@@ -175,21 +178,33 @@ func (s *StepWatchSource) getVMIngressIP(ctx context.Context, logger *PackerLogg
 	logger.Info("Getting source VM ingress IP from the VMService object")
 
 	vmServiceObj := &vmopv1alpha1.VirtualMachineService{}
-	err := s.KubeWatchClient.Get(ctx, client.ObjectKey{
+	vmServiceObjKey := client.ObjectKey{
 		Namespace: s.Namespace,
 		Name:      s.SourceName,
-	}, vmServiceObj)
-
-	if err != nil {
-		logger.Error("Failed to get the VMService object in Supervisor cluster")
-		return "", err
 	}
 
-	ingress := vmServiceObj.Status.LoadBalancer.Ingress
-	if len(ingress) == 0 || ingress[0].IP == "" {
-		return "", fmt.Errorf("VMService object's ingress IP is empty")
-	}
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
 
-	logger.Info("Successfully retrieved the source VM ingress IP: %s", ingress[0].IP)
-	return ingress[0].IP, nil
+	for {
+		select {
+		case <-ticker.C:
+			if err := s.KubeWatchClient.Get(ctx, vmServiceObjKey, vmServiceObj); err != nil {
+				logger.Error("Failed to get the VMService object in Supervisor cluster")
+				continue
+			}
+
+			ingress := vmServiceObj.Status.LoadBalancer.Ingress
+			if len(ingress) == 0 || ingress[0].IP == "" {
+				logger.Info("VMService object's ingress IP is empty, continue checking...")
+				continue
+			}
+
+			logger.Info("Successfully retrieved the source VM ingress IP: %s", ingress[0].IP)
+			return ingress[0].IP, nil
+
+		case <-s.timeoutCh:
+			return "", fmt.Errorf("timed out checking for VMService object's ingress IP")
+		}
+	}
 }

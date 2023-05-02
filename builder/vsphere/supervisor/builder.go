@@ -58,12 +58,8 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepWatchSource{
 			Config: &b.config.WatchSourceConfig,
 		},
-		// Connect to the source VM via Packer provided SSH communicator.
-		&communicator.StepConnect{
-			Config:    &b.config.CommunicatorConfig,
-			Host:      common.CommHost(b.config.CommunicatorConfig.Host()),
-			SSHConfig: b.config.CommunicatorConfig.SSHConfigFunc(),
-		},
+		// Connect to the source VM via specified communicator.
+		b.getCommunicatorStepConnect(),
 		// Run provisioners defined in the Packer template.
 		new(commonsteps.StepProvision),
 	)
@@ -77,4 +73,28 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 
 	logger.Info("Build 'vsphere-supervisor' finished without publishing the VM image (feature not available yet).")
 	return nil, nil
+}
+
+func (b *Builder) getCommunicatorStepConnect() *communicator.StepConnect {
+	if b.config.CommunicatorConfig.Type == "none" {
+		return nil
+	}
+
+	stepConnect := &communicator.StepConnect{
+		Config: &b.config.CommunicatorConfig,
+		Host:   common.CommHost(b.config.CommunicatorConfig.Host()),
+	}
+
+	if b.config.CommunicatorConfig.Type == "ssh" {
+		stepConnect.SSHConfig = b.config.CommunicatorConfig.SSHConfigFunc()
+	} else if b.config.CommunicatorConfig.Type == "winrm" {
+		stepConnect.WinRMConfig = func(multistep.StateBag) (*communicator.WinRMConfig, error) {
+			return &communicator.WinRMConfig{
+				Username: b.config.CommunicatorConfig.WinRMUser,
+				Password: b.config.CommunicatorConfig.WinRMPassword,
+			}, nil
+		}
+	}
+
+	return stepConnect
 }

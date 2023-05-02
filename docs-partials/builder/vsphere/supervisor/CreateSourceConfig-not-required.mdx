@@ -8,4 +8,8 @@
 
 - `keep_input_artifact` (bool) - Preserve the created objects even after importing them to the vSphere endpoint. Defaults to `false`.
 
+- `bootstrap_provider` (string) - Name of the bootstrap provider to use for configuring the source VM. Defaults to `CloudInit`.
+
+- `bootstrap_data_file` (string) - Path to a file that contains the bootstrap configuration data. Required when `bootstrap_provider` is `Sysprep`.
+
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
