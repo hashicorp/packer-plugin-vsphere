@@ -58,11 +58,14 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepWatchSource{
 			Config: &b.config.WatchSourceConfig,
 		},
-		// Connect to the source VM via specified communicator.
-		b.getCommunicatorStepConnect(),
-		// Run provisioners defined in the Packer template.
-		new(commonsteps.StepProvision),
 	)
+
+	if b.config.CommunicatorConfig.Type != "none" {
+		// Connect to the source VM via specified communicator.
+		steps = append(steps, b.getCommunicatorStepConnect())
+		// Run provisioners defined in the Packer template.
+		steps = append(steps, new(commonsteps.StepProvision))
+	}
 
 	b.runner = commonsteps.NewRunnerWithPauseFn(steps, b.config.PackerConfig, ui, state)
 	b.runner.Run(ctx, state)
@@ -76,10 +79,6 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 }
 
 func (b *Builder) getCommunicatorStepConnect() *communicator.StepConnect {
-	if b.config.CommunicatorConfig.Type == "none" {
-		return nil
-	}
-
 	stepConnect := &communicator.StepConnect{
 		Config: &b.config.CommunicatorConfig,
 		Host:   common.CommHost(b.config.CommunicatorConfig.Host()),

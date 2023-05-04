@@ -73,11 +73,14 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	state.Put(StateKeyVMIP, vmIP)
 
-	ingressIP, err := s.getVMIngressIP(ctx, logger)
-	if err != nil {
-		return multistep.ActionHalt
+	// Only get the VM ingress IP if the VM service has been created (i.e. communicator is not 'none').
+	if state.Get(StateKeyVMServiceCreated) == true {
+		ingressIP, err := s.getVMIngressIP(ctx, logger)
+		if err != nil {
+			return multistep.ActionHalt
+		}
+		state.Put(StateKeyCommunicateIP, ingressIP)
 	}
-	state.Put(StateKeyCommunicateIP, ingressIP)
 
 	logger.Info("Source VM is now ready in Supervisor cluster")
 	return multistep.ActionContinue

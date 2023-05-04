@@ -121,10 +121,14 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 	}
 	state.Put(StateKeyVMCreated, true)
 
-	if err = s.createVMService(ctx, logger); err != nil {
-		return multistep.ActionHalt
+	if s.CommunicatorConfig.Type == "none" {
+		logger.Info("Skip creating VirtualMachineService as communicator type is 'none'")
+	} else {
+		if err = s.createVMService(ctx, logger); err != nil {
+			return multistep.ActionHalt
+		}
+		state.Put(StateKeyVMServiceCreated, true)
 	}
-	state.Put(StateKeyVMServiceCreated, true)
 
 	// Make the source name retrievable in later step.
 	state.Put(StateKeySourceName, s.Config.SourceName)
@@ -318,10 +322,16 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) e
 func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Creating a VirtualMachineService object for network connection")
 
-	sshPort := int32(s.CommunicatorConfig.SSHPort)
-	if sshPort == 0 {
-		sshPort = int32(s.CommunicatorConfig.WinRMPort)
+	var commPort int
+	switch s.CommunicatorConfig.Type {
+	case "ssh":
+		commPort = s.CommunicatorConfig.SSHPort
+	case "winrm":
+		commPort = s.CommunicatorConfig.WinRMPort
+	default:
+		return fmt.Errorf("unsupported communicator type: %q", s.CommunicatorConfig.Type)
 	}
+
 	vmServiceObj := &vmopv1alpha1.VirtualMachineService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
@@ -331,10 +341,10 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 			Type: vmopv1alpha1.VirtualMachineServiceTypeLoadBalancer,
 			Ports: []vmopv1alpha1.VirtualMachineServicePort{
 				{
-					Name:       "ssh",
+					Name:       s.CommunicatorConfig.Type,
 					Protocol:   "TCP",
-					Port:       sshPort,
-					TargetPort: sshPort,
+					Port:       int32(commPort),
+					TargetPort: int32(commPort),
 				},
 			},
 			Selector: map[string]string{

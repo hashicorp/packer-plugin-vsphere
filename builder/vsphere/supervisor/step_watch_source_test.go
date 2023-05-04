@@ -55,6 +55,7 @@ func TestWatchSource_Run(t *testing.T) {
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
 	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
 	state.Put(supervisor.StateKeySourceName, testSourceName)
+	state.Put(supervisor.StateKeyVMServiceCreated, true)
 
 	// Run this step in a new goroutine as it contains a blocking 'watch' process.
 	var wg sync.WaitGroup
