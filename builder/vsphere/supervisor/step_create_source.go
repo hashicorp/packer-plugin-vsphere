@@ -44,7 +44,7 @@ type CreateSourceConfig struct {
 	// Name of the storage class that configures storage-related attributes.
 	StorageClass string `mapstructure:"storage_class" required:"true"`
 
-	// Name of the source VM. Defaults to `packer-vsphere-supervisor-built-source`.
+	// Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
 	SourceName string `mapstructure:"source_name"`
 	// Name of the network type to attach to the source VM's network interface. Defaults to empty.
 	NetworkType string `mapstructure:"network_type"`
@@ -54,7 +54,7 @@ type CreateSourceConfig struct {
 	KeepInputArtifact bool `mapstructure:"keep_input_artifact"`
 	// Name of the bootstrap provider to use for configuring the source VM. Defaults to `CloudInit`.
 	BootstrapProvider string `mapstructure:"bootstrap_provider"`
-	// Path to a file that contains the bootstrap configuration data. Required when `bootstrap_provider` is `Sysprep`.
+	// Path to a file that contains the bootstrap configuration data. Required when `bootstrap_provider` is not `CloudInit`.
 	BootstrapDataFile string `mapstructure:"bootstrap_data_file"`
 }
 

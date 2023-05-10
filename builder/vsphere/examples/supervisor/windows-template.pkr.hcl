@@ -1,26 +1,71 @@
 # A Packer template to deploy a VM-Service Windows VM using the vsphere-supervisor builder.
 
-# Supervisor cluster configs.
-variable "kubeconfig_path" {}
-variable "supervisor_namespace" {}
-
 # VM-Service source VM configs.
-variable "class_name" {}
-variable "image_name" {}
-variable "source_name" {}
-variable "storage_class" {}
-variable "bootstrap_provider" {}
-variable "bootstrap_data_file" {}
+variable "image_name" {
+  type = string
+}
+variable "class_name" {
+  type = string
+}
+variable "storage_class" {
+  type = string
+}
+variable "source_name" {
+  type = string
+  default = null
+}
+variable "bootstrap_provider" {
+  type = string
+  default = "Sysprep"
+}
+variable "bootstrap_data_file" {
+  type = string
+  default = null
+}
+
+# Supervisor cluster configs.
+variable "kubeconfig_path" {
+  type = string
+  default = null
+}
+variable "supervisor_namespace" {
+  type = string
+  default = null
+}
 
 # SSH connection configs.
-variable "ssh_username" {}
-variable "ssh_password" {}
-variable "ssh_bastion_host" {}
-variable "ssh_bastion_username" {}
-variable "ssh_bastion_password" {}
+variable "communicator" {
+  type = string
+  default = "ssh"
+}
+variable "ssh_username" {
+  type = string
+  default = "packer"
+}
+variable "ssh_password" {
+  type = string
+  default = "packer"
+  sensitive = true
+}
+variable "ssh_bastion_host" {
+  type = string
+  default = null
+}
+variable "ssh_bastion_username" {
+  type = string
+  default = null
+}
+variable "ssh_bastion_password" {
+  type = string
+  default = null
+  sensitive = true
+}
 
 # Whether to keep the created source VM after the build.
-variable "keep_input_artifact" {}
+variable "keep_input_artifact" {
+  type = bool
+  default = false
+}
 
 source "vsphere-supervisor" "vm" {
   kubeconfig_path = "${var.kubeconfig_path}"
@@ -31,6 +76,7 @@ source "vsphere-supervisor" "vm" {
   storage_class = "${var.storage_class}"
   bootstrap_provider = "${var.bootstrap_provider}"
   bootstrap_data_file = "${var.bootstrap_data_file}"
+  communicator = "${var.communicator}"
   ssh_username = "${var.ssh_username}"
   ssh_password = "${var.ssh_password}"
   ssh_bastion_host = "${var.ssh_bastion_host}"

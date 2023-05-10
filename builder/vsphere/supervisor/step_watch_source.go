@@ -32,7 +32,7 @@ var (
 )
 
 type WatchSourceConfig struct {
-	// The timeout in seconds to wait for the source VM to be ready. Defaults to `600`.
+	// The timeout in seconds to wait for the source VM to be ready. Defaults to `1800`.
 	WatchSourceTimeoutSec int `mapstructure:"watch_source_timeout_sec"`
 }
 
