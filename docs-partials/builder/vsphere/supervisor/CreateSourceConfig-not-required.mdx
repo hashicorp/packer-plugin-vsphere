@@ -8,8 +8,10 @@
 
 - `keep_input_artifact` (bool) - Preserve the created objects even after importing them to the vSphere endpoint. Defaults to `false`.
 
-- `bootstrap_provider` (string) - Name of the bootstrap provider to use for configuring the source VM. Defaults to `CloudInit`.
+- `bootstrap_provider` (string) - Name of the bootstrap provider to use for configuring the source VM.
+  Supported values are `CloudInit`, `Sysprep`, and `vAppConfig`. Defaults to `CloudInit`.
 
-- `bootstrap_data_file` (string) - Path to a file that contains the bootstrap configuration data. Required when `bootstrap_provider` is not `CloudInit`.
+- `bootstrap_data_file` (string) - Path to a file with bootstrap configuration data. Required if `bootstrap_provider` is not set to `CloudInit`.
+  Defaults to a basic cloud config that sets up the user account from the SSH communicator config.
 
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->

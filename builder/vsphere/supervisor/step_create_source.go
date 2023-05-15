@@ -52,9 +52,11 @@ type CreateSourceConfig struct {
 	NetworkName string `mapstructure:"network_name"`
 	// Preserve the created objects even after importing them to the vSphere endpoint. Defaults to `false`.
 	KeepInputArtifact bool `mapstructure:"keep_input_artifact"`
-	// Name of the bootstrap provider to use for configuring the source VM. Defaults to `CloudInit`.
+	// Name of the bootstrap provider to use for configuring the source VM.
+	// Supported values are `CloudInit`, `Sysprep`, and `vAppConfig`. Defaults to `CloudInit`.
 	BootstrapProvider string `mapstructure:"bootstrap_provider"`
-	// Path to a file that contains the bootstrap configuration data. Required when `bootstrap_provider` is not `CloudInit`.
+	// Path to a file with bootstrap configuration data. Required if `bootstrap_provider` is not set to `CloudInit`.
+	// Defaults to a basic cloud config that sets up the user account from the SSH communicator config.
 	BootstrapDataFile string `mapstructure:"bootstrap_data_file"`
 }
 
