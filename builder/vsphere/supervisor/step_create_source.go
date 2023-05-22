@@ -9,16 +9,17 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/hashicorp/packer-plugin-sdk/communicator"
-	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 )
 
 const (
@@ -29,6 +30,10 @@ const (
 	StateKeyVMCreated               = "vm_created"
 	StateKeyVMServiceCreated        = "vm_service_created"
 	StateKeyVMMetadataSecretCreated = "vm_metadata_secret_created"
+
+	ProviderCloudInit  = string(vmopv1alpha1.VirtualMachineMetadataCloudInitTransport)
+	ProviderSysprep    = string(vmopv1alpha1.VirtualMachineMetadataSysprepTransport)
+	ProviderVAppConfig = string(vmopv1alpha1.VirtualMachineMetadataVAppConfigTransport)
 )
 
 type CreateSourceConfig struct {
@@ -39,7 +44,7 @@ type CreateSourceConfig struct {
 	// Name of the storage class that configures storage-related attributes.
 	StorageClass string `mapstructure:"storage_class" required:"true"`
 
-	// Name of the source VM. Defaults to `packer-vsphere-supervisor-built-source`.
+	// Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
 	SourceName string `mapstructure:"source_name"`
 	// Name of the network type to attach to the source VM's network interface. Defaults to empty.
 	NetworkType string `mapstructure:"network_type"`
@@ -47,6 +52,12 @@ type CreateSourceConfig struct {
 	NetworkName string `mapstructure:"network_name"`
 	// Preserve the created objects even after importing them to the vSphere endpoint. Defaults to `false`.
 	KeepInputArtifact bool `mapstructure:"keep_input_artifact"`
+	// Name of the bootstrap provider to use for configuring the source VM.
+	// Supported values are `CloudInit`, `Sysprep`, and `vAppConfig`. Defaults to `CloudInit`.
+	BootstrapProvider string `mapstructure:"bootstrap_provider"`
+	// Path to a file with bootstrap configuration data. Required if `bootstrap_provider` is not set to `CloudInit`.
+	// Defaults to a basic cloud config that sets up the user account from the SSH communicator config.
+	BootstrapDataFile string `mapstructure:"bootstrap_data_file"`
 }
 
 func (c *CreateSourceConfig) Prepare() []error {
@@ -60,6 +71,16 @@ func (c *CreateSourceConfig) Prepare() []error {
 	}
 	if c.StorageClass == "" {
 		errs = append(errs, fmt.Errorf("'storage_class' is required for creating the source VM"))
+	}
+
+	bp := c.BootstrapProvider
+	if bp == "" {
+		c.BootstrapProvider = ProviderCloudInit
+	} else if bp != ProviderCloudInit && bp != ProviderSysprep && bp != ProviderVAppConfig {
+		errs = append(errs, fmt.Errorf("'bootstrap_provider' must be one of %q, %q, %q",
+			ProviderCloudInit, ProviderSysprep, ProviderVAppConfig))
+	} else if bp != ProviderCloudInit && c.BootstrapDataFile == "" {
+		errs = append(errs, fmt.Errorf("'bootstrap_data_file' is required when 'bootstrap_provider' is %q", bp))
 	}
 
 	if c.SourceName == "" {
@@ -102,10 +123,14 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 	}
 	state.Put(StateKeyVMCreated, true)
 
-	if err = s.createVMService(ctx, logger); err != nil {
-		return multistep.ActionHalt
+	if s.CommunicatorConfig.Type == "none" {
+		logger.Info("Skip creating VirtualMachineService as communicator type is 'none'")
+	} else {
+		if err = s.createVMService(ctx, logger); err != nil {
+			return multistep.ActionHalt
+		}
+		state.Put(StateKeyVMServiceCreated, true)
 	}
-	state.Put(StateKeyVMServiceCreated, true)
 
 	// Make the source name retrievable in later step.
 	state.Put(StateKeySourceName, s.Config.SourceName)
@@ -192,7 +217,44 @@ func (s *StepCreateSource) initStep(state multistep.StateBag) error {
 }
 
 func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *PackerLogger) error {
-	logger.Info("Creating a K8s Secret object for providing source VM metadata")
+	logger.Info("Creating a K8s Secret object for providing source VM bootstrap data...")
+
+	stringData, err := s.getBootstrapStringData(ctx, logger)
+	if err != nil {
+		logger.Error("Failed to get the bootstrap data")
+		return err
+	}
+
+	kubeSecret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      s.Config.SourceName,
+			Namespace: s.Namespace,
+		},
+		StringData: stringData,
+	}
+
+	if err := s.KubeClient.Create(ctx, kubeSecret); err != nil {
+		logger.Error("Failed to create the K8s Secret object")
+		return err
+	}
+
+	logger.Info("Successfully created the K8s Secret object")
+	return nil
+}
+
+func (s *StepCreateSource) getBootstrapStringData(ctx context.Context, logger *PackerLogger) (map[string]string, error) {
+	if s.Config.BootstrapDataFile != "" {
+		logger.Info("Loading bootstrap data from file: %s", s.Config.BootstrapDataFile)
+		content, err := ioutil.ReadFile(s.Config.BootstrapDataFile)
+		if err != nil {
+			return nil, err
+		}
+		var bootstrapData map[string]string
+		err = yaml.Unmarshal(content, &bootstrapData)
+		return bootstrapData, err
+	}
+
+	logger.Info("Using default cloud-init user data as the 'bootstrap_data_file' is not specified")
 
 	cloudInitFmt := `#cloud-config
 ssh_pwauth: true
@@ -210,25 +272,11 @@ users:
 		s.CommunicatorConfig.SSHPassword,
 		strings.TrimSpace(string(s.CommunicatorConfig.SSHPublicKey)),
 	)
-	stringData := map[string]string{
+	defaultData := map[string]string{
 		"user-data": cloudInitStr,
 	}
 
-	kubeSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.Config.SourceName,
-			Namespace: s.Namespace,
-		},
-		StringData: stringData,
-	}
-	err := s.KubeClient.Create(ctx, kubeSecret)
-	if err != nil {
-		logger.Error("Failed to create the K8s Secret object")
-		return err
-	}
-
-	logger.Info("Successfully created the K8s Secret object")
-	return nil
+	return defaultData, nil
 }
 
 func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) error {
@@ -249,7 +297,7 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) e
 			PowerState:   vmopv1alpha1.VirtualMachinePoweredOn,
 			VmMetadata: &vmopv1alpha1.VirtualMachineMetadata{
 				SecretName: s.Config.SourceName,
-				Transport:  vmopv1alpha1.VirtualMachineMetadataCloudInitTransport,
+				Transport:  vmopv1alpha1.VirtualMachineMetadataTransport(s.Config.BootstrapProvider),
 			},
 		},
 	}
@@ -264,8 +312,7 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) e
 		}
 	}
 
-	err := s.KubeClient.Create(ctx, vm)
-	if err != nil {
+	if err := s.KubeClient.Create(ctx, vm); err != nil {
 		logger.Error("Failed to create the VirtualMachine object")
 		return err
 	}
@@ -277,7 +324,16 @@ func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) e
 func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Creating a VirtualMachineService object for network connection")
 
-	sshPort := int32(s.CommunicatorConfig.SSHPort)
+	var commPort int
+	switch s.CommunicatorConfig.Type {
+	case "ssh":
+		commPort = s.CommunicatorConfig.SSHPort
+	case "winrm":
+		commPort = s.CommunicatorConfig.WinRMPort
+	default:
+		return fmt.Errorf("unsupported communicator type: %q", s.CommunicatorConfig.Type)
+	}
+
 	vmServiceObj := &vmopv1alpha1.VirtualMachineService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
@@ -287,10 +343,10 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 			Type: vmopv1alpha1.VirtualMachineServiceTypeLoadBalancer,
 			Ports: []vmopv1alpha1.VirtualMachineServicePort{
 				{
-					Name:       "ssh",
+					Name:       s.CommunicatorConfig.Type,
 					Protocol:   "TCP",
-					Port:       sshPort,
-					TargetPort: sshPort,
+					Port:       int32(commPort),
+					TargetPort: int32(commPort),
 				},
 			},
 			Selector: map[string]string{
@@ -299,8 +355,7 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 		},
 	}
 
-	err := s.KubeClient.Create(ctx, vmServiceObj)
-	if err != nil {
+	if err := s.KubeClient.Create(ctx, vmServiceObj); err != nil {
 		logger.Error("Failed to create the VirtualMachineService object")
 		return err
 	}

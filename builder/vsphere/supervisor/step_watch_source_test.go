@@ -11,52 +11,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
-
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
-
-func newFakeKubeClient(initObjs ...client.Object) client.WithWatch {
-	scheme := runtime.NewScheme()
-	_ = corev1.AddToScheme(scheme)
-	_ = vmopv1alpha1.AddToScheme(scheme)
-
-	return fake.NewClientBuilder().WithObjects(initObjs...).WithScheme(scheme).Build()
-}
-
-func newFakeVMObj(namespace, name, vmIP string) *vmopv1alpha1.VirtualMachine {
-	return &vmopv1alpha1.VirtualMachine{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
-		},
-	}
-}
-
-func newFakeVMServiceObj(namespace, name, ingressIP string) *vmopv1alpha1.VirtualMachineService {
-	return &vmopv1alpha1.VirtualMachineService{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
-		},
-		Status: vmopv1alpha1.VirtualMachineServiceStatus{
-			LoadBalancer: vmopv1alpha1.LoadBalancerStatus{
-				Ingress: []vmopv1alpha1.LoadBalancerIngress{
-					{
-						IP: ingressIP,
-					},
-				},
-			},
-		},
-	}
-}
 
 func TestWatchSource_Prepare(t *testing.T) {
 	config := &supervisor.WatchSourceConfig{}
@@ -83,7 +47,7 @@ func TestWatchSource_Run(t *testing.T) {
 	testVMIP := "1.2.3.4"
 	testIngressIP := "5.6.7.8"
 	vmObj := newFakeVMObj(testNamespace, testSourceName, testVMIP)
-	vmServiceObj := newFakeVMServiceObj(testNamespace, testSourceName, testIngressIP)
+	vmServiceObj := newFakeVMServiceObj(testNamespace, testSourceName)
 	kubeClient := newFakeKubeClient(vmObj, vmServiceObj)
 
 	testWriter := new(bytes.Buffer)
@@ -91,6 +55,7 @@ func TestWatchSource_Run(t *testing.T) {
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
 	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
 	state.Put(supervisor.StateKeySourceName, testSourceName)
+	state.Put(supervisor.StateKeyVMServiceCreated, true)
 
 	// Run this step in a new goroutine as it contains a blocking 'watch' process.
 	var wg sync.WaitGroup
@@ -154,5 +119,43 @@ func TestWatchSource_Run(t *testing.T) {
 	vmObj.Status.VmIp = testVMIP
 	_ = kubeClient.Update(ctx, vmObj, opt)
 
+	vmServiceObj.Status.LoadBalancer.Ingress[0].IP = testIngressIP
+	_ = kubeClient.Update(ctx, vmServiceObj, opt)
+
 	wg.Wait()
+}
+
+func newFakeKubeClient(initObjs ...client.Object) client.WithWatch {
+	scheme := runtime.NewScheme()
+	_ = corev1.AddToScheme(scheme)
+	_ = vmopv1alpha1.AddToScheme(scheme)
+
+	return fake.NewClientBuilder().WithObjects(initObjs...).WithScheme(scheme).Build()
+}
+
+func newFakeVMObj(namespace, name, vmIP string) *vmopv1alpha1.VirtualMachine {
+	return &vmopv1alpha1.VirtualMachine{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      name,
+		},
+	}
+}
+
+func newFakeVMServiceObj(namespace, name string) *vmopv1alpha1.VirtualMachineService {
+	return &vmopv1alpha1.VirtualMachineService{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      name,
+		},
+		Status: vmopv1alpha1.VirtualMachineServiceStatus{
+			LoadBalancer: vmopv1alpha1.LoadBalancerStatus{
+				Ingress: []vmopv1alpha1.LoadBalancerIngress{
+					{
+						IP: "",
+					},
+				},
+			},
+		},
+	}
 }

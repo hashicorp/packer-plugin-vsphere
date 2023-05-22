@@ -40,11 +40,15 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	state.Put("logger", logger)
 
 	var steps []multistep.Step
-	steps = append(steps,
+	if b.config.CommunicatorConfig.Type == "ssh" {
 		// Generate SSH key pairs for connecting to the source VM.
-		&communicator.StepSSHKeyGen{
+		// Adding this first as it's required for creating a source VM with default bootstrap data.
+		steps = append(steps, &communicator.StepSSHKeyGen{
 			CommConf: &b.config.CommunicatorConfig,
-		},
+		})
+	}
+
+	steps = append(steps,
 		// Connect to the Supervisor cluster where the source VM created.
 		&StepConnectSupervisor{
 			Config: &b.config.ConnectSupervisorConfig,
@@ -58,15 +62,14 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepWatchSource{
 			Config: &b.config.WatchSourceConfig,
 		},
-		// Connect to the source VM via Packer provided SSH communicator.
-		&communicator.StepConnect{
-			Config:    &b.config.CommunicatorConfig,
-			Host:      common.CommHost(b.config.CommunicatorConfig.Host()),
-			SSHConfig: b.config.CommunicatorConfig.SSHConfigFunc(),
-		},
-		// Run provisioners defined in the Packer template.
-		new(commonsteps.StepProvision),
 	)
+
+	if b.config.CommunicatorConfig.Type != "none" {
+		// Connect to the source VM via specified communicator.
+		steps = append(steps, b.getCommunicatorStepConnect())
+		// Run provisioners defined in the Packer template.
+		steps = append(steps, new(commonsteps.StepProvision))
+	}
 
 	b.runner = commonsteps.NewRunnerWithPauseFn(steps, b.config.PackerConfig, ui, state)
 	b.runner.Run(ctx, state)
@@ -77,4 +80,25 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 
 	logger.Info("Build 'vsphere-supervisor' finished without publishing the VM image (feature not available yet).")
 	return nil, nil
+}
+
+func (b *Builder) getCommunicatorStepConnect() *communicator.StepConnect {
+	stepConnect := &communicator.StepConnect{
+		Config: &b.config.CommunicatorConfig,
+		Host:   common.CommHost(b.config.CommunicatorConfig.Host()),
+	}
+
+	if b.config.CommunicatorConfig.Type == "ssh" {
+		stepConnect.SSHConfig = b.config.CommunicatorConfig.SSHConfigFunc()
+		return stepConnect
+	}
+
+	// Communicator type is WinRM.
+	stepConnect.WinRMConfig = func(multistep.StateBag) (*communicator.WinRMConfig, error) {
+		return &communicator.WinRMConfig{
+			Username: b.config.CommunicatorConfig.WinRMUser,
+			Password: b.config.CommunicatorConfig.WinRMPassword,
+		}, nil
+	}
+	return stepConnect
 }

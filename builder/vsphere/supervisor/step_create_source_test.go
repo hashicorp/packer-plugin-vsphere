@@ -7,18 +7,19 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/hashicorp/packer-plugin-sdk/communicator"
-	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
@@ -40,6 +41,35 @@ func TestCreateSource_Prepare(t *testing.T) {
 		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
 	}
 
+	// Check error output when providing invalid bootstrap configs.
+	expectedErrs = []error{
+		fmt.Errorf("'bootstrap_provider' must be one of %q, %q, %q",
+			supervisor.ProviderCloudInit, supervisor.ProviderSysprep, supervisor.ProviderVAppConfig),
+	}
+	config = &supervisor.CreateSourceConfig{
+		ImageName:         "fake-image",
+		ClassName:         "fake-class",
+		StorageClass:      "fake-storage-class",
+		BootstrapProvider: "fake-bootstrap-provider",
+	}
+	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
+		t.Fatalf("Prepare should fail with invalid bootstrap configs, got empty")
+	}
+	if !reflect.DeepEqual(actualErrs, expectedErrs) {
+		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
+	}
+
+	expectedErrs = []error{
+		fmt.Errorf("'bootstrap_data_file' is required when 'bootstrap_provider' is %q", "Sysprep"),
+	}
+	config.BootstrapProvider = "Sysprep"
+	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
+		t.Fatalf("Prepare should fail with invalid bootstrap configs, got empty")
+	}
+	if !reflect.DeepEqual(actualErrs, expectedErrs) {
+		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
+	}
+
 	// Check default values for the optional configs.
 	config = &supervisor.CreateSourceConfig{
 		ImageName:    "fake-image",
@@ -53,15 +83,20 @@ func TestCreateSource_Prepare(t *testing.T) {
 		t.Errorf("Expected default SourceName has prefix %s, got %s",
 			supervisor.DefaultSourceNamePrefix, config.SourceName)
 	}
+	if config.BootstrapProvider != supervisor.ProviderCloudInit {
+		t.Errorf("Expected default BootstrapProvider %s, got %s",
+			supervisor.ProviderCloudInit, config.BootstrapProvider)
+	}
 }
 
-func TestCreateSource_Run(t *testing.T) {
+func TestCreateSource_RunDefault(t *testing.T) {
 	// Initialize the step with required configs.
 	config := &supervisor.CreateSourceConfig{
-		ImageName:    "test-image",
-		ClassName:    "test-class",
-		StorageClass: "test-storage-class",
-		SourceName:   "test-source",
+		ImageName:         "test-image",
+		ClassName:         "test-class",
+		StorageClass:      "test-storage-class",
+		SourceName:        "test-source",
+		BootstrapProvider: supervisor.ProviderCloudInit,
 	}
 	commConfig := &communicator.Config{
 		Type: "ssh",
@@ -125,6 +160,9 @@ func TestCreateSource_Run(t *testing.T) {
 	if vmObj.Spec.StorageClass != "test-storage-class" {
 		t.Errorf("Expected VM storage class to be 'test-storage-class', got %q", vmObj.Spec.StorageClass)
 	}
+	if vmObj.Spec.VmMetadata.Transport != vmopv1alpha1.VirtualMachineMetadataCloudInitTransport {
+		t.Errorf("Expected default VM transport to be %q, got %q", vmopv1alpha1.VirtualMachineMetadataCloudInitTransport, vmObj.Spec.VmMetadata.Transport)
+	}
 	selectorLabelVal := vmObj.Labels[supervisor.VMSelectorLabelKey]
 	if selectorLabelVal != "test-source" {
 		t.Errorf("Expected source VM label %q to be 'test-source', got %q", supervisor.VMSelectorLabelKey, selectorLabelVal)
@@ -171,7 +209,95 @@ func TestCreateSource_Run(t *testing.T) {
 	// Check the output lines from the step runs.
 	expectedOutput := []string{
 		"Creating required source objects in Supervisor cluster...",
-		"Creating a K8s Secret object for providing source VM metadata",
+		"Creating a K8s Secret object for providing source VM bootstrap data...",
+		"Using default cloud-init user data as the 'bootstrap_data_file' is not specified",
+		"Successfully created the K8s Secret object",
+		"Creating a source VirtualMachine object",
+		"Successfully created the VirtualMachine object",
+		"Creating a VirtualMachineService object for network connection",
+		"Successfully created the VirtualMachineService object",
+		"Finished creating all required source objects in Supervisor cluster",
+	}
+	checkOutputLines(t, testWriter, expectedOutput)
+}
+
+func TestCreateSource_RunCustomBootstrap(t *testing.T) {
+	// Initialize the step with required configs.
+	config := &supervisor.CreateSourceConfig{
+		ImageName:         "test-image",
+		ClassName:         "test-class",
+		StorageClass:      "test-storage-class",
+		SourceName:        "test-source",
+		BootstrapProvider: supervisor.ProviderSysprep,
+	}
+	commConfig := &communicator.Config{
+		Type: "ssh",
+		SSH: communicator.SSH{
+			SSHUsername: "test-username",
+			SSHPort:     123,
+		},
+	}
+	step := &supervisor.StepCreateSource{
+		Config:             config,
+		CommunicatorConfig: commConfig,
+	}
+
+	testDataFile, err := os.CreateTemp(t.TempDir(), "test-data-file")
+	if err != nil {
+		t.Fatalf("Failed to create temp test data file, err: %s", err.Error())
+	}
+	defer os.Remove(testDataFile.Name())
+	defer testDataFile.Close()
+	testBootstrapData := []byte("unattend: test-unattend-config")
+	if err := ioutil.WriteFile(testDataFile.Name(), testBootstrapData, 0666); err != nil {
+		t.Fatalf("Failed to write content to temp file: %v", err)
+	}
+	step.Config.BootstrapDataFile = testDataFile.Name()
+
+	// Set up required state for running this step.
+	testNamespace := "test-namespace"
+	kubeClient := newFakeKubeClient()
+	testWriter := new(bytes.Buffer)
+	state := newBasicTestState(testWriter)
+	state.Put(supervisor.StateKeyKubeClient, kubeClient)
+	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
+
+	ctx := context.TODO()
+	if action := step.Run(ctx, state); action == multistep.ActionHalt {
+		if rawErr, ok := state.GetOk("error"); ok {
+			t.Errorf("Error from running the step: %s", rawErr.(error))
+		}
+		t.Fatal("Step should NOT halt")
+	}
+
+	// Check if the K8s Secret object is created with expected bootstrap data.
+	objKey := client.ObjectKey{
+		Namespace: testNamespace,
+		Name:      config.SourceName,
+	}
+	secretObj := &corev1.Secret{}
+	if err := kubeClient.Get(ctx, objKey, secretObj); err != nil {
+		t.Fatalf("Failed to get the expected Secret object, err: %s", err.Error())
+	}
+	if secretObj.StringData["unattend"] != "test-unattend-config" {
+		t.Errorf("Expected the Secret object to contain bootstrap data, got: %q", secretObj.StringData)
+	}
+
+	// Check if the source VM object is created with expected bootstrap provider.
+	vmObj := &vmopv1alpha1.VirtualMachine{}
+	if err := kubeClient.Get(ctx, objKey, vmObj); err != nil {
+		t.Fatalf("Failed to get the expected VM object, err: %s", err.Error())
+	}
+	if vmObj.Spec.VmMetadata.Transport != vmopv1alpha1.VirtualMachineMetadataSysprepTransport {
+		t.Errorf("Expected default VM transport to be %q, got %q",
+			vmopv1alpha1.VirtualMachineMetadataSysprepTransport, vmObj.Spec.VmMetadata.Transport)
+	}
+
+	// Check the output lines from the step runs.
+	expectedOutput := []string{
+		"Creating required source objects in Supervisor cluster...",
+		"Creating a K8s Secret object for providing source VM bootstrap data...",
+		fmt.Sprintf("Loading bootstrap data from file: %s", testDataFile.Name()),
 		"Successfully created the K8s Secret object",
 		"Creating a source VirtualMachine object",
 		"Successfully created the VirtualMachine object",

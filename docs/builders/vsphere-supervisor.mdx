@@ -15,7 +15,7 @@ Artifact BuilderId: `vsphere.supervisor`
 This builder deploys new VMs to a vSphere Supervisor cluster.
 
 - It uses kubeconfig file to connect to the vSphere Supervisor cluster.
-- It uses the VM-Service API to deploy and configure the source VM.
+- It uses the [VM-Service API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
 - It uses the Packer provisioners to customize the VM after deployment.
 - Planned enhancements that will introduce the ability to publish the
   customized VM as a new VM image to the vSphere endpoint.
@@ -36,6 +36,8 @@ source "vsphere-supervisor" "example-vm" {
   image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
   class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
   storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+  bootstrap_provider = "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>"
+  bootstrap_data_file = "<Path to the file containing the bootstrap data for guest OS customization>"
 }
 
 build {
@@ -53,7 +55,9 @@ build {
       "type": "vsphere-supervisor",
       "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
       "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
-      "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+      "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
+      "bootstrap_provider": "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>",
+      "bootstrap_data_file": "<Path to the file containing the bootstrap data for guest OS customization>"
     }
   ]
 }
@@ -85,11 +89,13 @@ There are various configuration options available for each step in this builder.
 
 @include 'builder/vsphere/supervisor/WatchSourceConfig-not-required.mdx'
 
-#### SSH Configuration
+#### Communicator Configuration
 
 @include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
 
 @include 'packer-plugin-sdk/communicator/SSHTemporaryKeyPair-not-required.mdx'
+
+@include 'packer-plugin-sdk/communicator/WinRM-not-required.mdx'
 
 ## Deprovisioning Tasks
 

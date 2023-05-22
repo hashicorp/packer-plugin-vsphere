@@ -17,6 +17,8 @@ type FlatCreateSourceConfig struct {
 	NetworkType       *string `mapstructure:"network_type" cty:"network_type" hcl:"network_type"`
 	NetworkName       *string `mapstructure:"network_name" cty:"network_name" hcl:"network_name"`
 	KeepInputArtifact *bool   `mapstructure:"keep_input_artifact" cty:"keep_input_artifact" hcl:"keep_input_artifact"`
+	BootstrapProvider *string `mapstructure:"bootstrap_provider" cty:"bootstrap_provider" hcl:"bootstrap_provider"`
+	BootstrapDataFile *string `mapstructure:"bootstrap_data_file" cty:"bootstrap_data_file" hcl:"bootstrap_data_file"`
 }
 
 // FlatMapstructure returns a new FlatCreateSourceConfig.
@@ -38,6 +40,8 @@ func (*FlatCreateSourceConfig) HCL2Spec() map[string]hcldec.Spec {
 		"network_type":        &hcldec.AttrSpec{Name: "network_type", Type: cty.String, Required: false},
 		"network_name":        &hcldec.AttrSpec{Name: "network_name", Type: cty.String, Required: false},
 		"keep_input_artifact": &hcldec.AttrSpec{Name: "keep_input_artifact", Type: cty.Bool, Required: false},
+		"bootstrap_provider":  &hcldec.AttrSpec{Name: "bootstrap_provider", Type: cty.String, Required: false},
+		"bootstrap_data_file": &hcldec.AttrSpec{Name: "bootstrap_data_file", Type: cty.String, Required: false},
 	}
 	return s
 }

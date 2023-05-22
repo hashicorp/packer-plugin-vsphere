@@ -9,42 +9,13 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
-func getCompleteConfig(t *testing.T) map[string]interface{} {
-	// Use a valid kubeconfig file as we check the content in config.Prepare() function.
-	validPath := getTestKubeconfigFile(t, "").Name()
-
-	return map[string]interface{}{
-		"image_name":               "test-image",
-		"class_name":               "test-class",
-		"storage_class":            "test-storage",
-		"supervisor_namespace":     "test-namespace",
-		"source_name":              "test-source",
-		"network_type":             "test-networkType",
-		"network_name":             "test-networkName",
-		"watch_source_timeout_sec": 60,
-		"keep_input_artifact":      true,
-		"kubeconfig_path":          validPath,
-	}
-}
-
-func getMinimalConfig() map[string]interface{} {
-	return map[string]interface{}{
-		"image_name":    "test-image",
-		"class_name":    "test-class",
-		"storage_class": "test-storage",
-	}
-}
-
 func TestConfig_Minimal(t *testing.T) {
-	// Using a minimal config requires that a valid kubeconfig is loaded automatially
+	// Using a minimal config requires that a valid kubeconfig is loaded automatically.
 	validPath := getTestKubeconfigFile(t, "").Name()
 	t.Setenv("KUBECONFIG", validPath)
 
 	c := new(supervisor.Config)
 	minConfigs := getMinimalConfig()
-	// The 'supervisor_namespace' is an optional config but it
-	// requires a valid kubeconfig file to get the default value.
-	minConfigs["supervisor_namespace"] = "test-ns"
 	warns, err := c.Prepare(minConfigs)
 	if len(warns) != 0 {
 		t.Errorf("expected no warnings, got: %#v", warns)
@@ -131,35 +102,28 @@ func TestConfig_Values(t *testing.T) {
 	}
 }
 
-func TestConfig_SSH(t *testing.T) {
-	c := new(supervisor.Config)
-	configs := getCompleteConfig(t)
+func getMinimalConfig() map[string]interface{} {
+	return map[string]interface{}{
+		"image_name":    "test-image",
+		"class_name":    "test-class",
+		"storage_class": "test-storage",
+	}
+}
 
-	// Test when non-supported communicator is provided (should fail).
-	configs["communicator"] = "none"
-	_, err := c.Prepare(configs)
-	if err == nil {
-		t.Errorf("expected an error for non-supported ('none') communicator type")
-	}
-	configs["communicator"] = "winrm"
-	_, err = c.Prepare(configs)
-	if err == nil {
-		t.Errorf("expected an error for non-supported ('winrm') communicator type")
-	}
+func getCompleteConfig(t *testing.T) map[string]interface{} {
+	// Use a valid kubeconfig file as we check the content in config.Prepare() function.
+	validPath := getTestKubeconfigFile(t, "").Name()
 
-	// Test if default values are set for SSH communicator.
-	configs["communicator"] = ""
-	configs["ssh_username"] = ""
-	_, err = c.Prepare(configs)
-	if err != nil {
-		t.Errorf("expected no errors, got: %s", err)
-	}
-	if c.CommunicatorConfig.Type != "ssh" {
-		t.Errorf("expected default communicator to be: 'ssh', got: %q",
-			c.CommunicatorConfig.Type)
-	}
-	if c.CommunicatorConfig.SSHUsername != supervisor.DefaultSSHUsername {
-		t.Errorf("expected default ssh_username to be: %q, got: %q",
-			supervisor.DefaultSSHUsername, c.CommunicatorConfig.SSHUsername)
+	return map[string]interface{}{
+		"image_name":               "test-image",
+		"class_name":               "test-class",
+		"storage_class":            "test-storage",
+		"supervisor_namespace":     "test-namespace",
+		"source_name":              "test-source",
+		"network_type":             "test-networkType",
+		"network_name":             "test-networkName",
+		"watch_source_timeout_sec": 60,
+		"keep_input_artifact":      true,
+		"kubeconfig_path":          validPath,
 	}
 }
