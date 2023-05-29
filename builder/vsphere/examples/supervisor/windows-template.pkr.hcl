@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # A Packer template to deploy a VM-Service Windows VM using the vsphere-supervisor builder.
 
 # VM-Service source VM configs.
