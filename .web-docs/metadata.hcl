@@ -1,0 +1,32 @@
+# For full specification on the configuration of this file visit:
+# https://github.com/hashicorp/integration-template#metadata-configuration
+integration {
+  name = "VMware vSphere"
+  description = "The vSphere plugin is able to create vSphere virtual machines for use with any VMware product."
+  identifier = "packer/hashicorp/vsphere"
+  component {
+    type = "builder"
+    name = "vSphere Clone"
+    slug = "vsphere-clone"
+  }
+  component {
+    type = "builder"
+    name = "vSphere ISO"
+    slug = "vsphere-iso"
+  }
+  component {
+    type = "builder"
+    name = "vSphere Supervisor"
+    slug = "vsphere-supervisor"
+  }
+  component {
+    type = "post-processor"
+    name = "vSphere"
+    slug = "vsphere"
+  }
+  component {
+    type = "post-processor"
+    name = "vSphere Template"
+    slug = "vsphere-template"
+  }
+}

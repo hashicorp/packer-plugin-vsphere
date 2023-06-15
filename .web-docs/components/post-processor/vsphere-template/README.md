@@ -1,21 +1,9 @@
----
-description: >
-  The Packer vSphere Template post-processor takes an artifact from the
-  VMware-iso builder, built on and ESXi host (i.e. remote) or an artifact from the
-  [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor, marks the VM as a
-  template, and leaves it in the path of your choice.
-page_title: vSphere Template - Post-Processors
-sidebar_title: vSphere Template
----
-
-# vSphere Template Post-Processor
-
 Type: `vsphere-template`
 Artifact BuilderId: `packer.post-processor.vsphere`
 
 The Packer vSphere Template post-processor takes an artifact from the
 `vmware-iso` builder, built on ESXi (i.e. remote) or an artifact from the
-[vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor, marks the VM as a
+[vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor, marks the VM as a
 template, and places it in the path of your choice.
 
 ## Configuration
@@ -125,7 +113,7 @@ build {
 
 ## Using the vSphere Template with local builders
 
-Once the [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor takes an
+Once the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor takes an
 artifact from the builder and uploads it to a vSphere endpoint, you may want
 the VM to be marked as a template. Packer can do this for you automatically
 using a sequence definition (a collection of post-processors that are treated

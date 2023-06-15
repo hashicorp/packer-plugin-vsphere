@@ -1,13 +1,3 @@
----
-description: >
-  The Packer vSphere post-processor takes an artifact and uploads it to a
-  vSphere endpoint.
-page_title: vSphere - Post-Processors
-sidebar_title: vSphere
----
-
-# vSphere Post-Processor
-
 Type: `vsphere`
 Artifact BuilderId: `packer.post-processor.vsphere`
 

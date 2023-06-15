@@ -29,8 +29,7 @@ If you are new to VM Service, please refer to [Deploying and Managing Virtual Ma
 
 Example Packer template:
 
-<Tabs>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "vsphere-supervisor" "example-vm" {
@@ -46,8 +45,7 @@ build {
 }
 ```
 
-</Tab>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -64,8 +62,6 @@ build {
 }
 ```
 
-</Tab>
-</Tabs>
 
 Refer to the [examples/supervisor directory](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/supervisor) within the GitHub repository for more complete examples.
 
@@ -107,8 +103,7 @@ There are various configuration options available for each step in this builder.
 If you would like to clean up the VM after the build is complete, you could use the Ansible
 provisioner to run the following tasks to delete machine-specific files and data.
 
-<Tabs>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 build {
@@ -120,8 +115,7 @@ build {
 }
 ```
 
-</Tab>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -139,8 +133,6 @@ build {
 }
 ```
 
-</Tab>
-</Tabs>
 
 Content of `cleanup-playbook.yml`:
 
