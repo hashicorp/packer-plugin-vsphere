@@ -67,8 +67,7 @@ will contain the origin VM storage and disk controller plus the new configured o
 
 Example of usage:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
  "vapp": {
@@ -83,8 +82,7 @@ A `user-data` field requires the content of a yaml file to be encoded with base6
 can be done via environment variable:
 `export USERDATA=$(gzip -c9 <userdata.yaml | { base64 -w0 2>/dev/null || base64; })`
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
    vapp {
@@ -95,8 +93,6 @@ can be done via environment variable:
    }
 ```
 
-</Tab>
-</Tabs>
 
 ### Extra Configuration Parameters
 
@@ -130,8 +126,7 @@ can be done via environment variable:
 
 #### Customization Example
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
  "customize": {
@@ -148,8 +143,7 @@ can be done via environment variable:
  }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
    customize {
@@ -168,8 +162,6 @@ can be done via environment variable:
    }
 ```
 
-</Tab>
-</Tabs>
 
 ### Boot configuration
 
@@ -280,8 +272,7 @@ cloud-init 21.3 and later for more information.
 
 Minimal example of usage:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 	"content_library_destination" : {
@@ -289,8 +280,7 @@ Minimal example of usage:
 	}
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 	content_library_destination {
@@ -298,79 +288,65 @@ Minimal example of usage:
 	}
 ```
 
-</Tab>
-</Tabs>
 
 ## Working With Clusters And Hosts
 
-#### Standalone Hosts
+### Standalone Hosts
 
 Only use the `host` option. Optionally specify a `resource_pool`:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 "host": "esxi-1.vsphere65.test",
 "resource_pool": "pool1",
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 host = "esxi-1.vsphere65.test"
 resource_pool = "pool1"
 ```
 
-</Tab>
-</Tabs>
 
-#### Clusters Without DRS
+### Clusters Without DRS
 
 Use the `cluster` and `host`parameters:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 "cluster": "cluster1",
 "host": "esxi-2.vsphere65.test",
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 cluster = "cluster1"
 host = "esxi-2.vsphere65.test"
 ```
 
-</Tab>
-</Tabs>
 
-#### Clusters With DRS
+### Clusters With DRS
 
 Only use the `cluster` option. Optionally specify a `resource_pool`:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 "cluster": "cluster2",
 "resource_pool": "pool1",
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 cluster = "cluster2"
 resource_pool = "pool1"
 ```
 
-</Tab>
-</Tabs>
 
 ## Required vSphere Privileges
 
