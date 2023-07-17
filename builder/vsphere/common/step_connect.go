@@ -9,6 +9,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -71,10 +72,10 @@ func (s *StepConnect) Cleanup(state multistep.StateBag) {
 	if driver, ok := state.Get("driver").(driver.Driver); ok {
 		errorRestClient, errorSoapClient := driver.Cleanup()
 		if errorRestClient != nil {
-			ui.Message("Error closing rest client session: " + errorRestClient.Error())
+			log.Printf("[WARN] Failed to close REST client session. The session may already be closed: %s", errorRestClient.Error())
 		}
 		if errorSoapClient != nil {
-			ui.Message("Error closing soap client session: " + errorRestClient.Error())
+			log.Printf("[WARN] Failed to close SOAP client session. The session may already be closed: %s", errorSoapClient.Error())
 		}
 	}
 }
