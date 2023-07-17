@@ -72,10 +72,10 @@ func (s *StepConnect) Cleanup(state multistep.StateBag) {
 	if driver, ok := state.Get("driver").(driver.Driver); ok {
 		errorRestClient, errorSoapClient := driver.Cleanup()
 		if errorRestClient != nil {
-			log.Printf("[WARN] Couldn't close rest client session. Could be already closed: %s", errorRestClient.Error())
+			log.Printf("[WARN] Failed to close REST client session. The session may already be closed: %s", errorRestClient.Error())
 		}
 		if errorSoapClient != nil {
-			log.Printf("[WARN] Couldn't close soap client session. %s", errorSoapClient.Error())
+			log.Printf("[WARN] Failed to close SOAP client session. The session may already be closed: %s", errorSoapClient.Error())
 		}
 	}
 }
