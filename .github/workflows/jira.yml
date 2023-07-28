@@ -67,9 +67,14 @@ jobs:
                    "labels": ${{ steps.set-ticket-labels.outputs.labels }} }'
       - name: Add tracking comment
         if: steps.create-ticket.outputs.issue != '' && steps.set-ticket-type.outputs.type != 'Invalid'
-        uses: actions-ecosystem/action-create-comment@e23bc59fbff7aac7f9044bd66c2dc0fe1286f80b # v1.0.2
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            This issue has been synced to JIRA for planning.
-            JIRA ID: [${{ steps.create-ticket.outputs.issue }}](https://hashicorp.atlassian.net/browse/${{steps.create-ticket.outputs.issue}})
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `
+                This issue has been synced to JIRA for planning.
+                JIRA ID: [${{ steps.create-ticket.outputs.issue }}](https://hashicorp.atlassian.net/browse/${{steps.create-ticket.outputs.issue}})`
+            })
