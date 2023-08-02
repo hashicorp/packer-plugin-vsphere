@@ -94,7 +94,7 @@ func (s *VCenterSimulator) Close() {
 	}
 }
 
-//Simulator shortcut to choose any pre created VM.
+// Simulator shortcut to choose any pre created VM.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simulator.VirtualMachine) {
 	machine := simulator.Map.Any("VirtualMachine").(*simulator.VirtualMachine)
 	ref := machine.Reference()
@@ -102,7 +102,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simul
 	return vm, machine
 }
 
-//Simulator shortcut to choose any pre created Datastore.
+// Simulator shortcut to choose any pre created Datastore.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *simulator.Datastore) {
 	ds := simulator.Map.Any("Datastore").(*simulator.Datastore)
 	ref := ds.Reference()
@@ -110,7 +110,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *sim
 	return datastore, ds
 }
 
-//Simulator shortcut to choose any pre created Host.
+// Simulator shortcut to choose any pre created Host.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedHost() (*Host, *simulator.HostSystem) {
 	h := simulator.Map.Any("HostSystem").(*simulator.HostSystem)
 	ref := h.Reference()

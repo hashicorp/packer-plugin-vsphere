@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
-/// create mock step
+// / create mock step
 type MockDownloadStep struct {
 	RunCalled bool
 }
@@ -28,7 +28,7 @@ func (s *MockDownloadStep) UseSourceToFindCacheTarget(source string) (*url.URL, 
 	return nil, "sometarget", nil
 }
 
-/// start tests
+// / start tests
 func downloadStepState(exists bool) *multistep.BasicStateBag {
 	state := basicStateBag(nil)
 	dsMock := &driver.DatastoreMock{
