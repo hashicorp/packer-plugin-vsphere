@@ -37,22 +37,28 @@ import (
 // In JSON:
 // ```json
 // ...
-//   "vm_name": "example-ubuntu",
+//
+//	"vm_name": "example-ubuntu",
+//
 // ...
-//   "export": {
-//     "force": true,
-//     "output_directory": "./output_vsphere"
-//   },
+//
+//	"export": {
+//	  "force": true,
+//	  "output_directory": "./output_vsphere"
+//	},
+//
 // ```
 // In HCL2:
 // ```hcl
-//   # ...
-//   vm_name = "example-ubuntu"
-//   # ...
-//   export {
-//     force = true
-//     output_directory = "./output_vsphere"
-//   }
+//
+//	# ...
+//	vm_name = "example-ubuntu"
+//	# ...
+//	export {
+//	  force = true
+//	  output_directory = "./output_vsphere"
+//	}
+//
 // ```
 // The above configuration would create the following files:
 //

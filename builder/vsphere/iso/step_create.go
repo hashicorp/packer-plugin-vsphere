@@ -25,27 +25,31 @@ import (
 //
 // In JSON:
 // ```json
-//   "network_adapters": [
-//     {
-//       "network": "VM Network",
-//       "network_card": "vmxnet3"
-//     },
-//     {
-//       "network": "OtherNetwork",
-//       "network_card": "vmxnet3"
-//     }
-//   ],
+//
+//	"network_adapters": [
+//	  {
+//	    "network": "VM Network",
+//	    "network_card": "vmxnet3"
+//	  },
+//	  {
+//	    "network": "OtherNetwork",
+//	    "network_card": "vmxnet3"
+//	  }
+//	],
+//
 // ```
 // In HCL2:
 // ```hcl
-//   network_adapters {
-//       network = "VM Network"
-//       network_card = "vmxnet3"
-//   }
-//   network_adapters {
-//       network = "OtherNetwork"
-//       network_card = "vmxnet3"
-//   }
+//
+//	network_adapters {
+//	    network = "VM Network"
+//	    network_card = "vmxnet3"
+//	}
+//	network_adapters {
+//	    network = "OtherNetwork"
+//	    network_card = "vmxnet3"
+//	}
+//
 // ```
 type NIC struct {
 	// Set the network in which the VM will be connected to. If no network is
