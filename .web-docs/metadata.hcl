@@ -6,13 +6,13 @@ integration {
   identifier = "packer/hashicorp/vsphere"
   component {
     type = "builder"
-    name = "vSphere Clone"
-    slug = "vsphere-clone"
+    name = "vSphere ISO"
+    slug = "vsphere-iso"
   }
   component {
     type = "builder"
-    name = "vSphere ISO"
-    slug = "vsphere-iso"
+    name = "vSphere Clone"
+    slug = "vsphere-clone"
   }
   component {
     type = "builder"
