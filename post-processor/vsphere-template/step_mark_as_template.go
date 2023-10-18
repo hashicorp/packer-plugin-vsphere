@@ -29,7 +29,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepM
 	remoteFolder := "Discovered virtual machine"
 	//if post-processor config folder is not null, use the folder as remoteFolder
 	if p.config.Folder != "" {
-	    remoteFolder = p.config.Folder
+	    remoteFolder := p.config.Folder
 	}
 	vmname := artifact.Id()
 
