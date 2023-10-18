@@ -27,6 +27,10 @@ type stepMarkAsTemplate struct {
 
 func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepMarkAsTemplate {
 	remoteFolder := "Discovered virtual machine"
+	//if post-processor config folder is not null, use the folder as remoteFolder
+	if p.config.Folder != "" {
+	    remoteFolder = p.config.Folder
+	}
 	vmname := artifact.Id()
 
 	if artifact.BuilderId() == vsphere.BuilderId {
