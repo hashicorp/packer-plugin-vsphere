@@ -1253,7 +1253,7 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 }
 
 func (vm *VirtualMachineDriver) logout() {
-	if vm == nil {
+	if vm.driver.restClient == nil {
 		return
 	}
 	if err := vm.driver.restClient.Logout(vm.driver.ctx); err != nil {
