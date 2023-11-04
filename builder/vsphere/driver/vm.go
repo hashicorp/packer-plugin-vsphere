@@ -837,12 +837,12 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 
 	l, err := vm.driver.FindContentLibraryByName(ovf.Target.LibraryID)
 	if err != nil {
-		log.Printf("can not find content library due to %v", err)
+		log.Printf("cannot find content library: %v", err)
 		vm.logout()
 		return err
 	}
 	if l.library.Type != "LOCAL" {
-		return fmt.Errorf("can not deploy a VM to the content library %s of type %s; "+
+		return fmt.Errorf("cannot deploy a VM to the content library %s of type %s; "+
 			"the content library must be of type LOCAL", ovf.Target.LibraryID, l.library.Type)
 	}
 
@@ -853,7 +853,7 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 		if ovf.Spec.Description != item.Description {
 			err = vm.driver.UpdateContentLibraryItem(item, ovf.Spec.Name, ovf.Spec.Description)
 			if err != nil {
-				log.Printf("can not update content library due to %v", err)
+				log.Printf("cannot update content library: %v", err)
 				vm.logout()
 				return err
 			}
@@ -881,12 +881,12 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 
 	l, err := vm.driver.FindContentLibraryByName(template.Library)
 	if err != nil {
-		log.Printf("can not find content library due to %v", err)
+		log.Printf("cannot find content library: %v", err)
 		vm.logout()
 		return err
 	}
 	if l.library.Type != "LOCAL" {
-		return fmt.Errorf("can not deploy a VM to the content library %s of type %s; "+
+		return fmt.Errorf("cannot deploy a VM to the content library %s of type %s; "+
 			"the content library must be of type LOCAL", template.Library, l.library.Type)
 	}
 
@@ -896,7 +896,7 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.ResourcePool != "" {
 		rp, err := vm.driver.FindResourcePool(template.Placement.Cluster, template.Placement.Host, template.Placement.ResourcePool)
 		if err != nil {
-			log.Printf("can not find resource pool due to %v", err)
+			log.Printf("cannot find resource pool: %v", err)
 			vm.logout()
 			return err
 		}
@@ -905,7 +905,7 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.VMHomeStorage != nil {
 		d, err := vm.driver.FindDatastore(template.VMHomeStorage.Datastore, template.Placement.Host)
 		if err != nil {
-			log.Printf("can not find datastore due to %v", err)
+			log.Printf("cannot find datastore: %v", err)
 			vm.logout()
 			return err
 		}
@@ -922,7 +922,7 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.Folder != "" {
 		f, err := vm.driver.FindFolder(template.Placement.Folder)
 		if err != nil {
-			log.Printf("can not find folder due to %v", err)
+			log.Printf("cannot find folder: %v", err)
 			vm.logout()
 			return err
 		}
@@ -931,7 +931,7 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	if template.Placement.Host != "" {
 		h, err := vm.driver.FindHost(template.Placement.Host)
 		if err != nil {
-			log.Printf("can not find host due to %v", err)
+			log.Printf("cannot find host: %v", err)
 			vm.logout()
 			return err
 		}
@@ -941,7 +941,7 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 	vcm := vcenter.NewManager(vm.driver.restClient.client)
 	_, err = vcm.CreateTemplate(vm.driver.ctx, template)
 	if err != nil {
-		log.Printf("can not create template due to %v", err)
+		log.Printf("cannot create template: %v", err)
 		vm.logout()
 		return err
 	}
@@ -1236,7 +1236,7 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 
 	l, err := vm.driver.FindContentLibraryByName(library)
 	if err != nil {
-		log.Printf("can not find content library due to %v", err)
+		log.Printf("cannot find content library: %v", err)
 		vm.logout()
 		return nil, err
 	}
@@ -1257,7 +1257,7 @@ func (vm *VirtualMachineDriver) logout() {
 		return
 	}
 	if err := vm.driver.restClient.Logout(vm.driver.ctx); err != nil {
-		log.Printf("can not logout due to %s ", err.Error())
+		log.Printf("cannot logout: %s ", err.Error())
 	}
 }
 
