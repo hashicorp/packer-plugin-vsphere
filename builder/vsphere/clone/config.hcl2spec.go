@@ -69,6 +69,8 @@ type FlatConfig struct {
 	ConfigParams                    map[string]string                           `mapstructure:"configuration_parameters" cty:"configuration_parameters" hcl:"configuration_parameters"`
 	ToolsSyncTime                   *bool                                       `mapstructure:"tools_sync_time" cty:"tools_sync_time" hcl:"tools_sync_time"`
 	ToolsUpgradePolicy              *bool                                       `mapstructure:"tools_upgrade_policy" cty:"tools_upgrade_policy" hcl:"tools_upgrade_policy"`
+	VbsEnabled                      *bool                                       `mapstructure:"vbs_enabled" cty:"vbs_enabled" hcl:"vbs_enabled"`
+	VvtdEnabled                     *bool                                       `mapstructure:"vvtd_enabled" cty:"vvtd_enabled" hcl:"vvtd_enabled"`
 	CdromType                       *string                                     `mapstructure:"cdrom_type" cty:"cdrom_type" hcl:"cdrom_type"`
 	ISOPaths                        []string                                    `mapstructure:"iso_paths" cty:"iso_paths" hcl:"iso_paths"`
 	RemoveCdrom                     *bool                                       `mapstructure:"remove_cdrom" cty:"remove_cdrom" hcl:"remove_cdrom"`
@@ -215,6 +217,8 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"configuration_parameters":       &hcldec.AttrSpec{Name: "configuration_parameters", Type: cty.Map(cty.String), Required: false},
 		"tools_sync_time":                &hcldec.AttrSpec{Name: "tools_sync_time", Type: cty.Bool, Required: false},
 		"tools_upgrade_policy":           &hcldec.AttrSpec{Name: "tools_upgrade_policy", Type: cty.Bool, Required: false},
+		"vbs_enabled":                    &hcldec.AttrSpec{Name: "vbs_enabled", Type: cty.Bool, Required: false},
+		"vvtd_enabled":                   &hcldec.AttrSpec{Name: "vvtd_enabled", Type: cty.Bool, Required: false},
 		"cdrom_type":                     &hcldec.AttrSpec{Name: "cdrom_type", Type: cty.String, Required: false},
 		"iso_paths":                      &hcldec.AttrSpec{Name: "iso_paths", Type: cty.List(cty.String), Required: false},
 		"remove_cdrom":                   &hcldec.AttrSpec{Name: "remove_cdrom", Type: cty.Bool, Required: false},
