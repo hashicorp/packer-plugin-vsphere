@@ -67,6 +67,8 @@ type FlatConfig struct {
 	ConfigParams                    map[string]string                           `mapstructure:"configuration_parameters" cty:"configuration_parameters" hcl:"configuration_parameters"`
 	ToolsSyncTime                   *bool                                       `mapstructure:"tools_sync_time" cty:"tools_sync_time" hcl:"tools_sync_time"`
 	ToolsUpgradePolicy              *bool                                       `mapstructure:"tools_upgrade_policy" cty:"tools_upgrade_policy" hcl:"tools_upgrade_policy"`
+	VbsEnabled                      *bool                                       `mapstructure:"vbs_enabled" cty:"vbs_enabled" hcl:"vbs_enabled"`
+	VvtdEnabled                     *bool                                       `mapstructure:"vvtd_enabled" cty:"vvtd_enabled" hcl:"vvtd_enabled"`
 	ISOChecksum                     *string                                     `mapstructure:"iso_checksum" required:"true" cty:"iso_checksum" hcl:"iso_checksum"`
 	RawSingleISOUrl                 *string                                     `mapstructure:"iso_url" required:"true" cty:"iso_url" hcl:"iso_url"`
 	ISOUrls                         []string                                    `mapstructure:"iso_urls" cty:"iso_urls" hcl:"iso_urls"`
@@ -215,6 +217,8 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"configuration_parameters":       &hcldec.AttrSpec{Name: "configuration_parameters", Type: cty.Map(cty.String), Required: false},
 		"tools_sync_time":                &hcldec.AttrSpec{Name: "tools_sync_time", Type: cty.Bool, Required: false},
 		"tools_upgrade_policy":           &hcldec.AttrSpec{Name: "tools_upgrade_policy", Type: cty.Bool, Required: false},
+		"vbs_enabled":                    &hcldec.AttrSpec{Name: "vbs_enabled", Type: cty.Bool, Required: false},
+		"vvtd_enabled":                   &hcldec.AttrSpec{Name: "vvtd_enabled", Type: cty.Bool, Required: false},
 		"iso_checksum":                   &hcldec.AttrSpec{Name: "iso_checksum", Type: cty.String, Required: false},
 		"iso_url":                        &hcldec.AttrSpec{Name: "iso_url", Type: cty.String, Required: false},
 		"iso_urls":                       &hcldec.AttrSpec{Name: "iso_urls", Type: cty.List(cty.String), Required: false},

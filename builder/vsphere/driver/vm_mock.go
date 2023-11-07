@@ -36,6 +36,12 @@ type VirtualMachineMock struct {
 	AddCdromTypes       []string
 	AddCdromPaths       []string
 
+	AddFlagCalled            bool
+	AddFlagCalledTimes       int
+	AddFlagErr               error
+	AddFlagVbsEnabledValues  bool
+	AddFlagVvtdEnabledValues bool
+
 	GetDirCalled   bool
 	GetDirResponse string
 	GetDirErr      error
@@ -207,6 +213,18 @@ func (vm *VirtualMachineMock) addDevice(device types.BaseVirtualDevice) error {
 
 func (vm *VirtualMachineMock) AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error {
 	return nil
+}
+
+func (vm *VirtualMachineMock) AddFlag(ctx context.Context, info *types.VirtualMachineFlagInfo) error {
+	vm.AddFlagCalled = true
+	vm.AddFlagCalledTimes++
+	if info.VbsEnabled != nil {
+		vm.AddFlagVbsEnabledValues = *info.VbsEnabled
+	}
+	if info.VvtdEnabled != nil {
+		vm.AddFlagVvtdEnabledValues = *info.VvtdEnabled
+	}
+	return vm.AddFlagErr
 }
 
 func (vm *VirtualMachineMock) Export() (*nfc.Lease, error) {

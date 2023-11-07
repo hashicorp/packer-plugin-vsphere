@@ -55,6 +55,7 @@ type VirtualMachine interface {
 	RemoveDevice(keepFiles bool, device ...types.BaseVirtualDevice) error
 	addDevice(device types.BaseVirtualDevice) error
 	AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error
+	AddFlag(ctx context.Context, info *types.VirtualMachineFlagInfo) error
 	Export() (*nfc.Lease, error)
 	CreateDescriptor(m *ovf.Manager, cdp types.OvfCreateDescriptorParams) (*types.OvfCreateDescriptorResult, error)
 	NewOvfManager() *ovf.Manager
@@ -1181,6 +1182,24 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 		}
 
 		_, err = task.WaitForResult(vm.driver.ctx, nil)
+		return err
+	}
+
+	return nil
+}
+
+func (vm *VirtualMachineDriver) AddFlag(ctx context.Context, flagSpec *types.VirtualMachineFlagInfo) error {
+	confSpec := types.VirtualMachineConfigSpec{
+		Flags: flagSpec,
+	}
+
+	task, err := vm.vm.Reconfigure(ctx, confSpec)
+	if err != nil {
+		return err
+	}
+
+	err = task.Wait(ctx)
+	if err != nil {
 		return err
 	}
 

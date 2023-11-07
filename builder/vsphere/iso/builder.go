@@ -75,6 +75,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&common.StepConfigureHardware{
 			Config: &b.config.HardwareConfig,
 		},
+		&common.StepAddFlag{
+			FlagConfig: b.config.FlagConfig,
+		},
 		&common.StepAddCDRom{
 			Config: &b.config.CDRomConfig,
 		},
