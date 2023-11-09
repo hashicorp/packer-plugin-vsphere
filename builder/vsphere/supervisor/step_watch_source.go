@@ -197,10 +197,7 @@ func (s *StepWatchSource) getVMIngressIP(ctx context.Context, logger *PackerLogg
 			return 5 * time.Second
 		},
 		ShouldRetry: func(err error) bool {
-			if errors.Is(err, context.DeadlineExceeded) {
-				return false
-			}
-			return true
+			return !errors.Is(err, context.DeadlineExceeded)
 		},
 	}.Run(ctx, func(ctx context.Context) error {
 
