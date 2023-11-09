@@ -95,7 +95,7 @@ func (d *VCenterDriver) UpdateContentLibraryItem(item *library.Item, name string
 	item.Patch(&library.Item{
 		ID:          item.ID,
 		Name:        name,
-		Description: description,
+		Description: &description,
 	})
 	return lm.UpdateLibraryItem(d.ctx, item)
 }
