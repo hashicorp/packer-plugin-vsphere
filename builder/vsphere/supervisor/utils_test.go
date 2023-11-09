@@ -57,15 +57,24 @@ func newBasicTestState(writer *bytes.Buffer) *multistep.BasicStateBag {
 
 func checkOutputLines(t *testing.T, writer *bytes.Buffer, expectedLines []string) {
 	for _, expected := range expectedLines {
-		actual, err := writer.ReadString('\n')
-		actual = strings.TrimSpace(actual)
-		if err != nil {
-			t.Fatalf("Failed to read line from writer, err: %s", err.Error())
-		}
-		if actual != expected {
+		if actual := readLine(t, writer); actual != expected {
 			t.Fatalf("Expected output %q but got %q", expected, actual)
 		}
 	}
+}
+
+func readLine(t *testing.T, writer *bytes.Buffer) string {
+	actual, err := writer.ReadString('\n')
+	if err != nil {
+		t.Fatalf("Failed to read line from writer, err: %s", err.Error())
+	}
+
+	// Skip "continue checking" line as it can be printed from the retry.
+	if strings.Contains(actual, "continue checking") {
+		readLine(t, writer)
+	}
+
+	return strings.TrimSpace(actual)
 }
 
 func getTestKubeconfigFile(t *testing.T, namespace string) *os.File {
