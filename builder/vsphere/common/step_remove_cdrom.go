@@ -17,6 +17,7 @@ import (
 type RemoveCDRomConfig struct {
 	// Remove CD-ROM devices from template. Defaults to `false`.
 	RemoveCdrom bool `mapstructure:"remove_cdrom"`
+	KeepOneCdrom bool `mapstructure:"keep_one_cdrom"`
 }
 
 type StepRemoveCDRom struct {
@@ -39,6 +40,21 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 		err := vm.RemoveCdroms()
 		if err != nil {
 			state.Put("error", err)
+			return multistep.ActionHalt
+		}
+	}
+
+	if s.Config.KeepOneCdrom == true {
+		ui.Say("Adding 1 SATA CD-ROM drive...")
+		err := vm.AddCdrom("sata","[] /usr/lib/vmware/isoimages/windows.iso")
+		if err != nil {
+			state.Put("error", err)
+			return multistep.ActionHalt
+		}
+        ui.Say("Ejecting ISO on SATA CD-ROM drive...")
+		err2 := vm.EjectCdroms()
+		if err2 != nil {
+			state.Put("error", err2)
 			return multistep.ActionHalt
 		}
 	}
