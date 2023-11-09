@@ -3,13 +3,13 @@ module github.com/hashicorp/packer-plugin-vsphere
 go 1.19
 
 require (
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/hashicorp/packer-plugin-sdk v0.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097
 	github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1
-	github.com/vmware/govmomi v0.29.0
+	github.com/vmware/govmomi v0.33.1
 	github.com/zclconf/go-cty v1.12.1
 	golang.org/x/mobile v0.0.0-20210901025245-1fde1d6c3ca1
 	gopkg.in/yaml.v2 v2.4.0
