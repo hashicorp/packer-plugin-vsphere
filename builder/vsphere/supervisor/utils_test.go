@@ -71,7 +71,7 @@ func readLine(t *testing.T, writer *bytes.Buffer) string {
 
 	// Skip "continue checking" line as it can be printed from the retry.
 	if strings.Contains(actual, "continue checking") {
-		readLine(t, writer)
+		return readLine(t, writer)
 	}
 
 	return strings.TrimSpace(actual)
