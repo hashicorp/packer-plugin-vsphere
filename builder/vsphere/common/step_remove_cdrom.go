@@ -60,7 +60,7 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 			return multistep.ActionHalt
 		}
 
-        ui.Say("Ejecting ISO on SATA CD-ROM drive...")
+		ui.Say("Ejecting ISO on SATA CD-ROM drive...")
 		err3 := vm.EjectCdroms()
 		if err3 != nil {
 			state.Put("error", err3)
