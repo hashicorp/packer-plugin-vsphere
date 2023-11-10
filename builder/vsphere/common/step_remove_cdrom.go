@@ -48,7 +48,7 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 		if _, err := vm.FindSATAController(); err == driver.ErrNoSataController {
 			ui.Say("Adding SATA controller...")
 			if err := vm.AddSATAController(); err != nil {
-				state.Put("error", fmt.Errorf("error adding SATA controller: %v", err))
+				state.Put("error", err)
 				return multistep.ActionHalt
 			}
 		}
