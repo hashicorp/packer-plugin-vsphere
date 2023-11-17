@@ -25,7 +25,7 @@ func TestStepRemoveCDRom_Run(t *testing.T) {
 		errMessage     string
 	}{
 		{
-			name: "Eject CD-ROM drives",
+			name: "Successfully eject CD-ROM devices",
 			step: &StepRemoveCDRom{
 				Config: &RemoveCDRomConfig{},
 			},
@@ -37,22 +37,22 @@ func TestStepRemoveCDRom_Run(t *testing.T) {
 			fail: false,
 		},
 		{
-			name: "Failed to eject CD-ROM drives",
+			name: "Fail to eject CD-ROM devices",
 			step: &StepRemoveCDRom{
 				Config: &RemoveCDRomConfig{},
 			},
 			expectedAction: multistep.ActionHalt,
 			vmMock: &driver.VirtualMachineMock{
-				EjectCdromsErr: fmt.Errorf("failed to eject cd-rom drives"),
+				EjectCdromsErr: fmt.Errorf("failed to eject cdrom media"),
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled: true,
 			},
 			fail:       true,
-			errMessage: "failed to eject cd-rom drives",
+			errMessage: "error ejecting cdrom media: failed to eject cdrom media",
 		},
 		{
-			name: "Eject and delete CD-ROM drives",
+			name: "Successfully eject and delete CD-ROM devices",
 			step: &StepRemoveCDRom{
 				Config: &RemoveCDRomConfig{
 					RemoveCdrom: true,
@@ -61,13 +61,13 @@ func TestStepRemoveCDRom_Run(t *testing.T) {
 			expectedAction: multistep.ActionContinue,
 			vmMock:         new(driver.VirtualMachineMock),
 			expectedVmMock: &driver.VirtualMachineMock{
-				EjectCdromsCalled:  true,
 				RemoveCdromsCalled: true,
+				EjectCdromsCalled:  true,
 			},
 			fail: false,
 		},
 		{
-			name: "Fail to delete CD-ROM drives",
+			name: "Fail to delete CD-ROM devices",
 			step: &StepRemoveCDRom{
 				Config: &RemoveCDRomConfig{
 					RemoveCdrom: true,
@@ -75,14 +75,14 @@ func TestStepRemoveCDRom_Run(t *testing.T) {
 			},
 			expectedAction: multistep.ActionHalt,
 			vmMock: &driver.VirtualMachineMock{
-				RemoveCdromsErr: fmt.Errorf("failed to delete cd-rom devices"),
+				RemoveCdromsErr: fmt.Errorf("failed to delete cdrom devices"),
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled:  true,
 				RemoveCdromsCalled: true,
 			},
 			fail:       true,
-			errMessage: "failed to delete cd-rom devices",
+			errMessage: "error removing cdrom: failed to delete cdrom devices",
 		},
 	}
 

@@ -135,6 +135,10 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&common.StepRemoveCDRom{
 			Config: &b.config.RemoveCDRomConfig,
 		},
+		&common.StepReattachCDRom{
+			Config:      &b.config.ReattachCDRomConfig,
+			CDRomConfig: &b.config.CDRomConfig,
+		},
 		&common.StepCreateSnapshot{
 			CreateSnapshot: b.config.CreateSnapshot,
 			SnapshotName:   b.config.SnapshotName,

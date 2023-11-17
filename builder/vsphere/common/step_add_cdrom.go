@@ -33,13 +33,20 @@ type StepAddCDRom struct {
 	Config *CDRomConfig
 }
 
-func (c *CDRomConfig) Prepare() []error {
+func (c *CDRomConfig) Prepare(k *ReattachCDRomConfig) []error {
 	var errs []error
 
+	// `cdrom_type` must be either 'ide' or 'sata'.
 	if c.CdromType != "" && c.CdromType != "ide" && c.CdromType != "sata" {
 		errs = append(errs, fmt.Errorf("'cdrom_type' must be 'ide' or 'sata'"))
 	}
 
+	// `reattach_cdroms` should be between 1 and 4 to keep the CD-ROM devices without any attached media.
+	// If `reattach_cdroms` is set to 0, it is ignored and the step is skipped.
+	if k.ReattachCDRom < 0 || k.ReattachCDRom > 4 {
+		errs = append(errs, fmt.Errorf("'reattach_cdroms' should be between 1 and 4,\n"+
+			"  if set to 0, `reattach_cdroms` is ignored and the step is skipped"))
+	}
 	return errs
 }
 

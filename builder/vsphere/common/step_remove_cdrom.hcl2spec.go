@@ -10,8 +10,7 @@ import (
 // FlatRemoveCDRomConfig is an auto-generated flat version of RemoveCDRomConfig.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatRemoveCDRomConfig struct {
-	RemoveCdrom  *bool `mapstructure:"remove_cdrom" cty:"remove_cdrom" hcl:"remove_cdrom"`
-	KeepOneCdrom *bool `mapstructure:"keep_one_cdrom" cty:"keep_one_cdrom" hcl:"keep_one_cdrom"`
+	RemoveCdrom *bool `mapstructure:"remove_cdrom" cty:"remove_cdrom" hcl:"remove_cdrom"`
 }
 
 // FlatMapstructure returns a new FlatRemoveCDRomConfig.
@@ -26,8 +25,7 @@ func (*RemoveCDRomConfig) FlatMapstructure() interface{ HCL2Spec() map[string]hc
 // The decoded values from this spec will then be applied to a FlatRemoveCDRomConfig.
 func (*FlatRemoveCDRomConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"remove_cdrom":   &hcldec.AttrSpec{Name: "remove_cdrom", Type: cty.Bool, Required: false},
-		"keep_one_cdrom": &hcldec.AttrSpec{Name: "keep_one_cdrom", Type: cty.Bool, Required: false},
+		"remove_cdrom": &hcldec.AttrSpec{Name: "remove_cdrom", Type: cty.Bool, Required: false},
 	}
 	return s
 }

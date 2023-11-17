@@ -64,9 +64,13 @@ type VirtualMachineMock struct {
 
 	RemoveCdromsCalled bool
 	RemoveCdromsErr    error
-	CloneCalled        bool
-	CloneConfig        *CloneConfig
-	CloneError         error
+
+	ReattachCDRomsCalled bool
+	ReattachCDRomsErr    error
+
+	CloneCalled bool
+	CloneConfig *CloneConfig
+	CloneError  error
 }
 
 func (vm *VirtualMachineMock) Info(params ...string) (*mo.VirtualMachine, error) {
@@ -260,6 +264,10 @@ func (vm *VirtualMachineMock) CreateCdrom(c *types.VirtualController) (*types.Vi
 func (vm *VirtualMachineMock) RemoveCdroms() error {
 	vm.RemoveCdromsCalled = true
 	return vm.RemoveCdromsErr
+}
+
+func (vm *VirtualMachineMock) ReattachCDRoms() error {
+	return vm.ReattachCDRomsErr
 }
 
 func (vm *VirtualMachineMock) EjectCdroms() error {

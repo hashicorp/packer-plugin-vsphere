@@ -21,20 +21,21 @@ type Config struct {
 	commonsteps.HTTPConfig    `mapstructure:",squash"`
 	commonsteps.CDConfig      `mapstructure:",squash"`
 
-	common.ConnectConfig      `mapstructure:",squash"`
-	CreateConfig              `mapstructure:",squash"`
-	common.LocationConfig     `mapstructure:",squash"`
-	common.HardwareConfig     `mapstructure:",squash"`
-	common.ConfigParamsConfig `mapstructure:",squash"`
-	common.FlagConfig         `mapstructure:",squash"`
-	commonsteps.ISOConfig     `mapstructure:",squash"`
-	common.CDRomConfig        `mapstructure:",squash"`
-	common.RemoveCDRomConfig  `mapstructure:",squash"`
-	common.FloppyConfig       `mapstructure:",squash"`
-	common.RunConfig          `mapstructure:",squash"`
-	common.BootConfig         `mapstructure:",squash"`
-	common.WaitIpConfig       `mapstructure:",squash"`
-	Comm                      communicator.Config `mapstructure:",squash"`
+	common.ConnectConfig       `mapstructure:",squash"`
+	CreateConfig               `mapstructure:",squash"`
+	common.LocationConfig      `mapstructure:",squash"`
+	common.HardwareConfig      `mapstructure:",squash"`
+	common.ConfigParamsConfig  `mapstructure:",squash"`
+	common.FlagConfig          `mapstructure:",squash"`
+	commonsteps.ISOConfig      `mapstructure:",squash"`
+	common.CDRomConfig         `mapstructure:",squash"`
+	common.RemoveCDRomConfig   `mapstructure:",squash"`
+	common.ReattachCDRomConfig `mapstructure:",squash"`
+	common.FloppyConfig        `mapstructure:",squash"`
+	common.RunConfig           `mapstructure:",squash"`
+	common.BootConfig          `mapstructure:",squash"`
+	common.WaitIpConfig        `mapstructure:",squash"`
+	Comm                       communicator.Config `mapstructure:",squash"`
 
 	common.ShutdownConfig `mapstructure:",squash"`
 
@@ -87,7 +88,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	errs = packersdk.MultiErrorAppend(errs, c.HardwareConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.FlagConfig.Prepare(&c.HardwareConfig)...)
 	errs = packersdk.MultiErrorAppend(errs, c.HTTPConfig.Prepare(&c.ctx)...)
-	errs = packersdk.MultiErrorAppend(errs, c.CDRomConfig.Prepare()...)
+	errs = packersdk.MultiErrorAppend(errs, c.CDRomConfig.Prepare(&c.ReattachCDRomConfig)...)
 	errs = packersdk.MultiErrorAppend(errs, c.CDConfig.Prepare(&c.ctx)...)
 	errs = packersdk.MultiErrorAppend(errs, c.BootConfig.Prepare(&c.ctx)...)
 	errs = packersdk.MultiErrorAppend(errs, c.WaitIpConfig.Prepare()...)

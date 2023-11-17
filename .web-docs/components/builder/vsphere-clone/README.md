@@ -927,8 +927,6 @@ boot time.
 
 - `remove_cdrom` (bool) - Remove CD-ROM devices from template. Defaults to `false`.
 
-- `keep_one_cdrom` (bool) - Keep One Cdrom
-
 <!-- End of code generated from the comments of the RemoveCDRomConfig struct in builder/vsphere/common/step_remove_cdrom.go; -->
 
 
