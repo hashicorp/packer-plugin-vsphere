@@ -18,14 +18,23 @@ import (
 type CDRomConfig struct {
 	// Which controller to use. Example: `sata`. Defaults to `ide`.
 	CdromType string `mapstructure:"cdrom_type"`
-	// List of Datastore or Content Library paths to ISO files that will be mounted to the VM.
-	// Here's an HCL2 example:
+	// A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
+	//
+	// Usage example (HCL):
+	//
 	// ```hcl
 	// iso_paths = [
-	//   "[datastore1] ISO/ubuntu.iso",
-	//   "Packer Library Test/ubuntu-16.04.6-server-amd64/ubuntu-16.04.6-server-amd64.iso"
+	//   "[nfs] iso/ubuntu-server-amd64.iso",
+	//   "Packer/ubuntu-server-amd64/ubuntu-server-amd64.iso"
 	// ]
 	// ```
+	//
+	// Two ISOs are referenced:
+	// 1. An ISO in the "_iso_" folder of the "_nfs_" datastore with the file name of "_ubuntu-server-amd64.iso_".
+	// 2. An ISO in the "_Packer_" content library with the item name of "_ubuntu-server-amd64_".
+	//
+	// -> **Note:** All files in a content library have an associated item name.
+	// To determine the file name, view the datastore backing the content library or use the `govc` vSphere CLI.
 	ISOPaths []string `mapstructure:"iso_paths"`
 }
 
