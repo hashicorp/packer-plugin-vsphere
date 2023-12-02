@@ -385,7 +385,7 @@ func driverCreateConfig(config *CreateConfig, location *common.LocationConfig) *
 		networkCards = append(networkCards, driver.NIC{
 			Network:     nic.Network,
 			NetworkCard: nic.NetworkCard,
-			MacAddress:  nic.MacAddress,
+			MacAddress:  strings.ToLower(nic.MacAddress),
 			Passthrough: nic.Passthrough,
 		})
 	}

@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -153,7 +154,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 		networkCards = append(networkCards, driver.NIC{
 			Network:     nic.Network,
 			NetworkCard: nic.NetworkCard,
-			MacAddress:  nic.MacAddress,
+			MacAddress:  strings.ToLower(nic.MacAddress),
 			Passthrough: nic.Passthrough,
 		})
 	}

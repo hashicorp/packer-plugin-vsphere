@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -41,7 +42,7 @@ type CloneConfig struct {
 	// available network. If the network is inside a network folder in vSphere inventory,
 	// you need to provide the full path to the network.
 	Network string `mapstructure:"network"`
-	// Sets a custom Mac Address to the network adapter. If set, the [network](#network) must be also specified.
+	// Sets a custom MAC address to the network adapter. If set, the [network](#network) must be also specified.
 	MacAddress string `mapstructure:"mac_address"`
 	// VM notes.
 	Notes string `mapstructure:"notes"`
@@ -117,7 +118,7 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 		Datastore:       s.Location.Datastore,
 		LinkedClone:     s.Config.LinkedClone,
 		Network:         s.Config.Network,
-		MacAddress:      s.Config.MacAddress,
+		MacAddress:      strings.ToLower(s.Config.MacAddress),
 		Annotation:      s.Config.Notes,
 		VAppProperties:  s.Config.VAppConfig.Properties,
 		PrimaryDiskSize: s.Config.DiskSize,

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -247,7 +248,7 @@ func driverCreateConfig(config *CloneConfig, location *common.LocationConfig) *d
 		Datastore:       location.Datastore,
 		LinkedClone:     config.LinkedClone,
 		Network:         config.Network,
-		MacAddress:      config.MacAddress,
+		MacAddress:      strings.ToLower(config.MacAddress),
 		VAppProperties:  config.VAppConfig.Properties,
 		PrimaryDiskSize: config.DiskSize,
 	}

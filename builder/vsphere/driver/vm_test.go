@@ -213,7 +213,7 @@ func TestVirtualMachineDriver_CloneWithMacAddress(t *testing.T) {
 	network := adapter.GetVirtualEthernetCard()
 	oldMacAddress := network.MacAddress
 
-	newMacAddress := "D4:B4:D4:96:70:26"
+	newMacAddress := "d4:b4:d4:96:70:26"
 	config := &CloneConfig{
 		Name:       "mock name",
 		Host:       "DC0_H0",
