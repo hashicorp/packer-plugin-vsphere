@@ -65,7 +65,7 @@ necessary for this build to succeed and can be found further down the page.
   available network. If the network is inside a network folder in vSphere inventory,
   you need to provide the full path to the network.
 
-- `mac_address` (string) - Sets a custom Mac Address to the network adapter. If set, the [network](#network) must be also specified.
+- `mac_address` (string) - Sets a custom MAC address to the network adapter. If set, the [network](#network) must be also specified.
 
 - `notes` (string) - VM notes.
 
