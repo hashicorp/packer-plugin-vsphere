@@ -55,11 +55,18 @@ Optional:
 - `overwrite` (boolean) - If `true`, force the system to overwrite the
   existing files instead create new ones. Default: `false`
 
-- `hardware_version` (string) - The virtual hardware version that the VM
-  should be deployed with. Use when deploying to vSphere / ESXi host whose version
-  is different than the the one used to create the artifact. See
-  [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information 
-  on the virtual hardware versions supported by each vSphere / ESXi version.
+- `hardware_version` (string) - This option sets the maximum virtual hardware version
+  for the deployed VM. It does not upgrade the virtual hardware version of the source VM.
+  Instead, it limits the virtual hardware version of the deployed VM to the specified
+  version. If the source VM's hardware version is higher than the specified version,
+  the deployed VM's hardware version will be downgraded to the specified version.
+  If the source VM's hardware version is lower than or equal to the specified version,
+  the deployed VM's hardware version will be the same as the source VM's.
+  This option is useful when deploying to a vSphere / ESXi host whose version is different
+  than the one used to create the artifact.
+  
+  See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information
+  on the virtual hardware versions supported for each vSphere / ESXi version.
 
 - `options` (array of strings) - Custom options to add in `ovftool`. See
   `ovftool --help` to list all the options
