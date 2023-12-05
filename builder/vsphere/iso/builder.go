@@ -80,6 +80,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		},
 		&common.StepAddCDRom{
 			Config: &b.config.CDRomConfig,
+			ReuseVM: b.config.CreateConfig.ReuseVM,
 		},
 		&common.StepConfigParams{
 			Config: &b.config.ConfigParamsConfig,
