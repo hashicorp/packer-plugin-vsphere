@@ -19,7 +19,6 @@ import (
 type FlagConfig struct {
 	// Enable Virtualization Based Security option for virtual machine. Defaults to `false`.
 	// Requires `vvtd_enabled` and `NestedHV` to be set to `true`.
-	// Requires `vTPM` to be set to `true`.
 	// Requires `firmware` to be set to `efi-secure`.
 	VbsEnabled bool `mapstructure:"vbs_enabled"`
 	// Enable IO/MMU option for virtual machine. Defaults to `false`.
@@ -40,10 +39,6 @@ func (c *FlagConfig) Prepare(h *HardwareConfig) []error {
 
 		if !h.NestedHV {
 			errs = append(errs, fmt.Errorf("`nestedhv` must be set to `true` when `vbs_enabled` is set to `true`"))
-		}
-
-		if !h.VTPMEnabled {
-			errs = append(errs, fmt.Errorf("`vtpm` must be set to `true` when `vbs_enabled` is set to `true`"))
 		}
 
 		if h.Firmware != "efi-secure" {
