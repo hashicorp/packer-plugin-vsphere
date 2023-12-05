@@ -13,28 +13,31 @@ import (
 )
 
 type LocationConfig struct {
-	// Name of the new VM to create.
+	// Name of the virtual machine.
 	VMName string `mapstructure:"vm_name"`
-	// VM folder to create the VM in.
+	// VM folder where the virtual machine is created.
 	Folder string `mapstructure:"folder"`
-	// vSphere cluster where target VM is created. See the
+	// vSphere cluster where the virtual machine is created. See the
 	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
 	// section above for more details.
 	Cluster string `mapstructure:"cluster"`
-	// ESXi host where target VM is created. A full path must be specified if
-	// the host is in a folder. For example `folder/host`. See the
+	// ESXi host where the virtual machine is created. A full path must be
+	// specified if the host is in a folder. For example `folder/host`. See the
 	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
 	// section above for more details.
 	Host string `mapstructure:"host"`
-	// vSphere resource pool. If not set, it will look for the root resource
-	// pool of the `host` or `cluster`. If a root resource is not found, it
-	// will then look for a default resource pool.
+	// vSphere resource pool where the virtual machine is created.
+	// If this is not specified, the root resource pool associated with the
+	// `host` or `cluster` is used.
+	// Note that the full path to the resource pool must be provided.
+	// For example, a simple resource pool path might resemble `rp-packer` and
+	// a nested path might resemble 'rp-packer/rp-linux-images'.
 	ResourcePool string `mapstructure:"resource_pool"`
-	// vSphere datastore. Required if `host` is a cluster, or if `host` has
-	// multiple datastores.
+	// vSphere datastore where the virtual machine is created.
+	// Required if `host` is a cluster, or if `host` has multiple datastores.
 	Datastore string `mapstructure:"datastore"`
-	// Set this to true if packer should use the host for uploading files
-	// to the datastore. Defaults to false.
+	// Specifies that the host is used for uploading files to the datastore.
+	// Defaults to false.
 	SetHostForDatastoreUploads bool `mapstructure:"set_host_for_datastore_uploads"`
 }
 

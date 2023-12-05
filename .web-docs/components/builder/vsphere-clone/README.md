@@ -738,28 +738,31 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 <!-- Code generated from the comments of the LocationConfig struct in builder/vsphere/common/config_location.go; DO NOT EDIT MANUALLY -->
 
-- `vm_name` (string) - Name of the new VM to create.
+- `vm_name` (string) - Name of the virtual machine.
 
-- `folder` (string) - VM folder to create the VM in.
+- `folder` (string) - VM folder where the virtual machine is created.
 
-- `cluster` (string) - vSphere cluster where target VM is created. See the
+- `cluster` (string) - vSphere cluster where the virtual machine is created. See the
   [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
   section above for more details.
 
-- `host` (string) - ESXi host where target VM is created. A full path must be specified if
-  the host is in a folder. For example `folder/host`. See the
+- `host` (string) - ESXi host where the virtual machine is created. A full path must be
+  specified if the host is in a folder. For example `folder/host`. See the
   [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
   section above for more details.
 
-- `resource_pool` (string) - vSphere resource pool. If not set, it will look for the root resource
-  pool of the `host` or `cluster`. If a root resource is not found, it
-  will then look for a default resource pool.
+- `resource_pool` (string) - vSphere resource pool where the virtual machine is created.
+  If this is not specified, the root resource pool associated with the
+  `host` or `cluster` is used.
+  Note that the full path to the resource pool must be provided.
+  For example, a simple resource pool path might resemble `rp-packer` and
+  a nested path might resemble 'rp-packer/rp-linux-images'.
 
-- `datastore` (string) - vSphere datastore. Required if `host` is a cluster, or if `host` has
-  multiple datastores.
+- `datastore` (string) - vSphere datastore where the virtual machine is created.
+  Required if `host` is a cluster, or if `host` has multiple datastores.
 
-- `set_host_for_datastore_uploads` (bool) - Set this to true if packer should use the host for uploading files
-  to the datastore. Defaults to false.
+- `set_host_for_datastore_uploads` (bool) - Specifies that the host is used for uploading files to the datastore.
+  Defaults to false.
 
 <!-- End of code generated from the comments of the LocationConfig struct in builder/vsphere/common/config_location.go; -->
 
