@@ -65,6 +65,7 @@ type VirtualMachine interface {
 	AddCdrom(controllerType string, datastoreIsoPath string) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
 	RemoveCdroms() error
+	RemoveNCdroms(n_cdroms int) error
 	EjectCdroms() error
 	AddSATAController() error
 	FindSATAController() (*types.VirtualAHCIController, error)
@@ -1063,6 +1064,32 @@ func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
 	}
 }
 
+func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPath string, _cdrom types.BaseVirtualDevice) error {
+	cdrom := _cdrom.(*types.VirtualCdrom)
+	devices, err := vm.vm.Device(vm.driver.ctx)
+	if err != nil {
+		return err
+	}
+
+	ds := &DatastoreIsoPath{path: datastoreIsoPath}
+	if !ds.Validate() {
+		return fmt.Errorf("%s is not a valid iso path", datastoreIsoPath)
+	}
+	if libPath, err := vm.driver.FindContentLibraryFileDatastorePath(ds.GetFilePath()); err == nil {
+		datastoreIsoPath = libPath
+	} else {
+		log.Printf("Using %s as the datastore path", datastoreIsoPath)
+	}
+
+	devices.InsertIso(cdrom, datastoreIsoPath)
+
+	err = devices.Connect(cdrom)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath string) error {
 	devices, err := vm.vm.Device(vm.driver.ctx)
 	if err != nil {
@@ -1089,18 +1116,14 @@ func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath
 		return err
 	}
 
-	if datastoreIsoPath != "" {
-		ds := &DatastoreIsoPath{path: datastoreIsoPath}
-		if !ds.Validate() {
-			return fmt.Errorf("%s is not a valid iso path", datastoreIsoPath)
+	if datastoreIsoPath == "" {
+		cdrom.Backing = &types.VirtualCdromRemotePassthroughBackingInfo{}
+		cdrom.Connectable = &types.VirtualDeviceConnectInfo{}
+	} else {
+		err := vm.MountCdrom(controllerType, datastoreIsoPath, cdrom)
+		if err != nil {
+			return err
 		}
-		if libPath, err := vm.driver.FindContentLibraryFileDatastorePath(ds.GetFilePath()); err == nil {
-			datastoreIsoPath = libPath
-		} else {
-			log.Printf("Using %s as the datastore path", datastoreIsoPath)
-		}
-
-		devices.InsertIso(cdrom, datastoreIsoPath)
 	}
 
 	log.Printf("Creating CD-ROM on controller '%v' with iso '%v'", controller, datastoreIsoPath)

@@ -64,6 +64,9 @@ type VirtualMachineMock struct {
 	RemoveCdromsCalled bool
 	RemoveCdromsErr    error
 
+	RemoveNCdromsCalled bool
+	RemoveNCdromsErr    error
+
 	ReattachCDRomsCalled bool
 	ReattachCDRomsErr    error
 
@@ -185,10 +188,12 @@ func (vm *VirtualMachineMock) GetDir() (string, error) {
 	return vm.GetDirResponse, vm.GetDirErr
 }
 
-func (vm *VirtualMachineMock) AddCdrom(cdromType string, isoPath string) error {
+func (vm *VirtualMachineMock) AddCdrom(controllerType string, isoPath string) error {
 	vm.AddCdromCalledTimes++
-	vm.AddCdromTypes = append(vm.AddCdromTypes, cdromType)
-	vm.AddCdromPaths = append(vm.AddCdromPaths, isoPath)
+	vm.AddCdromTypes = append(vm.AddCdromTypes, controllerType)
+	if isoPath != "" {
+		vm.AddCdromPaths = append(vm.AddCdromPaths, isoPath)
+	}
 	return vm.AddCdromErr
 }
 
@@ -262,6 +267,11 @@ func (vm *VirtualMachineMock) CreateCdrom(c *types.VirtualController) (*types.Vi
 func (vm *VirtualMachineMock) RemoveCdroms() error {
 	vm.RemoveCdromsCalled = true
 	return vm.RemoveCdromsErr
+}
+
+func (vm *VirtualMachineMock) RemoveNCdroms(n_cdroms int) error {
+	vm.RemoveNCdromsCalled = true
+	return vm.RemoveNCdromsErr
 }
 
 func (vm *VirtualMachineMock) ReattachCDRoms() error {
