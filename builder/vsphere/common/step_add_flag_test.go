@@ -35,9 +35,8 @@ func TestFlagConfig_Prepare(t *testing.T) {
 				VbsEnabled: true,
 			},
 			hardwareConfig: &HardwareConfig{
-				Firmware:    "efi-secure",
-				NestedHV:    true,
-				VTPMEnabled: true,
+				Firmware: "efi-secure",
+				NestedHV: true,
 			},
 			fail:           true,
 			expectedErrMsg: "`vvtd_enabled` must be set to `true` when `vbs_enabled` is set to `true`",
@@ -49,24 +48,10 @@ func TestFlagConfig_Prepare(t *testing.T) {
 				VvtdEnabled: true,
 			},
 			hardwareConfig: &HardwareConfig{
-				Firmware:    "efi-secure",
-				VTPMEnabled: true,
-			},
-			fail:           true,
-			expectedErrMsg: "`nestedhv` must be set to `true` when `vbs_enabled` is set to `true`",
-		},
-		{
-			name: "VbsEnabled but VTPMEnabled not set",
-			config: &FlagConfig{
-				VbsEnabled:  true,
-				VvtdEnabled: true,
-			},
-			hardwareConfig: &HardwareConfig{
-				NestedHV: true,
 				Firmware: "efi-secure",
 			},
 			fail:           true,
-			expectedErrMsg: "`vtpm` must be set to `true` when `vbs_enabled` is set to `true`",
+			expectedErrMsg: "`nestedhv` must be set to `true` when `vbs_enabled` is set to `true`",
 		},
 		{
 			name: "VbsEnabled but Firmware not set to efi-secure",
@@ -75,9 +60,8 @@ func TestFlagConfig_Prepare(t *testing.T) {
 				VvtdEnabled: true,
 			},
 			hardwareConfig: &HardwareConfig{
-				NestedHV:    true,
-				VTPMEnabled: true,
-				Firmware:    "efi",
+				NestedHV: true,
+				Firmware: "efi",
 			},
 			fail:           true,
 			expectedErrMsg: "`firmware` must be set to `efi-secure` when `vbs_enabled` is set to `true`",
@@ -89,9 +73,8 @@ func TestFlagConfig_Prepare(t *testing.T) {
 				VvtdEnabled: true,
 			},
 			hardwareConfig: &HardwareConfig{
-				NestedHV:    true,
-				VTPMEnabled: true,
-				Firmware:    "efi-secure",
+				NestedHV: true,
+				Firmware: "efi-secure",
 			},
 			fail:           false,
 			expectedErrMsg: "",
