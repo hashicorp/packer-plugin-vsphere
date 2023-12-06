@@ -356,13 +356,12 @@ func (w *WindowsOptions) sysprep() *types.CustomizationSysprep {
 }
 
 func (w *WindowsOptions) guiRunOnce() *types.CustomizationGuiRunOnce {
-	obj := &types.CustomizationGuiRunOnce{
-		CommandList: *w.RunOnceCommandList,
-	}
-	if len(obj.CommandList) < 1 {
+	if w.RunOnceCommandList == nil || len(*w.RunOnceCommandList) < 1 {
 		return nil
 	}
-	return obj
+	return &types.CustomizationGuiRunOnce{
+		CommandList: *w.RunOnceCommandList,
+	}
 }
 
 func boolValue(p *bool, fallback bool) bool {
