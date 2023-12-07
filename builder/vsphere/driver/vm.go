@@ -1180,11 +1180,11 @@ func (vm *VirtualMachineDriver) RemoveDevice(keepFiles bool, device ...types.Bas
 	return vm.vm.RemoveDevice(vm.driver.ctx, keepFiles, device...)
 }
 
-func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error {
+func (vm *VirtualMachineDriver) commitDevToESXi(device types.BaseVirtualDevice, op types.VirtualDeviceConfigSpecOperation) error {
 	newDevices := object.VirtualDeviceList{device}
 	confSpec := types.VirtualMachineConfigSpec{}
 	var err error
-	confSpec.DeviceChange, err = newDevices.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
+	confSpec.DeviceChange, err = newDevices.ConfigSpec(op)
 	if err != nil {
 		return err
 	}
@@ -1196,6 +1196,10 @@ func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error 
 
 	_, err = task.WaitForResult(vm.driver.ctx, nil)
 	return err
+}
+
+func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error {
+	return vm.commitDevToESXi(device, types.VirtualDeviceConfigSpecOperationAdd)
 }
 
 func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error {
