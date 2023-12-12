@@ -30,7 +30,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-// You may optionally export an ovf from vSphere to the instance running Packer.
+// You can export an image in Open Virtualization Format (OVF) to the Packer host.
 //
 // Example usage:
 //
@@ -44,7 +44,7 @@ import (
 //
 //	"export": {
 //	  "force": true,
-//	  "output_directory": "./output_vsphere"
+//	  "output_directory": "./output-artifacts"
 //	},
 //
 // ```
@@ -56,37 +56,39 @@ import (
 //	# ...
 //	export {
 //	  force = true
-//	  output_directory = "./output_vsphere"
+//	  output_directory = "./output-artifacts"
 //	}
 //
 // ```
 // The above configuration would create the following files:
 //
 // ```text
-// ./output_vsphere/example-ubuntu-disk-0.vmdk
-// ./output_vsphere/example-ubuntu.mf
-// ./output_vsphere/example-ubuntu.ovf
+// ./output-artifacts/example-ubuntu-disk-0.vmdk
+// ./output-artifacts/example-ubuntu.mf
+// ./output-artifacts/example-ubuntu.ovf
 // ```
 type ExportConfig struct {
-	// Name of the ovf. defaults to the name of the VM
+	// Name of the exported image in Open Virtualization Format (OVF).
+	// The name of the virtual machine with the `.ovf` extension is used if this option is not specified.
 	Name string `mapstructure:"name"`
-	// Overwrite ovf if it exists
+	// Forces the export to overwrite existing files. Defaults to false.
+	// If set to false, the export will fail if the files already exists.
 	Force bool `mapstructure:"force"`
-	// Deprecated: Images will be removed in a future release. Please see `image_files` for more details on this argument.
-	Images bool `mapstructure:"images"`
-	// In exported files, include additional image files that are attached to the VM, such as nvram, iso, img.
+	// Include additional image files that are that are associated with the virtual machine. Defaults to false.
+	// For example, `.nvram` and `.log` files.
 	ImageFiles bool `mapstructure:"image_files"`
-	// Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
+	// Generate a manifest file with the specified hash algorithm. Defaults to `sha256`.
+	// Available options include `none`, `sha1`, `sha256`, and `sha512`. Use `none` for no manifest.
 	Manifest string `mapstructure:"manifest"`
-	// Directory on the computer running Packer to export files to
+	// Path to the directory where the exported image will be saved.
 	OutputDir OutputConfig `mapstructure:",squash"`
-	// Advanced ovf export options. Options can include:
-	// * mac - MAC address is exported for all ethernet devices
-	// * uuid - UUID is exported for all virtual machines
-	// * extraconfig - all extra configuration options are exported for a virtual machine
-	// * nodevicesubtypes - resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported
+	// Advanced image export options. Options can include:
+	// * mac - MAC address is exported for each Ethernet device.
+	// * uuid - UUID is exported for the virtual machine.
+	// * extraconfig - Extra configuration options are exported for the virtual machine.
+	// * nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
 	//
-	// For example, adding the following export config option would output the mac addresses for all Ethernet devices in the ovf file:
+	// For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
 	//
 	// In JSON:
 	// ```json
@@ -105,6 +107,7 @@ type ExportConfig struct {
 	Options []string `mapstructure:"options"`
 }
 
+// Supported hash algorithms.
 var sha = map[string]func() hash.Hash{
 	"none":   nil,
 	"sha1":   sha1.New,
@@ -117,19 +120,17 @@ func (c *ExportConfig) Prepare(ctx *interpolate.Context, lc *LocationConfig, pc 
 
 	errs = packersdk.MultiErrorAppend(errs, c.OutputDir.Prepare(ctx, pc)...)
 
-	// manifest should default to sha256
-	if c.Manifest == "" {
+	// Check if the hash algorithm is supported.
+	switch c.Manifest {
+	case "":
 		c.Manifest = "sha256"
+	case "none", "sha1", "sha256", "sha512":
+		// Supported hash algorithms; do nothing.
+	default:
+		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unsupported hash: %s. available options include 'none', 'sha1', 'sha256', and 'sha512'", c.Manifest))
 	}
 
-	if c.Images {
-		c.ImageFiles = c.Images
-	}
-
-	if _, ok := sha[c.Manifest]; !ok {
-		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("unknown hash: %s: available options include available options being 'none', 'sha1', 'sha256', 'sha512'", c.Manifest))
-	}
-
+	// Default the name to the name of the virtual machine if not specified.
 	if c.Name == "" {
 		c.Name = lc.VMName
 	}
@@ -151,6 +152,7 @@ func (c *ExportConfig) Prepare(ctx *interpolate.Context, lc *LocationConfig, pc 
 	return nil
 }
 
+// Returns the target path for the exported image in Open Virtualization Format (OVF).
 func getTarget(dir string, name string) string {
 	return filepath.Join(dir, name+".ovf")
 }
@@ -172,10 +174,11 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
-	ui.Message("Starting export...")
+	// Start exporting the virtual machine image to Open Virtualization Format (OVF).
+	ui.Say("Exporting to Open Virtualization Format (OVF)...")
 	lease, err := vm.Export()
 	if err != nil {
-		state.Put("error", errors.Wrap(err, "error exporting vm"))
+		state.Put("error", errors.Wrap(err, "error exporting virtual machine"))
 		return multistep.ActionHalt
 	}
 
@@ -214,7 +217,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 			cdp.ExportOption = append(cdp.ExportOption, option)
 		}
 
-		// only printing error message because the unknown options are just ignored by vcenter
+		// Only print error message. The unknown options are ignored by vCenter Server.
 		if len(unknown) > 0 {
 			ui.Error(fmt.Sprintf("unknown export options %s", strings.Join(unknown, ",")))
 		}
@@ -231,17 +234,19 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 
 		file := i.File()
 
-		ui.Message("Downloading: " + file.Path)
+		// Download the virtual machine image in Open Virtualization Format (OVF).
+		ui.Say(fmt.Sprintf("Downloading %s...", file.Path))
 		size, err := s.Download(ctx, lease, i)
 		if err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
 
-		// Fix file size descriptor
+		// Set the file size in the Open Virtualization Format descriptor.
 		file.Size = size
 
-		ui.Message("Exporting file: " + file.Path)
+		// Export the virtual machine image in Open Virtualization Format (OVF).
+		ui.Say(fmt.Sprintf("Exporting %s...", file.Path))
 		cdp.OvfFiles = append(cdp.OvfFiles, file)
 	}
 
@@ -259,7 +264,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 	target := getTarget(s.OutputDir, s.Name)
 	file, err := os.Create(target)
 	if err != nil {
-		state.Put("error", errors.Wrap(err, "unable to create file: "+target))
+		state.Put("error", errors.Wrap(err, "unable to create file"))
 		return multistep.ActionHalt
 	}
 
@@ -269,24 +274,26 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		w = io.MultiWriter(file, h)
 	}
 
-	ui.Message("Writing ovf...")
+	// Write the Open Virtualization Format descriptor.
+	ui.Say(fmt.Sprintf("Writing OVF descriptor %s...", s.Name+".ovf"))
 	_, err = io.WriteString(w, desc.OvfDescriptor)
 	if err != nil {
-		state.Put("error", errors.Wrap(err, "unable to write descriptor"))
+		state.Put("error", errors.Wrap(err, "unable to write ovf descriptor"))
 		return multistep.ActionHalt
 	}
 
 	if err = file.Close(); err != nil {
-		state.Put("error", errors.Wrap(err, "unable to close descriptor"))
+		state.Put("error", errors.Wrap(err, "unable to close ovf descriptor"))
 		return multistep.ActionHalt
 	}
 
+	// Manifest file will not be created. Continue to the next step.
 	if s.Manifest == "none" {
-		// manifest does not need to be created, return
 		return multistep.ActionContinue
 	}
 
-	ui.Message("Creating manifest...")
+	// Create a manifest file with the specified hash algorithm.
+	ui.Say(fmt.Sprintf("Creating %s manifest %s...", strings.ToUpper(s.Manifest), s.Name+".mf"))
 	s.addHash(filepath.Base(target), h)
 
 	file, err = os.Create(filepath.Join(s.OutputDir, s.Name+".mf"))
@@ -297,17 +304,18 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 
 	_, err = io.Copy(file, &s.mf)
 	if err != nil {
-		state.Put("error", errors.Wrap(err, "unable to write manifest"))
+		state.Put("error", errors.Wrap(err, "unable to write to manifest"))
 		return multistep.ActionHalt
 	}
 
 	err = file.Close()
 	if err != nil {
-		state.Put("error", errors.Wrap(err, "unable to close file"))
+		state.Put("error", errors.Wrap(err, "unable to close the manifest"))
 		return multistep.ActionHalt
 	}
 
-	ui.Message("Finished exporting...")
+	// Completed exporting the virtual machine image to Open Virtualization Format (OVF).
+	ui.Say("Completed export to Open Virtualization Format (OVF).")
 	return multistep.ActionContinue
 }
 
@@ -315,16 +323,14 @@ func (s *StepExport) include(item *nfc.FileItem) bool {
 	if s.ImageFiles {
 		return true
 	}
-
 	return filepath.Ext(item.Path) == ".vmdk"
 }
 
 func (s *StepExport) newHash() (hash.Hash, bool) {
-	// check if function is nil to handle the 'none' case
+	// Check if the hash function is nil to handle the 'none' case.
 	if h, ok := sha[s.Manifest]; ok && h != nil {
 		return h(), true
 	}
-
 	return nil, false
 }
 
