@@ -1,6 +1,6 @@
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
-You may optionally export an ovf from vSphere to the instance running Packer.
+You can export an image in Open Virtualization Format (OVF) to the Packer host.
 
 Example usage:
 
@@ -14,7 +14,7 @@ In JSON:
 
 	"export": {
 	  "force": true,
-	  "output_directory": "./output_vsphere"
+	  "output_directory": "./output-artifacts"
 	},
 
 ```
@@ -26,16 +26,16 @@ In HCL2:
 	# ...
 	export {
 	  force = true
-	  output_directory = "./output_vsphere"
+	  output_directory = "./output-artifacts"
 	}
 
 ```
 The above configuration would create the following files:
 
 ```text
-./output_vsphere/example-ubuntu-disk-0.vmdk
-./output_vsphere/example-ubuntu.mf
-./output_vsphere/example-ubuntu.ovf
+./output-artifacts/example-ubuntu-disk-0.vmdk
+./output-artifacts/example-ubuntu.mf
+./output-artifacts/example-ubuntu.ovf
 ```
 
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->

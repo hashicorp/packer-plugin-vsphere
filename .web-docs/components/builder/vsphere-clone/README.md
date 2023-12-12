@@ -1183,7 +1183,7 @@ cloud-init 21.3 and later for more information.
 
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
-You may optionally export an ovf from vSphere to the instance running Packer.
+You can export an image in Open Virtualization Format (OVF) to the Packer host.
 
 Example usage:
 
@@ -1197,7 +1197,7 @@ In JSON:
 
 	"export": {
 	  "force": true,
-	  "output_directory": "./output_vsphere"
+	  "output_directory": "./output-artifacts"
 	},
 
 ```
@@ -1209,16 +1209,16 @@ In HCL2:
 	# ...
 	export {
 	  force = true
-	  output_directory = "./output_vsphere"
+	  output_directory = "./output-artifacts"
 	}
 
 ```
 The above configuration would create the following files:
 
 ```text
-./output_vsphere/example-ubuntu-disk-0.vmdk
-./output_vsphere/example-ubuntu.mf
-./output_vsphere/example-ubuntu.ovf
+./output-artifacts/example-ubuntu-disk-0.vmdk
+./output-artifacts/example-ubuntu.mf
+./output-artifacts/example-ubuntu.ovf
 ```
 
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
@@ -1228,23 +1228,25 @@ The above configuration would create the following files:
 
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
-- `name` (string) - Name of the ovf. defaults to the name of the VM
+- `name` (string) - Name of the exported image in Open Virtualization Format (OVF).
+  The name of the virtual machine with the `.ovf` extension is used if this option is not specified.
 
-- `force` (bool) - Overwrite ovf if it exists
+- `force` (bool) - Forces the export to overwrite existing files. Defaults to false.
+  If set to false, the export will fail if the files already exists.
 
-- `images` (bool) - Deprecated: Images will be removed in a future release. Please see `image_files` for more details on this argument.
+- `image_files` (bool) - Include additional image files that are that are associated with the virtual machine. Defaults to false.
+  For example, `.nvram` and `.log` files.
 
-- `image_files` (bool) - In exported files, include additional image files that are attached to the VM, such as nvram, iso, img.
+- `manifest` (string) - Generate a manifest file with the specified hash algorithm. Defaults to `sha256`.
+  Available options include `none`, `sha1`, `sha256`, and `sha512`. Use `none` for no manifest.
 
-- `manifest` (string) - Generate manifest using sha1, sha256, sha512. Defaults to 'sha256'. Use 'none' for no manifest.
-
-- `options` ([]string) - Advanced ovf export options. Options can include:
-  * mac - MAC address is exported for all ethernet devices
-  * uuid - UUID is exported for all virtual machines
-  * extraconfig - all extra configuration options are exported for a virtual machine
-  * nodevicesubtypes - resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported
+- `options` ([]string) - Advanced image export options. Options can include:
+  * mac - MAC address is exported for each Ethernet device.
+  * uuid - UUID is exported for the virtual machine.
+  * extraconfig - Extra configuration options are exported for the virtual machine.
+  * nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
   
-  For example, adding the following export config option would output the mac addresses for all Ethernet devices in the ovf file:
+  For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
   
   In JSON:
   ```json

@@ -154,7 +154,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		steps = append(steps, &common.StepExport{
 			Name:       b.config.Export.Name,
 			Force:      b.config.Export.Force,
-			ImageFiles: b.config.Export.Images,
+			ImageFiles: b.config.Export.ImageFiles,
 			Manifest:   b.config.Export.Manifest,
 			OutputDir:  b.config.Export.OutputDir.OutputDir,
 			Options:    b.config.Export.Options,
