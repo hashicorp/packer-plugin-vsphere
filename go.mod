@@ -9,7 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097
 	github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1
-	github.com/vmware/govmomi v0.33.1
+	github.com/vmware/govmomi v0.34.0
 	github.com/zclconf/go-cty v1.13.3
 	golang.org/x/mobile v0.0.0-20210901025245-1fde1d6c3ca1
 	gopkg.in/yaml.v2 v2.4.0
@@ -56,7 +56,7 @@ require (
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/s2a-go v0.1.4 // indirect
-	github.com/google/uuid v1.3.1 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/hashicorp/consul/api v1.25.1 // indirect
