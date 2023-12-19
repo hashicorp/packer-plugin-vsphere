@@ -221,7 +221,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 }
 
 func (s *StepCreateVM) Cleanup(state multistep.StateBag) {
-	if ! s.Config.ReuseVM {
+	if !s.Config.ReuseVM {
 		common.CleanupVM(state)
 	}
 }

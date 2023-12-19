@@ -803,6 +803,8 @@ boot time.
 
 - `destroy` (bool) - If set to true, the VM will be destroyed after the builder completes
 
+- `reuse_vm` (bool) - If a VM with the name exists, reuse it instead of creating a new one
+
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
 
 

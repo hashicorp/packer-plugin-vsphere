@@ -41,7 +41,6 @@ type FlatConfig struct {
 	USBController                   []string                                    `mapstructure:"usb_controller" cty:"usb_controller" hcl:"usb_controller"`
 	Notes                           *string                                     `mapstructure:"notes" cty:"notes" hcl:"notes"`
 	Destroy                         *bool                                       `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
-	// If a VM with the name exists, reuse it instead of creating a new one
 	ReuseVM                         *bool                                       `mapstructure:"reuse_vm" cty:"reuse_vm" hcl:"reuse_vm"`
 	VMName                          *string                                     `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	Folder                          *string                                     `mapstructure:"folder" cty:"folder" hcl:"folder"`

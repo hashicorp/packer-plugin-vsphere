@@ -39,7 +39,7 @@ type CDRomConfig struct {
 }
 
 type StepAddCDRom struct {
-	Config *CDRomConfig
+	Config  *CDRomConfig
 	ReuseVM bool
 }
 
