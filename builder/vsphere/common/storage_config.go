@@ -91,13 +91,13 @@ import (
 //
 // ```
 type DiskConfig struct {
-	// The size of the disk in MB.
+	// The size of the disk in MiB.
 	DiskSize int64 `mapstructure:"disk_size" required:"true"`
 	// Enable VMDK thin provisioning for VM. Defaults to `false`.
 	DiskThinProvisioned bool `mapstructure:"disk_thin_provisioned"`
 	// Enable VMDK eager scrubbing for VM. Defaults to `false`.
 	DiskEagerlyScrub bool `mapstructure:"disk_eagerly_scrub"`
-	// The assigned disk controller. Defaults to the first one (0)
+	// The assigned disk controller. Defaults to the first one (0).
 	DiskControllerIndex int `mapstructure:"disk_controller_index"`
 }
 
