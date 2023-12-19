@@ -92,7 +92,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				AddCdromCalled:           true,
 				AddCdromCalledTimes:      3,
 				AddCdromTypes:            []string{"sata", "sata", "sata"},
-				AddCdromPaths:            []string{"remote/path", "iso/path", "cd/path"},
+				AddCdromPaths:            []string{"iso/path", "remote/path", "cd/path"},
 			},
 			fail:       false,
 			errMessage: "",
