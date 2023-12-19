@@ -86,14 +86,13 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 		s.Config.ISOPaths = append(s.Config.ISOPaths, cd_path)
 	}
 
-	if len(s.Config.ISOPaths) > 0 {
-		for _, path := range s.Config.ISOPaths {
-			if err := vm.AddCdrom(s.Config.CdromType, path); err != nil {
-				state.Put("error", fmt.Errorf("error mounting an image '%v': %v", path, err))
-				return multistep.ActionHalt
-			}
+	for _, path := range s.Config.ISOPaths {
+		if err := vm.AddCdrom(s.Config.CdromType, path); err != nil {
+			state.Put("error", fmt.Errorf("error mounting an image '%v': %v", path, err))
+			return multistep.ActionHalt
 		}
 	}
+
 	return multistep.ActionContinue
 }
 
