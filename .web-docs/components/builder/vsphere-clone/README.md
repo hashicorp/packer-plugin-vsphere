@@ -54,11 +54,11 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `template` (string) - Name of source VM. Path is optional.
+- `template` (string) - Name of source virtual machine. Path is optional.
 
-- `disk_size` (int64) - The size of the disk in MB.
+- `disk_size` (int64) - The size of the disk in MiB.
 
-- `linked_clone` (bool) - Create VM as a linked clone from latest snapshot. Defaults to `false`.
+- `linked_clone` (bool) - Create the virtual machine as a linked clone from latest snapshot. Defaults to `false`.
 
 - `network` (string) - Set the network in which the VM will be connected to. If no network is
   specified, `host` must be specified to allow Packer to look for the
@@ -69,11 +69,11 @@ necessary for this build to succeed and can be found further down the page.
 
 - `notes` (string) - VM notes.
 
-- `destroy` (bool) - If set to true, the VM will be destroyed after the builder completes
+- `destroy` (bool) - If set to true, the virtual machine will be destroyed after the build completes.
 
-- `vapp` (vAppConfig) - Set the vApp Options to a virtual machine.
+- `vapp` (vAppConfig) - Set the vApp Options on the virtual machine image.
   See the [vApp Options Configuration](/packer/integrations/hashicorp/vmware/latest/components/builder/vsphere-clone#vapp-options-configuration)
-  to know the available options and how to use it.
+  section for more information.
 
 <!-- End of code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; -->
 
@@ -183,7 +183,7 @@ In HCL2:
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_size` (int64) - The size of the disk in MB.
+- `disk_size` (int64) - The size of the disk in MiB.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
@@ -196,7 +196,7 @@ In HCL2:
 
 - `disk_eagerly_scrub` (bool) - Enable VMDK eager scrubbing for VM. Defaults to `false`.
 
-- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0)
+- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0).
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 

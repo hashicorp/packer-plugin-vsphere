@@ -972,7 +972,7 @@ In HCL2:
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_size` (int64) - The size of the disk in MB.
+- `disk_size` (int64) - The size of the disk in MiB.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
@@ -985,7 +985,7 @@ In HCL2:
 
 - `disk_eagerly_scrub` (bool) - Enable VMDK eager scrubbing for VM. Defaults to `false`.
 
-- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0)
+- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0).
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 

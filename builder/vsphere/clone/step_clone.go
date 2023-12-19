@@ -31,11 +31,11 @@ type vAppConfig struct {
 }
 
 type CloneConfig struct {
-	// Name of source VM. Path is optional.
+	// Name of source virtual machine. Path is optional.
 	Template string `mapstructure:"template"`
-	// The size of the disk in MB.
+	// The size of the disk in MiB.
 	DiskSize int64 `mapstructure:"disk_size"`
-	// Create VM as a linked clone from latest snapshot. Defaults to `false`.
+	// Create the virtual machine as a linked clone from latest snapshot. Defaults to `false`.
 	LinkedClone bool `mapstructure:"linked_clone"`
 	// Set the network in which the VM will be connected to. If no network is
 	// specified, `host` must be specified to allow Packer to look for the
@@ -46,11 +46,11 @@ type CloneConfig struct {
 	MacAddress string `mapstructure:"mac_address"`
 	// VM notes.
 	Notes string `mapstructure:"notes"`
-	// If set to true, the VM will be destroyed after the builder completes
+	// If set to true, the virtual machine will be destroyed after the build completes.
 	Destroy bool `mapstructure:"destroy"`
-	// Set the vApp Options to a virtual machine.
+	// Set the vApp Options on the virtual machine image.
 	// See the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
-	// to know the available options and how to use it.
+	// section for more information.
 	VAppConfig    vAppConfig           `mapstructure:"vapp"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
 }
