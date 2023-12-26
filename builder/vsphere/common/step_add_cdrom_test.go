@@ -94,7 +94,6 @@ func TestStepAddCDRom_Run(t *testing.T) {
 			expectedAction: multistep.ActionContinue,
 			expectedVmMock: &driver.VirtualMachineMock{
 				FindSATAControllerCalled: true,
-				AddCdromCalled:           true,
 				AddCdromCalledTimes:      3,
 				AddCdromTypes:            []string{"sata", "sata", "sata"},
 				AddCdromPaths:            []string{"remote/path", "iso/path", "cd/path"},
@@ -154,7 +153,6 @@ func TestStepAddCDRom_Run(t *testing.T) {
 			vmMock:         new(driver.VirtualMachineMock),
 			expectedAction: multistep.ActionContinue,
 			expectedVmMock: &driver.VirtualMachineMock{
-				AddCdromCalled:      true,
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{"ide"},
 				AddCdromPaths:       []string{"iso/path"},
@@ -175,7 +173,6 @@ func TestStepAddCDRom_Run(t *testing.T) {
 			},
 			expectedAction: multistep.ActionHalt,
 			expectedVmMock: &driver.VirtualMachineMock{
-				AddCdromCalled:      true,
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{""},
 				AddCdromPaths:       []string{"iso/path"},
@@ -194,7 +191,6 @@ func TestStepAddCDRom_Run(t *testing.T) {
 			},
 			expectedAction: multistep.ActionHalt,
 			expectedVmMock: &driver.VirtualMachineMock{
-				AddCdromCalled:      true,
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{""},
 				AddCdromPaths:       []string{"remote/path"},

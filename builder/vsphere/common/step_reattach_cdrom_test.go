@@ -46,7 +46,6 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 				RemoveCdromsCalled:       true,
 				ReattachCDRomsCalled:     true,
 				FindSATAControllerCalled: true,
-				AddCdromCalled:           true,
 				AddCdromCalledTimes:      8,
 				AddCdromTypes: []string{
 					"sata", "sata",
