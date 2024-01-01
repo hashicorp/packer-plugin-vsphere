@@ -92,11 +92,6 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		}
 	}
 
-	if p.config.Folder != "" && !strings.HasPrefix(p.config.Folder, "/") {
-		errs = packersdk.MultiErrorAppend(
-			errs, fmt.Errorf("Folder must be bound to the root"))
-	}
-
 	sdk, err := url.Parse(fmt.Sprintf("https://%v/sdk", p.config.Host))
 	if err != nil {
 		errs = packersdk.MultiErrorAppend(
