@@ -19,47 +19,52 @@ func TestCDRomConfig_Prepare(t *testing.T) {
 	tc := []struct {
 		name           string
 		config         *CDRomConfig
+		keepConfig     *ReattachCDRomConfig
 		fail           bool
 		expectedErrMsg string
 	}{
 		{
 			name:           "Should not fail for empty config",
 			config:         new(CDRomConfig),
+			keepConfig:     new(ReattachCDRomConfig),
 			fail:           false,
 			expectedErrMsg: "",
 		},
 		{
-			name:           "Valid cdroom type ide",
+			name:           "Valid cdrom type ide",
 			config:         &CDRomConfig{CdromType: "ide"},
+			keepConfig:     new(ReattachCDRomConfig),
 			fail:           false,
 			expectedErrMsg: "",
 		},
 		{
-			name:           "Valid cdroom type sata",
-			config:         &CDRomConfig{CdromType: "ide"},
+			name:           "Valid cdrom type sata",
+			config:         &CDRomConfig{CdromType: "sata"},
+			keepConfig:     new(ReattachCDRomConfig),
 			fail:           false,
 			expectedErrMsg: "",
 		},
 		{
-			name:           "Invalid cdroom type",
+			name:           "Invalid cdrom type",
 			config:         &CDRomConfig{CdromType: "invalid"},
+			keepConfig:     new(ReattachCDRomConfig),
 			fail:           true,
 			expectedErrMsg: "'cdrom_type' must be 'ide' or 'sata'",
 		},
 	}
 
 	for _, c := range tc {
-		errs := c.config.Prepare()
+		errs := c.config.Prepare(c.keepConfig)
 		if c.fail {
 			if len(errs) == 0 {
-				t.Fatalf("Config preprare should fail")
+				t.Fatalf("Config prepare should fail")
 			}
 			if errs[0].Error() != c.expectedErrMsg {
 				t.Fatalf("Expected error message: %s but was '%s'", c.expectedErrMsg, errs[0].Error())
 			}
 		} else {
 			if len(errs) != 0 {
-				t.Fatalf("Config preprare should not fail")
+				t.Fatalf("Config prepare should not fail")
 			}
 		}
 	}

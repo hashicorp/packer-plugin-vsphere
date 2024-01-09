@@ -8,6 +8,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -27,18 +28,20 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	ui.Say("Eject CD-ROM drives...")
+	// Eject media from CD-ROM devices.
+	ui.Say("Ejecting CD-ROM media...")
 	err := vm.EjectCdroms()
 	if err != nil {
-		state.Put("error", err)
+		state.Put("error", fmt.Errorf("error ejecting cdrom media: %v", err))
 		return multistep.ActionHalt
 	}
 
+	// Remove all CD-ROM devices from the image.
 	if s.Config.RemoveCdrom == true {
-		ui.Say("Deleting CD-ROM drives...")
+		ui.Say("Removing CD-ROM devices...")
 		err := vm.RemoveCdroms()
 		if err != nil {
-			state.Put("error", err)
+			state.Put("error", fmt.Errorf("error removing cdrom: %v", err))
 			return multistep.ActionHalt
 		}
 	}
@@ -46,4 +49,6 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 	return multistep.ActionContinue
 }
 
-func (s *StepRemoveCDRom) Cleanup(state multistep.StateBag) {}
+func (s *StepRemoveCDRom) Cleanup(state multistep.StateBag) {
+	// no cleanup
+}
