@@ -30,7 +30,6 @@ type VirtualMachineMock struct {
 	AddSATAControllerCalled bool
 	AddSATAControllerErr    error
 
-	AddCdromCalled      bool
 	AddCdromCalledTimes int
 	AddCdromErr         error
 	AddCdromTypes       []string
@@ -188,7 +187,6 @@ func (vm *VirtualMachineMock) GetDir() (string, error) {
 
 func (vm *VirtualMachineMock) AddCdrom(cdromType string, isoPath string) error {
 	vm.AddCdromCalledTimes++
-	vm.AddCdromCalled = true
 	vm.AddCdromTypes = append(vm.AddCdromTypes, cdromType)
 	vm.AddCdromPaths = append(vm.AddCdromPaths, isoPath)
 	return vm.AddCdromErr
