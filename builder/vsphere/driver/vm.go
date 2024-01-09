@@ -62,7 +62,8 @@ type VirtualMachine interface {
 	GetOvfExportOptions(m *ovf.Manager) ([]types.OvfOptionInfo, error)
 	Datacenter() *object.Datacenter
 
-	AddCdrom(controllerType string, datastoreIsoPath string) error
+	GetOrMakeCdroms(reuseCDrom bool, controllerType string, n_cdroms int) (object.VirtualDeviceList, error)
+	MountCdrom(controllerType string, datastoreIsoPath string, reuseVM bool, cdrom types.BaseVirtualDevice) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
 	RemoveCdroms() error
 	EjectCdroms() error
@@ -1063,28 +1064,60 @@ func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
 	}
 }
 
-func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath string) error {
+func (vm *VirtualMachineDriver) GetCdroms(n_cdroms int) (object.VirtualDeviceList, error) {
 	devices, err := vm.vm.Device(vm.driver.ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	var controller *types.VirtualController
-	if controllerType == "sata" {
-		c, err := vm.FindSATAController()
-		if err != nil {
-			return err
-		}
-		controller = c.GetVirtualController()
+	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
+	if len(cdroms) < n_cdroms {
+		return nil, fmt.Errorf("Not enough cdroms: VM has %d, expected %d", len(cdroms), n_cdroms)
 	} else {
-		c, err := devices.FindIDEController("")
-		if err != nil {
-			return err
-		}
-		controller = c.GetVirtualController()
+		return cdroms[:n_cdroms], nil
 	}
+}
 
-	cdrom, err := vm.CreateCdrom(controller)
+func (vm *VirtualMachineDriver) GetOrMakeCdroms(reuseCDrom bool, controllerType string, n_cdroms int) (object.VirtualDeviceList, error) {
+	if reuseCDrom {
+		return vm.GetCdroms(n_cdroms)
+	} else {
+		devices, err := vm.vm.Device(vm.driver.ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		var controller *types.VirtualController
+		if controllerType == "sata" {
+			c, err := vm.FindSATAController()
+			if err != nil {
+				return nil, err
+			}
+			controller = c.GetVirtualController()
+		} else {
+			c, err := devices.FindIDEController("")
+			if err != nil {
+				return nil, err
+			}
+			controller = c.GetVirtualController()
+		}
+
+		var arr_cdroms object.VirtualDeviceList
+		for i := 0; i < n_cdroms; i++ {
+			cdrom, err := vm.CreateCdrom(controller)
+			if err != nil {
+				return nil, err
+			}
+			arr_cdroms = append(arr_cdroms, cdrom)
+
+			log.Printf("Creating CD-ROM '%v' on controller '%v'", cdrom, controller)
+		}
+		return arr_cdroms, nil
+	}
+}
+
+func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPath string, reuseVM bool, _cdrom types.BaseVirtualDevice) error {
+	cdrom := _cdrom.(*types.VirtualCdrom)
+	devices, err := vm.vm.Device(vm.driver.ctx)
 	if err != nil {
 		return err
 	}
@@ -1101,10 +1134,19 @@ func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath
 		}
 
 		devices.InsertIso(cdrom, datastoreIsoPath)
+
+		err = devices.Connect(cdrom)
+		if err != nil {
+			return err
+		}
 	}
 
-	log.Printf("Creating CD-ROM on controller '%v' with iso '%v'", controller, datastoreIsoPath)
-	return vm.addDevice(cdrom)
+	log.Printf("Using CD-ROM with iso '%s'", datastoreIsoPath)
+	if reuseVM {
+		return vm.editDevice(cdrom)
+	} else {
+		return vm.addDevice(cdrom)
+	}
 }
 
 func (vm *VirtualMachineDriver) AddFloppy(imgPath string) error {
@@ -1142,11 +1184,11 @@ func (vm *VirtualMachineDriver) RemoveDevice(keepFiles bool, device ...types.Bas
 	return vm.vm.RemoveDevice(vm.driver.ctx, keepFiles, device...)
 }
 
-func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error {
+func (vm *VirtualMachineDriver) commitDevToESXi(device types.BaseVirtualDevice, op types.VirtualDeviceConfigSpecOperation) error {
 	newDevices := object.VirtualDeviceList{device}
 	confSpec := types.VirtualMachineConfigSpec{}
 	var err error
-	confSpec.DeviceChange, err = newDevices.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
+	confSpec.DeviceChange, err = newDevices.ConfigSpec(op)
 	if err != nil {
 		return err
 	}
@@ -1158,6 +1200,14 @@ func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error 
 
 	_, err = task.WaitForResult(vm.driver.ctx, nil)
 	return err
+}
+
+func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error {
+	return vm.commitDevToESXi(device, types.VirtualDeviceConfigSpecOperationAdd)
+}
+
+func (vm *VirtualMachineDriver) editDevice(device types.BaseVirtualDevice) error {
+	return vm.commitDevToESXi(device, types.VirtualDeviceConfigSpecOperationEdit)
 }
 
 func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error {

@@ -79,7 +79,8 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			FlagConfig: b.config.FlagConfig,
 		},
 		&common.StepAddCDRom{
-			Config: &b.config.CDRomConfig,
+			Config:  &b.config.CDRomConfig,
+			ReuseVM: b.config.CreateConfig.ReuseVM,
 		},
 		&common.StepConfigParams{
 			Config: &b.config.ConfigParamsConfig,
