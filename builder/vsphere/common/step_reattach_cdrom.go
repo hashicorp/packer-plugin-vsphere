@@ -54,11 +54,11 @@ func (s *StepReattachCDRom) Run(_ context.Context, state multistep.StateBag) mul
 		state.Put("error", fmt.Errorf("error removing cdrom prior to reattaching: %v", err))
 		return multistep.ActionHalt
 	}
-	// If the CD-ROM device type is SATA, find the SATA controller.
+
+	// If the CD-ROM device type is SATA, make sure SATA controller is present.
 	if s.CDRomConfig.CdromType == "sata" {
 		if _, err := vm.FindSATAController(); err == driver.ErrNoSataController {
 			ui.Say("Adding SATA controller...")
-			// If a SATA controller is not found, add it.
 			if err := vm.AddSATAController(); err != nil {
 				state.Put("error", fmt.Errorf("error adding sata controller: %v", err))
 				return multistep.ActionHalt
