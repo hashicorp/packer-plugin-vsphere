@@ -284,7 +284,9 @@ The settings for customize are as follows:
 
 - `windows_options` (\*WindowsOptions) - Settings to Windows guest OS customization.
 
-- `windows_sysprep_file` (string) - Supply your own sysprep.xml file to allow full control of the customization process out-of-band of vSphere.
+- `windows_sysprep_file` (string) - Provide a sysprep.xml file to allow control of the customization process independent of vSphere. This option is deprecated, please use windows_sysprep_text.
+
+- `windows_sysprep_text` (string) - Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere.
 
 - `network_interface` (NetworkInterfaces) - Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
   To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.

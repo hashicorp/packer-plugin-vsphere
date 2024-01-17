@@ -73,7 +73,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		return nil, err
 	}
 
-	// warnings := make([]string, 0)
+	warnings := make([]string, 0)
 	errs := new(packersdk.MultiError)
 
 	errs = packersdk.MultiErrorAppend(errs, c.ConnectConfig.Prepare()...)
@@ -100,11 +100,17 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		errs = packersdk.MultiErrorAppend(errs, c.ContentLibraryDestinationConfig.Prepare(&c.LocationConfig)...)
 	}
 	if c.CustomizeConfig != nil {
-		errs = packersdk.MultiErrorAppend(errs, c.CustomizeConfig.Prepare()...)
+		customizeWarnings, customizeErrors := c.CustomizeConfig.Prepare()
+		errs = packersdk.MultiErrorAppend(errs, customizeErrors...)
+		warnings = append(warnings, customizeWarnings...)
 	}
 
 	if len(errs.Errors) > 0 {
 		return nil, errs
+	}
+
+	if len(warnings) > 0 {
+		return warnings, nil
 	}
 
 	return nil, nil
