@@ -6,7 +6,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -98,7 +97,7 @@ func (s *StepSshKeyPair) Run(ctx context.Context, state multistep.StateBag) mult
 	if s.Debug {
 		ui.Message(fmt.Sprintf("Saving communicator private key for debug purposes: %s", s.DebugKeyPath))
 		// Write the key out
-		if err := ioutil.WriteFile(s.DebugKeyPath, kp.PrivateKeyPemBlock, 0600); err != nil {
+		if err := os.WriteFile(s.DebugKeyPath, kp.PrivateKeyPemBlock, 0600); err != nil {
 			state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
 			return multistep.ActionHalt
 		}

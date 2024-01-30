@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
@@ -249,7 +248,7 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 	defer os.Remove(testDataFile.Name())
 	defer testDataFile.Close()
 	testBootstrapData := []byte("unattend: test-unattend-config")
-	if err := ioutil.WriteFile(testDataFile.Name(), testBootstrapData, 0666); err != nil {
+	if err := os.WriteFile(testDataFile.Name(), testBootstrapData, 0666); err != nil {
 		t.Fatalf("Failed to write content to temp file: %v", err)
 	}
 	step.Config.BootstrapDataFile = testDataFile.Name()

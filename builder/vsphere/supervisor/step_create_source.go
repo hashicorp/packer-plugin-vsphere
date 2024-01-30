@@ -9,7 +9,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -247,7 +247,7 @@ func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *P
 func (s *StepCreateSource) getBootstrapStringData(ctx context.Context, logger *PackerLogger) (map[string]string, error) {
 	if s.Config.BootstrapDataFile != "" {
 		logger.Info("Loading bootstrap data from file: %s", s.Config.BootstrapDataFile)
-		content, err := ioutil.ReadFile(s.Config.BootstrapDataFile)
+		content, err := os.ReadFile(s.Config.BootstrapDataFile)
 		if err != nil {
 			return nil, err
 		}

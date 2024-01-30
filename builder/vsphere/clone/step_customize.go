@@ -8,8 +8,8 @@ package clone
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net"
+	"os"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -193,7 +193,7 @@ func (s *StepCustomize) identitySettings() (types.BaseCustomizationIdentitySetti
 	}
 
 	if s.Config.WindowsSysPrepFile != "" {
-		sysPrep, err := ioutil.ReadFile(s.Config.WindowsSysPrepFile)
+		sysPrep, err := os.ReadFile(s.Config.WindowsSysPrepFile)
 		if err != nil {
 			return nil, fmt.Errorf("error on reading %s: %s", s.Config.WindowsSysPrepFile, err)
 		}

@@ -5,7 +5,7 @@ package driver
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
@@ -32,7 +32,7 @@ func TestFileUpload(t *testing.T) {
 	hostName := "esxi-1.vsphere65.test"
 
 	fileName := fmt.Sprintf("test-%v", time.Now().Unix())
-	tmpFile, err := ioutil.TempFile("", fileName)
+	tmpFile, err := os.CreateTemp("", fileName)
 	if err != nil {
 		t.Fatalf("Error creating temp file")
 	}
@@ -68,7 +68,7 @@ func TestFileUploadDRS(t *testing.T) {
 	hostName := ""
 
 	fileName := fmt.Sprintf("test-%v", time.Now().Unix())
-	tmpFile, err := ioutil.TempFile("", fileName)
+	tmpFile, err := os.CreateTemp("", fileName)
 	if err != nil {
 		t.Fatalf("Error creating temp file")
 	}
