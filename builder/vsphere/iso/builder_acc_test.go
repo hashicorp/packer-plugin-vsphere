@@ -5,7 +5,6 @@ package iso
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -484,7 +483,7 @@ func checkNetworkCard(name string) error {
 }
 
 func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "packer-vsphere-iso-test")
+	tmpFile, err := os.CreateTemp("", "packer-vsphere-iso-test")
 	if err != nil {
 		t.Fatalf("Error creating temp file: %v", err)
 	}

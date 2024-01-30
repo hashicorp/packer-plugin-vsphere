@@ -6,7 +6,7 @@ package iso
 import (
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"path"
 	"strings"
 	"testing"
@@ -312,7 +312,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	errorBuffer := &strings.Builder{}
 	ui := &packersdk.BasicUi{
 		Reader:      strings.NewReader(""),
-		Writer:      ioutil.Discard,
+		Writer:      io.Discard,
 		ErrorWriter: errorBuffer,
 	}
 	state.Put("ui", ui)
