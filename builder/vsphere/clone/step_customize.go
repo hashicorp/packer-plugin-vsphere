@@ -18,6 +18,11 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+var (
+	errCustomizeOptionMutalExclusive    = fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set")
+	windowsSysprepFileDeprecatedMessage = "`windows_sysprep_file` is deprecated and will be removed in a future release. please use `windows_sysprep_text`."
+)
+
 // A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 // to configure host, network, or licensing settings.
 //
@@ -35,7 +40,23 @@ type CustomizeConfig struct {
 	WindowsOptions *WindowsOptions `mapstructure:"windows_options"`
 	// Provide a sysprep.xml file to allow control of the customization process independent of vSphere. This option is deprecated, please use windows_sysprep_text.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
-	// Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere.
+	// Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+	//
+	// **Example usage:**
+	// **In HCL2:**
+	// ```hcl
+	//customize {
+	//    windows_sysprep_text = file("<path-to-sysprep.xml>")
+	//}
+	// ````
+	// ```hcl
+	//customize {
+	//    windows_sysprep_text = templatefile("<path-to-sysprep.xml>", {
+	//       var1="example"
+	//       var2="example-2"
+	//    })
+	//}
+	// ```
 	WindowsSysPrepText string `mapstructure:"windows_sysprep_text"`
 	// Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
 	// To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.
@@ -139,7 +160,7 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 		options_number = options_number + 1
 	}
 	if c.WindowsSysPrepFile != "" {
-		warnings = append(warnings, "`windows_sysprep_file` is deprecated and will be removed in a future release. please use `windows_sysprep_text`.")
+		warnings = append(warnings, windowsSysprepFileDeprecatedMessage)
 		options_number = options_number + 1
 	}
 	if c.WindowsSysPrepText != "" {
@@ -147,7 +168,7 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 	}
 
 	if options_number > 1 {
-		errs = append(errs, fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set"))
+		errs = append(errs, errCustomizeOptionMutalExclusive)
 	} else if options_number == 0 {
 		errs = append(errs, fmt.Errorf("One of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
 	}
