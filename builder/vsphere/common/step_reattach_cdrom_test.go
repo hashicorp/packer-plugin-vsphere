@@ -27,7 +27,7 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 		errMessage     string
 	}{
 		{
-			name: "Successfully reattach CD-ROM device",
+			name: "Successfully attach 3 additional CD-ROM devices",
 			step: &StepReattachCDRom{
 				Config: &ReattachCDRomConfig{
 					ReattachCDRom: 4,
@@ -43,22 +43,67 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled:        true,
-				RemoveCdromsCalled:       true,
 				ReattachCDRomsCalled:     true,
 				FindSATAControllerCalled: true,
-				AddCdromCalledTimes:      8,
+				AddCdromCalledTimes:      6,
 				AddCdromTypes: []string{
 					"sata", "sata",
 					"sata", "sata",
 					"sata", "sata",
-					"sata", "sata",
 				},
-				AddCdromPaths: []string{
-					"[datastore] /iso/linux.iso", "[datastore] /iso/linux.iso",
-					"[datastore] /iso/linux.iso", "[datastore] /iso/linux.iso",
-					"[datastore] /iso/linux.iso", "[datastore] /iso/linux.iso",
-					"[datastore] /iso/linux.iso", "[datastore] /iso/linux.iso",
+			},
+			fail: false,
+		},
+		{
+			name: "Successfully attach 2 fewer CD-ROM devices than initially added",
+			step: &StepReattachCDRom{
+				Config: &ReattachCDRomConfig{
+					ReattachCDRom: 2,
 				},
+				CDRomConfig: &CDRomConfig{
+					CdromType: "sata",
+					ISOPaths: []string{
+						"[datastore] /iso/linux1.iso",
+						"[datastore] /iso/linux2.iso",
+						"[datastore] /iso/linux3.iso",
+						"[datastore] /iso/linux4.iso",
+					},
+				},
+			},
+			expectedAction: multistep.ActionContinue,
+			vmMock: &driver.VirtualMachineMock{
+				ReattachCDRomsCalled: true,
+			},
+			expectedVmMock: &driver.VirtualMachineMock{
+				RemoveNCdromsCalled:  true,
+				EjectCdromsCalled:    true,
+				ReattachCDRomsCalled: true,
+				AddCdromCalledTimes:  0,
+			},
+			fail: false,
+		},
+		{
+			name: "Successfully attach the same number of CD-ROMs as initially added",
+			step: &StepReattachCDRom{
+				Config: &ReattachCDRomConfig{
+					ReattachCDRom: 2,
+				},
+				CDRomConfig: &CDRomConfig{
+					CdromType: "sata",
+					ISOPaths: []string{
+						"[datastore] /iso/linux1.iso",
+						"[datastore] /iso/linux2.iso",
+					},
+				},
+			},
+			expectedAction: multistep.ActionContinue,
+			vmMock: &driver.VirtualMachineMock{
+				ReattachCDRomsCalled: true,
+			},
+			expectedVmMock: &driver.VirtualMachineMock{
+				EjectCdromsCalled:    true,
+				ReattachCDRomsCalled: true,
+				AddCdromCalledTimes:  0,
 			},
 			fail: false,
 		},

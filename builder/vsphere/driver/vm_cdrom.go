@@ -5,6 +5,7 @@ package driver
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/vmware/govmomi/vim25/types"
 )
@@ -69,6 +70,30 @@ func (vm *VirtualMachineDriver) RemoveCdroms() error {
 	if err = vm.RemoveDevice(true, sata...); err != nil {
 		return err
 	}
+	return nil
+}
+
+// RemoveNCdroms removes up to n CD-ROMs from the image.
+// An error will occur If n is larger then the attached CD-ROM count.
+// n == 0 results in no CD-ROMs being removed.
+func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
+	if n == 0 {
+		return nil
+	}
+	devices, err := vm.Devices()
+	if err != nil {
+		return err
+	}
+	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
+	if (n < 0) || (n > len(cdroms)) {
+		return fmt.Errorf("invalid number: n must be between 0 and %d", len(cdroms))
+	}
+
+	cdroms = cdroms[:n]
+	if err = vm.RemoveDevice(true, cdroms...); err != nil {
+		return err
+	}
+
 	return nil
 }
 
