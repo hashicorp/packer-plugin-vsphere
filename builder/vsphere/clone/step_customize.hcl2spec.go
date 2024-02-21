@@ -13,6 +13,7 @@ type FlatCustomizeConfig struct {
 	LinuxOptions       *FlatLinuxOptions      `mapstructure:"linux_options" cty:"linux_options" hcl:"linux_options"`
 	WindowsOptions     *FlatWindowsOptions    `mapstructure:"windows_options" cty:"windows_options" hcl:"windows_options"`
 	WindowsSysPrepFile *string                `mapstructure:"windows_sysprep_file" cty:"windows_sysprep_file" hcl:"windows_sysprep_file"`
+	WindowsSysPrepText *string                `mapstructure:"windows_sysprep_text" cty:"windows_sysprep_text" hcl:"windows_sysprep_text"`
 	NetworkInterfaces  []FlatNetworkInterface `mapstructure:"network_interface" cty:"network_interface" hcl:"network_interface"`
 	Ipv4Gateway        *string                `mapstructure:"ipv4_gateway" cty:"ipv4_gateway" hcl:"ipv4_gateway"`
 	Ipv6Gateway        *string                `mapstructure:"ipv6_gateway" cty:"ipv6_gateway" hcl:"ipv6_gateway"`
@@ -35,6 +36,7 @@ func (*FlatCustomizeConfig) HCL2Spec() map[string]hcldec.Spec {
 		"linux_options":        &hcldec.BlockSpec{TypeName: "linux_options", Nested: hcldec.ObjectSpec((*FlatLinuxOptions)(nil).HCL2Spec())},
 		"windows_options":      &hcldec.BlockSpec{TypeName: "windows_options", Nested: hcldec.ObjectSpec((*FlatWindowsOptions)(nil).HCL2Spec())},
 		"windows_sysprep_file": &hcldec.AttrSpec{Name: "windows_sysprep_file", Type: cty.String, Required: false},
+		"windows_sysprep_text": &hcldec.AttrSpec{Name: "windows_sysprep_text", Type: cty.String, Required: false},
 		"network_interface":    &hcldec.BlockListSpec{TypeName: "network_interface", Nested: hcldec.ObjectSpec((*FlatNetworkInterface)(nil).HCL2Spec())},
 		"ipv4_gateway":         &hcldec.AttrSpec{Name: "ipv4_gateway", Type: cty.String, Required: false},
 		"ipv6_gateway":         &hcldec.AttrSpec{Name: "ipv6_gateway", Type: cty.String, Required: false},

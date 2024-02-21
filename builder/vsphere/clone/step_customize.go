@@ -18,6 +18,11 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+var (
+	errCustomizeOptionMutalExclusive    = fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set")
+	windowsSysprepFileDeprecatedMessage = "`windows_sysprep_file` is deprecated and will be removed in a future release. please use `windows_sysprep_text`."
+)
+
 // A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 // to configure host, network, or licensing settings.
 //
@@ -33,8 +38,26 @@ type CustomizeConfig struct {
 	LinuxOptions *LinuxOptions `mapstructure:"linux_options"`
 	// Settings to Windows guest OS customization.
 	WindowsOptions *WindowsOptions `mapstructure:"windows_options"`
-	// Supply your own sysprep.xml file to allow full control of the customization process out-of-band of vSphere.
+	// Provide a sysprep.xml file to allow control of the customization process independent of vSphere. This option is deprecated, please use windows_sysprep_text.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
+	// Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+	//
+	// **Example usage:**
+	// **In HCL2:**
+	// ```hcl
+	//customize {
+	//    windows_sysprep_text = file("<path-to-sysprep.xml>")
+	//}
+	// ````
+	// ```hcl
+	//customize {
+	//    windows_sysprep_text = templatefile("<path-to-sysprep.xml>", {
+	//       var1="example"
+	//       var2="example-2"
+	//    })
+	//}
+	// ```
+	WindowsSysPrepText string `mapstructure:"windows_sysprep_text"`
 	// Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
 	// To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.
 	// See [Network interface settings](#network-interface-settings).
@@ -121,8 +144,9 @@ type StepCustomize struct {
 	Config *CustomizeConfig
 }
 
-func (c *CustomizeConfig) Prepare() []error {
+func (c *CustomizeConfig) Prepare() ([]string, []error) {
 	var errs []error
+	var warnings []string
 
 	if len(c.NetworkInterfaces) == 0 {
 		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided."))
@@ -136,11 +160,15 @@ func (c *CustomizeConfig) Prepare() []error {
 		options_number = options_number + 1
 	}
 	if c.WindowsSysPrepFile != "" {
+		warnings = append(warnings, windowsSysprepFileDeprecatedMessage)
+		options_number = options_number + 1
+	}
+	if c.WindowsSysPrepText != "" {
 		options_number = options_number + 1
 	}
 
 	if options_number > 1 {
-		errs = append(errs, fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set"))
+		errs = append(errs, errCustomizeOptionMutalExclusive)
 	} else if options_number == 0 {
 		errs = append(errs, fmt.Errorf("One of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
 	}
@@ -152,7 +180,7 @@ func (c *CustomizeConfig) Prepare() []error {
 		errs = c.WindowsOptions.prepare(errs)
 	}
 
-	return errs
+	return warnings, errs
 }
 
 func (s *StepCustomize) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -199,6 +227,12 @@ func (s *StepCustomize) identitySettings() (types.BaseCustomizationIdentitySetti
 		}
 		return &types.CustomizationSysprepText{
 			Value: string(sysPrep),
+		}, nil
+	}
+
+	if s.Config.WindowsSysPrepText != "" {
+		return &types.CustomizationSysprepText{
+			Value: s.Config.WindowsSysPrepText,
 		}, nil
 	}
 
