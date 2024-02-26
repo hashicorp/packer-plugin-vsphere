@@ -42,17 +42,18 @@ func TestVirtualMachineDriver_Configure(t *testing.T) {
 
 	// Happy test
 	hardwareConfig := &HardwareConfig{
-		CPUs:           1,
-		CpuCores:       1,
-		CPUReservation: 2500,
-		CPULimit:       1,
-		RAM:            1024,
-		RAMReserveAll:  true,
-		VideoRAM:       512,
-		VGPUProfile:    "grid_m10-8q",
-		Firmware:       "efi-secure",
-		ForceBIOSSetup: true,
-		VTPMEnabled:    true,
+		CPUs:                  1,
+		CpuCores:              1,
+		CPUReservation:        2500,
+		CPULimit:              1,
+		RAM:                   1024,
+		RAMReserveAll:         true,
+		VideoRAM:              512,
+		VGPUProfile:           "grid_m10-8q",
+		Firmware:              "efi-secure",
+		ForceBIOSSetup:        true,
+		VTPMEnabled:           true,
+		VirtualPrecisionClock: "ntp",
 	}
 	if err = vm.Configure(hardwareConfig); err != nil {
 		t.Fatalf("should not fail: %s", err.Error())

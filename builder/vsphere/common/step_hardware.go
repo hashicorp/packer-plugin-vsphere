@@ -52,6 +52,8 @@ type HardwareConfig struct {
 	ForceBIOSSetup bool `mapstructure:"force_bios_setup"`
 	// Add virtual TPM device for virtual machine. Defaults to `false`.
 	VTPMEnabled bool `mapstructure:"vTPM"`
+	// Add a precision clock device for virtual machine. Defaults to `none`.
+	VirtualPrecisionClock string `mapstructure:"precision_clock"`
 }
 
 func (c *HardwareConfig) Prepare() []error {
@@ -69,6 +71,10 @@ func (c *HardwareConfig) Prepare() []error {
 		errs = append(errs, fmt.Errorf("'vTPM' could be enabled only when 'firmware' set to 'efi' or 'efi-secure'"))
 	}
 
+	if c.VirtualPrecisionClock != "" && c.VirtualPrecisionClock != "ptp" && c.VirtualPrecisionClock != "ntp" && c.VirtualPrecisionClock != "none" {
+		errs = append(errs, fmt.Errorf("'precision_clock' must be '', 'ptp', 'ntp', or 'none'"))
+	}
+
 	return errs
 }
 
@@ -84,22 +90,23 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 		ui.Say("Customizing hardware...")
 
 		err := vm.Configure(&driver.HardwareConfig{
-			CPUs:                s.Config.CPUs,
-			CpuCores:            s.Config.CpuCores,
-			CPUReservation:      s.Config.CPUReservation,
-			CPULimit:            s.Config.CPULimit,
-			RAM:                 s.Config.RAM,
-			RAMReservation:      s.Config.RAMReservation,
-			RAMReserveAll:       s.Config.RAMReserveAll,
-			NestedHV:            s.Config.NestedHV,
-			CpuHotAddEnabled:    s.Config.CpuHotAddEnabled,
-			MemoryHotAddEnabled: s.Config.MemoryHotAddEnabled,
-			VideoRAM:            s.Config.VideoRAM,
-			Displays:            s.Config.Displays,
-			VGPUProfile:         s.Config.VGPUProfile,
-			Firmware:            s.Config.Firmware,
-			ForceBIOSSetup:      s.Config.ForceBIOSSetup,
-			VTPMEnabled:         s.Config.VTPMEnabled,
+			CPUs:                  s.Config.CPUs,
+			CpuCores:              s.Config.CpuCores,
+			CPUReservation:        s.Config.CPUReservation,
+			CPULimit:              s.Config.CPULimit,
+			RAM:                   s.Config.RAM,
+			RAMReservation:        s.Config.RAMReservation,
+			RAMReserveAll:         s.Config.RAMReserveAll,
+			NestedHV:              s.Config.NestedHV,
+			CpuHotAddEnabled:      s.Config.CpuHotAddEnabled,
+			MemoryHotAddEnabled:   s.Config.MemoryHotAddEnabled,
+			VideoRAM:              s.Config.VideoRAM,
+			Displays:              s.Config.Displays,
+			VGPUProfile:           s.Config.VGPUProfile,
+			Firmware:              s.Config.Firmware,
+			ForceBIOSSetup:        s.Config.ForceBIOSSetup,
+			VTPMEnabled:           s.Config.VTPMEnabled,
+			VirtualPrecisionClock: s.Config.VirtualPrecisionClock,
 		})
 		if err != nil {
 			state.Put("error", err)
