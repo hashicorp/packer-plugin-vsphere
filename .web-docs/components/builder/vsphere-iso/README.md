@@ -406,6 +406,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 - `vTPM` (bool) - Add virtual TPM device for virtual machine. Defaults to `false`.
 
+- `precision_clock` (string) - Add a precision clock device for virtual machine. Defaults to `none`.
+
 <!-- End of code generated from the comments of the HardwareConfig struct in builder/vsphere/common/step_hardware.go; -->
 
 

@@ -97,6 +97,21 @@ func TestHardwareConfig_Prepare(t *testing.T) {
 			fail:           true,
 			expectedErrMsg: "'vTPM' could be enabled only when 'firmware' set to 'efi' or 'efi-secure'",
 		},
+		{
+			name: "Validate 'precision_clock'",
+			config: &HardwareConfig{
+				VirtualPrecisionClock: "ntp",
+			},
+			fail: false,
+		},
+		{
+			name: "Validate 'precision_clock' and invalid option",
+			config: &HardwareConfig{
+				VirtualPrecisionClock: "invalid",
+			},
+			fail:           true,
+			expectedErrMsg: "'precision_clock' must be '', 'ptp', 'ntp', or 'none'",
+		},
 	}
 	for _, c := range tc {
 		t.Run(c.name, func(t *testing.T) {

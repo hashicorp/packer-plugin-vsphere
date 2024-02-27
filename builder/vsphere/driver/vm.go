@@ -93,22 +93,23 @@ type CloneConfig struct {
 }
 
 type HardwareConfig struct {
-	CPUs                int32
-	CpuCores            int32
-	CPUReservation      int64
-	CPULimit            int64
-	RAM                 int64
-	RAMReservation      int64
-	RAMReserveAll       bool
-	NestedHV            bool
-	CpuHotAddEnabled    bool
-	MemoryHotAddEnabled bool
-	VideoRAM            int64
-	Displays            int32
-	VGPUProfile         string
-	Firmware            string
-	ForceBIOSSetup      bool
-	VTPMEnabled         bool
+	CPUs                  int32
+	CpuCores              int32
+	CPUReservation        int64
+	CPULimit              int64
+	RAM                   int64
+	RAMReservation        int64
+	RAMReserveAll         bool
+	NestedHV              bool
+	CpuHotAddEnabled      bool
+	MemoryHotAddEnabled   bool
+	VideoRAM              int64
+	Displays              int32
+	VGPUProfile           string
+	Firmware              string
+	ForceBIOSSetup        bool
+	VTPMEnabled           bool
+	VirtualPrecisionClock string
 }
 
 type NIC struct {
@@ -656,6 +657,20 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 	if err != nil {
 		return err
+	}
+
+	if config.VirtualPrecisionClock != "" && config.VirtualPrecisionClock != "none" {
+		device := &types.VirtualPrecisionClock{
+			VirtualDevice: types.VirtualDevice{
+				Backing: &types.VirtualPrecisionClockSystemClockBackingInfo{
+					Protocol: config.VirtualPrecisionClock,
+				},
+			},
+		}
+		err = vm.addDevice(device)
+		if err != nil {
+			return err
+		}
 	}
 
 	return err

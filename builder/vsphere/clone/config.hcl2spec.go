@@ -66,6 +66,7 @@ type FlatConfig struct {
 	Firmware                        *string                                     `mapstructure:"firmware" cty:"firmware" hcl:"firmware"`
 	ForceBIOSSetup                  *bool                                       `mapstructure:"force_bios_setup" cty:"force_bios_setup" hcl:"force_bios_setup"`
 	VTPMEnabled                     *bool                                       `mapstructure:"vTPM" cty:"vTPM" hcl:"vTPM"`
+	VirtualPrecisionClock           *string                                     `mapstructure:"precision_clock" cty:"precision_clock" hcl:"precision_clock"`
 	ConfigParams                    map[string]string                           `mapstructure:"configuration_parameters" cty:"configuration_parameters" hcl:"configuration_parameters"`
 	ToolsSyncTime                   *bool                                       `mapstructure:"tools_sync_time" cty:"tools_sync_time" hcl:"tools_sync_time"`
 	ToolsUpgradePolicy              *bool                                       `mapstructure:"tools_upgrade_policy" cty:"tools_upgrade_policy" hcl:"tools_upgrade_policy"`
@@ -215,6 +216,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"firmware":                       &hcldec.AttrSpec{Name: "firmware", Type: cty.String, Required: false},
 		"force_bios_setup":               &hcldec.AttrSpec{Name: "force_bios_setup", Type: cty.Bool, Required: false},
 		"vTPM":                           &hcldec.AttrSpec{Name: "vTPM", Type: cty.Bool, Required: false},
+		"precision_clock":                &hcldec.AttrSpec{Name: "precision_clock", Type: cty.String, Required: false},
 		"configuration_parameters":       &hcldec.AttrSpec{Name: "configuration_parameters", Type: cty.Map(cty.String), Required: false},
 		"tools_sync_time":                &hcldec.AttrSpec{Name: "tools_sync_time", Type: cty.Bool, Required: false},
 		"tools_upgrade_policy":           &hcldec.AttrSpec{Name: "tools_upgrade_policy", Type: cty.Bool, Required: false},
