@@ -54,6 +54,7 @@ type VirtualMachine interface {
 	SetBootOrder(order []string) error
 	RemoveDevice(keepFiles bool, device ...types.BaseVirtualDevice) error
 	addDevice(device types.BaseVirtualDevice) error
+	EditDevice(device types.BaseVirtualDevice) error
 	AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error
 	AddFlag(ctx context.Context, info *types.VirtualMachineFlagInfo) error
 	Export() (*nfc.Lease, error)
@@ -62,6 +63,8 @@ type VirtualMachine interface {
 	GetOvfExportOptions(m *ovf.Manager) ([]types.OvfOptionInfo, error)
 	Datacenter() *object.Datacenter
 
+	GetCdroms(n_cdroms int) (object.VirtualDeviceList, error)
+	MountCdrom(datastoreIsoPath string, cdrom types.BaseVirtualDevice) error
 	AddCdrom(controllerType string, datastoreIsoPath string) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
 	RemoveCdroms() error
@@ -1079,7 +1082,20 @@ func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
 	}
 }
 
-func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPath string, _cdrom types.BaseVirtualDevice) error {
+func (vm *VirtualMachineDriver) GetCdroms(n_cdroms int) (object.VirtualDeviceList, error) {
+	devices, err := vm.vm.Device(vm.driver.ctx)
+	if err != nil {
+		return nil, err
+	}
+	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
+	if len(cdroms) < n_cdroms {
+		return nil, fmt.Errorf("Not enough cdroms: VM has %d, expected %d", len(cdroms), n_cdroms)
+	} else {
+		return cdroms[:n_cdroms], nil
+	}
+}
+
+func (vm *VirtualMachineDriver) MountCdrom(datastoreIsoPath string, _cdrom types.BaseVirtualDevice) error {
 	cdrom := _cdrom.(*types.VirtualCdrom)
 	devices, err := vm.vm.Device(vm.driver.ctx)
 	if err != nil {
@@ -1135,7 +1151,7 @@ func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath
 		cdrom.Backing = &types.VirtualCdromRemotePassthroughBackingInfo{}
 		cdrom.Connectable = &types.VirtualDeviceConnectInfo{}
 	} else {
-		err := vm.MountCdrom(controllerType, datastoreIsoPath, cdrom)
+		err := vm.MountCdrom(datastoreIsoPath, cdrom)
 		if err != nil {
 			return err
 		}
@@ -1200,6 +1216,10 @@ func (vm *VirtualMachineDriver) commitDevToESXi(device types.BaseVirtualDevice, 
 
 func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error {
 	return vm.commitDevToESXi(device, types.VirtualDeviceConfigSpecOperationAdd)
+}
+
+func (vm *VirtualMachineDriver) EditDevice(device types.BaseVirtualDevice) error {
+	return vm.commitDevToESXi(device, types.VirtualDeviceConfigSpecOperationEdit)
 }
 
 func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *types.ToolsConfigInfo) error {
