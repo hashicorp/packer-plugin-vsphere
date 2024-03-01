@@ -5,6 +5,7 @@ package driver
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"time"
 
@@ -30,10 +31,12 @@ type VirtualMachineMock struct {
 	AddSATAControllerCalled bool
 	AddSATAControllerErr    error
 
+	MountCdromCalledTimes int
+	MountCdromPaths       []string
+
 	AddCdromCalledTimes int
 	AddCdromErr         error
 	AddCdromTypes       []string
-	AddCdromPaths       []string
 
 	AddFlagCalled            bool
 	AddFlagCalledTimes       int
@@ -201,12 +204,29 @@ func (vm *VirtualMachineMock) GetDir() (string, error) {
 	return vm.GetDirResponse, vm.GetDirErr
 }
 
+func (vm *VirtualMachineMock) GetCdroms(n_cdroms int) (object.VirtualDeviceList, error) {
+	if n_cdroms > len(vm.AddCdromTypes) {
+		return nil, fmt.Errorf("Not enough cdroms: VM has %d, expected %d", len(vm.AddCdromTypes), n_cdroms)
+	}
+	return make(object.VirtualDeviceList, n_cdroms), nil
+}
+
+func (vm *VirtualMachineMock) MountCdrom(isoPath string, cdrom types.BaseVirtualDevice) error {
+	vm.MountCdromCalledTimes++
+	if isoPath != "" {
+		vm.MountCdromPaths = append(vm.MountCdromPaths, isoPath)
+	}
+	return nil
+}
+
 func (vm *VirtualMachineMock) AddCdrom(controllerType string, isoPath string) error {
 	vm.AddCdromCalledTimes++
 	vm.AddCdromTypes = append(vm.AddCdromTypes, controllerType)
 	vm.CdromDevicesList = append(vm.CdromDevicesList, nil)
 	if isoPath != "" {
-		vm.AddCdromPaths = append(vm.AddCdromPaths, isoPath)
+		if err := vm.MountCdrom(isoPath, nil); err != nil {
+			return err
+		}
 	}
 	return vm.AddCdromErr
 }
@@ -229,6 +249,10 @@ func (vm *VirtualMachineMock) RemoveDevice(keepFiles bool, device ...types.BaseV
 }
 
 func (vm *VirtualMachineMock) addDevice(device types.BaseVirtualDevice) error {
+	return nil
+}
+
+func (vm *VirtualMachineMock) EditDevice(device types.BaseVirtualDevice) error {
 	return nil
 }
 
@@ -299,7 +323,6 @@ func (vm *VirtualMachineMock) ReattachCDRoms() error {
 
 func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
-	vm.AddCdromPaths = nil
 	return vm.EjectCdromsErr
 }
 

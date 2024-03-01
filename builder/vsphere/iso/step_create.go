@@ -123,6 +123,8 @@ type CreateConfig struct {
 	// Destroy the virtual machine after the build completes.
 	// Defaults to `false`.
 	Destroy bool `mapstructure:"destroy"`
+	// If a VM with the name exists, reuse it instead of creating a new one
+	ReuseVM bool `mapstructure:"reuse_vm"`
 }
 
 func (c *CreateConfig) Prepare() []error {
@@ -173,64 +175,83 @@ type StepCreateVM struct {
 	GeneratedData *packerbuilderdata.GeneratedData
 }
 
-func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateVM) CreateOrFindVMRun(state multistep.StateBag) (multistep.StepAction, driver.VirtualMachine) {
 	ui := state.Get("ui").(packersdk.Ui)
 	d := state.Get("driver").(driver.Driver)
 	vmPath := path.Join(s.Location.Folder, s.Location.VMName)
+	if s.Config.ReuseVM {
+		vm, err := d.FindVM(vmPath)
+		if err != nil {
+			state.Put("error", err)
+			return multistep.ActionHalt, nil
+		}
+		ui.Say("VM found!")
+		return multistep.ActionContinue, vm
+	} else {
 
-	err := d.PreCleanVM(ui, vmPath, s.Force, s.Location.Cluster, s.Location.Host, s.Location.ResourcePool)
-	if err != nil {
-		state.Put("error", err)
+		err := d.PreCleanVM(ui, vmPath, s.Force, s.Location.Cluster, s.Location.Host, s.Location.ResourcePool)
+		if err != nil {
+			state.Put("error", err)
+			return multistep.ActionHalt, nil
+		}
+
+		ui.Say("Creating virtual machine...")
+
+		// Add network/network card an the first nic for backwards compatibility in
+		// the type is defined.
+		var networkCards []driver.NIC
+		for _, nic := range s.Config.NICs {
+			networkCards = append(networkCards, driver.NIC{
+				Network:     nic.Network,
+				NetworkCard: nic.NetworkCard,
+				MacAddress:  strings.ToLower(nic.MacAddress),
+				Passthrough: nic.Passthrough,
+			})
+		}
+
+		// Add disk as the first drive for backwards compatibility if the type is
+		// defined
+		var disks []driver.Disk
+		for _, disk := range s.Config.StorageConfig.Storage {
+			disks = append(disks, driver.Disk{
+				DiskSize:            disk.DiskSize,
+				DiskEagerlyScrub:    disk.DiskEagerlyScrub,
+				DiskThinProvisioned: disk.DiskThinProvisioned,
+				ControllerIndex:     disk.DiskControllerIndex,
+			})
+		}
+
+		vm, err := d.CreateVM(&driver.CreateConfig{
+			StorageConfig: driver.StorageConfig{
+				DiskControllerType: s.Config.StorageConfig.DiskControllerType,
+				Storage:            disks,
+			},
+			Annotation:    s.Config.Notes,
+			Name:          s.Location.VMName,
+			Folder:        s.Location.Folder,
+			Cluster:       s.Location.Cluster,
+			Host:          s.Location.Host,
+			ResourcePool:  s.Location.ResourcePool,
+			Datastore:     s.Location.Datastore,
+			GuestOS:       s.Config.GuestOSType,
+			NICs:          networkCards,
+			USBController: s.Config.USBController,
+			Version:       s.Config.Version,
+		})
+		if err != nil {
+			state.Put("error", fmt.Errorf("error creating virtual machine: %v", err))
+			return multistep.ActionHalt, nil
+		}
+		return multistep.ActionContinue, vm
+	}
+}
+
+func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
+	action, vm := s.CreateOrFindVMRun(state)
+	if action == multistep.ActionHalt {
 		return multistep.ActionHalt
 	}
 
-	ui.Say("Creating virtual machine...")
-
-	// Add network/network card an the first nic for backwards compatibility in
-	// the type is defined.
-	var networkCards []driver.NIC
-	for _, nic := range s.Config.NICs {
-		networkCards = append(networkCards, driver.NIC{
-			Network:     nic.Network,
-			NetworkCard: nic.NetworkCard,
-			MacAddress:  strings.ToLower(nic.MacAddress),
-			Passthrough: nic.Passthrough,
-		})
-	}
-
-	// Add disk as the first drive for backwards compatibility if the type is
-	// defined
-	var disks []driver.Disk
-	for _, disk := range s.Config.StorageConfig.Storage {
-		disks = append(disks, driver.Disk{
-			DiskSize:            disk.DiskSize,
-			DiskEagerlyScrub:    disk.DiskEagerlyScrub,
-			DiskThinProvisioned: disk.DiskThinProvisioned,
-			ControllerIndex:     disk.DiskControllerIndex,
-		})
-	}
-
-	vm, err := d.CreateVM(&driver.CreateConfig{
-		StorageConfig: driver.StorageConfig{
-			DiskControllerType: s.Config.StorageConfig.DiskControllerType,
-			Storage:            disks,
-		},
-		Annotation:    s.Config.Notes,
-		Name:          s.Location.VMName,
-		Folder:        s.Location.Folder,
-		Cluster:       s.Location.Cluster,
-		Host:          s.Location.Host,
-		ResourcePool:  s.Location.ResourcePool,
-		Datastore:     s.Location.Datastore,
-		GuestOS:       s.Config.GuestOSType,
-		NICs:          networkCards,
-		USBController: s.Config.USBController,
-		Version:       s.Config.Version,
-	})
-	if err != nil {
-		state.Put("error", fmt.Errorf("error creating virtual machine: %v", err))
-		return multistep.ActionHalt
-	}
 	if s.Config.Destroy {
 		state.Put("destroy_vm", s.Config.Destroy)
 	}
@@ -240,5 +261,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 }
 
 func (s *StepCreateVM) Cleanup(state multistep.StateBag) {
-	common.CleanupVM(state)
+	if !s.Config.ReuseVM {
+		common.CleanupVM(state)
+	}
 }

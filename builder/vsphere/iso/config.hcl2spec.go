@@ -41,6 +41,7 @@ type FlatConfig struct {
 	USBController                   []string                                    `mapstructure:"usb_controller" cty:"usb_controller" hcl:"usb_controller"`
 	Notes                           *string                                     `mapstructure:"notes" cty:"notes" hcl:"notes"`
 	Destroy                         *bool                                       `mapstructure:"destroy" cty:"destroy" hcl:"destroy"`
+	ReuseVM                         *bool                                       `mapstructure:"reuse_vm" cty:"reuse_vm" hcl:"reuse_vm"`
 	VMName                          *string                                     `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	Folder                          *string                                     `mapstructure:"folder" cty:"folder" hcl:"folder"`
 	Cluster                         *string                                     `mapstructure:"cluster" cty:"cluster" hcl:"cluster"`
@@ -200,6 +201,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"usb_controller":                 &hcldec.AttrSpec{Name: "usb_controller", Type: cty.List(cty.String), Required: false},
 		"notes":                          &hcldec.AttrSpec{Name: "notes", Type: cty.String, Required: false},
 		"destroy":                        &hcldec.AttrSpec{Name: "destroy", Type: cty.Bool, Required: false},
+		"reuse_vm":                       &hcldec.AttrSpec{Name: "reuse_vm", Type: cty.Bool, Required: false},
 		"vm_name":                        &hcldec.AttrSpec{Name: "vm_name", Type: cty.String, Required: false},
 		"folder":                         &hcldec.AttrSpec{Name: "folder", Type: cty.String, Required: false},
 		"cluster":                        &hcldec.AttrSpec{Name: "cluster", Type: cty.String, Required: false},
