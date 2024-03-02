@@ -168,12 +168,12 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, v
 		// covert to a vm if it is a template so it can be deleted
 		isTemplate, err := vm.IsTemplate()
 		if err != nil {
-			return fmt.Errorf("error determing if the vm is a template%s: %v", vmPath, err)
+			return fmt.Errorf("error determining if the vm is a template%s: %v", vmPath, err)
 		} else if isTemplate {
 			ui.Say(fmt.Sprintf("%s is a template, attempting to convert it to a vm", vmPath))
 			err := vm.ConvertToVirtualMachine(vsphereCluster, vsphereHost, vsphereResourcePool)
 			if err != nil {
-				return fmt.Errorf("error convertng template back to virtual machine for cleanup %s: %v", vmPath, err)
+				return fmt.Errorf("error converting template back to virtual machine for cleanup %s: %v", vmPath, err)
 			}
 		}
 
@@ -316,7 +316,7 @@ func (vm *VirtualMachineDriver) FloppyDevices() (object.VirtualDeviceList, error
 func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) (VirtualMachine, error) {
 	folder, err := vm.driver.FindFolder(config.Folder)
 	if err != nil {
-		return nil, fmt.Errorf("Error finding filder: %s", err)
+		return nil, fmt.Errorf("Error finding folder: %s", err)
 	}
 
 	var relocateSpec types.VirtualMachineRelocateSpec
@@ -1062,7 +1062,7 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 		return object.NewNetwork(d.client.Client, i.Network[0]), nil
 	}
 
-	return nil, fmt.Errorf("Couldn't find network; 'host' and 'network' not specified. At least one of the two must be specified.")
+	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified.")
 }
 
 func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {

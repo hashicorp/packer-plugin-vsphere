@@ -29,7 +29,7 @@ func TestAddStorageDevices(t *testing.T) {
 	noExistingDevices := object.VirtualDeviceList{}
 	storageConfigSpec, err := config.AddStorageDevices(noExistingDevices)
 	if err != nil {
-		t.Fatalf("unexpected erro: %q", err.Error())
+		t.Fatalf("unexpected error: %q", err.Error())
 	}
 	if len(storageConfigSpec) != 3 {
 		t.Fatalf("Expecting VirtualDeviceList to have 3 storage devices but had %d", len(storageConfigSpec))
@@ -41,7 +41,7 @@ func TestAddStorageDevices(t *testing.T) {
 
 	storageConfigSpec, err = config.AddStorageDevices(existingDevices)
 	if err != nil {
-		t.Fatalf("unexpected erro: %q", err.Error())
+		t.Fatalf("unexpected error: %q", err.Error())
 	}
 	if len(storageConfigSpec) != 3 {
 		t.Fatalf("Expecting VirtualDeviceList to have 3 storage devices but had %d", len(storageConfigSpec))

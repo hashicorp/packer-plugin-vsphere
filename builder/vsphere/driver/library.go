@@ -108,7 +108,7 @@ func (l *LibraryFilePath) Validate() error {
 	l.path = strings.TrimLeft(l.path, "/")
 	parts := strings.Split(l.path, "/")
 	if len(parts) != 3 {
-		return fmt.Errorf("Not a valid Content Library File path. The path must contain the nanmes for the library, item and file.")
+		return fmt.Errorf("invalid content library file path. path must contain the names for the library, item, and file.")
 	}
 	return nil
 }

@@ -36,7 +36,7 @@ func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) ma
 		p := vm.NewResourcePool(info.ResourcePool)
 		poolPath, err := p.Path()
 		if err == nil && poolPath != "" {
-			labels["resurce_pool"] = poolPath
+			labels["resource_pool"] = poolPath
 		}
 	}
 
