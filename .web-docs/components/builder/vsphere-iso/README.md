@@ -788,22 +788,36 @@ boot time.
 
 <!-- Code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `vm_version` (uint) - Set VM hardware version. Defaults to the most current VM hardware
-  version supported by the vCenter Server version. See
-  [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for
-  the full list of supported VM hardware versions.
+- `vm_version` (uint) - Specifies the virtual machine hardware version. Defaults to the most current virtual machine
+  hardware version supported by the ESXi host.
+  Refer to [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for the list
+  of supported virtual machine hardware versions.
 
-- `guest_os_type` (string) - Set VM OS type. Defaults to `otherGuest`. See [
-  here](https://developer.vmware.com/apis/358/vsphere/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html)
-  for a full list of possible values.
+- `guest_os_type` (string) - Specifies the guest operating system identifier for the virtual machine.
+  If not specified, the setting defaults to `otherGuest`.
+  
+  To get a list of supported guest operating system identifiers for your ESXi host,
+  run the following PowerShell command using `VMware.PowerCLI`:
+  
+  ```powershell
+  Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
+  $esxiHost = Get-VMHost -Name "esxi.example.com"
+  $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
+  $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
+  $osDescriptor = $environmentBrowser.QueryConfigOption($vmxVersion, $null).GuestOSDescriptor
+  $osDescriptor | Select-Object Id, Fullname
+  ```
 
-- `network_adapters` ([]NIC) - Sets the network adapters, if no adapter is specified, every network related task is not applicable.
+- `network_adapters` ([]NIC) - Specifies the network adapters for the virtual machine.
+  If no network adapter is defined, all network-related operations will be skipped.
 
-- `usb_controller` ([]string) - Create USB controllers for the virtual machine. "usb" for a usb 2.0 controller. "xhci" for a usb 3.0 controller. There can only be at most one of each.
+- `usb_controller` ([]string) - Specifies the USB controllers for the virtual machine. Use `usb` for a USB 2.0 controller and
+  `xhci`` for a USB 3.0 controller.
+  -> **Note:** Maximum of one controller of each type.
 
-- `notes` (string) - VM notes.
+- `notes` (string) - Specifies the annotations for the virtual machine.
 
-- `destroy` (bool) - If set to true, the VM will be destroyed after the builder completes
+- `destroy` (bool) - Specifies whether to destroy the virtual machine after the build is complete.
 
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
 
@@ -863,7 +877,7 @@ In HCL2:
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `network_card` (string) - Set VM network card type. Example `vmxnet3`.
+- `network_card` (string) - Specifies the virtual machine network card type. For example `vmxnet3`.
 
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->
 
@@ -872,14 +886,14 @@ In HCL2:
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `network` (string) - Set the network in which the VM will be connected to. If no network is
-  specified, `host` must be specified to allow Packer to look for the
-  available network. If the network is inside a network folder in vCenter,
-  you need to provide the full path to the network.
+- `network` (string) - Specifies the network to which the virtual machine will connect. If no network is specified,
+  provide 'host' to allow Packer to search for an available network. For networks placed
+  within a network folder vCenter Server, provider the object path to the network.
+  For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 
-- `mac_address` (string) - Set network card MAC address
+- `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
 
-- `passthrough` (\*bool) - Enable DirectPath I/O passthrough
+- `passthrough` (\*bool) - Specifies whether to enable DirectPath I/O passthrough for the network device.
 
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->
 
