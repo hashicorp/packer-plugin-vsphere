@@ -287,14 +287,14 @@ Only use the `host` option. Optionally specify a `resource_pool`:
 **JSON**
 
 ```json
-"host": "esxi-1.vsphere65.test",
+"host": "esxi-01.example.com",
 "resource_pool": "pool1",
 ```
 
 **HCL2**
 
 ```hcl
-host = ""esxi-1.vsphere65.test""
+host = ""esxi-01.example.com""
 resource_pool = "pool1"
 ```
 
@@ -307,14 +307,14 @@ Use the `cluster` and `host`parameters:
 
 ```json
 "cluster": "cluster1",
-"host": "esxi-2.vsphere65.test",
+"host": "esxi-02.example.com",
 ```
 
 **HCL2**
 
 ```hcl
 cluster = "cluster1"
-host = "esxi-2.vsphere65.test"
+host = "esxi-02.example.com"
 ```
 
 
@@ -339,7 +339,7 @@ resource_pool = "pool1"
 
 ## Required vSphere Privileges
 
-It is recommended to create a custom vSphere role with the required privileges to integrate Packer with vSphere. Accounts or groups can be added to the role to ensure that Packer has **_the least privileged_** access to the infrastructure. For example, a named service account (_e.g._ svc-packer-vsphere@example.com). 
+It is recommended to create a custom vSphere role with the required privileges to integrate Packer with vSphere. Accounts or groups can be added to the role to ensure that Packer has **_the least privileged_** access to the infrastructure. For example, a named service account (_e.g._ svc-packer-vsphere@example.com).
 
 Clone the default **Read-Only** vSphere role and add the following privileges, which are based on the capabilities of the `vsphere-iso` plugin:
 

@@ -50,12 +50,12 @@ func defaultConfig() map[string]interface{} {
 
 	vcenter := os.Getenv("VSPHERE_VCENTER_SERVER")
 	if vcenter == "" {
-		vcenter = "vcenter.vsphere65.test"
+		vcenter = "vcenter.example.com"
 	}
 
 	host := os.Getenv("VSPHERE_HOST")
 	if host == "" {
-		host = "esxi-1.vsphere65.test"
+		host = "esxi-01.example.com"
 	}
 
 	config := map[string]interface{}{
@@ -554,13 +554,13 @@ func fullConfig() map[string]interface{} {
 	}
 
 	config := map[string]interface{}{
-		"vcenter_server":      "vcenter.vsphere65.test",
+		"vcenter_server":      "vcenter.example.com",
 		"username":            username,
 		"password":            password,
 		"insecure_connection": true,
 
 		"vm_name": commonT.NewVMName(),
-		"host":    "esxi-1.vsphere65.test",
+		"host":    "esxi-01.example.com",
 
 		"RAM": 512,
 		"disk_controller_type": []string{
@@ -695,7 +695,7 @@ func checkBootOrder(name string) error {
 func TestISOBuilderAcc_cluster(t *testing.T) {
 	config := defaultConfig()
 	config["cluster"] = "cluster1"
-	config["host"] = "esxi-2.vsphere65.test"
+	config["host"] = "esxi-02.example.com"
 	testCase := &acctest.PluginTestCase{
 		Name:     "vsphere-iso_bootOrder_test",
 		Template: commonT.RenderConfig("vsphere-iso", config),

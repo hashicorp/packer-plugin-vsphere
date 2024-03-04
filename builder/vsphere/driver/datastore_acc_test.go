@@ -29,7 +29,7 @@ func TestDatastoreAcc(t *testing.T) {
 func TestFileUpload(t *testing.T) {
 	t.Skip("Acceptance tests not configured yet.")
 	dsName := "datastore1"
-	hostName := "esxi-1.vsphere65.test"
+	hostName := "esxi-01.example.com"
 
 	fileName := fmt.Sprintf("test-%v", time.Now().Unix())
 	tmpFile, err := os.CreateTemp("", fileName)

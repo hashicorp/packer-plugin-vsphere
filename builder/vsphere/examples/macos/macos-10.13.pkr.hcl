@@ -33,7 +33,7 @@ source "vsphere-iso" "example_osx" {
   }
   usb_controller = ["usb"]
   username       = "root"
-  vcenter_server = "vcenter.vsphere65.test"
+  vcenter_server = "vcenter.example.com"
   vm_name        = "macos-packer"
 }
 

@@ -45,7 +45,7 @@ func TestConn() (driver.Driver, error) {
 	}
 
 	d, err := driver.NewDriver(&driver.ConnectConfig{
-		VCenterServer:      "vcenter.vsphere65.test",
+		VCenterServer:      "vcenter.example.com",
 		Username:           username,
 		Password:           password,
 		InsecureConnection: true,

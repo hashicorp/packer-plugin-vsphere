@@ -16,7 +16,7 @@
         "smc.present": "TRUE"
       },
       "guest_os_type": "darwin16_64Guest",
-      "host": "esxi-mac.vsphere65.test",
+      "host": "esxi-mac.vsphere65esxi-02.example.com",
       "insecure_connection": "true",
       "iso_checksum": "file:///{{template_dir}}/setup/out/sha256sums",
       "iso_paths": [
@@ -42,7 +42,7 @@
       ],
       "usb_controller": true,
       "username": "root",
-      "vcenter_server": "vcenter.vsphere65.test",
+      "vcenter_server": "vcenter.example.com",
       "vm_name": "macos-packer"
     }
   ]
