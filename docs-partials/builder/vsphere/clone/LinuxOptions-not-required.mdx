@@ -1,11 +1,11 @@
 <!-- Code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `domain` (string) - The domain name for this machine. This, along with [host_name](#host_name), make up the FQDN of this virtual machine.
+- `domain` (string) - Specifies the domain name for the guest operating system. Used with [host_name](#host_name) to construct the fully qualified domain name (FQDN).
 
-- `host_name` (string) - The host name for this machine. This, along with [domain](#domain), make up the FQDN of this virtual machine.
+- `host_name` (string) - Specifies the hostname for the guest operating system. Used with [domain](#domain) to construct the fully qualified domain name (FQDN).
 
-- `hw_clock_utc` (boolean) - Tells the operating system that the hardware clock is set to UTC. Default: true.
+- `hw_clock_utc` (boolean) - Specifies whether the hardware clock is set to Coordinated Universal Time (UTC). Defaults to `true`.
 
-- `time_zone` (string) - Sets the time zone. The default is UTC.
+- `time_zone` (string) - Specifies the time zone for the guest operating system.
 
 <!-- End of code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; -->

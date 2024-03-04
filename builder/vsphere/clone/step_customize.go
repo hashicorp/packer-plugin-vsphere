@@ -23,120 +23,119 @@ var (
 	windowsSysprepFileDeprecatedMessage = "`windows_sysprep_file` is deprecated and will be removed in a future release. please use `windows_sysprep_text`."
 )
 
-// A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
+// A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 // to configure host, network, or licensing settings.
 //
 // To perform virtual machine customization as a part of the clone process, specify the customize block with the
 // respective customization options. Windows guests are customized using Sysprep, which will result in the machine SID being reset.
-// Before using customization, check that your source VM meets the [requirements](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
-// for guest OS customization on vSphere.
-// See the [customization example](#customization-example) for a usage synopsis.
+// Before using customization, check that your source virtual machine meets the
+// [requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
+// for guest OS customization on vSphere. Refer to the [customization example](#customization-example) for a usage synopsis.
 //
-// The settings for customize are as follows:
+// The settings for guest customization include:
 type CustomizeConfig struct {
-	// Settings to Linux guest OS customization. See [Linux customization settings](#linux-customization-settings).
+	// Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
 	LinuxOptions *LinuxOptions `mapstructure:"linux_options"`
-	// Settings to Windows guest OS customization.
+	// Settings for the guest customization of Windows operating systems. Refer to the [Windows options](#windows-options) section for additional details.
 	WindowsOptions *WindowsOptions `mapstructure:"windows_options"`
-	// Provide a sysprep.xml file to allow control of the customization process independent of vSphere. This option is deprecated, please use windows_sysprep_text.
+	// Provide a `sysprep.xml` file to allow control of the customization process independent of vSphere. This option is deprecated, please use `windows_sysprep_text`.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
-	// Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+	// Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
 	//
-	// **Example usage:**
-	// **In HCL2:**
+	// Example usage:
+	//
+	// In HCL2:
+	//
 	// ```hcl
-	//customize {
+	// customize {
 	//    windows_sysprep_text = file("<path-to-sysprep.xml>")
-	//}
-	// ````
+	// }
+	// ```
+	//
 	// ```hcl
-	//customize {
+	// customize {
 	//    windows_sysprep_text = templatefile("<path-to-sysprep.xml>", {
 	//       var1="example"
 	//       var2="example-2"
 	//    })
-	//}
+	// }
 	// ```
 	WindowsSysPrepText string `mapstructure:"windows_sysprep_text"`
-	// Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
-	// To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.
-	// See [Network interface settings](#network-interface-settings).
+	// Set up network interfaces individually to correspond with the network adapters on the virtual machine.
+	// To use DHCP, specify an empty `network_interface` for each configured adapter. This field is mandatory.
+	// Refer to the [network interface](#network-interface-settings) section for additional details.
 	NetworkInterfaces     NetworkInterfaces `mapstructure:"network_interface"`
 	GlobalRoutingSettings `mapstructure:",squash"`
 	GlobalDnsSettings     `mapstructure:",squash"`
 }
 
 type LinuxOptions struct {
-	// The domain name for this machine. This, along with [host_name](#host_name), make up the FQDN of this virtual machine.
+	// Specifies the domain name for the guest operating system. Used with [host_name](#host_name) to construct the fully qualified domain name (FQDN).
 	Domain string `mapstructure:"domain"`
-	// The host name for this machine. This, along with [domain](#domain), make up the FQDN of this virtual machine.
+	// Specifies the hostname for the guest operating system. Used with [domain](#domain) to construct the fully qualified domain name (FQDN).
 	Hostname string `mapstructure:"host_name"`
-	// Tells the operating system that the hardware clock is set to UTC. Default: true.
+	// Specifies whether the hardware clock is set to Coordinated Universal Time (UTC). Defaults to `true`.
 	HWClockUTC config.Trilean `mapstructure:"hw_clock_utc"`
-	// Sets the time zone. The default is UTC.
+	// Specifies the time zone for the guest operating system.
 	Timezone string `mapstructure:"time_zone"`
 }
 
 type WindowsOptions struct {
-	// CustomizationGuiRunOnce
-	// A list of commands to run at first user logon, after guest customization.
+	// Specifies a list of commands to run at first logon after the guest operating system is customized.
 	RunOnceCommandList *[]string `mapstructure:"run_once_command_list"`
-	// CustomizationGuiUnattended
-	// Specifies whether or not the VM automatically logs on as Administrator.
+	// Specifies whether the guest operating system automatically logs on as Administrator.
 	AutoLogon *bool `mapstructure:"auto_logon"`
-	// Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true. Default 1
+	// Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
 	AutoLogonCount *int32 `mapstructure:"auto_logon_count"`
-	// The new administrator password for this virtual machine.
+	// Specifies the password for the guest operating system's Administrator account.
 	AdminPassword *string `mapstructure:"admin_password"`
-	// The new time zone for the virtual machine. This is a sysprep-dictated timezone code. Default 85 (GMT)
+	// Specifies the time zone for the guest operating system. Default to `85` (Pacific Time).
 	TimeZone *int32 `mapstructure:"time_zone"`
-	// CustomizationIdentification
-	// The workgroup for this virtual machine - AD Join is not supported
+	// Specifies the workgroup for the guest operating system. Joining an Active Directory domain is not supported.
 	Workgroup string `mapstructure:"workgroup"`
-	// CustomizationUserData
-	// The host name for this virtual machine.
+	// Specifies the hostname for the guest operating system.
 	ComputerName string `mapstructure:"computer_name"`
-	// The full name of the user of this virtual machine. Default: "Administrator"
+	// Specifies the full name for the guest operating system's Administrator account. Defaults to `Administrator`.
 	FullName string `mapstructure:"full_name"`
-	// The organization name this virtual machine is being installed for. Default: "Managed by Packer"
+	// Specifies the organization name for the guest operating system. Defaults to `Built by Packer`.
 	OrganizationName string `mapstructure:"organization_name"`
-	// The product key for this virtual machine.
+	// Specifies the product key for the guest operating system.
 	ProductKey string `mapstructure:"product_key"`
 }
 
 type NetworkInterface struct {
-	// Network interface-specific DNS server settings for Windows operating systems.
-	// Ignored on Linux and possibly other operating systems - for those systems, please see the [global DNS settings](#global-dns-settings) section.
+	// Specifies the DNS servers for a specific network interface on a Windows guest operating system.
+	// Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
 	DnsServerList []string `mapstructure:"dns_server_list"`
-	// Network interface-specific DNS search domain for Windows operating systems.
-	// Ignored on Linux and possibly other operating systems - for those systems, please see the [global DNS settings](#global-dns-settings) section.
+	// Specifies the DNS search domain for a specific network interface on a Windows guest operating system.
+	// Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
 	DnsDomain string `mapstructure:"dns_domain"`
-	// The IPv4 address assigned to this network adapter. If left blank or not included, DHCP is used.
+	// Specifies the IPv4 address assigned to the network adapter. If left blank or not included, DHCP is used.
 	Ipv4Address string `mapstructure:"ipv4_address"`
-	// The IPv4 subnet mask, in bits (example: 24 for 255.255.255.0).
+	// Specifies the IPv4 subnet mask, in bits, for the network adapter. For example, `24` for a `/24` subnet.
 	Ipv4NetMask int `mapstructure:"ipv4_netmask"`
-	// The IPv6 address assigned to this network adapter. If left blank or not included, auto-configuration is used.
+	// Specifies the IPv6 address assigned to the network adapter. If left blank or not included, auto-configuration is used.
 	Ipv6Address string `mapstructure:"ipv6_address"`
-	// The IPv6 subnet mask, in bits (example: 32).
+	// Specifies the IPv6 subnet mask, in bits, for the network adapter. For example, `64` for a `/64` subnet.
 	Ipv6NetMask int `mapstructure:"ipv6_netmask"`
 }
 
 type NetworkInterfaces []NetworkInterface
 
-// The settings here must match the IP/mask of at least one network_interface supplied to customization.
+// The settings must match the IP address and subnet mask of at least one `network_interface` for the customization.
 type GlobalRoutingSettings struct {
-	// The IPv4 default gateway when using network_interface customization on the virtual machine.
+	// Specifies the IPv4 default gateway when using `network_interface` customization.
 	Ipv4Gateway string `mapstructure:"ipv4_gateway"`
-	// The IPv6 default gateway when using network_interface customization on the virtual machine.
+	// Specifies the IPv6 default gateway when using `network_interface` customization.
 	Ipv6Gateway string `mapstructure:"ipv6_gateway"`
 }
 
-// The following settings configure DNS globally, generally for Linux systems. For Windows systems,
-// this is done per-interface, see [network interface](#network_interface) settings.
+// The following settings configure DNS globally for Linux guest operating systems.
+// For Windows guest operating systems, this is set for each network interface. Refer to the [network interface](#network_interface) section for additional details.
 type GlobalDnsSettings struct {
-	// The list of DNS servers to configure on a virtual machine.
+	// Specifies a list of DNS servers to configure on the guest operating system.
 	DnsServerList []string `mapstructure:"dns_server_list"`
-	// A list of DNS search domains to add to the DNS configuration on the virtual machine.
+	// Specifies a list of DNS search domains to add to the DNS configuration on the guest operating system.
 	DnsSuffixList []string `mapstructure:"dns_suffix_list"`
 }
 
@@ -170,7 +169,7 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 	if options_number > 1 {
 		errs = append(errs, errCustomizeOptionMutualExclusive)
 	} else if options_number == 0 {
-		errs = append(errs, fmt.Errorf("One of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
+		errs = append(errs, fmt.Errorf("one of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
 	}
 
 	if c.LinuxOptions != nil {
@@ -339,10 +338,10 @@ func (s *StepCustomize) globalIpSettings() types.CustomizationGlobalIPSettings {
 
 func (l *LinuxOptions) prepare(errs []error) []error {
 	if l.Hostname == "" {
-		errs = append(errs, fmt.Errorf("linux options `host_name` is empty"))
+		errs = append(errs, fmt.Errorf("linux options: `host_name` is required"))
 	}
 	if l.Domain == "" {
-		errs = append(errs, fmt.Errorf("linux options `domain` is empty"))
+		errs = append(errs, fmt.Errorf("linux options: `domain` is required"))
 	}
 
 	if l.HWClockUTC == config.TriUnset {
@@ -368,7 +367,7 @@ func (l *LinuxOptions) linuxPrep() *types.CustomizationLinuxPrep {
 
 func (w *WindowsOptions) prepare(errs []error) []error {
 	if w.ComputerName == "" {
-		errs = append(errs, fmt.Errorf("The `computer_name` is required"))
+		errs = append(errs, fmt.Errorf("windows options: `computer_name` is required"))
 	}
 	if w.FullName == "" {
 		w.FullName = "Administrator"
