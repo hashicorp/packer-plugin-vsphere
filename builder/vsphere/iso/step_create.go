@@ -53,37 +53,51 @@ import (
 //
 // ```
 type NIC struct {
-	// Set the network in which the VM will be connected to. If no network is
-	// specified, `host` must be specified to allow Packer to look for the
-	// available network. If the network is inside a network folder in vCenter,
-	// you need to provide the full path to the network.
+	// Specifies the network to which the virtual machine will connect. If no network is specified,
+	// provide 'host' to allow Packer to search for an available network. For networks placed
+	// within a network folder vCenter Server, provider the object path to the network.
+	// For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 	Network string `mapstructure:"network"`
-	// Set VM network card type. Example `vmxnet3`.
+	// Specifies the virtual machine network card type. For example `vmxnet3`.
 	NetworkCard string `mapstructure:"network_card" required:"true"`
-	// Set network card MAC address
+	// Specifies the network card MAC address. For example `00:50:56:00:00:00`.
 	MacAddress string `mapstructure:"mac_address"`
-	// Enable DirectPath I/O passthrough
+	// Specifies whether to enable DirectPath I/O passthrough for the network device.
 	Passthrough *bool `mapstructure:"passthrough"`
 }
 
 type CreateConfig struct {
-	// Set VM hardware version. Defaults to the most current VM hardware
-	// version supported by the vCenter Server version. See
-	// [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for
-	// the full list of supported VM hardware versions.
+	// Specifies the virtual machine hardware version. Defaults to the most current virtual machine
+	// hardware version supported by the ESXi host.
+	// Refer to [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for the list
+	// of supported virtual machine hardware versions.
 	Version uint `mapstructure:"vm_version"`
-	// Set VM OS type. Defaults to `otherGuest`. See [
-	// here](https://developer.vmware.com/apis/358/vsphere/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html)
-	// for a full list of possible values.
+	// Specifies the guest operating system identifier for the virtual machine.
+	// If not specified, the setting defaults to `otherGuest`.
+	//
+	// To get a list of supported guest operating system identifiers for your ESXi host,
+	// run the following PowerShell command using `VMware.PowerCLI`:
+	//
+	// ```powershell
+	// Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
+	// $esxiHost = Get-VMHost -Name "esxi.example.com"
+	// $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
+	// $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
+	// $osDescriptor = $environmentBrowser.QueryConfigOption($vmxVersion, $null).GuestOSDescriptor
+	// $osDescriptor | Select-Object Id, Fullname
+	// ```
 	GuestOSType   string               `mapstructure:"guest_os_type"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
-	// Sets the network adapters, if no adapter is specified, every network related task is not applicable.
+	// Specifies the network adapters for the virtual machine.
+	// If no network adapter is defined, all network-related operations will be skipped.
 	NICs []NIC `mapstructure:"network_adapters"`
-	// Create USB controllers for the virtual machine. "usb" for a usb 2.0 controller. "xhci" for a usb 3.0 controller. There can only be at most one of each.
+	// Specifies the USB controllers for the virtual machine. Use `usb` for a USB 2.0 controller and
+	// `xhci`` for a USB 3.0 controller.
+	// -> **Note:** Maximum of one controller of each type.
 	USBController []string `mapstructure:"usb_controller"`
-	// VM notes.
+	// Specifies the annotations for the virtual machine.
 	Notes string `mapstructure:"notes"`
-	// If set to true, the VM will be destroyed after the builder completes
+	// Specifies whether to destroy the virtual machine after the build is complete.
 	Destroy bool `mapstructure:"destroy"`
 }
 
@@ -146,7 +160,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 		return multistep.ActionHalt
 	}
 
-	ui.Say("Creating VM...")
+	ui.Say("Creating virtual machine...")
 
 	// add network/network card an the first nic for backwards compatibility in the type is defined
 	var networkCards []driver.NIC
@@ -188,7 +202,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 		Version:       s.Config.Version,
 	})
 	if err != nil {
-		state.Put("error", fmt.Errorf("error creating vm: %v", err))
+		state.Put("error", fmt.Errorf("error creating virtual machine: %v", err))
 		return multistep.ActionHalt
 	}
 	if s.Config.Destroy {
