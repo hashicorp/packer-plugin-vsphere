@@ -33,20 +33,22 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the Config struct in builder/vsphere/iso/config.go; DO NOT EDIT MANUALLY -->
 
-- `create_snapshot` (bool) - Create a snapshot when set to `true`, so the VM can be used as a base
-  for linked clones. Defaults to `false`.
+- `create_snapshot` (bool) - Specifies to create a snapshot of the virtual machine to use as a base for linked clones.
+  Defaults to `false`.
 
-- `snapshot_name` (string) - When `create_snapshot` is `true`, `snapshot_name` determines the name of the snapshot.
+- `snapshot_name` (string) - Specifies the name of the snapshot when `create_snapshot` is `true`.
   Defaults to `Created By Packer`.
 
-- `convert_to_template` (bool) - Convert VM to a template. Defaults to `false`.
+- `convert_to_template` (bool) - Specifies to convert the cloned virtual machine to a template after the build is complete.
+  Defaults to `false`.
+  If set to `true`, the virtual machine can not be imported to a content library.
 
-- `export` (\*common.ExportConfig) - Configuration for exporting VM to an ovf file.
-  The VM will not be exported if no [Export Configuration](#export-configuration) is specified.
+- `export` (\*common.ExportConfig) - Specifies the configuration for exporting the virtual machine to an OVF.
+  The virtual machine is not exported if [export configuration](#export-configuration) is not specified.
 
-- `content_library_destination` (\*common.ContentLibraryDestinationConfig) - Configuration for importing the VM template to a Content Library.
-  The VM template will not be imported if no [Content Library Import Configuration](#content-library-import-configuration) is specified.
-  The import doesn't work if [convert_to_template](#convert_to_template) is set to true.
+- `content_library_destination` (\*common.ContentLibraryDestinationConfig) - Specifies the configuration for importing a VM template or OVF template to a content library.
+  The template will not be imported if no [content library import configuration](#content-library-import-configuration) is specified.
+  If set, `convert_to_template` must be set to `false`.
 
 <!-- End of code generated from the comments of the Config struct in builder/vsphere/iso/config.go; -->
 

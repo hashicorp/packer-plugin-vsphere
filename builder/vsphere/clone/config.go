@@ -37,22 +37,25 @@ type Config struct {
 	Comm                       communicator.Config `mapstructure:",squash"`
 	common.ShutdownConfig      `mapstructure:",squash"`
 
-	// Create a snapshot when set to `true`, so the VM can be used as a base
-	// for linked clones. Defaults to `false`.
+	// Specifies to create a snapshot of the virtual machine to use as a base for linked clones.
+	// Defaults to `false`.
 	CreateSnapshot bool `mapstructure:"create_snapshot"`
-	// When `create_snapshot` is `true`, `snapshot_name` determines the name of the snapshot.
+	// Specifies the name of the snapshot when `create_snapshot` is `true`.
 	// Defaults to `Created By Packer`.
 	SnapshotName string `mapstructure:"snapshot_name"`
-	// Convert VM to a template. Defaults to `false`.
+	// Specifies to convert the cloned virtual machine to a template after the build is complete.
+	// Defaults to `false`.
+	// If set to `true`, the virtual machine can not be imported to a content library.
 	ConvertToTemplate bool `mapstructure:"convert_to_template"`
-	// Configuration for exporting VM to an ovf file.
-	// The VM will not be exported if no [Export Configuration](#export-configuration) is specified.
+	// Specifies the configuration for exporting the virtual machine to an OVF.
+	// The virtual machine is not exported if [export configuration](#export-configuration) is not specified.
 	Export *common.ExportConfig `mapstructure:"export"`
-	// Configuration for importing a VM template or OVF template to a Content Library.
-	// The template will not be imported if no [Content Library Import Configuration](#content-library-import-configuration) is specified.
-	// The import doesn't work if [convert_to_template](#convert_to_template) is set to true.
+	// Specifies the configuration for importing a VM template or OVF template to a content library.
+	// The template will not be imported if no [content library import configuration](#content-library-import-configuration) is specified.
+	// If set, `convert_to_template` must be set to `false`.
 	ContentLibraryDestinationConfig *common.ContentLibraryDestinationConfig `mapstructure:"content_library_destination"`
-	// Customize the cloned VM to configure host, network, or licensing settings. See the [customization options](#customization).
+	// Specifies the customization options for the virtual machine.
+	// Refer to the [customization options](#customization) section for more information.
 	CustomizeConfig *CustomizeConfig `mapstructure:"customize"`
 
 	ctx interpolate.Context
