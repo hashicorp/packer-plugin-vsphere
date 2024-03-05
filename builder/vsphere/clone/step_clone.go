@@ -20,37 +20,43 @@ import (
 )
 
 type vAppConfig struct {
-	// Set values for the available vApp Properties to supply configuration parameters to a virtual machine cloned from
-	// a template that came from an imported OVF or OVA file.
+	// Specifies the values for the available vApp properties. These are used to supply
+	// configuration parameters to a virtual machine. This machine is cloned from a template
+	// that originated from an imported OVF or OVA file.
 	//
-	// -> **Note:** The only supported usage path for vApp properties is for existing user-configurable keys.
-	// These generally come from an existing template that was created from an imported OVF or OVA file.
+	// -> **Note:** The only supported usage path for vApp properties is for existing
+	// user-configurable keys. These generally come from an existing template that was
+	// created from an imported OVF or OVA file.
+	//
 	// You cannot set values for vApp properties on virtual machines created from scratch,
-	// virtual machines lacking a vApp configuration, or on property keys that do not exist.
+	// on virtual machines that lack a vApp configuration, or on property keys that do not exist.
 	Properties map[string]string `mapstructure:"properties"`
 }
 
 type CloneConfig struct {
-	// Name of source virtual machine. Path is optional.
+	// Specifies the name of the source virtual machine to clone.
 	Template string `mapstructure:"template"`
-	// The size of the disk in MiB.
+	// Specifies the size of the primary disk in MiB.
+	// Cannot be used with `linked_clone`.
 	DiskSize int64 `mapstructure:"disk_size"`
-	// Create the virtual machine as a linked clone from latest snapshot. Defaults to `false`.
+	// Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
+	// Cannot be used with `disk_size`.`
 	LinkedClone bool `mapstructure:"linked_clone"`
-	// Set the network in which the VM will be connected to. If no network is
-	// specified, `host` must be specified to allow Packer to look for the
-	// available network. If the network is inside a network folder in vSphere inventory,
-	// you need to provide the full path to the network.
+	// Specifies the network to which the virtual machine will connect. If no network is specified,
+	// provide 'host' to allow Packer to search for an available network. For networks placed
+	// within a network folder vCenter Server, provider the object path to the network.
+	// For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 	Network string `mapstructure:"network"`
-	// Sets a custom MAC address to the network adapter. If set, the [network](#network) must be also specified.
+	// Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+	// If set, the `network` must be also specified.
 	MacAddress string `mapstructure:"mac_address"`
-	// VM notes.
+	// Specifies the annotations for the virtual machine.
 	Notes string `mapstructure:"notes"`
-	// If set to true, the virtual machine will be destroyed after the build completes.
+	// Specifies whether to destroy the virtual machine after the build is complete.
 	Destroy bool `mapstructure:"destroy"`
-	// Set the vApp Options on the virtual machine image.
-	// See the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
-	// section for more information.
+	// Specifies the vApp Options for the virtual machine. For more information, refer to the
+	// [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
+	// section.
 	VAppConfig    vAppConfig           `mapstructure:"vapp"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
 }
@@ -92,10 +98,10 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 		return multistep.ActionHalt
 	}
 
-	ui.Say("Cloning VM...")
+	ui.Say("Cloning virtual machine...")
 	template, err := d.FindVM(s.Config.Template)
 	if err != nil {
-		state.Put("error", fmt.Errorf("Error finding vm to clone: %s", err))
+		state.Put("error", fmt.Errorf("error finding virtual machine to clone: %s", err))
 		return multistep.ActionHalt
 	}
 
