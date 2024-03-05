@@ -389,10 +389,10 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 - `RAM_hot_plug` (bool) - Enable RAM hot plug setting for virtual machine. Defaults to `false`.
 
-- `video_ram` (int64) - Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+- `video_ram` (int64) - Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
   for supported maximums. Defaults to 4096 KB.
 
-- `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+- `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
   for supported maximums. Defaults to 1.
 
 - `vgpu_profile` (string) - vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
@@ -812,7 +812,7 @@ boot time.
 
 - `disk_controller_type` ([]string) - Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
   Defaults to `lsilogic`. See
-  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html#GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362)
+  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
   for additional details.
 
 - `storage` ([]DiskConfig) - Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).

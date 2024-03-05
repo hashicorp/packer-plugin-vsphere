@@ -35,10 +35,10 @@ type HardwareConfig struct {
 	RAMReserveAll bool `mapstructure:"RAM_reserve_all"`
 	// Enable RAM hot plug setting for virtual machine. Defaults to `false`.
 	MemoryHotAddEnabled bool `mapstructure:"RAM_hot_plug"`
-	// Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+	// Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
 	// for supported maximums. Defaults to 4096 KB.
 	VideoRAM int64 `mapstructure:"video_ram"`
-	// Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+	// Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
 	// for supported maximums. Defaults to 1.
 	Displays int32 `mapstructure:"displays"`
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)

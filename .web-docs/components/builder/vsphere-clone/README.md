@@ -82,7 +82,7 @@ necessary for this build to succeed and can be found further down the page.
 
 - `disk_controller_type` ([]string) - Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
   Defaults to `lsilogic`. See
-  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html#GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362)
+  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
   for additional details.
 
 - `storage` ([]DiskConfig) - Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).
@@ -264,37 +264,40 @@ can be done via environment variable:
 
 <!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
+A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 to configure host, network, or licensing settings.
 
 To perform virtual machine customization as a part of the clone process, specify the customize block with the
 respective customization options. Windows guests are customized using Sysprep, which will result in the machine SID being reset.
-Before using customization, check that your source VM meets the [requirements](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
-for guest OS customization on vSphere.
-See the [customization example](#customization-example) for a usage synopsis.
+Before using customization, check that your source virtual machine meets the
+[requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
+for guest OS customization on vSphere. Refer to the [customization example](#customization-example) for a usage synopsis.
 
-The settings for customize are as follows:
+The settings for guest customization include:
 
 <!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
 
 
 <!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `linux_options` (\*LinuxOptions) - Settings to Linux guest OS customization. See [Linux customization settings](#linux-customization-settings).
+- `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
 
-- `windows_options` (\*WindowsOptions) - Settings to Windows guest OS customization.
+- `windows_options` (\*WindowsOptions) - Settings for the guest customization of Windows operating systems. Refer to the [Windows options](#windows-options) section for additional details.
 
-- `windows_sysprep_file` (string) - Provide a sysprep.xml file to allow control of the customization process independent of vSphere. This option is deprecated, please use windows_sysprep_text.
+- `windows_sysprep_file` (string) - Provide a `sysprep.xml` file to allow control of the customization process independent of vSphere. This option is deprecated, please use `windows_sysprep_text`.
 
-- `windows_sysprep_text` (string) - Provide the text for the sysprep.xml content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+- `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
   
-  **Example usage:**
-  **In HCL2:**
+  Example usage:
+  
+  In HCL2:
+  
   ```hcl
   customize {
      windows_sysprep_text = file("<path-to-sysprep.xml>")
   }
-  ````
+  ```
+  
   ```hcl
   customize {
      windows_sysprep_text = templatefile("<path-to-sysprep.xml>", {
@@ -304,9 +307,9 @@ The settings for customize are as follows:
   }
   ```
 
-- `network_interface` (NetworkInterfaces) - Configure network interfaces on a per-interface basis that should matched up to the network adapters present in the VM.
-  To use DHCP, declare an empty network_interface for each adapter being configured. This field is required.
-  See [Network interface settings](#network-interface-settings).
+- `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network adapters on the virtual machine.
+  To use DHCP, specify an empty `network_interface` for each configured adapter. This field is mandatory.
+  Refer to the [network interface](#network-interface-settings) section for additional details.
 
 <!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -315,19 +318,19 @@ The settings for customize are as follows:
 
 <!-- Code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `dns_server_list` ([]string) - Network interface-specific DNS server settings for Windows operating systems.
-  Ignored on Linux and possibly other operating systems - for those systems, please see the [global DNS settings](#global-dns-settings) section.
+- `dns_server_list` ([]string) - Specifies the DNS servers for a specific network interface on a Windows guest operating system.
+  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
 
-- `dns_domain` (string) - Network interface-specific DNS search domain for Windows operating systems.
-  Ignored on Linux and possibly other operating systems - for those systems, please see the [global DNS settings](#global-dns-settings) section.
+- `dns_domain` (string) - Specifies the DNS search domain for a specific network interface on a Windows guest operating system.
+  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
 
-- `ipv4_address` (string) - The IPv4 address assigned to this network adapter. If left blank or not included, DHCP is used.
+- `ipv4_address` (string) - Specifies the IPv4 address assigned to the network adapter. If left blank or not included, DHCP is used.
 
-- `ipv4_netmask` (int) - The IPv4 subnet mask, in bits (example: 24 for 255.255.255.0).
+- `ipv4_netmask` (int) - Specifies the IPv4 subnet mask, in bits, for the network adapter. For example, `24` for a `/24` subnet.
 
-- `ipv6_address` (string) - The IPv6 address assigned to this network adapter. If left blank or not included, auto-configuration is used.
+- `ipv6_address` (string) - Specifies the IPv6 address assigned to the network adapter. If left blank or not included, auto-configuration is used.
 
-- `ipv6_netmask` (int) - The IPv6 subnet mask, in bits (example: 32).
+- `ipv6_netmask` (int) - Specifies the IPv6 subnet mask, in bits, for the network adapter. For example, `64` for a `/64` subnet.
 
 <!-- End of code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -336,16 +339,16 @@ The settings for customize are as follows:
 
 <!-- Code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-The settings here must match the IP/mask of at least one network_interface supplied to customization.
+The settings must match the IP address and subnet mask of at least one `network_interface` for the customization.
 
 <!-- End of code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
 <!-- Code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `ipv4_gateway` (string) - The IPv4 default gateway when using network_interface customization on the virtual machine.
+- `ipv4_gateway` (string) - Specifies the IPv4 default gateway when using `network_interface` customization.
 
-- `ipv6_gateway` (string) - The IPv6 default gateway when using network_interface customization on the virtual machine.
+- `ipv6_gateway` (string) - Specifies the IPv6 default gateway when using `network_interface` customization.
 
 <!-- End of code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -354,17 +357,17 @@ The settings here must match the IP/mask of at least one network_interface suppl
 
 <!-- Code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-The following settings configure DNS globally, generally for Linux systems. For Windows systems,
-this is done per-interface, see [network interface](#network_interface) settings.
+The following settings configure DNS globally for Linux guest operating systems.
+For Windows guest operating systems, this is set for each network interface. Refer to the [network interface](#network_interface) section for additional details.
 
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
 <!-- Code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `dns_server_list` ([]string) - The list of DNS servers to configure on a virtual machine.
+- `dns_server_list` ([]string) - Specifies a list of DNS servers to configure on the guest operating system.
 
-- `dns_suffix_list` ([]string) - A list of DNS search domains to add to the DNS configuration on the virtual machine.
+- `dns_suffix_list` ([]string) - Specifies a list of DNS search domains to add to the DNS configuration on the guest operating system.
 
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -373,13 +376,13 @@ this is done per-interface, see [network interface](#network_interface) settings
 
 <!-- Code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `domain` (string) - The domain name for this machine. This, along with [host_name](#host_name), make up the FQDN of this virtual machine.
+- `domain` (string) - Specifies the domain name for the guest operating system. Used with [host_name](#host_name) to construct the fully qualified domain name (FQDN).
 
-- `host_name` (string) - The host name for this machine. This, along with [domain](#domain), make up the FQDN of this virtual machine.
+- `host_name` (string) - Specifies the hostname for the guest operating system. Used with [domain](#domain) to construct the fully qualified domain name (FQDN).
 
-- `hw_clock_utc` (boolean) - Tells the operating system that the hardware clock is set to UTC. Default: true.
+- `hw_clock_utc` (boolean) - Specifies whether the hardware clock is set to Coordinated Universal Time (UTC). Defaults to `true`.
 
-- `time_zone` (string) - Sets the time zone. The default is UTC.
+- `time_zone` (string) - Specifies the time zone for the guest operating system.
 
 <!-- End of code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -732,10 +735,10 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 - `RAM_hot_plug` (bool) - Enable RAM hot plug setting for virtual machine. Defaults to `false`.
 
-- `video_ram` (int64) - Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+- `video_ram` (int64) - Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
   for supported maximums. Defaults to 4096 KB.
 
-- `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+- `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
   for supported maximums. Defaults to 1.
 
 - `vgpu_profile` (string) - vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)

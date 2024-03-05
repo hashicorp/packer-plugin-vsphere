@@ -1,27 +1,23 @@
 <!-- Code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `run_once_command_list` (\*[]string) - CustomizationGuiRunOnce
-  A list of commands to run at first user logon, after guest customization.
+- `run_once_command_list` (\*[]string) - Specifies a list of commands to run at first logon after the guest operating system is customized.
 
-- `auto_logon` (\*bool) - CustomizationGuiUnattended
-  Specifies whether or not the VM automatically logs on as Administrator.
+- `auto_logon` (\*bool) - Specifies whether the guest operating system automatically logs on as Administrator.
 
-- `auto_logon_count` (\*int32) - Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true. Default 1
+- `auto_logon_count` (\*int32) - Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
 
-- `admin_password` (\*string) - The new administrator password for this virtual machine.
+- `admin_password` (\*string) - Specifies the password for the guest operating system's Administrator account.
 
-- `time_zone` (\*int32) - The new time zone for the virtual machine. This is a sysprep-dictated timezone code. Default 85 (GMT)
+- `time_zone` (\*int32) - Specifies the time zone for the guest operating system. Default to `85` (Pacific Time).
 
-- `workgroup` (string) - CustomizationIdentification
-  The workgroup for this virtual machine - AD Join is not supported
+- `workgroup` (string) - Specifies the workgroup for the guest operating system. Joining an Active Directory domain is not supported.
 
-- `computer_name` (string) - CustomizationUserData
-  The host name for this virtual machine.
+- `computer_name` (string) - Specifies the hostname for the guest operating system.
 
-- `full_name` (string) - The full name of the user of this virtual machine. Default: "Administrator"
+- `full_name` (string) - Specifies the full name for the guest operating system's Administrator account. Defaults to `Administrator`.
 
-- `organization_name` (string) - The organization name this virtual machine is being installed for. Default: "Managed by Packer"
+- `organization_name` (string) - Specifies the organization name for the guest operating system. Defaults to `Built by Packer`.
 
-- `product_key` (string) - The product key for this virtual machine.
+- `product_key` (string) - Specifies the product key for the guest operating system.
 
 <!-- End of code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; -->
