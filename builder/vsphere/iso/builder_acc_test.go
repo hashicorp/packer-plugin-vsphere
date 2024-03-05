@@ -473,7 +473,7 @@ func checkNetworkCard(name string) error {
 		return fmt.Errorf("Cannot find the network card")
 	}
 	if len(netCards) > 1 {
-		return fmt.Errorf("Found several network catds")
+		return fmt.Errorf("Found several network cards")
 	}
 	if _, ok := netCards[0].(*types.VirtualVmxnet3); !ok {
 		return fmt.Errorf("The network card type is not the expected one (vmxnet3)")

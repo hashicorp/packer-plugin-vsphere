@@ -3,17 +3,21 @@
 Please refer to [releases](https://github.com/hashicorp/packer-plugin-vsphere/releases) for the latest CHANGELOG information.
 
 ---
+
 ## 1.0.2 (October 18, 2021)
 
-### NOTES:
+### NOTES
+
 Support for the HCP Packer registry is currently in beta and requires
 Packer v1.7.7 [GH-115] [GH-120]
 
-### FEATURES:
+### FEATURES
+
 * Add HCP Packer registry image metadata to all artifacts. [GH-115]
     [GH-120]
 
-## IMPROVEMENTS:
+## IMPROVEMENTS
+
 * Add `floppy_content` parameter, which is similar to `http_content` and
     `cd_content`, but for floppy. [GH-117]
 * Add skip_import parameter in content_library_destination configuration.

@@ -22,7 +22,7 @@ func TestSysprepFieldsMutuallyExclusive(t *testing.T) {
 	}
 
 	// Expected error message
-	expectedError := errCustomizeOptionMutalExclusive
+	expectedError := errCustomizeOptionMutualExclusive
 	_, errors := config.Prepare()
 
 	// Make sure we only received on error

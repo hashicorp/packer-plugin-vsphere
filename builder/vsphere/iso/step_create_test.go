@@ -31,7 +31,7 @@ func TestCreateConfig_Prepare(t *testing.T) {
 		},
 	}
 	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Config preprare should not fail: %s", errs[0])
+		t.Fatalf("Config prepare should not fail: %s", errs[0])
 	}
 	if config.GuestOSType != "otherGuest" {
 		t.Fatalf("GuestOSType should default to 'otherGuest'")
@@ -185,14 +185,14 @@ func TestCreateConfig_Prepare(t *testing.T) {
 		errs := c.config.Prepare()
 		if c.fail {
 			if len(errs) == 0 {
-				t.Fatalf("Config preprare should fail")
+				t.Fatalf("Config prepare should fail")
 			}
 			if errs[0].Error() != c.expectedErrMsg {
 				t.Fatalf("Expected error message: %s but was '%s'", c.expectedErrMsg, errs[0].Error())
 			}
 		} else {
 			if len(errs) != 0 {
-				t.Fatalf("Config preprare should not fail: %s", errs[0])
+				t.Fatalf("Config prepare should not fail: %s", errs[0])
 			}
 		}
 	}

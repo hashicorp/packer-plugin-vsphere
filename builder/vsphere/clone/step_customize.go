@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	errCustomizeOptionMutalExclusive    = fmt.Errorf("Only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set")
+	errCustomizeOptionMutualExclusive   = fmt.Errorf("only one of `linux_options`, `windows_options`, `windows_sysprep_file` can be set")
 	windowsSysprepFileDeprecatedMessage = "`windows_sysprep_file` is deprecated and will be removed in a future release. please use `windows_sysprep_text`."
 )
 
@@ -168,7 +168,7 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 	}
 
 	if options_number > 1 {
-		errs = append(errs, errCustomizeOptionMutalExclusive)
+		errs = append(errs, errCustomizeOptionMutualExclusive)
 	} else if options_number == 0 {
 		errs = append(errs, fmt.Errorf("One of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
 	}

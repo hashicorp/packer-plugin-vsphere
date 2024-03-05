@@ -159,7 +159,7 @@ loop:
 
 	if prevIp == "" || prevIp != ip {
 		if prevIp == "" {
-			log.Printf("VM IP aquired: %s", ip)
+			log.Printf("VM IP acquired: %s", ip)
 		} else {
 			log.Printf("VM IP changed from %s to %s", prevIp, ip)
 		}

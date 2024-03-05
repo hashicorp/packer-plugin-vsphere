@@ -61,7 +61,7 @@ func TestGenerateURI_Basic(t *testing.T) {
 	}
 	expected_uri := "vi://me:notpassword@myhost/mydc/host/mycluster"
 	if uri.String() != expected_uri {
-		t.Fatalf("URI did not match. Recieved: %s. Expected: %s", uri, expected_uri)
+		t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expected_uri)
 	}
 }
 
@@ -73,7 +73,7 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 
 	cases := []escapeCases{
 		{`this has spaces`, `this%20has%20spaces`},
-		{`exclaimation_!`, `exclaimation_%21`},
+		{`exclamation_!`, `exclamation_%21`},
 		{`hash_#_dollar_$`, `hash_%23_dollar_$`},
 		{`ampersand_&awesome`, `ampersand_&awesome`},
 		{`single_quote_'_and_another_'`, `single_quote_%27_and_another_%27`},
@@ -100,7 +100,7 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 		expected_uri := fmt.Sprintf("vi://me:%s@myhost/mydc/host/mycluster", escapeCase.Expected)
 
 		if uri.String() != expected_uri {
-			t.Fatalf("URI did not match. Recieved: %s. Expected: %s", uri, expected_uri)
+			t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expected_uri)
 		}
 	}
 }
@@ -119,7 +119,7 @@ func TestGetEncodedPassword(t *testing.T) {
 		t.Fatalf("Password is set but test said it is not")
 	}
 	if encoded != expected {
-		t.Fatalf("Should have successfully gotten encoded password. Expected: %s; recieved: %s", expected, encoded)
+		t.Fatalf("Should have successfully gotten encoded password. Expected: %s; received: %s", expected, encoded)
 	}
 
 	// There is no password

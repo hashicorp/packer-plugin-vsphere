@@ -18,11 +18,7 @@ The plugin includes two builders which are able to create images, depending on y
 
     Learn more: [VMware Product Lifecycle Matrix][vmware-product-lifecycle-matrix]
 
-    > **Note**
-    >
-    > This plugin requires API write access and is therefore not supported for use with a free VMware vSphere Hypervisor license.
-
-* [Go 1.18][golang-install]
+* [Go 1.19][golang-install]
 
     Required if building the plugin.
 
@@ -50,7 +46,7 @@ packer {
 
 #### Manual Installation
 
-You can download [pre-built binary releases][releases-vsphere-plugin] of the plugin on GitHub. Once you have downloaded the latest release archive for your target operating system and architecture, uncompress to retrieve the plugin binary file for your platform.
+You can download [pre-built binary releases][releases-vsphere-plugin] of the plugin on GitHub. Once you have downloaded the latest release archive for your target operating system and architecture, extract the release archive to retrieve the plugin binary file for your platform.
 
 To install the downloaded plugin, please follow the Packer documentation on [installing a plugin][docs-packer-plugin-install].
 

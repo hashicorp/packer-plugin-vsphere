@@ -32,7 +32,7 @@ func TestCloneConfig_Timeout(t *testing.T) {
 	warns, err := conf.Prepare(raw)
 	testConfigOk(t, warns, err)
 	if conf.ShutdownConfig.Timeout != 3*time.Minute {
-		t.Fatalf("shutdown_timeout sould be equal 3 minutes, got %v", conf.ShutdownConfig.Timeout)
+		t.Fatalf("shutdown_timeout should be equal 3 minutes, got %v", conf.ShutdownConfig.Timeout)
 	}
 }
 

@@ -43,7 +43,7 @@ func TestVMAcc_clone(t *testing.T) {
 				t.Fatalf("Cannot find template vm '%v': %v", templateName, err)
 			}
 
-			log.Printf("[DEBUG] Clonning VM")
+			log.Printf("[DEBUG] Cloning VM")
 			vm, err := template.Clone(context.TODO(), tc.config)
 			if err != nil {
 				t.Fatalf("Cannot clone vm '%v': %v", templateName, err)
@@ -170,7 +170,7 @@ func configureCheck(t *testing.T, vm VirtualMachine, _ *CloneConfig) {
 
 	memoryHotAdd := vmInfo.Config.MemoryHotAddEnabled
 	if *memoryHotAdd != hwConfig.MemoryHotAddEnabled {
-		t.Errorf("VM should have Memroy hot add set to %v, got %v", hwConfig.MemoryHotAddEnabled, memoryHotAdd)
+		t.Errorf("VM should have memory hot add set to %v, got %v", hwConfig.MemoryHotAddEnabled, memoryHotAdd)
 	}
 }
 
@@ -253,7 +253,7 @@ func startAndStopCheck(t *testing.T, vm VirtualMachine, config *CloneConfig) {
 	log.Printf("[DEBUG] Waiting max 1m0s for shutdown to complete")
 	err = vm.WaitForShutdown(context.TODO(), 1*time.Minute)
 	if err != nil {
-		t.Fatalf("Failed to wait for giest shutdown: %v", err)
+		t.Fatalf("Failed to wait for guest shutdown: %v", err)
 	}
 }
 
