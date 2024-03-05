@@ -1,11 +1,14 @@
 <!-- Code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `properties` (map[string]string) - Set values for the available vApp Properties to supply configuration parameters to a virtual machine cloned from
-  a template that came from an imported OVF or OVA file.
+- `properties` (map[string]string) - Specifies the values for the available vApp properties. These are used to supply
+  configuration parameters to a virtual machine. This machine is cloned from a template
+  that originated from an imported OVF or OVA file.
   
-  -> **Note:** The only supported usage path for vApp properties is for existing user-configurable keys.
-  These generally come from an existing template that was created from an imported OVF or OVA file.
+  -> **Note:** The only supported usage path for vApp properties is for existing
+  user-configurable keys. These generally come from an existing template that was
+  created from an imported OVF or OVA file.
+  
   You cannot set values for vApp properties on virtual machines created from scratch,
-  virtual machines lacking a vApp configuration, or on property keys that do not exist.
+  on virtual machines that lack a vApp configuration, or on property keys that do not exist.
 
 <!-- End of code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; -->

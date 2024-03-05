@@ -54,26 +54,29 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `template` (string) - Name of source virtual machine. Path is optional.
+- `template` (string) - Specifies the name of the source virtual machine to clone.
 
-- `disk_size` (int64) - The size of the disk in MiB.
+- `disk_size` (int64) - Specifies the size of the primary disk in MiB.
+  Cannot be used with `linked_clone`.
 
-- `linked_clone` (bool) - Create the virtual machine as a linked clone from latest snapshot. Defaults to `false`.
+- `linked_clone` (bool) - Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
+  Cannot be used with `disk_size`.`
 
-- `network` (string) - Set the network in which the VM will be connected to. If no network is
-  specified, `host` must be specified to allow Packer to look for the
-  available network. If the network is inside a network folder in vSphere inventory,
-  you need to provide the full path to the network.
+- `network` (string) - Specifies the network to which the virtual machine will connect. If no network is specified,
+  provide 'host' to allow Packer to search for an available network. For networks placed
+  within a network folder vCenter Server, provider the object path to the network.
+  For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 
-- `mac_address` (string) - Sets a custom MAC address to the network adapter. If set, the [network](#network) must be also specified.
+- `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+  If set, the `network` must be also specified.
 
-- `notes` (string) - VM notes.
+- `notes` (string) - Specifies the annotations for the virtual machine.
 
-- `destroy` (bool) - If set to true, the virtual machine will be destroyed after the build completes.
+- `destroy` (bool) - Specifies whether to destroy the virtual machine after the build is complete.
 
-- `vapp` (vAppConfig) - Set the vApp Options on the virtual machine image.
-  See the [vApp Options Configuration](/packer/integrations/hashicorp/vmware/latest/components/builder/vsphere-clone#vapp-options-configuration)
-  section for more information.
+- `vapp` (vAppConfig) - Specifies the vApp Options for the virtual machine. For more information, refer to the
+  [vApp Options Configuration](/packer/integrations/hashicorp/vmware/latest/components/builder/vsphere-clone#vapp-options-configuration)
+  section.
 
 <!-- End of code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; -->
 
@@ -205,13 +208,16 @@ In HCL2:
 
 <!-- Code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `properties` (map[string]string) - Set values for the available vApp Properties to supply configuration parameters to a virtual machine cloned from
-  a template that came from an imported OVF or OVA file.
+- `properties` (map[string]string) - Specifies the values for the available vApp properties. These are used to supply
+  configuration parameters to a virtual machine. This machine is cloned from a template
+  that originated from an imported OVF or OVA file.
   
-  -> **Note:** The only supported usage path for vApp properties is for existing user-configurable keys.
-  These generally come from an existing template that was created from an imported OVF or OVA file.
+  -> **Note:** The only supported usage path for vApp properties is for existing
+  user-configurable keys. These generally come from an existing template that was
+  created from an imported OVF or OVA file.
+  
   You cannot set values for vApp properties on virtual machines created from scratch,
-  virtual machines lacking a vApp configuration, or on property keys that do not exist.
+  on virtual machines that lack a vApp configuration, or on property keys that do not exist.
 
 <!-- End of code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; -->
 
