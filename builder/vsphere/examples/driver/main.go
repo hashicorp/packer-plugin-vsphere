@@ -11,7 +11,7 @@ import (
 
 func main() {
 	d, err := driver.NewDriver(&driver.ConnectConfig{
-		VCenterServer:      "vcenter.vsphere65.test",
+		VCenterServer:      "vcenter.example.com",
 		Username:           "root",
 		Password:           "jetbrains",
 		InsecureConnection: true,
@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	ds, err := d.FindDatastore("", "esxi-1.vsphere65.test")
+	ds, err := d.FindDatastore("", "esxi-01.example.com")
 	if err != nil {
 		panic(err)
 	}

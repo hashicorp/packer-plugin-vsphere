@@ -24,7 +24,7 @@ import (
 )
 
 // Defines whether acceptance tests should be run
-const TestHostName = "esxi-1.vsphere65.test"
+const TestHostName = "esxi-01.example.com"
 
 func newTestDriver(t *testing.T) Driver {
 	username := os.Getenv("VSPHERE_USERNAME")
@@ -37,7 +37,7 @@ func newTestDriver(t *testing.T) Driver {
 	}
 
 	d, err := NewDriver(&ConnectConfig{
-		VCenterServer:      "vcenter.vsphere65.test",
+		VCenterServer:      "vcenter.example.com",
 		Username:           username,
 		Password:           password,
 		InsecureConnection: true,

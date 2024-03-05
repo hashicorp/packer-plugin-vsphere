@@ -29,7 +29,7 @@
         "{{template_dir}}/setup.sh"
       ],
       "guest_os_type": "other3xLinux64Guest",
-      "host": "esxi-1.vsphere65.test",
+      "host": "esxi-01.example.com",
       "insecure_connection": true,
       "iso_paths": [
         "[datastore1] ISO/alpine-standard-3.8.2-x86_64.iso"
@@ -49,7 +49,7 @@
         }
       ],
       "username": "root",
-      "vcenter_server": "vcenter.vsphere65.test",
+      "vcenter_server": "vcenter.example.com",
       "vm_name": "alpine-{{timestamp}}"
     }
   ],

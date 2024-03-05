@@ -8,7 +8,7 @@ import "testing"
 func TestResourcePoolAcc(t *testing.T) {
 	t.Skip("Acceptance tests not configured yet.")
 	d := newTestDriver(t)
-	p, err := d.FindResourcePool("", "esxi-1.vsphere65.test", "pool1/pool2")
+	p, err := d.FindResourcePool("", "esxi-01.example.com", "pool1/pool2")
 	if err != nil {
 		t.Fatalf("Cannot find the default resource pool '%v': %v", "pool1/pool2", err)
 	}

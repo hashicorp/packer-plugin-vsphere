@@ -12,7 +12,7 @@
       ],
       "floppy_img_path": "[datastore1] ISO/VMware Tools/10.2.0/pvscsi-Windows8.flp",
       "guest_os_type": "windows9_64Guest",
-      "host": "esxi-1.vsphere65.test",
+      "host": "esxi-01.example.com",
       "insecure_connection": "true",
       "iso_paths": [
         "[datastore1] ISO/en_windows_10_multi-edition_vl_version_1709_updated_dec_2017_x64_dvd_100406172.iso",
@@ -31,7 +31,7 @@
         }
       ],
       "username": "root",
-      "vcenter_server": "vcenter.vsphere65.test",
+      "vcenter_server": "vcenter.example.com",
       "vm_name": "example-windows",
       "winrm_password": "jetbrains",
       "winrm_username": "jetbrains"

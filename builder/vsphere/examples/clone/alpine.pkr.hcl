@@ -10,12 +10,12 @@ locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 # https://www.packer.io/docs/templates/hcl_templates/blocks/source
 source "vsphere-clone" "example_clone" {
   communicator        = "none"
-  host                = "esxi-1.vsphere65.test"
+  host                = "esxi-01.example.com"
   insecure_connection = "true"
   password            = "jetbrains"
   template            = "alpine"
   username            = "root"
-  vcenter_server      = "vcenter.vsphere65.test"
+  vcenter_server      = "vcenter.example.com"
   vm_name             = "alpine-clone-${local.timestamp}"
 }
 

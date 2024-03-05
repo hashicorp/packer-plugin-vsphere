@@ -1400,14 +1400,14 @@ Only use the `host` option. Optionally specify a `resource_pool`:
 **JSON**
 
 ```json
-"host": "esxi-1.vsphere65.test",
+"host": "esxi-01.example.com",
 "resource_pool": "pool1",
 ```
 
 **HCL2**
 
 ```hcl
-host = "esxi-1.vsphere65.test"
+host = "esxi-01.example.com"
 resource_pool = "pool1"
 ```
 
@@ -1420,14 +1420,14 @@ Use the `cluster` and `host`parameters:
 
 ```json
 "cluster": "cluster1",
-"host": "esxi-2.vsphere65.test",
+"host": "esxi-02.example.com",
 ```
 
 **HCL2**
 
 ```hcl
 cluster = "cluster1"
-host = "esxi-2.vsphere65.test"
+host = "esxi-02.example.com"
 ```
 
 
