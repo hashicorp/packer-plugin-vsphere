@@ -12,7 +12,7 @@ This builder clones VMs from existing templates.
 
 ## Examples
 
-See complete Ubuntu, Windows, and macOS templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
+See example templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
 
 ## Configuration Reference
 
