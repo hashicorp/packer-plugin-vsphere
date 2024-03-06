@@ -34,6 +34,7 @@ type FlatConfig struct {
 	VMName              *string           `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	VMNetwork           *string           `mapstructure:"vm_network" cty:"vm_network" hcl:"vm_network"`
 	HardwareVersion     *string           `mapstructure:"hardware_version" cty:"hardware_version" hcl:"hardware_version"`
+	MaxRetries          *int              `mapstructure:"max_retries" cty:"max_retries" hcl:"max_retries"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -72,6 +73,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"vm_name":                    &hcldec.AttrSpec{Name: "vm_name", Type: cty.String, Required: false},
 		"vm_network":                 &hcldec.AttrSpec{Name: "vm_network", Type: cty.String, Required: false},
 		"hardware_version":           &hcldec.AttrSpec{Name: "hardware_version", Type: cty.String, Required: false},
+		"max_retries":                &hcldec.AttrSpec{Name: "max_retries", Type: cty.Number, Required: false},
 	}
 	return s
 }

@@ -64,14 +64,17 @@ Optional:
   the deployed VM's hardware version will be the same as the source VM's.
   This option is useful when deploying to a vSphere / ESXi host whose version is different
   than the one used to create the artifact.
-  
+
   See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information
   on the virtual hardware versions supported for each vSphere / ESXi version.
 
 - `options` (array of strings) - Custom options to add in `ovftool`. See
   `ovftool --help` to list all the options
 
-# Example
+- `max_retries` (int) - Specifies the maximum number of retries to attempt when
+  uploading the virtual machine to the vSphere endpoint. Default: `5`
+
+## Example
 
 The following is an example of the vSphere post-processor being used in
 conjunction with the null builder to upload a vmx to a vSphere cluster.
@@ -96,7 +99,7 @@ build {
           host                = "vcenter.example.com"
           username            = "administrator@vsphere.local"
           password            = "VMw@re1!"
-          datacenter          = "dc-01"   
+          datacenter          = "dc-01"
           cluster             = "cluster-01"
           datastore           = "datastore-01"
           vm_network          = "VM Network"
