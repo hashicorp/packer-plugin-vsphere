@@ -487,7 +487,7 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.2/go.mod h1:R6va5+xMeoiuVRoj+gSkQ7d3FALtqAAGI1FQKckRals=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
-github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
+github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
 github.com/ugorji/go v1.2.6/go.mod h1:anCg0y61KIhDlPZmnH+so+RQbysYVyDko0IMgJv0Nn0=
 github.com/ugorji/go/codec v1.2.6 h1:7kbGefxLoDBuYXOms4yD7223OpNMMPNPZxXk5TvFcyQ=
@@ -498,8 +498,8 @@ github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec57
 github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097/go.mod h1:S0HMBgdo3S/0a5hwq+Ya4XZI2aEDtGkSGeojU1cINOg=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1 h1:krW4K3Vj8DkVqLMUOlW1OMLr1BY9Lg+PLZ7mAzlJz/A=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1/go.mod h1:vauVboD3sQxP+pb28TnI9wfrj+0nH2zSEc9Q7AzWJ54=
-github.com/vmware/govmomi v0.35.0 h1:vN6m2J5ezSJomSTHyKbvpfoEZTn2mGXWg2FFpjRTRp0=
-github.com/vmware/govmomi v0.35.0/go.mod h1:VvIo6siOYFKdF9eU7qrY9+j/F99DV/LtSgsOpxFXJAY=
+github.com/vmware/govmomi v0.36.0 h1:h8+PfYnsIihvUpzD2Mb9kFnSWEz1u2dRWxrBLi79N9I=
+github.com/vmware/govmomi v0.36.0/go.mod h1:mtGWtM+YhTADHlCgJBiskSRPOZRsN9MSjPzaZLte/oQ=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
