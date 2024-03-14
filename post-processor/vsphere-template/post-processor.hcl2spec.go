@@ -18,10 +18,10 @@ type FlatConfig struct {
 	PackerOnError       *string           `mapstructure:"packer_on_error" cty:"packer_on_error" hcl:"packer_on_error"`
 	PackerUserVars      map[string]string `mapstructure:"packer_user_variables" cty:"packer_user_variables" hcl:"packer_user_variables"`
 	PackerSensitiveVars []string          `mapstructure:"packer_sensitive_variables" cty:"packer_sensitive_variables" hcl:"packer_sensitive_variables"`
-	Host                *string           `mapstructure:"host" cty:"host" hcl:"host"`
+	Host                *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
+	Username            *string           `mapstructure:"username" required:"true" cty:"username" hcl:"username"`
+	Password            *string           `mapstructure:"password" required:"true" cty:"password" hcl:"password"`
 	Insecure            *bool             `mapstructure:"insecure" cty:"insecure" hcl:"insecure"`
-	Username            *string           `mapstructure:"username" cty:"username" hcl:"username"`
-	Password            *string           `mapstructure:"password" cty:"password" hcl:"password"`
 	Datacenter          *string           `mapstructure:"datacenter" cty:"datacenter" hcl:"datacenter"`
 	Folder              *string           `mapstructure:"folder" cty:"folder" hcl:"folder"`
 	SnapshotEnable      *bool             `mapstructure:"snapshot_enable" cty:"snapshot_enable" hcl:"snapshot_enable"`
@@ -51,9 +51,9 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"packer_user_variables":      &hcldec.AttrSpec{Name: "packer_user_variables", Type: cty.Map(cty.String), Required: false},
 		"packer_sensitive_variables": &hcldec.AttrSpec{Name: "packer_sensitive_variables", Type: cty.List(cty.String), Required: false},
 		"host":                       &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
-		"insecure":                   &hcldec.AttrSpec{Name: "insecure", Type: cty.Bool, Required: false},
 		"username":                   &hcldec.AttrSpec{Name: "username", Type: cty.String, Required: false},
 		"password":                   &hcldec.AttrSpec{Name: "password", Type: cty.String, Required: false},
+		"insecure":                   &hcldec.AttrSpec{Name: "insecure", Type: cty.Bool, Required: false},
 		"datacenter":                 &hcldec.AttrSpec{Name: "datacenter", Type: cty.String, Required: false},
 		"folder":                     &hcldec.AttrSpec{Name: "folder", Type: cty.String, Required: false},
 		"snapshot_enable":            &hcldec.AttrSpec{Name: "snapshot_enable", Type: cty.Bool, Required: false},

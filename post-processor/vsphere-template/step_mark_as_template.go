@@ -26,11 +26,14 @@ type stepMarkAsTemplate struct {
 }
 
 func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepMarkAsTemplate {
+	// Set the default folder.
 	remoteFolder := "Discovered virtual machine"
-	//if post-processor config folder is not null, use the folder as remoteFolder
+
+	// If the post-processor configuration's folder is defined, use it as the `remoteFolder`.
 	if p.config.Folder != "" {
 		remoteFolder = p.config.Folder
 	}
+
 	vmname := artifact.Id()
 
 	if artifact.BuilderId() == vsphere.BuilderId {
@@ -59,7 +62,7 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	// Use a simple "MarkAsTemplate" method unless `reregister_vm` is true
+	// Use the MarkAsTemplate method unless the `reregister_vm` is set to `true`.
 	if s.ReregisterVM.False() {
 		ui.Message("Marking as a template...")
 
@@ -71,7 +74,7 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionContinue
 	}
 
-	ui.Message("Re-register VM as a template...")
+	ui.Message("Registering virtual machine as a template...")
 
 	dsPath, err := datastorePath(vm)
 	if err != nil {
@@ -132,11 +135,10 @@ func datastorePath(vm *object.VirtualMachine) (*object.DatastorePath, error) {
 	}
 
 	if disk == "" {
-		return nil, fmt.Errorf("disk not found in '%v'", vm.Name())
+		return nil, fmt.Errorf("error finding disk in '%v'", vm.Name())
 	}
 
 	re := regexp.MustCompile(`\[(.*?)\]`)
-
 	datastore := re.FindStringSubmatch(disk)[1]
 	vmxPath := path.Join("/", path.Dir(strings.Split(disk, " ")[1]), vm.Name()+".vmx")
 
@@ -156,19 +158,16 @@ func findRuntimeVM(cli *govmomi.Client, dcPath, name, remoteFolder string) (*obj
 	}
 
 	if ref == nil {
-		return nil, fmt.Errorf("VM at path %s not found", fullPath)
+		return nil, fmt.Errorf("error finding virtual machine at path %s", fullPath)
 	}
 
 	vm := ref.(*object.VirtualMachine)
 	if vm.InventoryPath == "" {
 		vm.SetInventoryPath(fullPath)
 	}
-
 	return vm, nil
 }
 
-// If in the target folder a virtual machine or template already exists
-// it will be removed to maintain consistency
 func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name string) error {
 	si := object.NewSearchIndex(cli.Client)
 	fullPath := path.Join(folder.InventoryPath, name)
@@ -182,11 +181,9 @@ func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name strin
 		if vm, ok := ref.(*object.VirtualMachine); ok {
 			return vm.Unregister(context.Background())
 		} else {
-			return fmt.Errorf("an object name '%v' already exists", name)
+			return fmt.Errorf("object name '%v' already exists", name)
 		}
-
 	}
-
 	return nil
 }
 

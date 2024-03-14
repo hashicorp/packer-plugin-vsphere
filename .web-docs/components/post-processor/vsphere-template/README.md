@@ -1,64 +1,61 @@
 Type: `vsphere-template`
 Artifact BuilderId: `packer.post-processor.vsphere`
 
-The Packer vSphere Template post-processor takes an artifact from the
-`vmware-iso` builder, built on ESXi (i.e. remote) or an artifact from the
-[vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor, marks the VM as a
-template, and places it in the path of your choice.
+This post-processor uses an artifact from the `vmware-iso` builder with an ESXi host or an artifact
+from the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor. It then marks
+the virtual machine as a template and moves it to your specified path.
 
 ## Configuration
 
-There are many configuration options available for the post-processor. They are
-provided below in two categories: required and optional parameters.
+The following configuration options are available for the post-processor.
 
 Required:
 
-- `host` (string) - The vSphere endpoint that contains the VM built by the
-  `vmware-iso` builder.
+<!-- Code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `password` (string) - Password to use to authenticate to the vSphere
-  endpoint.
+- `host` (string) - Specifies the fully qualified domain name or IP address of the vSphere endpoint.
 
-- `username` (string) - The username to use to authenticate to the vSphere
-  endpoint.
+- `username` (string) - Specifies the username to use to authenticate to the vSphere endpoint.
+
+- `password` (string) - Specifies the password to use to authenticate to the vSphere endpoint.
+
+<!-- End of code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; -->
+
 
 Optional:
 
-- `datacenter` (string) - If you have more than one, you will need to specify
-  which one the ESXi host used.
+<!-- Code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `folder` (string) - Target path where the template will be created.
+- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
 
-- `insecure` (boolean) - If `true`, skips the verification of the server
-  certificate. Default is `false`.
+- `datacenter` (string) - Specifies the name of the datacenter to use.
+  Required when the vCenter Server instance endpoint has more than one datacenter.
 
-- `keep_input_artifact` (boolean) - Unlike most post-processors, this option
-  has no effect for `vsphere-template`. This is because in order for a template
-  to work, you can't delete the vm that you generate the template from. The
-  vSphere Template post-processor will therefore always preserve the original
-  VM.
+- `folder` (string) - Specifies the name of the virtual machine folder path where the template will be created.
 
-- `snapshot_enable` (boolean) - Create a snapshot before marking as a
-  template. Default is `false`.
+- `snapshot_enable` (bool) - Specifies whether to create a snapshot before marking as a template. Defaults to `false`.\
 
-- `snapshot_name` (string) - Name for the snapshot. Required when
-  `snapshot_enable` is `true`.
+- `snapshot_name` (string) - Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
 
-- `snapshot_description` (string) - Description for the snapshot. Required
-  when `snapshot_enable` is `true`.
+- `snapshot_description` (string) - Specifies a description for the snapshot. Required when `snapshot_enable` is `true`.
 
-- `reregister_vm` (boolean) - Use the method of unregister VM and reregister
-  as a template, rather than using the `markAsTemplate` method.
+- `reregister_vm` (boolean) - Specifies to keep the virtual machine registered after marking as a template.
 
-  NOTE: If you are getting permission denied errors when trying to mark as a
-  template, but it works fine in the vSphere UI, try setting this to `false`.
-  Default is `true`.
+<!-- End of code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; -->
 
-## Example
+
+- `keep_input_artifact` (boolean) - This option is not applicable to `vsphere-template`. For a
+  template to function, the original virtual machine from which it was generated cannot be deleted.
+  Therefore, the vSphere Template post-processor always preserves the original virtual machine.
+
+  ~> **Note**: If you are getting permission denied errors when trying to mark as a template, but it
+  works in the vSphere UI, set this to `false`. Default is `true`.
+
+## Example Usage
 
 An example is shown below, showing only the post-processor configuration:
 
-**HCL2**
+In HCL2:
 
 ```hcl
 source "null" "example" {
@@ -76,15 +73,14 @@ build {
           insecure            = false
           username            = "administrator@vsphere.local"
           password            = "VMw@re1!"
-          datacenter          = "dc-01"   
+          datacenter          = "dc-01"
           folder              = "/templates/os/distro"
       }
     }
 }
 ```
 
-
-**JSON**
+In JSON:
 
 ```json
 {
@@ -110,17 +106,13 @@ build {
 }
 ```
 
+## Using the vSphere Template with Local Builders
 
-## Using the vSphere Template with local builders
+Once the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor takes an artifact
+from the builder and uploads it to a vSphere endpoint, you may want the virtual machine to be marked
+as a template.
 
-Once the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor takes an
-artifact from the builder and uploads it to a vSphere endpoint, you may want
-the VM to be marked as a template. Packer can do this for you automatically
-using a sequence definition (a collection of post-processors that are treated
-as as single pipeline, see [Post-Processors](/packer/docs/templates/legacy_json_templates/post-processors)
-for more information):
-
-**HCL2**
+In HCL2:
 
 ```hcl
 build {
@@ -140,8 +132,7 @@ build {
 }
 ```
 
-
-**JSON**
+In JSON:
 
 ```json
 {
@@ -168,63 +159,57 @@ build {
     }
   ]
 }
-
-
 ```
 
-
-In the example above, the result of each builder is passed through the defined
-sequence of post-processors starting with the `vsphere` post-processor which
-will upload the artifact to a vSphere endpoint. The resulting artifact is then
-passed on to the `vsphere-template` post-processor which handles marking a VM
-as a template. In JSON, note that the `vsphere` and `vsphere-template`
+In the example above, the result of each builder is passed through the defined sequence of
+post-processors starting with the `vsphere` post-processor which will upload the artifact to a
+vSphere endpoint. The resulting artifact is then passed on to the `vsphere-template` post-processor
+which handles marking a VM as a template. In JSON, note that the `vsphere` and `vsphere-template`
 post-processors can be paired together in their own array.
 
 ## Permissions
 
-The vSphere post processor needs several privileges to be able to mark the
-vm as a template. Rather than giving full administrator access, you can create
-a role to give the post-processor the privileges necessary to run. Here is an
-example role that will work. Please note that this is a user-supplied list so
-there may be a few extraneous privilegess that are not strictly required.
+The post processor needs several privileges to be able to mark the virtual as a template.
+
+Rather than giving full administrator access, you can create a role to give the post-processor the
+privileges necessary to run.
+
+Below is an example role that will work. Please note that this is a user-supplied list so there may
+be a few extraneous privileges that are not strictly required.
 
 For vSphere, the role needs the following privileges:
 
-    `Datastore.AllocateSpace`
-    `Host.Config.AdvancedConfig`
-    `Host.Config.NetService`
-    `Host.Config.Network`
-    `Network.Assign`
-    `System.Anonymous`
-    `System.Read`
-    `System.View`
-    `VApp.Import`
-    `VirtualMachine.Config.AddNewDisk`
-    `VirtualMachine.Config.AdvancedConfig`
-    `VirtualMachine.Inventory.Delete`
+- `Datastore.AllocateSpace`
+- `Host.Config.AdvancedConfig`
+- `Host.Config.NetService`
+- `Host.Config.Network`
+- `Network.Assign`
+- `System.Anonymous`
+- `System.Read`
+- `System.View`
+- `VApp.Import`
+- `VirtualMachine.Config.AddNewDisk`
+- `VirtualMachine.Config.AdvancedConfig`
+- `VirtualMachine.Inventory.Delete`
 
-and either (if `reregister_vm` is `false`):
+  and either (if `reregister_vm` is `false`):
 
-    `VirtualMachine.Provisioning.MarkAsTemplate`
+  - `VirtualMachine.Provisioning.MarkAsTemplate`
 
-or (if `reregister_vm` is `true` or unset):
+  or (if `reregister_vm` is `true` or unset):
 
-    `VirtualMachine.Inventory.Register`
-    `VirtualMachine.Inventory.Unregister`
+  - `VirtualMachine.Inventory.Register`
+  - `VirtualMachine.Inventory.Unregister`
 
 The role must be authorized on the:
 
-    `Cluster of the host`
-    `The destination folder`
-    `The destination datastore`
-    `The network to be assigned`
+- Cluster of the host.
+- The destination folder.
+- The destination datastore.
+- The network to be assigned.
 
 # Troubleshooting
 
-Some users have reported that vSphere templates created from local vSphere builds
-get their boot order reset to cdrom only instead of the original boot order
-defined by the template. If this issue affects you, the solution is to set
-`"bios.hddOrder": "scsi0:0"` in your builder's `vmx_data`.
-
-Packer doesn't automatically do this for you because it causes strange upload
-behavior in certain versions of `ovftool`.
+Some users have reported that vSphere templates created from local vSphere builds get their boot
+order reset to CD-ROM only instead of the original boot order defined by the template. If this issue
+affects you, the solution is to set `"bios.hddOrder": "scsi0:0"` in your builder's `vmx_data`.
