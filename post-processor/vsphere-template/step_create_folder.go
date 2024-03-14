@@ -23,7 +23,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 	cli := state.Get("client").(*govmomi.Client)
 	dcPath := state.Get("dcPath").(string)
 
-	ui.Message("Creating or checking destination folders...")
+	ui.Message("Creating or checking destination folder...")
 
 	base := path.Join(dcPath, "vm")
 	fullPath := path.Join(base, s.Folder)
@@ -33,9 +33,8 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 	var err error
 	var ref object.Reference
 
-	// We iterate over the path starting with full path
-	// If we don't find it, we save the folder name and continue with the previous path
-	// The iteration ends when we find an existing path otherwise it throws error
+	// Iterate over the path, saving non-existent folders.
+	// Stop when an existing path is found; error if no existing path is found.
 	for {
 		ref, err = si.FindByInventoryPath(context.Background(), fullPath)
 		if err != nil {
@@ -49,7 +48,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 			fullPath = path.Clean(dir)
 
 			if fullPath == dcPath {
-				err = fmt.Errorf("vSphere base path %s not found", base)
+				err = fmt.Errorf("error finding base path %s", base)
 				state.Put("error", err)
 				ui.Error(err.Error())
 				return multistep.ActionHalt
@@ -63,7 +62,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 
 	if root, ok := ref.(*object.Folder); ok {
 		for i := len(folders) - 1; i >= 0; i-- {
-			ui.Message(fmt.Sprintf("Creating folder: %v", folders[i]))
+			ui.Message(fmt.Sprintf("Creating virtual machine folder %v...", folders[i]))
 
 			root, err = root.CreateFolder(context.Background(), folders[i])
 			if err != nil {
@@ -77,7 +76,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 		root.SetInventoryPath(fullPath)
 		state.Put("folder", root)
 	} else {
-		err = fmt.Errorf("folder not found: '%v'", ref)
+		err = fmt.Errorf("error finding virtual machine folder at path %v", ref)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt

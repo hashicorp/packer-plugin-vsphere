@@ -5,6 +5,7 @@ package vsphere_template
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -23,8 +24,10 @@ func (s *stepChooseDatacenter) Run(ctx context.Context, state multistep.StateBag
 
 	ui.Message("Choosing datacenter...")
 
+	// Find the datacenter or use the default one if not specified.
 	dc, err := finder.DatacenterOrDefault(context.Background(), s.Datacenter)
 	if err != nil {
+		err = fmt.Errorf("error finding datacenter %s: %s", s.Datacenter, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt

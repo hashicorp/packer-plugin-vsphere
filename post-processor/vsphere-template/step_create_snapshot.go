@@ -22,6 +22,7 @@ type stepCreateSnapshot struct {
 }
 
 func NewStepCreateSnapshot(artifact packersdk.Artifact, p *PostProcessor) *stepCreateSnapshot {
+	// Set the default folder.
 	remoteFolder := "Discovered virtual machine"
 	vmname := artifact.Id()
 
@@ -49,10 +50,9 @@ func (s *stepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionContinue
 	}
 
-	ui.Message("Creating a Snapshot...")
+	ui.Message("Creating virtual machine snapshot...")
 
 	vm, err := findRuntimeVM(cli, dcPath, s.VMName, s.RemoteFolder)
-
 	if err != nil {
 		state.Put("error", err)
 		ui.Error(err.Error())
@@ -60,7 +60,6 @@ func (s *stepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) 
 	}
 
 	task, err := vm.CreateSnapshot(context.Background(), s.SnapshotName, s.SnapshotDescription, false, false)
-
 	if err != nil {
 		state.Put("error", err)
 		ui.Error(err.Error())

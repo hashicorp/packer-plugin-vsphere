@@ -9,9 +9,9 @@ import (
 
 func getTestConfig() Config {
 	return Config{
-		Username: "me",
-		Password: "notpassword",
-		Host:     "myhost",
+		Username: "administrator@vsphere.local",
+		Password: "password",
+		Host:     "vcenter.example.com",
 	}
 }
 
@@ -22,7 +22,7 @@ func TestConfigure_Good(t *testing.T) {
 
 	err := p.Configure(config)
 	if err != nil {
-		t.Errorf("Error: %s", err)
+		t.Errorf("error: %s", err)
 	}
 }
 
@@ -33,10 +33,10 @@ func TestConfigure_ReRegisterVM(t *testing.T) {
 
 	err := p.Configure(config)
 	if err != nil {
-		t.Errorf("Error: %s", err)
+		t.Errorf("error: %s", err)
 	}
 
 	if p.config.ReregisterVM.False() {
-		t.Errorf("This should default to unset, not false.")
+		t.Errorf(("error: should be unset, not false"))
 	}
 }
