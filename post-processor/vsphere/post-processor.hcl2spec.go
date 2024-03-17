@@ -18,18 +18,18 @@ type FlatConfig struct {
 	PackerOnError       *string           `mapstructure:"packer_on_error" cty:"packer_on_error" hcl:"packer_on_error"`
 	PackerUserVars      map[string]string `mapstructure:"packer_user_variables" cty:"packer_user_variables" hcl:"packer_user_variables"`
 	PackerSensitiveVars []string          `mapstructure:"packer_sensitive_variables" cty:"packer_sensitive_variables" hcl:"packer_sensitive_variables"`
-	Cluster             *string           `mapstructure:"cluster" cty:"cluster" hcl:"cluster"`
-	Datacenter          *string           `mapstructure:"datacenter" cty:"datacenter" hcl:"datacenter"`
-	Datastore           *string           `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
+	Cluster             *string           `mapstructure:"cluster" required:"true" cty:"cluster" hcl:"cluster"`
+	Datacenter          *string           `mapstructure:"datacenter" required:"true" cty:"datacenter" hcl:"datacenter"`
+	Datastore           *string           `mapstructure:"datastore" required:"true" cty:"datastore" hcl:"datastore"`
 	DiskMode            *string           `mapstructure:"disk_mode" cty:"disk_mode" hcl:"disk_mode"`
-	Host                *string           `mapstructure:"host" cty:"host" hcl:"host"`
+	Host                *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
 	ESXiHost            *string           `mapstructure:"esxi_host" cty:"esxi_host" hcl:"esxi_host"`
 	Insecure            *bool             `mapstructure:"insecure" cty:"insecure" hcl:"insecure"`
 	Options             []string          `mapstructure:"options" cty:"options" hcl:"options"`
 	Overwrite           *bool             `mapstructure:"overwrite" cty:"overwrite" hcl:"overwrite"`
-	Password            *string           `mapstructure:"password" cty:"password" hcl:"password"`
+	Password            *string           `mapstructure:"password" required:"true" cty:"password" hcl:"password"`
 	ResourcePool        *string           `mapstructure:"resource_pool" cty:"resource_pool" hcl:"resource_pool"`
-	Username            *string           `mapstructure:"username" cty:"username" hcl:"username"`
+	Username            *string           `mapstructure:"username" required:"true" cty:"username" hcl:"username"`
 	VMFolder            *string           `mapstructure:"vm_folder" cty:"vm_folder" hcl:"vm_folder"`
 	VMName              *string           `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	VMNetwork           *string           `mapstructure:"vm_network" cty:"vm_network" hcl:"vm_network"`

@@ -1,35 +1,42 @@
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `cluster` (string) - Cluster
+- `disk_mode` (string) - Specifies the disk format of the target virtual machine. One of `thin`, `thick`,
 
-- `datacenter` (string) - Datacenter
+- `esxi_host` (string) - Specifies the fully qualified domain name or IP address of the ESXi host to upload the
+  virtual machine. This is _not required_ if `host` is a vCenter Server.
 
-- `datastore` (string) - Datastore
+- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
 
-- `disk_mode` (string) - Disk Mode
+- `options` ([]string) - Specifies custom options to add in `ovftool`.
+  Use `ovftool --help` to list all the options available.
 
-- `host` (string) - Host
+- `overwrite` (bool) - Specifies whether to overwrite the existing files.
+  If `true`, forces existing files to to be overwritten. Defaults to `false`.
 
-- `esxi_host` (string) - ES Xi Host
+- `resource_pool` (string) - Specifies the name of the resource pool to place the virtual machine.
 
-- `insecure` (bool) - Insecure
+- `vm_folder` (string) - Specifies the name of the virtual machine folder path where the virtual machine will be
+  placed.
 
-- `options` ([]string) - Options
+- `vm_name` (string) - Specifies the name of the virtual machine to be created on the vSphere endpoint.
 
-- `overwrite` (bool) - Overwrite
+- `vm_network` (string) - Specifies the name of the network in which to place the virtual machine.
 
-- `password` (string) - Password
-
-- `resource_pool` (string) - Resource Pool
-
-- `username` (string) - Username
-
-- `vm_folder` (string) - VM Folder
-
-- `vm_name` (string) - VM Name
-
-- `vm_network` (string) - VM Network
-
-- `hardware_version` (string) - Hardware Version
+- `hardware_version` (string) - Specifies the maximum virtual hardware version for the deployed virtual machine.
+  
+  It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
+  virtual hardware version of the deployed virtual machine  to the specified version.
+  If the source virtual machine's hardware version is higher than the specified version, the
+  deployed virtual machine's hardware version will be downgraded to the specified version.
+  
+  If the source virtual machine's hardware version is lower than or equal to the specified
+  version, the deployed virtual machine's hardware version will be the same as the source
+  virtual machine's.
+  
+  This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+  version is different than the one used to create the artifact.
+  
+  See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information on the
+  virtual hardware versions supported.
 
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->

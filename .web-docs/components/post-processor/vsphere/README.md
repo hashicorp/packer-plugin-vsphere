@@ -1,84 +1,94 @@
 Type: `vsphere`
 Artifact BuilderId: `packer.post-processor.vsphere`
 
-The Packer vSphere post-processor takes an artifact and uploads it to a vSphere endpoint.
-The artifact must have a vmx/ova/ovf image.
+This post-processor uploads an artifact to a vSphere endpoint.
+
+The artifact must be a VMX, OVA, or OVF file.
 
 ## Configuration
 
-There are many configuration options available for the post-processor. They are
-segmented below into two categories: required and optional parameters. Within
-each category, the available configuration keys are alphabetized.
+The following configuration options are available for the post-processor.
 
 Required:
 
-- `cluster` (string) - The vSphere cluster or ESXi host to upload the VM. This can be
-  either the name of the vSphere cluster or the FQDN/IP address of an ESXi host.
+<!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `datacenter` (string) - The name of the datacenter within the vSphere environemnt
-   to add the VM.
+- `cluster` (string) - Specifies the vSphere cluster or ESXi host to upload the virtual machine.
+  This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
+  or IP address of the ESXi host.
 
-- `datastore` (string) - The name of the datastore to place the VM. This is
-  _not required_ if `resource_pool` is specified.
+- `datacenter` (string) - Specifies the name of the vSphere datacenter object to place the virtual machine.
+  This is _not required_ if `resource_pool` is specified.
 
-- `host` (string) - The vSphere endpoint that will be contacted to perform
-  the VM upload.
+- `datastore` (string) - Specifies the name of the vSphere datastore to place the virtual machine.
 
-- `password` (string) - The password to use to authenticate to the endpoint.
+- `host` (string) - Specifies the fully qualified domain name or IP address of the vCenter Server or ESXi host.
 
-- `username` (string) - The username to use to authenticate to the endpoint.
+- `password` (string) - Specifies the password to use to authenticate to the vSphere endpoint.
 
-- `vm_name` (string) - The name of the VM after upload.
+- `username` (string) - Specifies the username to use to authenticate to the vSphere endpoint.
+
+<!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->
+
 
 Optional:
 
-- `esxi_host` (string) - Target ESXi host. Used to assign specific ESXi
-  host to upload the resulting VM, when a vCenter Server is used as
-  `host`. Can be either an FQDN (e.g., "esxi-01.example.com", requires proper DNS
-  setup and/or correct DNS search domain setting) or an IPv4 address.
+<!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `disk_mode` (string) - Target disk format. See `ovftool` manual for
-  available options. Default: `thick`.
+- `disk_mode` (string) - Specifies the disk format of the target virtual machine. One of `thin`, `thick`,
 
-- `insecure` (boolean) - Whether or not the connection can be done
-  over an insecure connection. Default: `false`
+- `esxi_host` (string) - Specifies the fully qualified domain name or IP address of the ESXi host to upload the
+  virtual machine. This is _not required_ if `host` is a vCenter Server.
 
-- `keep_input_artifact` (boolean) - When `true`, preserve the local VM files,
-  even after importing them to the vSphere endpoint. Default: `false`.
+- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
 
-- `resource_pool` (string) - The resource pool in which to upload the VM.
+- `options` ([]string) - Specifies custom options to add in `ovftool`.
+  Use `ovftool --help` to list all the options available.
 
-- `vm_folder` (string) - The folder within the datastore to place the VM.
+- `overwrite` (bool) - Specifies whether to overwrite the existing files.
+  If `true`, forces existing files to to be overwritten. Defaults to `false`.
 
-- `vm_network` (string) - The name of the network in which to place the VM.
+- `resource_pool` (string) - Specifies the name of the resource pool to place the virtual machine.
 
-- `overwrite` (boolean) - If `true`, force the system to overwrite the
-  existing files instead create new ones. Default: `false`
+- `vm_folder` (string) - Specifies the name of the virtual machine folder path where the virtual machine will be
+  placed.
 
-- `hardware_version` (string) - This option sets the maximum virtual hardware version
-  for the deployed VM. It does not upgrade the virtual hardware version of the source VM.
-  Instead, it limits the virtual hardware version of the deployed VM to the specified
-  version. If the source VM's hardware version is higher than the specified version,
-  the deployed VM's hardware version will be downgraded to the specified version.
-  If the source VM's hardware version is lower than or equal to the specified version,
-  the deployed VM's hardware version will be the same as the source VM's.
-  This option is useful when deploying to a vSphere / ESXi host whose version is different
-  than the one used to create the artifact.
+- `vm_name` (string) - Specifies the name of the virtual machine to be created on the vSphere endpoint.
+
+- `vm_network` (string) - Specifies the name of the network in which to place the virtual machine.
+
+- `hardware_version` (string) - Specifies the maximum virtual hardware version for the deployed virtual machine.
   
-  See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information
-  on the virtual hardware versions supported for each vSphere / ESXi version.
+  It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
+  virtual hardware version of the deployed virtual machine  to the specified version.
+  If the source virtual machine's hardware version is higher than the specified version, the
+  deployed virtual machine's hardware version will be downgraded to the specified version.
+  
+  If the source virtual machine's hardware version is lower than or equal to the specified
+  version, the deployed virtual machine's hardware version will be the same as the source
+  virtual machine's.
+  
+  This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+  version is different than the one used to create the artifact.
+  
+  See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information on the
+  virtual hardware versions supported.
 
-- `options` (array of strings) - Custom options to add in `ovftool`. See
-  `ovftool --help` to list all the options
+<!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->
 
-# Example
 
-The following is an example of the vSphere post-processor being used in
-conjunction with the null builder to upload a vmx to a vSphere cluster.
+- `keep_input_artifact` (boolean) - Specifies to preserve the local virtual machines files, even
+  after importing them to the vSphere endpoint. Defaults to `false`.
 
-You can also use this post-processor with the vmx artifact from a build.
+# Example Usage
 
-**HCL2**
+The following is an example of the vSphere post-processor being used in conjunction with the `null`
+builder to upload a VMX to a vSphere cluster. You can also use this post-processor with the VMX
+artifact from a build.
+
+An example is shown below, showing only the post-processor configuration:
+
+In HCL2:
 
 ```hcl
 source "null" "example" {
@@ -96,7 +106,7 @@ build {
           host                = "vcenter.example.com"
           username            = "administrator@vsphere.local"
           password            = "VMw@re1!"
-          datacenter          = "dc-01"   
+          datacenter          = "dc-01"
           cluster             = "cluster-01"
           datastore           = "datastore-01"
           vm_network          = "VM Network"
@@ -106,7 +116,7 @@ build {
 }
 ```
 
-**JSON**
+In JSON:
 
 ```json
 {
@@ -135,33 +145,34 @@ build {
 }
 ```
 
-
 # Privileges
 
-The post-processor uses `ovftool` and therefore needs the same privileges
-as `ovftool`. Rather than giving full administrator access, you can create a role
-to give the post-processor the permissions necessary to run. Below is an example
-role. Please note that this is a user-supplied list so there may be a few
-extraneous permissions that are not strictly required.
+The post-processor uses `ovftool` and tneeds several privileges to be able to run `ovftool`.
 
-For vSphere the role needs the following privileges:
+Rather than giving full administrator access, you can create a role to give the post-processor the
+privileges necessary to run.
 
-    Datastore.AllocateSpace
-    Host.Config.AdvancedConfig
-    Host.Config.NetService
-    Host.Config.Network
-    Network.Assign
-    System.Anonymous
-    System.Read
-    System.View
-    VApp.Import
-    VirtualMachine.Config.AddNewDisk
-    VirtualMachine.Config.AdvancedConfig
-    VirtualMachine.Inventory.Delete
+Below is an example role that will work. Please note that this is a user-supplied list so there may
+be a few extraneous privileges that are not strictly required.
 
-And this role must be authorized on the:
+For vSphere, the role needs the following privileges:
 
-    Cluster of the host
-    The destination folder (not on Datastore, on the vSphere logical view)
-    The network to be assigned
-    The destination datastore.
+- `Datastore.AllocateSpace`
+- `Host.Config.AdvancedConfig`
+- `Host.Config.NetService`
+- `Host.Config.Network`
+- `Network.Assign`
+- `System.Anonymous`
+- `System.Read`
+- `System.View`
+- `VApp.Import`
+- `VirtualMachine.Config.AddNewDisk`
+- `VirtualMachine.Config.AdvancedConfig`
+- `VirtualMachine.Inventory.Delete`
+
+The role must be authorized on the:
+
+- Cluster of the host.
+- The destination folder.
+- The destination datastore.
+- The network to be assigned.

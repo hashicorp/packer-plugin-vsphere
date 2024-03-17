@@ -1,6 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
+//go:generate packer-sdc struct-markdown
 //go:generate packer-sdc mapstructure-to-hcl2 -type Config
 
 package vsphere
@@ -39,23 +40,60 @@ var (
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-
-	Cluster         string   `mapstructure:"cluster"`
-	Datacenter      string   `mapstructure:"datacenter"`
-	Datastore       string   `mapstructure:"datastore"`
-	DiskMode        string   `mapstructure:"disk_mode"`
-	Host            string   `mapstructure:"host"`
-	ESXiHost        string   `mapstructure:"esxi_host"`
-	Insecure        bool     `mapstructure:"insecure"`
-	Options         []string `mapstructure:"options"`
-	Overwrite       bool     `mapstructure:"overwrite"`
-	Password        string   `mapstructure:"password"`
-	ResourcePool    string   `mapstructure:"resource_pool"`
-	Username        string   `mapstructure:"username"`
-	VMFolder        string   `mapstructure:"vm_folder"`
-	VMName          string   `mapstructure:"vm_name"`
-	VMNetwork       string   `mapstructure:"vm_network"`
-	HardwareVersion string   `mapstructure:"hardware_version"`
+	// Specifies the vSphere cluster or ESXi host to upload the virtual machine.
+	// This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
+	// or IP address of the ESXi host.
+	Cluster string `mapstructure:"cluster" required:"true"`
+	// Specifies the name of the vSphere datacenter object to place the virtual machine.
+	// This is _not required_ if `resource_pool` is specified.
+	Datacenter string `mapstructure:"datacenter" required:"true"`
+	// Specifies the name of the vSphere datastore to place the virtual machine.
+	Datastore string `mapstructure:"datastore"  required:"true"`
+	// Specifies the disk format of the target virtual machine. One of `thin`, `thick`,
+	DiskMode string `mapstructure:"disk_mode"`
+	// Specifies the fully qualified domain name or IP address of the vCenter Server or ESXi host.
+	Host string `mapstructure:"host" required:"true"`
+	// Specifies the fully qualified domain name or IP address of the ESXi host to upload the
+	// virtual machine. This is _not required_ if `host` is a vCenter Server.
+	ESXiHost string `mapstructure:"esxi_host"`
+	// Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+	Insecure bool `mapstructure:"insecure"`
+	// Specifies custom options to add in `ovftool`.
+	// Use `ovftool --help` to list all the options available.
+	Options []string `mapstructure:"options"`
+	// Specifies whether to overwrite the existing files.
+	// If `true`, forces existing files to to be overwritten. Defaults to `false`.
+	Overwrite bool `mapstructure:"overwrite"`
+	// Specifies the password to use to authenticate to the vSphere endpoint.
+	Password string `mapstructure:"password" required:"true"`
+	// Specifies the name of the resource pool to place the virtual machine.
+	ResourcePool string `mapstructure:"resource_pool"`
+	// Specifies the username to use to authenticate to the vSphere endpoint.
+	Username string `mapstructure:"username" required:"true"`
+	// Specifies the name of the virtual machine folder path where the virtual machine will be
+	// placed.
+	VMFolder string `mapstructure:"vm_folder"`
+	// Specifies the name of the virtual machine to be created on the vSphere endpoint.
+	VMName string `mapstructure:"vm_name"`
+	// Specifies the name of the network in which to place the virtual machine.
+	VMNetwork string `mapstructure:"vm_network"`
+	// Specifies the maximum virtual hardware version for the deployed virtual machine.
+	//
+	// It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
+	// virtual hardware version of the deployed virtual machine  to the specified version.
+	// If the source virtual machine's hardware version is higher than the specified version, the
+	// deployed virtual machine's hardware version will be downgraded to the specified version.
+	//
+	// If the source virtual machine's hardware version is lower than or equal to the specified
+	// version, the deployed virtual machine's hardware version will be the same as the source
+	// virtual machine's.
+	//
+	// This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+	// version is different than the one used to create the artifact.
+	//
+	// See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information on the
+	// virtual hardware versions supported.
+	HardwareVersion string `mapstructure:"hardware_version"`
 
 	ctx interpolate.Context
 }
