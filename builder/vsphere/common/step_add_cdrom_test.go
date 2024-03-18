@@ -96,7 +96,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				FindSATAControllerCalled: true,
 				AddCdromCalledTimes:      3,
 				AddCdromTypes:            []string{"sata", "sata", "sata"},
-				AddCdromPaths:            []string{"iso/path", "remote/path", "cd/path"},
+				AddCdromPaths:            []string{"remote/path", "iso/path", "cd/path"},
 			},
 			fail:       false,
 			errMessage: "",
