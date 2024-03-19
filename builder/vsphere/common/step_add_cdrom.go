@@ -74,7 +74,9 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	if path, ok := state.GetOk("iso_remote_path"); ok {
-		s.Config.ISOPaths = append(s.Config.ISOPaths, path.(string))
+		// The order matters: docs say "iso_url" should go first, so make sure to
+		// prepend it.
+		s.Config.ISOPaths = append([]string{path.(string)}, s.Config.ISOPaths...)
 	}
 
 	// Add our custom CD, if it exists
