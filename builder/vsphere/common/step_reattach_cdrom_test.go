@@ -41,18 +41,16 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			expectedAction: multistep.ActionContinue,
 			vmMock: &driver.VirtualMachineMock{
 				ReattachCDRomsCalled: true,
+				CdromDevicesList:     object.VirtualDeviceList{nil},
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled:        true,
-				CdromDevicesList:         object.VirtualDeviceList{nil, nil, nil, nil, nil, nil},
+				CdromDevicesCalled:       true,
+				CdromDevicesList:         object.VirtualDeviceList{nil, nil, nil, nil},
 				ReattachCDRomsCalled:     true,
 				FindSATAControllerCalled: true,
-				AddCdromCalledTimes:      6,
-				AddCdromTypes: []string{
-					"sata", "sata",
-					"sata", "sata",
-					"sata", "sata",
-				},
+				AddCdromCalledTimes:      3,
+				AddCdromTypes:            []string{"sata", "sata", "sata"},
 			},
 			fail: false,
 		},
@@ -80,6 +78,7 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			expectedVmMock: &driver.VirtualMachineMock{
 				RemoveNCdromsCalled:  true,
 				EjectCdromsCalled:    true,
+				CdromDevicesCalled:   true,
 				ReattachCDRomsCalled: true,
 				AddCdromCalledTimes:  0,
 				CdromDevicesList:     object.VirtualDeviceList{nil, nil},
@@ -103,11 +102,14 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			expectedAction: multistep.ActionContinue,
 			vmMock: &driver.VirtualMachineMock{
 				ReattachCDRomsCalled: true,
+				CdromDevicesList:     object.VirtualDeviceList{nil, nil},
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled:    true,
+				CdromDevicesCalled:   true,
 				ReattachCDRomsCalled: true,
 				AddCdromCalledTimes:  0,
+				CdromDevicesList:     object.VirtualDeviceList{nil, nil},
 			},
 			fail: false,
 		},
