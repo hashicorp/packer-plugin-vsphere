@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/govmomi/object"
 )
 
 func TestStepReattachCDRom_Run(t *testing.T) {
@@ -43,6 +44,7 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				EjectCdromsCalled:        true,
+				CdromDevicesList:         object.VirtualDeviceList{nil, nil, nil, nil, nil, nil},
 				ReattachCDRomsCalled:     true,
 				FindSATAControllerCalled: true,
 				AddCdromCalledTimes:      6,
@@ -73,12 +75,14 @@ func TestStepReattachCDRom_Run(t *testing.T) {
 			expectedAction: multistep.ActionContinue,
 			vmMock: &driver.VirtualMachineMock{
 				ReattachCDRomsCalled: true,
+				CdromDevicesList:     object.VirtualDeviceList{nil, nil, nil, nil},
 			},
 			expectedVmMock: &driver.VirtualMachineMock{
 				RemoveNCdromsCalled:  true,
 				EjectCdromsCalled:    true,
 				ReattachCDRomsCalled: true,
 				AddCdromCalledTimes:  0,
+				CdromDevicesList:     object.VirtualDeviceList{nil, nil},
 			},
 			fail: false,
 		},

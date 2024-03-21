@@ -12,6 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/govmomi/object"
 )
 
 func TestCDRomConfig_Prepare(t *testing.T) {
@@ -97,6 +98,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				AddCdromCalledTimes:      3,
 				AddCdromTypes:            []string{"sata", "sata", "sata"},
 				AddCdromPaths:            []string{"remote/path", "iso/path", "cd/path"},
+				CdromDevicesList:         object.VirtualDeviceList{nil, nil, nil},
 			},
 			fail:       false,
 			errMessage: "",
@@ -156,6 +158,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{"ide"},
 				AddCdromPaths:       []string{"iso/path"},
+				CdromDevicesList:    object.VirtualDeviceList{nil},
 			},
 			fail:       false,
 			errMessage: "",
@@ -176,6 +179,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{""},
 				AddCdromPaths:       []string{"iso/path"},
+				CdromDevicesList:    object.VirtualDeviceList{nil},
 			},
 			fail:       true,
 			errMessage: fmt.Sprintf("error mounting an image 'iso/path': %v", fmt.Errorf("AddCdrom error")),
@@ -194,6 +198,7 @@ func TestStepAddCDRom_Run(t *testing.T) {
 				AddCdromCalledTimes: 1,
 				AddCdromTypes:       []string{""},
 				AddCdromPaths:       []string{"remote/path"},
+				CdromDevicesList:    object.VirtualDeviceList{nil},
 			},
 			fail:       true,
 			errMessage: fmt.Sprintf("error mounting an image 'remote/path': %v", fmt.Errorf("AddCdrom error")),
