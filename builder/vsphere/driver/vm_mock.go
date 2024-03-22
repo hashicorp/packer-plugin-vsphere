@@ -295,6 +295,7 @@ func (vm *VirtualMachineMock) ReattachCDRoms() error {
 
 func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
+	vm.AddCdromPaths = nil
 	return vm.EjectCdromsErr
 }
 
