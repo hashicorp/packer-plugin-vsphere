@@ -1519,7 +1519,7 @@ Virtual Machine | Configuration > Add new disk                        | `Virtual
 ...             | Provisioning > Mark as virtual machine              | `VirtualMachine.Provisioning.MarkAsVM`
 ...             | State > Create snapshot                             | `VirtualMachine.State.CreateSnapshot`
 
-Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.security.doc/GUID-03B36057-B38C-479C-BD78-341CD83A0584.html)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
+Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-74F53189-EF41-4AC1-A78E-D25621855800.html#how-do-permissions-work-in-vsphere-0)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
 
 For example:
 
