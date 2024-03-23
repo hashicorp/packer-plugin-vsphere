@@ -3,7 +3,7 @@ Artifact BuilderId: `vsphere.supervisor`
 
 This builder deploys and publishes new VMs to a vSphere Supervisor cluster using VM Service.
 If you are new to VM Service, please refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu
-](https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-tanzu/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html) for more information.
+](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-with-tanzu-services-workloads/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html) for more information.
 
 - It uses a kubeconfig file to connect to the vSphere Supervisor cluster.
 - It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
