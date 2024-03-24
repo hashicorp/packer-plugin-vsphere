@@ -16,6 +16,7 @@ import (
 // HCL Example:
 //
 // ```hcl
+//
 //	storage {
 //	    disk_size = 15000
 //	}
@@ -23,11 +24,13 @@ import (
 //	    disk_size = 20000
 //	    disk_thin_provisioned = true
 //	}
+//
 // ```
 //
 // JSON Example:
 //
 // ```json
+//
 //	"storage": [
 //	  {
 //	    "disk_size": 15000
@@ -37,6 +40,7 @@ import (
 //	    "disk_thin_provisioned": true
 //	  }
 //	],
+//
 // ```
 //
 // The following example will use two PVSCSI controllers and two disks on each
@@ -45,28 +49,31 @@ import (
 // HCL Example:
 //
 // ```hcl
-//  disk_controller_type = ["pvscsi", "pvscsi"]
-//	storage {
-//	   disk_size = 15000,
-//	   disk_controller_index = 0
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 0
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 1
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 1
-//	}
+//
+//	 disk_controller_type = ["pvscsi", "pvscsi"]
+//		storage {
+//		   disk_size = 15000,
+//		   disk_controller_index = 0
+//		}
+//		storage {
+//		   disk_size = 15000
+//		   disk_controller_index = 0
+//		}
+//		storage {
+//		   disk_size = 15000
+//		   disk_controller_index = 1
+//		}
+//		storage {
+//		   disk_size = 15000
+//		   disk_controller_index = 1
+//		}
+//
 // ```
 //
 // JSON Example:
 //
 // ```json
+//
 //	"disk_controller_type": ["pvscsi", "pvscsi"],
 //	"storage": [
 //	  {
@@ -86,8 +93,8 @@ import (
 //	    "disk_controller_index": 1
 //	  }
 //	],
+//
 // ```
-
 type DiskConfig struct {
 	// The size of the disk in MiB.
 	DiskSize int64 `mapstructure:"disk_size" required:"true"`

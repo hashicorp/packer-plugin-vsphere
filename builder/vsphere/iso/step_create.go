@@ -95,7 +95,7 @@ type CreateConfig struct {
 	// ESXi host, run the following PowerShell command using `VMware.PowerCLI`:
 	//
 	// ```powershell
-	// Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
+	// Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere.local" -Password "password"
 	// $esxiHost = Get-VMHost -Name "esxi-01.example.com"
 	// $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
 	// $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key

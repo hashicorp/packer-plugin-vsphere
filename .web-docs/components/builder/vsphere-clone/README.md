@@ -122,12 +122,13 @@ disk controller plus the new configured ones.
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-The following example that will create a 15GB and a 20GB disk on the virtual machine.
-The second disk will be thin provisioned:
+The following example that will create a 15GB and a 20GB disk on the virtual
+machine. The second disk will be thin provisioned:
 
 HCL Example:
 
 ```hcl
+
 	storage {
 	    disk_size = 15000
 	}
@@ -135,11 +136,13 @@ HCL Example:
 	    disk_size = 20000
 	    disk_thin_provisioned = true
 	}
+
 ```
 
 JSON Example:
 
 ```json
+
 	"storage": [
 	  {
 	    "disk_size": 15000
@@ -149,35 +152,40 @@ JSON Example:
 	    "disk_thin_provisioned": true
 	  }
 	],
+
 ```
 
-The following example will use two PVSCSI controllers and two disks on each controller.
+The following example will use two PVSCSI controllers and two disks on each
+controller.
 
 HCL Example:
 
 ```hcl
-	disk_controller_type = ["pvscsi", "pvscsi"]
-	storage {
-	   disk_size = 15000,
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
+
+	 disk_controller_type = ["pvscsi", "pvscsi"]
+		storage {
+		   disk_size = 15000,
+		   disk_controller_index = 0
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 0
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 1
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 1
+		}
+
 ```
 
 JSON Example:
 
 ```json
+
 	"disk_controller_type": ["pvscsi", "pvscsi"],
 	"storage": [
 	  {
@@ -197,6 +205,7 @@ JSON Example:
 	    "disk_controller_index": 1
 	  }
 	],
+
 ```
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
@@ -1659,7 +1668,7 @@ HCL Example:
 
 ```hcl
 	content_library_destination {
-			library = "Example Content Library"
+		library = "Example Content Library"
 	}
 ```
 

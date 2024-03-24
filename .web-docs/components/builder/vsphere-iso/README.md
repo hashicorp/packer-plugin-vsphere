@@ -11,11 +11,11 @@ their respective End of General Support dates. For detailed information, refer t
 
 ## Examples
 
-- Basic examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/)
-directory of the GitHub repository.
+- Basic examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/examples/)
+  directory of the GitHub repository.
 
 - Additional examples are available in the [`vmware-samples/packer-examples-for-vsphere`](https://github.com/vmware-samples/packer-examples-for-vsphere)
-GitHub repository maintained by VMware by Broadcom.
+  GitHub repository maintained by VMware by Broadcom.
 
 ## Configuration Reference
 
@@ -264,7 +264,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   ESXi host, run the following PowerShell command using `VMware.PowerCLI`:
   
   ```powershell
-  Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
+  Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere.local" -Password "password"
   $esxiHost = Get-VMHost -Name "esxi-01.example.com"
   $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
   $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
@@ -736,12 +736,13 @@ JSON Example:
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-The following example that will create a 15GB and a 20GB disk on the virtual machine.
-The second disk will be thin provisioned:
+The following example that will create a 15GB and a 20GB disk on the virtual
+machine. The second disk will be thin provisioned:
 
 HCL Example:
 
 ```hcl
+
 	storage {
 	    disk_size = 15000
 	}
@@ -749,11 +750,13 @@ HCL Example:
 	    disk_size = 20000
 	    disk_thin_provisioned = true
 	}
+
 ```
 
 JSON Example:
 
 ```json
+
 	"storage": [
 	  {
 	    "disk_size": 15000
@@ -763,35 +766,40 @@ JSON Example:
 	    "disk_thin_provisioned": true
 	  }
 	],
+
 ```
 
-The following example will use two PVSCSI controllers and two disks on each controller.
+The following example will use two PVSCSI controllers and two disks on each
+controller.
 
 HCL Example:
 
 ```hcl
-	disk_controller_type = ["pvscsi", "pvscsi"]
-	storage {
-	   disk_size = 15000,
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
+
+	 disk_controller_type = ["pvscsi", "pvscsi"]
+		storage {
+		   disk_size = 15000,
+		   disk_controller_index = 0
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 0
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 1
+		}
+		storage {
+		   disk_size = 15000
+		   disk_controller_index = 1
+		}
+
 ```
 
 JSON Example:
 
 ```json
+
 	"disk_controller_type": ["pvscsi", "pvscsi"],
 	"storage": [
 	  {
@@ -811,6 +819,7 @@ JSON Example:
 	    "disk_controller_index": 1
 	  }
 	],
+
 ```
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
