@@ -1,21 +1,21 @@
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+- `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
-- `datacenter` (string) - Specifies the name of the datacenter to use.
+- `datacenter` (string) - The name of the datacenter to use.
   Required when the vCenter Server instance endpoint has more than one datacenter.
 
-- `template_name` (string) - Specifies the name of the template.
+- `template_name` (string) - The name of the template.
   If not specified, the name of the virtual machine will be used.
 
-- `folder` (string) - Specifies the name of the virtual machine folder path where the template will be created.
+- `folder` (string) - The name of the virtual machine folder path where the template will be created.
 
-- `snapshot_enable` (bool) - Specifies whether to create a snapshot before marking as a template. Defaults to `false`.
+- `snapshot_enable` (bool) - Create a snapshot before marking as a template. Defaults to `false`.
 
-- `snapshot_name` (string) - Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
+- `snapshot_name` (string) - The name of the snapshot. Required when `snapshot_enable` is `true`.
 
-- `snapshot_description` (string) - Specifies a description for the snapshot. Required when `snapshot_enable` is `true`.
+- `snapshot_description` (string) - A description for the snapshot. Required when `snapshot_enable` is `true`.
 
-- `reregister_vm` (boolean) - Specifies to keep the virtual machine registered after marking as a template.
+- `reregister_vm` (boolean) - Keepe the virtual machine registered after marking as a template.
 
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; -->

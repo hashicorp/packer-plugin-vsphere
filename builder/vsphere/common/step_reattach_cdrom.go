@@ -17,11 +17,12 @@ import (
 )
 
 type ReattachCDRomConfig struct {
-	// Reattach one or more configured CD-ROM devices. Range: 1-4.
-	// You can reattach up to 4 CD-ROM devices to the final build artifact.
-	// If set to 0, `reattach_cdroms` is ignored and the step is skipped.
-	// When set to a value in the range, `remove_cdrom` is ignored and
-	// the CD-ROM devices are kept without any attached media.
+	// The number of CD-ROM devices to reattach to the final build artifact.
+	// Range: 0 - 4. Defaults to 0.
+	//
+	// -> **Note:** If set to 0, the step is skipped. When set to a value in the
+	// range, `remove_cdrom` is ignored and the CD-ROM devices are kept without
+	// any attached media.
 	ReattachCDRom int `mapstructure:"reattach_cdroms"`
 }
 

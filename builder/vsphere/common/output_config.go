@@ -17,13 +17,12 @@ import (
 )
 
 type OutputConfig struct {
-	// This setting specifies the directory that
-	// artifacts from the build, such as the virtual machine files and disks,
-	// will be output to. The path to the directory may be relative or
-	// absolute. If relative, the path is relative to the working directory
-	// packer is executed from. This directory must not exist or, if
+	// The directory where artifacts from the build, such as the virtual machine
+	// files and disks, will be output to. The path to the directory may be
+	// relative or absolute. If relative, the path is relative to the working
+	// directory Packer is run from. This directory must not exist or, if
 	// created, must be empty prior to running the builder. By default this is
-	// "output-BUILDNAME" where "BUILDNAME" is the name of the build.
+	// "output-<buildName>" where "buildName" is the name of the build.
 	OutputDir string `mapstructure:"output_directory" required:"false"`
 	// The permissions to apply to the "output_directory", and to any parent
 	// directories that get created for output_directory.  By default this is

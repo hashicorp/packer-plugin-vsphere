@@ -1,29 +1,30 @@
 <!-- Code generated from the comments of the LocationConfig struct in builder/vsphere/common/config_location.go; DO NOT EDIT MANUALLY -->
 
-- `vm_name` (string) - Name of the virtual machine.
+- `vm_name` (string) - The name of the virtual machine.
 
-- `folder` (string) - VM folder where the virtual machine is created.
+- `folder` (string) - The virtual machine folder where the virtual machine is created.
 
-- `cluster` (string) - vSphere cluster where the virtual machine is created. See the
-  [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
-  section above for more details.
+- `cluster` (string) - The cluster where the virtual machine is created.
+  Refer to the [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
+  section for more details.
 
-- `host` (string) - ESXi host where the virtual machine is created. A full path must be
-  specified if the host is in a folder. For example `folder/host`. See the
-  [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
-  section above for more details.
+- `host` (string) - The ESXi host where the virtual machine is created. A full path must be
+  specified if the ESXi host is in a folder. For example `folder/host`.
+  Refer to the [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
+  section for more details.
 
-- `resource_pool` (string) - vSphere resource pool where the virtual machine is created.
+- `resource_pool` (string) - The resource pool where the virtual machine is created.
   If this is not specified, the root resource pool associated with the
   `host` or `cluster` is used.
-  Note that the full path to the resource pool must be provided.
+  
+  ~> **Note:**  The full path to the resource pool must be provided.
   For example, a simple resource pool path might resemble `rp-packer` and
   a nested path might resemble 'rp-packer/rp-linux-images'.
 
-- `datastore` (string) - vSphere datastore where the virtual machine is created.
+- `datastore` (string) - The datastore where the virtual machine is created.
   Required if `host` is a cluster, or if `host` has multiple datastores.
 
-- `set_host_for_datastore_uploads` (bool) - Specifies that the host is used for uploading files to the datastore.
-  Defaults to false.
+- `set_host_for_datastore_uploads` (bool) - The ESXI host used for uploading files to the datastore.
+  Defaults to `false`.
 
 <!-- End of code generated from the comments of the LocationConfig struct in builder/vsphere/common/config_location.go; -->

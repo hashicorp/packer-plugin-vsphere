@@ -48,12 +48,9 @@ type CustomizeConfig struct {
 	// `windows_sysprep_text`.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
 	// Provide the text for the `sysprep.xml` content to allow control of the
-	// customization process independent of vSphere. This option is intended to
-	// be used with HCL templates.
+	// customization process independent of vSphere.
 	//
-	// Example usage:
-	//
-	// In HCL2:
+	// HCL Examples:
 	//
 	// ```hcl
 	// customize {
@@ -69,6 +66,25 @@ type CustomizeConfig struct {
 	//    })
 	// }
 	// ```
+	//
+	// JSON Examples
+	//
+	// ```json
+	// {
+	//   "customize": {
+	//     "windows_sysprep_text": "<path-to-sysprep.xml>"
+	//   }
+	// }
+	// ```
+	//
+	// ```json
+	// {
+	//   "customize": {
+	//     "windows_sysprep_text": "<path-to-sysprep.xml>",
+	//     "var1": "example",
+	//     "var2": "example-2"
+	//   }
+	// }
 	WindowsSysPrepText string `mapstructure:"windows_sysprep_text"`
 	// Set up network interfaces individually to correspond with the network
 	// adapters on the virtual machine. To use DHCP, specify an empty
@@ -99,14 +115,14 @@ type WindowsOptions struct {
 	// A list of commands to run at first logon after the guest operating system
 	// is customized.
 	RunOnceCommandList []string `mapstructure:"run_once_command_list"`
-	// Aautomatically log on the Administrator account after the guest operating
+	// Automatically log on the `Administrator` account after the guest operating
 	// system is customized.
 	AutoLogon *bool `mapstructure:"auto_logon"`
 	// The number of times the guest operating system should auto-logon the
-	// Administrator account when `auto_logon` is set to `true`.
+	// `Administrator` account when `auto_logon` is set to `true`.
 	// Defaults to `1`.
 	AutoLogonCount *int32 `mapstructure:"auto_logon_count"`
-	// The password for the guest operating system's `Administrator`` account.
+	// The password for the guest operating system's `Administrator` account.
 	AdminPassword *string `mapstructure:"admin_password"`
 	// The time zone for the guest operating system.
 	// Defaults to `85` (Pacific Time).
@@ -116,7 +132,7 @@ type WindowsOptions struct {
 	Workgroup string `mapstructure:"workgroup"`
 	// The hostname for the guest operating system.
 	ComputerName string `mapstructure:"computer_name"`
-	// The full name for the guest operating system's Administrator account.
+	// The full name for the guest operating system's `Administrator` account.
 	// Defaults to `Administrator`.
 	FullName string `mapstructure:"full_name"`
 	// The organization name for the guest operating system.

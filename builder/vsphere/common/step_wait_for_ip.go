@@ -28,7 +28,7 @@ type WaitIpConfig struct {
 	// Amount of time to wait for VM's IP to settle down, sometimes VM may
 	// report incorrect IP initially, then its recommended to set that
 	// parameter to apx. 2 minutes. Examples 45s and 10m. Defaults to
-	// 5s(5 seconds). See the Golang
+	// 5s(5 seconds). Refer to the Golang
 	// [ParseDuration](https://golang.org/pkg/time/#ParseDuration) documentation
 	//  for full details.
 	SettleTimeout time.Duration `mapstructure:"ip_settle_timeout"`

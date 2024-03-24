@@ -16,7 +16,8 @@ import (
 )
 
 type RemoveCDRomConfig struct {
-	// Remove CD-ROM devices from template. Defaults to `false`.
+	// Remove all CD-ROM devices from the virtual machine when the build is
+	// complete. Defaults to `false`.
 	RemoveCdrom bool `mapstructure:"remove_cdrom"`
 }
 

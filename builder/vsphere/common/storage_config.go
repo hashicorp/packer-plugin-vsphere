@@ -10,13 +10,24 @@ import (
 	"fmt"
 )
 
-// Defines the disk storage for a VM.
+// The following example that will create a 15GB and a 20GB disk on the virtual
+// machine. The second disk will be thin provisioned:
 //
-// Example that will create a 15GB and a 20GB disk on the VM. The second disk will be thin provisioned:
+// HCL Example:
 //
-// In JSON:
+// ```hcl
+//	storage {
+//	    disk_size = 15000
+//	}
+//	storage {
+//	    disk_size = 20000
+//	    disk_thin_provisioned = true
+//	}
+// ```
+//
+// JSON Example:
+//
 // ```json
-//
 //	"storage": [
 //	  {
 //	    "disk_size": 15000
@@ -26,26 +37,36 @@ import (
 //	    "disk_thin_provisioned": true
 //	  }
 //	],
-//
 // ```
-// In HCL2:
+//
+// The following example will use two PVSCSI controllers and two disks on each
+// controller.
+//
+// HCL Example:
+//
 // ```hcl
-//
+//  disk_controller_type = ["pvscsi", "pvscsi"]
 //	storage {
-//	    disk_size = 15000
+//	   disk_size = 15000,
+//	   disk_controller_index = 0
 //	}
 //	storage {
-//	    disk_size = 20000
-//	    disk_thin_provisioned = true
+//	   disk_size = 15000
+//	   disk_controller_index = 0
 //	}
-//
+//	storage {
+//	   disk_size = 15000
+//	   disk_controller_index = 1
+//	}
+//	storage {
+//	   disk_size = 15000
+//	   disk_controller_index = 1
+//	}
 // ```
 //
-// Example that creates 2 pvscsi controllers and adds 2 disks to each one:
+// JSON Example:
 //
-// In JSON:
 // ```json
-//
 //	"disk_controller_type": ["pvscsi", "pvscsi"],
 //	"storage": [
 //	  {
@@ -65,49 +86,31 @@ import (
 //	    "disk_controller_index": 1
 //	  }
 //	],
-//
 // ```
-//
-// In HCL2:
-// ```hcl
-//
-//	disk_controller_type = ["pvscsi", "pvscsi"]
-//	storage {
-//	   disk_size = 15000,
-//	   disk_controller_index = 0
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 0
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 1
-//	}
-//	storage {
-//	   disk_size = 15000
-//	   disk_controller_index = 1
-//	}
-//
-// ```
+
 type DiskConfig struct {
 	// The size of the disk in MiB.
 	DiskSize int64 `mapstructure:"disk_size" required:"true"`
-	// Enable VMDK thin provisioning for VM. Defaults to `false`.
+	// Enable thin provisioning for the disk.
+	// Defaults to `false`.
 	DiskThinProvisioned bool `mapstructure:"disk_thin_provisioned"`
-	// Enable VMDK eager scrubbing for VM. Defaults to `false`.
+	// Enable eager scrubbing for the disk.
+	// Defaults to `false`.
 	DiskEagerlyScrub bool `mapstructure:"disk_eagerly_scrub"`
-	// The assigned disk controller. Defaults to the first one (0).
+	// The assigned disk controller for the disk.
+	// Defaults to the first controller, `(0)`.
 	DiskControllerIndex int `mapstructure:"disk_controller_index"`
 }
 
 type StorageConfig struct {
-	// Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
-	// Defaults to `lsilogic`. See
-	// [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
-	// for additional details.
+	// The disk controller type. One of `lsilogic`, `lsilogic-sas`, `pvscsi`,
+	// `nvme`, or `scsi`. Defaults to `lsilogic`. Use a list to define
+	// additional controllers. Refer to [SCSI, SATA, and NVMe Storage Controller
+	// Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
+	// for additional information.
 	DiskControllerType []string `mapstructure:"disk_controller_type"`
-	// Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).
+	// A collection of one or more disks to be provisioned.
+	// Refer to the [Storage Configuration](#storage-configuration) section for additional information.
 	Storage []DiskConfig `mapstructure:"storage"`
 }
 

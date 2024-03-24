@@ -21,12 +21,11 @@ type ConfigParamsConfig struct {
 	// configuration_parameters is a direct passthrough to the vSphere API's
 	// [VirtualMachineConfigSpec](https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/8.0.2.0/data-structures/VirtualMachineConfigSpec/)
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
-
-	// Enables time synchronization with the host. Defaults to false.
+	// Enable time synchronization with the ESXi host where the virtual machine
+	// is running. Defaults to `false`.
 	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
-
-	// If sets to true, vSphere will automatically check and upgrade VMware
-	// Tools upon a system power cycle. If not set, defaults to manual upgrade.
+	// Automatically check for and upgrade VMware Tools after a virtual
+	// machine power cycle. Defaults to `false`.
 	ToolsUpgradePolicy bool `mapstructure:"tools_upgrade_policy"`
 }
 

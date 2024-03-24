@@ -13,12 +13,9 @@
   `windows_sysprep_text`.
 
 - `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the
-  customization process independent of vSphere. This option is intended to
-  be used with HCL templates.
+  customization process independent of vSphere.
   
-  Example usage:
-  
-  In HCL2:
+  HCL Examples:
   
   ```hcl
   customize {
@@ -34,6 +31,25 @@
      })
   }
   ```
+  
+  JSON Examples
+  
+  ```json
+  {
+    "customize": {
+      "windows_sysprep_text": "<path-to-sysprep.xml>"
+    }
+  }
+  ```
+  
+  ```json
+  {
+    "customize": {
+      "windows_sysprep_text": "<path-to-sysprep.xml>",
+      "var1": "example",
+      "var2": "example-2"
+    }
+  }
 
 - `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network
   adapters on the virtual machine. To use DHCP, specify an empty

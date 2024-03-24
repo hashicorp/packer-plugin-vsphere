@@ -16,8 +16,15 @@ import (
 )
 
 type RunConfig struct {
-	// Priority of boot devices. Defaults to `disk,cdrom`
-	BootOrder string `mapstructure:"boot_order"` // example: "floppy,cdrom,ethernet,disk"
+	// The priority of boot devices. Defaults to `disk,cdrom`.
+	//
+	// The available boot devices are: `floppy`, `cdrom`, `ethernet`, and
+	// `disk`.
+	//
+	// -> **Note:** If not set, the boot order is temporarily set to
+	// `disk,cdrom` for the duration of the build and then cleared upon
+	// build completion.
+	BootOrder string `mapstructure:"boot_order"`
 }
 
 type StepRun struct {
@@ -30,7 +37,7 @@ func (s *StepRun) Run(_ context.Context, state multistep.StateBag) multistep.Ste
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
 	if s.Config.BootOrder != "" {
-		ui.Say("Set boot order...")
+		ui.Say("Setting boot order...")
 		order := strings.Split(s.Config.BootOrder, ",")
 		if err := vm.SetBootOrder(order); err != nil {
 			state.Put("error", err)
@@ -38,7 +45,7 @@ func (s *StepRun) Run(_ context.Context, state multistep.StateBag) multistep.Ste
 		}
 	} else {
 		if s.SetOrder {
-			ui.Say("Set boot order temporary...")
+			ui.Say("Setting temporary boot order...")
 			if err := vm.SetBootOrder([]string{"disk", "cdrom"}); err != nil {
 				state.Put("error", err)
 				return multistep.ActionHalt
@@ -46,7 +53,7 @@ func (s *StepRun) Run(_ context.Context, state multistep.StateBag) multistep.Ste
 		}
 	}
 
-	ui.Say("Power on VM...")
+	ui.Say("Powering on virtual machine...")
 	err := vm.PowerOn()
 	if err != nil {
 		state.Put("error", err)
@@ -61,7 +68,7 @@ func (s *StepRun) Cleanup(state multistep.StateBag) {
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
 	if s.Config.BootOrder == "" && s.SetOrder {
-		ui.Say("Clear boot order...")
+		ui.Say("Clearing the boot order...")
 		if err := vm.SetBootOrder([]string{"-"}); err != nil {
 			state.Put("error", err)
 			return
@@ -74,7 +81,7 @@ func (s *StepRun) Cleanup(state multistep.StateBag) {
 		return
 	}
 
-	ui.Say("Power off VM...")
+	ui.Say("Powering off virtual machine...")
 
 	err := vm.PowerOff()
 	if err != nil {

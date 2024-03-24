@@ -2,8 +2,8 @@
 modeline: |
   vim: set ft=pandoc:
 description: >
-  The Packer builder uses the vSphere API to clone an existing vSphere
-  template and create a new virtual machine remotely.
+  This builder clones an existing template, modifies the virtual machine image, and saves the result
+  as a new template using the vSphere API.
 page_title: vSphere Clone - Builders
 sidebar_title: Clone
 ---
@@ -11,38 +11,36 @@ sidebar_title: Clone
 # VMware vSphere Clone Builder
 
 Type: `vsphere-clone`
+
 Artifact BuilderId: `jetbrains.vsphere`
 
-This builder clones VMs from existing templates.
+This builder clones an existing template, modifies the virtual machine image, and saves the result
+as a new template using the vSphere API.
 
-- VMware Player is not required.
-- It uses the official vCenter Server API, and does not require ESXi host [modification](/packer/plugins/builders/vsphere/vsphere-iso#building-on-a-remote-vsphere-hypervisor)
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+-> **Note:** This builder is developed to maintain compatibility with VMware vSphere versions until
+their respective End of General Support dates. For detailed information, refer to the
+[Broadcom Product Lifecycle](https://support.broadcom.com/group/ecx/productlifecycle).
 
 ## Examples
 
-See example templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
+Examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/)
+directory of the GitHub repository.
 
 ## Configuration Reference
 
-There are many configuration options available for this builder. In addition to
-the items listed here, you will want to look at the general configuration
-references for [Hardware](#hardware-configuration),
-[Output](#output-configuration),
-[Boot](#boot-configuration),
-[Run](#run-configuration),
-[Shutdown](#shutdown-configuration),
-[Communicator](#communicator-configuration),
-[Export](#export-configuration),
-configuration references, which are
-necessary for this build to succeed and can be found further down the page.
+There are many configuration options available for this builder. In addition to the items listed
+here, you will want to review the general configuration references for [Hardware](#hardware-configuration),
+[Output](#output-configuration), [Boot](#boot-configuration), [Run](#run-configuration), [Shutdown](#shutdown-configuration),
+[Communicator](#communicator-configuration), and [Export](#export-configuration) configuration
+references, which are necessary for a build to succeed and can be found further down the page.
+
+**Optional:**
 
 @include 'builder/vsphere/clone/Config-not-required.mdx'
 
 ### Clone Configuration
+
+**Optional:**
 
 @include 'builder/vsphere/clone/CloneConfig-not-required.mdx'
 
@@ -50,51 +48,29 @@ necessary for this build to succeed and can be found further down the page.
 
 ### Storage Configuration
 
-When cloning a VM, the storage configuration can be used to add additional storage and disk controllers. The resulting VM
-will contain the origin VM storage and disk controller plus the new configured ones.
+When cloning a virtual machine, the storage configuration can be used to add additional storage and
+disk controllers. The resulting virtual machine will contain the origin virtual machine storage and
+disk controller plus the new configured ones.
 
 @include 'builder/vsphere/common/DiskConfig.mdx'
 
+**Required:**
+
 @include 'builder/vsphere/common/DiskConfig-required.mdx'
 
-#### Optional
+**Optional:**
 
 @include 'builder/vsphere/common/DiskConfig-not-required.mdx'
 
 ### vApp Options Configuration
 
+**Optional:**
+
 @include 'builder/vsphere/clone/vAppConfig-not-required.mdx'
 
-Example of usage:
-
-**JSON**
-
-```json
- "vapp": {
-     "properties": {
-         "hostname": "{{ user `hostname`}}",
-         "user-data": "{{ env `USERDATA`}}"
-     }
- }
-```
-
-A `user-data` field requires the content of a yaml file to be encoded with base64. This
-can be done via environment variable:
-`export USERDATA=$(gzip -c9 <userdata.yaml | { base64 -w0 2>/dev/null || base64; })`
-
-**HCL2**
-
-```hcl
-   vapp {
-     properties = {
-        hostname  = var.hostname
-        user-data = base64encode(var.user_data)
-     }
-   }
-```
-
-
 ### Extra Configuration Parameters
+
+**Optional:**
 
 @include 'builder/vsphere/common/ConfigParamsConfig-not-required.mdx'
 
@@ -102,9 +78,13 @@ can be done via environment variable:
 
 @include '/builder/vsphere/clone/CustomizeConfig.mdx'
 
+**Optional:**
+
 @include 'builder/vsphere/clone/CustomizeConfig-not-required.mdx'
 
 #### Network Interface Settings
+
+**Optional:**
 
 @include 'builder/vsphere/clone/NetworkInterface-not-required.mdx'
 
@@ -114,153 +94,173 @@ can be done via environment variable:
 
 @include 'builder/vsphere/clone/GlobalRoutingSettings.mdx'
 
+**Optional:**
+
 @include 'builder/vsphere/clone/GlobalRoutingSettings-not-required.mdx'
 
 #### Global DNS Settings
 
 @include 'builder/vsphere/clone/GlobalDnsSettings.mdx'
 
+**Optional:**
+
 @include 'builder/vsphere/clone/GlobalDnsSettings-not-required.mdx'
 
-#### Linux Options
+#### Linux Customization Settings
+
+**Optional:**
 
 @include 'builder/vsphere/clone/LinuxOptions-not-required.mdx'
 
-Example of usage:
+**Linux Customization Example**
 
-**JSON**
-
-```json
- "customize": {
-          "linux_options": {
-            "host_name": "foo",
-            "domain": "example.com"
-          },
-          "network_interface": {
-            "ipv4_address": "10.0.0.10",
-            "ipv4_netmask": "24"
-          },
-          "ipv4_gateway": "10.0.0.1",
-          "dns_server_list": ["10.0.0.18"]
- }
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
-   customize {
-         linux_options {
-           host_name = "foo"
-           domain = "example.com"
-         }
+    customize {
+      linux_options {
+        host_name = "foo"
+        domain = "example.com"
+      }
 
-         network_interface {
-           ipv4_address = "10.0.0.10"
-           ipv4_netmask = "24"
-         }
+      network_interface {
+        ipv4_address = "10.0.0.10"
+        ipv4_netmask = "24"
+      }
 
-         ipv4_gateway = 10.0.0.1
-         dns_server_list = ["10.0.0.18"]
-   }
+      ipv4_gateway = 10.0.0.1
+      dns_server_list = ["10.0.0.18"]
+    }
 ```
 
-#### Windows Options
+JSON Example:
+
+```json
+    "customize": {
+      "linux_options": {
+        "host_name": "foo",
+        "domain": "example.com"
+      },
+      "network_interface": {
+        "ipv4_address": "10.0.0.10",
+        "ipv4_netmask": "24"
+      },
+      "ipv4_gateway": "10.0.0.1",
+      "dns_server_list": ["10.0.0.18"]
+    }
+```
+
+#### Windows Customization Settings
+
+**Optional:**
 
 @include 'builder/vsphere/clone/WindowsOptions-not-required.mdx'
 
-Example of usage:
+**Windows Customization Example**
 
-**JSON**
-
-```json
- "customize": {
-          "windows_options": {
-            "host_name": "foo",
-            "workgroup": "example",
-            "product_key": "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX",
-            "admin_password": "password"
-          },
-          "network_interface": {
-            "ipv4_address": "10.0.0.10",
-            "ipv4_netmask": "24"
-          },
-          "ipv4_gateway": "10.0.0.1",
-          "dns_server_list": ["10.0.0.18"]
- }
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
-   customize {
-         windows_options {
-           computer_name = "foo"
-           workgroup = "example"
-           product_key = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXXX"
-           admin_password = "password"
-         }
-
-         network_interface {
-           ipv4_address = "10.0.0.10"
-           ipv4_netmask = "24"
-         }
-
-         ipv4_gateway = 10.0.0.1
-         dns_server_list = ["10.0.0.18"]
-   }
+    customize {
+      windows_options {
+        computer_name = "foo"
+        workgroup = "example"
+        product_key = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+        admin_password = "password"
+      }
+      network_interface {
+        ipv4_address = "10.0.0.10"
+        ipv4_netmask = "24"
+      }
+      ipv4_gateway = 10.0.0.1
+      dns_server_list = ["10.0.0.18"]
+    }
 ```
 
-### Boot configuration
+JSON Example:
+
+```json
+    "customize": {
+      "windows_options": {
+        "host_name": "foo",
+        "workgroup": "example",
+        "product_key": "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX",
+        "admin_password": "password"
+      },
+      "network_interface": {
+        "ipv4_address": "10.0.0.10",
+        "ipv4_netmask": "24"
+      },
+      "ipv4_gateway": "10.0.0.1",
+      "dns_server_list": ["10.0.0.18"]
+    }
+```
+
+### Boot Configuration
 
 @include 'packer-plugin-sdk/bootcommand/BootConfig.mdx'
 
-#### Optional:
+**Optional:**
 
 @include 'packer-plugin-sdk/bootcommand/BootConfig-not-required.mdx'
 
 @include 'builder/vsphere/common/BootConfig-not-required.mdx'
 
-### Http directory configuration
+### HTTP Directory Configuration
 
 @include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig.mdx'
 
-#### Optional:
+**Optional:**
 
 @include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig-not-required.mdx'
 
-### Floppy configuration
+### Floppy Configuration
+
+**Optional:**
 
 @include 'builder/vsphere/common/FloppyConfig-not-required.mdx'
 
 ### Connection Configuration
 
+**Optional:**
+
 @include 'builder/vsphere/common/ConnectConfig-not-required.mdx'
 
 ### Hardware Configuration
+
+**Optional:**
 
 @include 'builder/vsphere/common/HardwareConfig-not-required.mdx'
 
 ### Location Configuration
 
+**Optional:**
+
 @include 'builder/vsphere/common/LocationConfig-not-required.mdx'
 
 ### Run Configuration
+
+**Optional:**
 
 @include 'builder/vsphere/common/RunConfig-not-required.mdx'
 
 ### Shutdown Configuration
 
+**Optional:**
+
 @include 'builder/vsphere/common/ShutdownConfig-not-required.mdx'
 
 ### Wait Configuration
 
+**Optional:**
+
 @include 'builder/vsphere/common/WaitIpConfig-not-required.mdx'
 
-### CDRom Configuration
+### CD-ROM Configuration
 
 @include 'packer-plugin-sdk/multistep/commonsteps/CDConfig.mdx'
 
-#### Optional:
+**Optional:**
 
 @include 'packer-plugin-sdk/multistep/commonsteps/CDConfig-not-required.mdx'
 
@@ -268,13 +268,17 @@ Example of usage:
 
 @include 'builder/vsphere/common/RemoveCDRomConfig-not-required.mdx'
 
-### Communicator configuration
+### Communicator Configuration
 
-#### Optional common fields:
+#### Common
+
+**Optional:**
 
 @include 'packer-plugin-sdk/communicator/Config-not-required.mdx'
 
-#### Optional SSH fields:
+#### SSH
+
+**Optional:**
 
 @include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
 
@@ -286,16 +290,14 @@ Example of usage:
 
 @include 'packer-plugin-sdk/communicator/SSH-Agent-Auth-not-required.mdx'
 
--> **NOTE:** Packer uses vApp Options to inject ssh public keys to the virtual machine.
-The [temporary_key_pair_name](/packer/plugins/builders/vsphere/vsphere-clone#temporary_key_pair_name) will only work
-if the template being cloned contains the vApp property `public-keys`.
-If using [ssh_private_key_file](/packer/plugins/builders/vsphere/vsphere-clone#ssh_private_key_file), provide
-the public key via [configuration_parameters](/packer/plugins/builders/vsphere/vsphere-clone#configuration_parameters) or
-[vApp Options Configuration](/packer/plugins/builders/vsphere/vsphere-clone#vapp-options-configuration) whenever the `guestinto.userdata`
-is available. See [DataSourceVMware](https://cloudinit.readthedocs.io/en/latest/topics/datasources/vmware.html) in
-cloud-init 21.3 and later for more information.
+-> **NOTE:** The builder uses vApp Options to inject SSH public keys to the virtual machine. The `temporary_key_pair_name`
+will only work if the template being cloned contains the vApp property `public-keys`. If using `ssh_private_key_file`,
+provide the public key using the `configuration_parameters` or [vApp Options Configuration](/packer/plugins/builders/vsphere/vsphere-clone#vapp-options-configuration) whenever the `guestinto.userdata` is available.
+Refer to the [VMware](https://docs.cloud-init.io/en/latest/reference/datasources/vmware.html) datasource in cloud-init 21.3 and later for additional information.
 
-#### Optional WinRM fields:
+#### Windows Remote Management (WinRM)
+
+**Optional:**
 
 @include 'packer-plugin-sdk/communicator/WinRM-not-required.mdx'
 
@@ -303,139 +305,148 @@ cloud-init 21.3 and later for more information.
 
 @include 'builder/vsphere/common/ExportConfig.mdx'
 
-#### Optional:
+**Optional:**
 
 @include 'builder/vsphere/common/ExportConfig-not-required.mdx'
 
-#### Output Configuration:
+### Output Configuration
+
+**Optional:**
 
 @include 'builder/vsphere/common/OutputConfig-not-required.mdx'
 
-### Content Library Import Configuration
+### Content Library Configuration
 
 @include 'builder/vsphere/common/ContentLibraryDestinationConfig.mdx'
 
+**Optional:**
+
 @include 'builder/vsphere/common/ContentLibraryDestinationConfig-not-required.mdx'
 
-Minimal example of usage:
-
-**JSON**
-
-```json
-	"content_library_destination" : {
-	    "library": "Packer Library Test"
-	}
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Content Library"
 	}
 ```
 
-
-## Working With Clusters And Hosts
-
-### Standalone Hosts
-
-Only use the `host` option. Optionally specify a `resource_pool`:
-
-**JSON**
+JSON Example:
 
 ```json
-"host": "esxi-01.example.com",
-"resource_pool": "pool1",
+	"content_library_destination" : {
+	    "library": "Example Content Library"
+	}
 ```
 
-**HCL2**
+## Working with Clusters and Hosts
+
+### Standalone ESXi Hosts
+
+Only use the `host` option. Optionally, specify a `resource_pool`:
+
+HCL Example:
 
 ```hcl
-host = "esxi-01.example.com"
-resource_pool = "pool1"
+  host = "esxi-01.example.com"
+  resource_pool = "example_resource_pool"
 ```
 
-
-### Clusters Without DRS
-
-Use the `cluster` and `host`parameters:
-
-**JSON**
+JSON Example:
 
 ```json
-"cluster": "cluster1",
-"host": "esxi-02.example.com",
+  "host": "esxi-01.example.com",
+  "resource_pool": "example_resource_pool",
 ```
 
-**HCL2**
+### Clusters with Distributed Resource Scheduler Enabled
+
+Only use the `cluster` option. Optionally, specify a `resource_pool`:
+
+HCL Example:
 
 ```hcl
-cluster = "cluster1"
-host = "esxi-02.example.com"
+  cluster = "cluster-01"
+  resource_pool = "example_resource_pool"
 ```
 
-
-### Clusters With DRS
-
-Only use the `cluster` option. Optionally specify a `resource_pool`:
-
-**JSON**
+JSON Example:
 
 ```json
-"cluster": "cluster2",
-"resource_pool": "pool1",
+  "cluster": "cluster-01",
+  "resource_pool": "example_resource_pool",
 ```
 
-**HCL2**
+### Clusters without Distributed Resource Scheduler Enabled
+
+Use the `cluster` and `host` parameters:
+
+HCL Example:
 
 ```hcl
-cluster = "cluster2"
-resource_pool = "pool1"
+  cluster = "cluster-01"
+  host = "esxi-01.example.com"
 ```
 
+JSON Example:
 
-## Required vSphere Privileges
+```json
+  "cluster": "cluster-01",
+  "host": "esxi-01.example.com",
+```
+
+## Privileges
 
 - VM folder (this object and children):
+
   ```text
-  Virtual machine -> Inventory
-  Virtual machine -> Configuration
-  Virtual machine -> Interaction
-  Virtual machine -> Snapshot management
-  Virtual machine -> Provisioning
+  Virtual machine > Inventory
+  Virtual machine > Configuration
+  Virtual machine > Interaction
+  Virtual machine > Snapshot management
+  Virtual machine > Provisioning
   ```
-  Individual privileges are listed in https://github.com/jetbrains-infra/packer-builder-vsphere/issues/97#issuecomment-436063235.
+
 - Resource pool, host, or cluster (this object):
+
   ```text
   Resource -> Assign virtual machine to resource pool
   ```
+
 - Host in clusters without DRS (this object):
-  ```text
-  Read-only
-  ```
-- Datastore (this object):
-  ```text
-  Datastore -> Allocate space
-  Datastore -> Browse datastore
-  Datastore -> Low level file operations
-  ```
-- Network (this object):
-  ```text
-  Network -> Assign network
-  ```
-- Distributed switch (this object):
+
   ```text
   Read-only
   ```
 
-For floppy image upload:
+- Datastore (this object):
+
+  ```text
+  Datastore > Allocate space
+  Datastore > Browse datastore
+  Datastore > Low level file operations
+  ```
+
+- Network (this object):
+
+  ```text
+  Network > Assign network
+  ```
+
+- Distributed switch (this object):
+
+  ```text
+  Read-only
+  ```
 
 - Datacenter (this object):
+
   ```text
-  Datastore -> Low level file operations
+  Datastore > Low level file operations
   ```
+
 - Host (this object):
+
   ```text
-  Host -> Configuration -> System Management
+  Host > Configuration > System Management
   ```

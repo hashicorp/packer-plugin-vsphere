@@ -1,10 +1,24 @@
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
-You can export an image in Open Virtualization Format (OVF) to the Packer host.
+You can export an image in Open Virtualization Format (OVF) to the Packer
+host.
 
-Example usage:
+HCL Example:
 
-In JSON:
+```hcl
+
+	# ...
+	vm_name = "example-ubuntu"
+	# ...
+	export {
+	  force = true
+	  output_directory = "./output-artifacts"
+	}
+
+```
+
+JSON Example:
+
 ```json
 ...
 
@@ -18,18 +32,7 @@ In JSON:
 	},
 
 ```
-In HCL2:
-```hcl
 
-	# ...
-	vm_name = "example-ubuntu"
-	# ...
-	export {
-	  force = true
-	  output_directory = "./output-artifacts"
-	}
-
-```
 The above configuration would create the following files:
 
 ```text

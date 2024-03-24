@@ -16,58 +16,68 @@ import (
 	"github.com/vmware/govmomi/vapi/vcenter"
 )
 
-// With this configuration Packer creates a library item in a content library whose content is a VM template
-// or an OVF template created from the just built VM.
+// Create a content library item in a content library whose content is a VM
+// template or an OVF template created from the virtual machine image after
+// the build is complete.
+//
 // The template is stored in a existing or newly created library item.
 type ContentLibraryDestinationConfig struct {
-	// Name of the library in which the new library item containing the template should be created/updated.
-	// The Content Library should be of type Local to allow deploying virtual machines.
+	// The name of the content library in which the new content library item
+	// containing the template will be created or updated. The content library
+	// must be of type Local to allow deploying virtual machines.
 	Library string `mapstructure:"library"`
-	// Name of the library item that will be created or updated.
-	// For VM templates, the name of the item should be different from [vm_name](#vm_name) and
-	// the default is [vm_name](#vm_name) + timestamp when not set. VM templates will be always imported to a new library item.
-	// For OVF templates, the name defaults to [vm_name](#vm_name) when not set, and if an item with the same name already
-	// exists it will be then updated with the new OVF template, otherwise a new item will be created.
+	// The name of the content library item that will be created or updated.
+	// For VM templates, the name of the item should be different from
+	// [vm_name](#vm_name) and the default is [vm_name](#vm_name) + timestamp
+	// when not set. VM templates will be always imported to a new library item.
+	// For OVF templates, the name defaults to [vm_name](#vm_name) when not set,
+	// and if an item with the same name already exists it will be then updated
+	// with the new OVF template, otherwise a new item will be created.
 	//
-	// ~> **Note:** It's not possible to update existing library items with a new VM template. If updating an existing library
-	// item is necessary, use an OVF template instead by setting the [ovf](#ovf) option as `true`.
-	//
+	// ~> **Note:** It's not possible to update existing content library items
+	// with a new VM template. If updating an existing content library item is
+	// necessary, use an OVF template instead by setting the [ovf](#ovf) option
+	// as `true`.
 	Name string `mapstructure:"name"`
-	// Description of the library item that will be created.
+	// A description for the content library item that will be created.
 	// Defaults to "Packer imported [vm_name](#vm_name) VM template".
 	Description string `mapstructure:"description"`
-	// Cluster onto which the virtual machine template should be placed.
-	// If cluster and resource_pool are both specified, resource_pool must belong to cluster.
-	// If cluster and host are both specified, host must be a member of cluster.
-	// This option is not used when importing OVF templates.
-	// Defaults to [cluster](#cluster).
+	// The cluster where the VM template will be placed.
+	// If `cluster` and `resource_pool` are both specified, `resource_pool` must
+	// belong to cluster. If `cluster` and `host` are both specified, the ESXi
+	// host must be a member of the cluster. This option is not used when
+	// importing OVF templates. Defaults to [`cluster`](#cluster).
 	Cluster string `mapstructure:"cluster"`
-	// Virtual machine folder into which the virtual machine template should be placed.
-	// This option is not used when importing OVF templates.
-	// Defaults to the same folder as the source virtual machine.
+	// The virtual machine folder where the VM template will be placed.
+	// This option is not used when importing OVF templates. Defaults to
+	// the same folder as the source virtual machine.
 	Folder string `mapstructure:"folder"`
-	// Host onto which the virtual machine template should be placed.
-	// If host and resource_pool are both specified, resource_pool must belong to host.
-	// If host and cluster are both specified, host must be a member of cluster.
-	// This option is not used when importing OVF templates.
-	// Defaults to [host](#host).
+	// The ESXi host where the virtual machine template will be placed.
+	// If `host` and `resource_pool` are both specified, `resource_pool` must
+	// belong to host. If `host` and `cluster` are both specified, `host` must
+	// be a member of the cluster. This option is not used when importing OVF
+	// templates. Defaults to [`host`](#host).
 	Host string `mapstructure:"host"`
-	// Resource pool into which the virtual machine template should be placed.
-	// Defaults to [resource_pool](#resource_pool). if [resource_pool](#resource_pool) is also unset,
-	// the system will attempt to choose a suitable resource pool for the virtual machine template.
+	// The resource pool where the virtual machine template will be placed.
+	// Defaults to [`resource_pool`](#resource_pool). If [`resource_pool`](#resource_pool)
+	// is unset, the system will attempt to choose a suitable resource pool
+	// for the VM template.
 	ResourcePool string `mapstructure:"resource_pool"`
-	// The datastore for the virtual machine template's configuration and log files.
-	// This option is not used when importing OVF templates.
-	// Defaults to the storage backing associated with the library specified by library.
+	// The datastore for the virtual machine template's configuration and log
+	// files. This option is not used when importing OVF templates.
+	// Defaults to the storage backing associated with the content library.
 	Datastore string `mapstructure:"datastore"`
-	// If set to true, the VM will be destroyed after deploying the template to the Content Library.
+	// Destroy the virtual machine after the import to the content library.
 	// Defaults to `false`.
 	Destroy bool `mapstructure:"destroy"`
-	// When set to true, Packer will import and OVF template to the content library item. Defaults to `false`.
+	// Import an OVF template to the content library item. Defaults to `false`.
 	Ovf bool `mapstructure:"ovf"`
-	// When set to true, the VM won't be imported to the content library item. Useful for setting to `true` during a build test stage. Defaults to `false`.
+	// Skip the import to the content library item. Useful during a build test
+	// stage. Defaults to `false`.
 	SkipImport bool `mapstructure:"skip_import"`
-	// Flags to use for OVF package creation. The supported flags can be obtained using ExportFlag.list. If unset, no flags will be used. Known values: EXTRA_CONFIG, PRESERVE_MAC
+	// Flags to use for OVF package creation. The supported flags can be
+	// obtained using ExportFlag.list. If unset, no flags will be used.
+	// Known values: `EXTRA_CONFIG`, `PRESERVE_MAC`.
 	OvfFlags []string `mapstructure:"ovf_flags"`
 }
 

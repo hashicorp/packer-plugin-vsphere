@@ -45,44 +45,44 @@ var (
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	// Specifies the vSphere cluster or ESXi host to upload the virtual machine.
+	// The cluster or ESXi host to upload the virtual machine.
 	// This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
 	// or IP address of the ESXi host.
 	Cluster string `mapstructure:"cluster" required:"true"`
-	// Specifies the name of the vSphere datacenter object to place the virtual machine.
+	// The name of the vSphere datacenter object to place the virtual machine.
 	// This is _not required_ if `resource_pool` is specified.
 	Datacenter string `mapstructure:"datacenter" required:"true"`
-	// Specifies the name of the vSphere datastore to place the virtual machine.
+	// The name of the vSphere datastore to place the virtual machine.
 	Datastore string `mapstructure:"datastore"  required:"true"`
-	// Specifies the disk format of the target virtual machine. One of `thin`, `thick`,
+	// The disk format of the target virtual machine. One of `thin`, `thick`,
 	DiskMode string `mapstructure:"disk_mode"`
-	// Specifies the fully qualified domain name or IP address of the vCenter Server or ESXi host.
+	// The fully qualified domain name or IP address of the vCenter Server or ESXi host.
 	Host string `mapstructure:"host" required:"true"`
-	// Specifies the fully qualified domain name or IP address of the ESXi host to upload the
+	// The fully qualified domain name or IP address of the ESXi host to upload the
 	// virtual machine. This is _not required_ if `host` is a vCenter Server.
 	ESXiHost string `mapstructure:"esxi_host"`
-	// Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+	// Skip the verification of the server certificate. Defaults to `false`.
 	Insecure bool `mapstructure:"insecure"`
-	// Specifies custom options to add in `ovftool`.
+	// Options to send to `ovftool` when uploading the virtual machine.
 	// Use `ovftool --help` to list all the options available.
 	Options []string `mapstructure:"options"`
-	// Specifies whether to overwrite the existing files.
-	// If `true`, forces existing files to to be overwritten. Defaults to `false`.
+	// Overwrite existing files.
+	// If `true`, forces overwrites of existing files. Defaults to `false`.
 	Overwrite bool `mapstructure:"overwrite"`
-	// Specifies the password to use to authenticate to the vSphere endpoint.
+	// The password to use to authenticate to the vSphere endpoint.
 	Password string `mapstructure:"password" required:"true"`
-	// Specifies the name of the resource pool to place the virtual machine.
+	// The name of the resource pool to place the virtual machine.
 	ResourcePool string `mapstructure:"resource_pool"`
-	// Specifies the username to use to authenticate to the vSphere endpoint.
+	// The username to use to authenticate to the vSphere endpoint.
 	Username string `mapstructure:"username" required:"true"`
-	// Specifies the name of the virtual machine folder path where the virtual machine will be
+	// The name of the virtual machine folder path where the virtual machine will be
 	// placed.
 	VMFolder string `mapstructure:"vm_folder"`
-	// Specifies the name of the virtual machine to be created on the vSphere endpoint.
+	// The name of the virtual machine to be created on the vSphere endpoint.
 	VMName string `mapstructure:"vm_name"`
-	// Specifies the name of the network in which to place the virtual machine.
+	// The name of the network in which to place the virtual machine.
 	VMNetwork string `mapstructure:"vm_network"`
-	// Specifies the maximum virtual hardware version for the deployed virtual machine.
+	// The maximum virtual hardware version for the deployed virtual machine.
 	//
 	// It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
 	// virtual hardware version of the deployed virtual machine  to the specified version.
@@ -99,7 +99,7 @@ type Config struct {
 	// Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
 	// for more information on supported virtual hardware versions.
 	HardwareVersion string `mapstructure:"hardware_version"`
-	// Specifies the maximum number of times to retry the upload operation if it fails.
+	// The maximum number of times to retry the upload operation if it fails.
 	// Defaults to `5`.
 	MaxRetries int `mapstructure:"max_retries"`
 
