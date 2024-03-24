@@ -32,7 +32,7 @@ their respective End of General Support dates. For detailed information, refer t
 
 ## Examples
 
-Examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/)
+Examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/examples/)
 directory of the GitHub repository.
 
 HCL Example:
@@ -164,8 +164,8 @@ Content of `cleanup-playbook.yml`:
         group: root
         mode: "{{ item.mode }}"
       loop:
-      - { path: /etc/machine-id, state: absent, mode: "0644" }
-      - { path: /etc/machine-id, state: touch,  mode: "0644" }
+        - { path: /etc/machine-id, state: absent, mode: "0644" }
+        - { path: /etc/machine-id, state: touch, mode: "0644" }
 
     - name: Truncate audit logs
       file:
@@ -175,20 +175,20 @@ Content of `cleanup-playbook.yml`:
         group: utmp
         mode: "{{ item.mode }}"
       loop:
-      - { path: /var/log/wtmp,    state: absent, mode: "0664" }
-      - { path: /var/log/lastlog, state: absent, mode: "0644" }
-      - { path: /var/log/wtmp,    state: touch,  mode: "0664" }
-      - { path: /var/log/lastlog, state: touch,  mode: "0644" }
+        - { path: /var/log/wtmp, state: absent, mode: "0664" }
+        - { path: /var/log/lastlog, state: absent, mode: "0644" }
+        - { path: /var/log/wtmp, state: touch, mode: "0664" }
+        - { path: /var/log/lastlog, state: touch, mode: "0644" }
 
     - name: Remove cloud-init lib dir and logs
       file:
         state: absent
         path: "{{ item }}"
       loop:
-      - /var/lib/cloud
-      - /var/log/cloud-init.log
-      - /var/log/cloud-init-output.log
-      - /var/run/cloud-init
+        - /var/lib/cloud
+        - /var/log/cloud-init.log
+        - /var/log/cloud-init-output.log
+        - /var/run/cloud-init
 
     - name: Truncate all remaining log files in /var/log
       shell:
@@ -205,9 +205,9 @@ Content of `cleanup-playbook.yml`:
         depth: 1
         file_type: any
         paths:
-        - /tmp
-        - /var/tmp
-        pattern: '*'
+          - /tmp
+          - /var/tmp
+        pattern: "*"
       register: temp_files
 
     - name: Reset temp space
@@ -221,6 +221,8 @@ Content of `cleanup-playbook.yml`:
         state: absent
         path: "{{ item.path }}"
       loop:
-      - { path: /root/.bash_history }
-      - { path: "/home/{{ ansible_env.SUDO_USER | default(ansible_user_id) }}/.bash_history" }
+        - { path: /root/.bash_history }
+        - {
+            path: "/home/{{ ansible_env.SUDO_USER | default(ansible_user_id) }}/.bash_history",
+          }
 ```

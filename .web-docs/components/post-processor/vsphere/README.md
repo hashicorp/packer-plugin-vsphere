@@ -10,6 +10,11 @@ The artifact must be a VMX, OVA, or OVF file.
 their respective End of General Support dates. For detailed information, refer to the
 [Broadcom Product Lifecycle](https://support.broadcom.com/group/ecx/productlifecycle).
 
+## Examples
+
+Examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/examples/)
+directory of the GitHub repository.
+
 ## Configuration Reference
 
 The following configuration options are available for the post-processor.
@@ -146,7 +151,7 @@ JSON Example:
         "cluster": "cluster-01",
         "datastore": "datastore-01",
         "vm_network": "VM Network",
-        "keep_input_artifact": true,
+        "keep_input_artifact": true
       }
     ]
   ]
