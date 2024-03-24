@@ -1,32 +1,38 @@
 Type: `vsphere-supervisor`
+
 Artifact BuilderId: `vsphere.supervisor`
 
-This builder deploys and publishes new VMs to a vSphere Supervisor cluster using VM Service.
-If you are new to VM Service, please refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu
-](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-with-tanzu-services-workloads/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html) for more information.
+This builder creates a virtual machine on a vSphere Supervisor cluster using the VM-Operator API.
 
-- It uses a kubeconfig file to connect to the vSphere Supervisor cluster.
-- It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
-- It uses the Packer provisioners to customize the VM after establishing a successful connection.
-- It publishes the customized VM as a new VM image to the designated content library in vSphere.
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+Refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-with-tanzu-services-workloads/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html)
+for more information on the VM Service functionality in vSphere with Tanzu.
+
+- It uses a `kubeconfig` file to connect to the vSphere Supervisor cluster.
+- It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy
+  and configure the source virtual machine.
+- It cna use Packer provisioners to customize the virtual machine after establishing a successful
+  connection.
+- It publishes the customized virtual machine as a new virtual machine image to the designated
+  content library in vSphere.
+
+-> **Note:** This builder is developed to maintain compatibility with VMware vSphere versions until
+their respective End of General Support dates. For detailed information, refer to the
+[Broadcom Product Lifecycle](https://support.broadcom.com/group/ecx/productlifecycle).
 
 ## Examples
 
-Example Packer template:
+Examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/)
+directory of the GitHub repository.
 
-**HCL2**
+HCL Example:
 
 ```hcl
 source "vsphere-supervisor" "example-vm" {
-  image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
-  class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
-  storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
-  bootstrap_provider = "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>"
-  bootstrap_data_file = "<Path to the file containing the bootstrap data for guest OS customization>"
+  image_name = "<image name of the source virtual machine, e.g. 'ubuntu-24.04-server-cloudimg'>"
+  class_name = "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
+  storage_class = "<storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+  bootstrap_provider = "<cloud-init, sysprep, or vAppConfig to customize the guest os>"
+  bootstrap_data_file = "<path to the file containing the bootstrap data for guest os customization>"
 }
 
 build {
@@ -34,30 +40,29 @@ build {
 }
 ```
 
-**JSON**
+JSON Example:
 
 ```json
 {
   "builders": [
     {
       "type": "vsphere-supervisor",
-      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>",
-      "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
-      "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
-      "bootstrap_provider": "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>",
-      "bootstrap_data_file": "<Path to the file containing the bootstrap data for guest OS customization>"
+      "image_name": "<image name of the source virtual machine, e.g. 'ubuntu-24.04-server-cloudimg'>",
+      "class_name": "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
+      "storage_class": "<storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
+      "bootstrap_provider": "<cloud-init, sysprep, or vAppConfig to customize the guest os>",
+      "bootstrap_data_file": "<path to the file containing the bootstrap data for guest os customization>"
     }
   ]
 }
 ```
 
-
-Refer to the [examples/supervisor directory](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/supervisor) within the GitHub repository for more complete examples.
-
 ## Configuration Reference
-There are various configuration options available for each step in this builder. The _required_ items are listed below as well as the _optional_ configs further down the page.
 
-### Required
+There are various configuration options available for each step in this builder. The _required_
+items are listed below as well as the _optional_ configurations.
+
+**Required**:
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 
@@ -70,9 +75,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
 
 
-### Optional
+### Supervisor Connection
 
-#### Supervisor Connection
+**Optional**:
 
 <!-- Code generated from the comments of the ConnectSupervisorConfig struct in builder/vsphere/supervisor/step_connect_supervisor.go; DO NOT EDIT MANUALLY -->
 
@@ -83,7 +88,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the ConnectSupervisorConfig struct in builder/vsphere/supervisor/step_connect_supervisor.go; -->
 
 
-#### Source VM Creation
+### Source Virtual Machine Creation
+
+**Optional**:
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 
@@ -104,7 +111,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
 
 
-#### Source VM Watching
+### Source Virtual Machine Watching
+
+**Optional**:
 
 <!-- Code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; DO NOT EDIT MANUALLY -->
 
@@ -113,7 +122,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; -->
 
 
-#### Source VM Publishing
+### Source Virtual Machine Publishing
+
+**Optional**:
 
 <!-- Code generated from the comments of the PublishSourceConfig struct in builder/vsphere/supervisor/step_publish_source.go; DO NOT EDIT MANUALLY -->
 
@@ -124,7 +135,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the PublishSourceConfig struct in builder/vsphere/supervisor/step_publish_source.go; -->
 
 
-#### Communicator Configuration
+### Communicator Configuration
+
+**Optional**:
 
 <!-- Code generated from the comments of the SSH struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -294,10 +307,11 @@ There are various configuration options available for each step in this builder.
 
 ## Deprovisioning Tasks
 
-If you would like to clean up the VM after the build is complete, you could use the Ansible
-provisioner to run the following tasks to delete machine-specific files and data.
+If you would like to clean up the virtual machine after the build is complete, you can use the
+[Ansible provisioner](https://developer.hashicorp.com/packer/integrations/hashicorp/ansible/latest/components/provisioner/ansible)
+to run the following tasks to delete machine-specific files and data.
 
-**HCL2**
+HCL Example:
 
 ```hcl
 build {
@@ -309,7 +323,7 @@ build {
 }
 ```
 
-**JSON**
+JSON Example:
 
 ```json
 {
@@ -327,13 +341,12 @@ build {
 }
 ```
 
-
 Content of `cleanup-playbook.yml`:
 
 ```yaml
 ---
 # cleanup-playbook.yml
-- name: Clean up source VM
+- name: Clean up source virtual machine
   hosts: default
   become: true
   tasks:

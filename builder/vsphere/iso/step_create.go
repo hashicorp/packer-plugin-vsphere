@@ -19,12 +19,28 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
-// Defines a Network Adapter
-// If no adapter is defined, network tasks (communicators, most provisioners) won't work, so it's advised to define one.
+// If no adapter is defined, network tasks (communicators, most provisioners)
+// will not work, so it's advised to define one.
 //
-// Example that creates two network adapters:
+// Example configuration with two network adapters:
 //
-// In JSON:
+// HCL Example:
+//
+// ```hcl
+//
+//	network_adapters {
+//	    network = "VM Network"
+//	    network_card = "vmxnet3"
+//	}
+//	network_adapters {
+//	    network = "OtherNetwork"
+//	    network_card = "vmxnet3"
+//	}
+//
+// ```
+//
+// JSON Example:
+//
 // ```json
 //
 //	"network_adapters": [
@@ -39,21 +55,8 @@ import (
 //	],
 //
 // ```
-// In HCL2:
-// ```hcl
-//
-//	network_adapters {
-//	    network = "VM Network"
-//	    network_card = "vmxnet3"
-//	}
-//	network_adapters {
-//	    network = "OtherNetwork"
-//	    network_card = "vmxnet3"
-//	}
-//
-// ```
 type NIC struct {
-	// Specifies the network to which the virtual machine will connect.
+	// The network to which the virtual machine will connect.
 	//
 	// For example:
 	//
@@ -64,35 +67,36 @@ type NIC struct {
 	// - Logical Switch UUID: `<uuid>`
 	// - Segment ID: `/infra/segments/<SegmentID>`
 	//
-	// ~> **Note:** If more than one network resolves to the same name, either the inventory path to
-	// network or an ID must be provided.
+	// ~> **Note:** If more than one network resolves to the same name, either
+	// the inventory path to network or an ID must be provided.
 	//
-	// ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
-	// available network.
+	// ~> **Note:** If no network is specified, provide `host` to allow the
+	// plugin to search for an available network.
 	Network string `mapstructure:"network"`
-	// Specifies the virtual machine network card type. For example `vmxnet3`.
+	// The virtual machine network card type. For example `vmxnet3`.
 	NetworkCard string `mapstructure:"network_card" required:"true"`
-	// Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+	// The network card MAC address. For example `00:50:56:00:00:00`.
 	MacAddress string `mapstructure:"mac_address"`
-	// Specifies whether to enable DirectPath I/O passthrough for the network device.
+	// Enable DirectPath I/O passthrough for the network device.
+	// Defaults to `false`.
 	Passthrough *bool `mapstructure:"passthrough"`
 }
 
 type CreateConfig struct {
-	// Specifies the virtual machine hardware version. Defaults to the most current virtual machine
-	// hardware version supported by the ESXi host.
+	// Specifies the virtual machine hardware version. Defaults to the most
+	// current virtual machine hardware version supported by the ESXi host.
 	// Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
 	// for more information on supported virtual hardware versions.
 	Version uint `mapstructure:"vm_version"`
-	// Specifies the guest operating system identifier for the virtual machine.
-	// If not specified, the setting defaults to `otherGuest`.
+	// The guest operating system identifier for the virtual machine.
+	// Defaults to `otherGuest`.
 	//
-	// To get a list of supported guest operating system identifiers for your ESXi host,
-	// run the following PowerShell command using `VMware.PowerCLI`:
+	// To get a list of supported guest operating system identifiers for your
+	// ESXi host, run the following PowerShell command using `VMware.PowerCLI`:
 	//
 	// ```powershell
-	// Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
-	// $esxiHost = Get-VMHost -Name "esxi.example.com"
+	// Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
+	// $esxiHost = Get-VMHost -Name "esxi-01.example.com"
 	// $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
 	// $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
 	// $osDescriptor = $environmentBrowser.QueryConfigOption($vmxVersion, $null).GuestOSDescriptor
@@ -100,16 +104,24 @@ type CreateConfig struct {
 	// ```
 	GuestOSType   string               `mapstructure:"guest_os_type"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`
-	// Specifies the network adapters for the virtual machine.
-	// If no network adapter is defined, all network-related operations will be skipped.
+	// The network adapters for the virtual machine.
+	//
+	// -> **Note:** If no network adapter is defined, all network-related
+	// operations are skipped.
 	NICs []NIC `mapstructure:"network_adapters"`
-	// Specifies the USB controllers for the virtual machine. Use `usb` for a USB 2.0 controller and
-	// `xhci`` for a USB 3.0 controller.
-	// -> **Note:** Maximum of one controller of each type.
+	// The USB controllers for the virtual machine.
+	//
+	// The available options for this setting are: `usb` and `xhci`.
+	//
+	// - `usb`: USB 2.0
+	// - `xhci`: USB 3.0
+	//
+	// -> **Note:** A maximum of one of each controller type can be defined.
 	USBController []string `mapstructure:"usb_controller"`
-	// Specifies the annotations for the virtual machine.
+	// The annotations for the virtual machine.
 	Notes string `mapstructure:"notes"`
-	// Specifies whether to destroy the virtual machine after the build is complete.
+	// Destroy the virtual machine after the build completes.
+	// Defaults to `false`.
 	Destroy bool `mapstructure:"destroy"`
 }
 
@@ -174,7 +186,8 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 
 	ui.Say("Creating virtual machine...")
 
-	// add network/network card an the first nic for backwards compatibility in the type is defined
+	// Add network/network card an the first nic for backwards compatibility in
+	// the type is defined.
 	var networkCards []driver.NIC
 	for _, nic := range s.Config.NICs {
 		networkCards = append(networkCards, driver.NIC{
@@ -185,7 +198,8 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 		})
 	}
 
-	// add disk as the first drive for backwards compatibility if the type is defined
+	// Add disk as the first drive for backwards compatibility if the type is
+	// defined
 	var disks []driver.Disk
 	for _, disk := range s.Config.StorageConfig.Storage {
 		disks = append(disks, driver.Disk{

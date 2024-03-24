@@ -1,28 +1,28 @@
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `disk_mode` (string) - Specifies the disk format of the target virtual machine. One of `thin`, `thick`,
+- `disk_mode` (string) - The disk format of the target virtual machine. One of `thin`, `thick`,
 
-- `esxi_host` (string) - Specifies the fully qualified domain name or IP address of the ESXi host to upload the
+- `esxi_host` (string) - The fully qualified domain name or IP address of the ESXi host to upload the
   virtual machine. This is _not required_ if `host` is a vCenter Server.
 
-- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+- `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
-- `options` ([]string) - Specifies custom options to add in `ovftool`.
+- `options` ([]string) - Options to send to `ovftool` when uploading the virtual machine.
   Use `ovftool --help` to list all the options available.
 
-- `overwrite` (bool) - Specifies whether to overwrite the existing files.
-  If `true`, forces existing files to to be overwritten. Defaults to `false`.
+- `overwrite` (bool) - Overwrite existing files.
+  If `true`, forces overwrites of existing files. Defaults to `false`.
 
-- `resource_pool` (string) - Specifies the name of the resource pool to place the virtual machine.
+- `resource_pool` (string) - The name of the resource pool to place the virtual machine.
 
-- `vm_folder` (string) - Specifies the name of the virtual machine folder path where the virtual machine will be
+- `vm_folder` (string) - The name of the virtual machine folder path where the virtual machine will be
   placed.
 
-- `vm_name` (string) - Specifies the name of the virtual machine to be created on the vSphere endpoint.
+- `vm_name` (string) - The name of the virtual machine to be created on the vSphere endpoint.
 
-- `vm_network` (string) - Specifies the name of the network in which to place the virtual machine.
+- `vm_network` (string) - The name of the network in which to place the virtual machine.
 
-- `hardware_version` (string) - Specifies the maximum virtual hardware version for the deployed virtual machine.
+- `hardware_version` (string) - The maximum virtual hardware version for the deployed virtual machine.
   
   It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
   virtual hardware version of the deployed virtual machine  to the specified version.
@@ -39,7 +39,7 @@
   Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
   for more information on supported virtual hardware versions.
 
-- `max_retries` (int) - Specifies the maximum number of times to retry the upload operation if it fails.
+- `max_retries` (int) - The maximum number of times to retry the upload operation if it fails.
   Defaults to `5`.
 
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->

@@ -13,31 +13,32 @@ import (
 )
 
 type LocationConfig struct {
-	// Name of the virtual machine.
+	// The name of the virtual machine.
 	VMName string `mapstructure:"vm_name"`
-	// VM folder where the virtual machine is created.
+	// The virtual machine folder where the virtual machine is created.
 	Folder string `mapstructure:"folder"`
-	// vSphere cluster where the virtual machine is created. See the
-	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
-	// section above for more details.
+	// The cluster where the virtual machine is created.
+	// Refer to the [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
+	// section for more details.
 	Cluster string `mapstructure:"cluster"`
-	// ESXi host where the virtual machine is created. A full path must be
-	// specified if the host is in a folder. For example `folder/host`. See the
-	// [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
-	// section above for more details.
+	// The ESXi host where the virtual machine is created. A full path must be
+	// specified if the ESXi host is in a folder. For example `folder/host`.
+	// Refer to the [Working With Clusters And Hosts](#working-with-clusters-and-hosts)
+	// section for more details.
 	Host string `mapstructure:"host"`
-	// vSphere resource pool where the virtual machine is created.
+	// The resource pool where the virtual machine is created.
 	// If this is not specified, the root resource pool associated with the
 	// `host` or `cluster` is used.
-	// Note that the full path to the resource pool must be provided.
+	//
+	// ~> **Note:**  The full path to the resource pool must be provided.
 	// For example, a simple resource pool path might resemble `rp-packer` and
 	// a nested path might resemble 'rp-packer/rp-linux-images'.
 	ResourcePool string `mapstructure:"resource_pool"`
-	// vSphere datastore where the virtual machine is created.
+	// The datastore where the virtual machine is created.
 	// Required if `host` is a cluster, or if `host` has multiple datastores.
 	Datastore string `mapstructure:"datastore"`
-	// Specifies that the host is used for uploading files to the datastore.
-	// Defaults to false.
+	// The ESXI host used for uploading files to the datastore.
+	// Defaults to `false`.
 	SetHostForDatastoreUploads bool `mapstructure:"set_host_for_datastore_uploads"`
 }
 

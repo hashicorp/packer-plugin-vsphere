@@ -1,45 +1,59 @@
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
-- `name` (string) - Name of the exported image in Open Virtualization Format (OVF).
-  The name of the virtual machine with the `.ovf` extension is used if this option is not specified.
+- `name` (string) - The name of the exported image in Open Virtualization Format (OVF).
+  
+  -> **Note:** The name of the virtual machine with the `.ovf` extension is
+  used if this option is not specified.
 
 - `force` (bool) - Forces the export to overwrite existing files. Defaults to `false`.
   If set to `false`, an error is returned if the file(s) already exists.
 
-- `image_files` (bool) - Include additional image files that are that are associated with the virtual machine. Defaults to `false`.
-  For example, `.nvram` and `.log` files.
+- `image_files` (bool) - Include additional image files that are that are associated with the
+  virtual machine. Defaults to `false`. For example, `.nvram` and `.log`
+  files.
 
-- `manifest` (string) - Generate a manifest file with the specified hash algorithm. Defaults to `sha256`.
-  Available options include `none`, `sha1`, `sha256`, and `sha512`. Use `none` for no manifest.
+- `manifest` (string) - The hash algorithm to use when generating a manifest file. Defaults to
+  `sha256`.
+  
+  The available options for this setting are: 'none', 'sha1', 'sha256', and
+  'sha512'.
+  
+  --> **Tip:** Use `none` to disable the creation of a manifest file.
 
-- `options` ([]string) - Advanced image export options. Available options can include:
-  - mac - MAC address is exported for each Ethernet device.
-  - uuid - UUID is exported for the virtual machine.
-  - extraconfig - Extra configuration options are exported for the virtual machine.
-  - nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
+- `options` ([]string) - Advanced image export options. Available options include:
+  * `mac` - MAC address is exported for each Ethernet device.
+  * `uuid` - UUID is exported for the virtual machine.
+  * `extraconfig` - Extra configuration options are exported for the
+    virtual machine.
+  * `nodevicesubtypes` - Resource subtypes for CD/DVD drives, floppy
+    drives, and SCSI controllers are not exported.
   
-  For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
+  For example, adding the following export configuration option outputs the
+  MAC addresses for each Ethernet device in the OVF descriptor:
   
-  In JSON:
-  ```json
-  ...
-    "export": {
-      "options": ["mac"]
-    },
-  ```
-  In HCL2:
+  HCL Example:
+  
   ```hcl
   ...
     export {
       options = ["mac"]
     }
   ```
+  
+  JSON: Example:
+  
+  ```json
+  ...
+    "export": {
+      "options": ["mac"]
+    },
+  ```
 
-- `output_format` (string) - The output format for the exported virtual machine image. Defaults to `ovf`.
-  Available options include `ovf` and `ova`.
+- `output_format` (string) - The output format for the exported virtual machine image.
+  Defaults to `ovf`. Available options include `ovf` and `ova`.
   
   When set to `ova`, the image is first exported using Open Virtualization
-  / Format (`.ovf`) and then converted to an Open Virtualization Archive
+  Format (`.ovf`) and then converted to an Open Virtualization Archive
   (`.ova`) using the VMware [Open Virtualization Format Tool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
   (ovftool). The intermediate files are removed after the conversion.
   

@@ -18,13 +18,13 @@ import (
 )
 
 type FloppyConfig struct {
-	// Datastore path to a floppy image that will be mounted to the VM.
-	// Example: `[datastore1] ISO/pvscsi-Windows8.flp`.
+	// Datastore path to a floppy image that will be mounted to the virtual
+	// machine. Example: `[datastore] iso/foo.flp`.
 	FloppyIMGPath string `mapstructure:"floppy_img_path"`
-	// List of local files to be mounted to the VM floppy drive. Can be used to
-	// make Debian preseed or RHEL kickstart files available to the VM.
+	// A list of local files to be mounted to the virtual machine's floppy
+	// drive.
 	FloppyFiles []string `mapstructure:"floppy_files"`
-	// List of directories to copy files from.
+	// A list of directories to copy files from.
 	FloppyDirectories []string `mapstructure:"floppy_dirs"`
 	// Key/Values to add to the floppy disk. The keys represent the paths, and
 	// the values contents. It can be used alongside `floppy_files` or
@@ -32,7 +32,7 @@ type FloppyConfig struct {
 	// into memory. If any paths are specified by both, the contents in
 	// `floppy_content` will take precedence.
 	//
-	// Usage example (HCL):
+	// HCL Example:
 	//
 	// ```hcl
 	// floppy_content = {
@@ -41,9 +41,9 @@ type FloppyConfig struct {
 	// }
 	// ```
 	FloppyContent map[string]string `mapstructure:"floppy_content"`
-	// The label to use for the floppy disk that
-	// is attached when the VM is booted. This is most useful for cloud-init,
-	// Kickstart or other early initialization tools, which can benefit from labelled floppy disks.
+	// The label to use for the floppy disk that is attached when the virtual
+	// machine is booted. This is most useful for cloud-init, Kickstart or other
+	// early initialization tools, which can benefit from labelled floppy disks.
 	// By default, the floppy label will be 'packer'.
 	FloppyLabel string `mapstructure:"floppy_label"`
 }

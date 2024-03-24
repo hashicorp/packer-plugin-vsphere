@@ -40,29 +40,29 @@ var builtins = map[string]string{
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	// Specifies the fully qualified domain name or IP address of the vSphere endpoint.
+	// The fully qualified domain name or IP address of the vSphere endpoint.
 	Host string `mapstructure:"host" required:"true"`
-	// Specifies the username to use to authenticate to the vSphere endpoint.
+	// The username to use to authenticate to the vSphere endpoint.
 	Username string `mapstructure:"username" required:"true"`
-	// Specifies the password to use to authenticate to the vSphere endpoint.
+	// The password to use to authenticate to the vSphere endpoint.
 	Password string `mapstructure:"password" required:"true"`
-	// Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+	// Skip the verification of the server certificate. Defaults to `false`.
 	Insecure bool `mapstructure:"insecure"`
-	// Specifies the name of the datacenter to use.
+	// The name of the datacenter to use.
 	// Required when the vCenter Server instance endpoint has more than one datacenter.
 	Datacenter string `mapstructure:"datacenter"`
-	// Specifies the name of the template.
+	// The name of the template.
 	// If not specified, the name of the virtual machine will be used.
 	TemplateName string `mapstructure:"template_name"`
-	// Specifies the name of the virtual machine folder path where the template will be created.
+	// The name of the virtual machine folder path where the template will be created.
 	Folder string `mapstructure:"folder"`
-	// Specifies whether to create a snapshot before marking as a template. Defaults to `false`.
+	// Create a snapshot before marking as a template. Defaults to `false`.
 	SnapshotEnable bool `mapstructure:"snapshot_enable"`
-	// Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
+	// The name of the snapshot. Required when `snapshot_enable` is `true`.
 	SnapshotName string `mapstructure:"snapshot_name"`
-	// Specifies a description for the snapshot. Required when `snapshot_enable` is `true`.
+	// A description for the snapshot. Required when `snapshot_enable` is `true`.
 	SnapshotDescription string `mapstructure:"snapshot_description"`
-	// Specifies to keep the virtual machine registered after marking as a template.
+	// Keepe the virtual machine registered after marking as a template.
 	ReregisterVM config.Trilean `mapstructure:"reregister_vm"`
 
 	ctx interpolate.Context

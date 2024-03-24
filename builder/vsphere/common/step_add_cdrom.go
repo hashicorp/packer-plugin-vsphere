@@ -16,25 +16,41 @@ import (
 )
 
 type CDRomConfig struct {
-	// Which controller to use. Example: `sata`. Defaults to `ide`.
-	CdromType string `mapstructure:"cdrom_type"`
-	// A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
+	// The type of controller to use for the CD-ROM device. Defaults to `ide`.
 	//
-	// Usage example (HCL):
+	// The available options for this setting are: `ide` and `sata`.
+	CdromType string `mapstructure:"cdrom_type"`
+	// A list of paths to ISO files in either a datastore or a content library
+	// that will be attached to the virtual machine.
+	//
+	// HCL Example:
 	//
 	// ```hcl
 	// iso_paths = [
 	//   "[nfs] iso/ubuntu-server-amd64.iso",
-	//   "Packer/ubuntu-server-amd64/ubuntu-server-amd64.iso"
+	//   "Example Content Library/ubuntu-server-amd64/ubuntu-server-amd64.iso"
+	// ]
+	// ```
+	//
+	// JSON Example:
+	//
+	// ```json
+	// "iso_paths": [
+	//   "[nfs] iso/ubuntu-server-amd64.iso",
+	//   "Example Content Library/ubuntu-server-amd64/ubuntu-server-amd64.iso"
 	// ]
 	// ```
 	//
 	// Two ISOs are referenced:
-	// 1. An ISO in the "_iso_" folder of the "_nfs_" datastore with the file name of "_ubuntu-server-amd64.iso_".
-	// 2. An ISO in the "_Packer_" content library with the item name of "_ubuntu-server-amd64_".
+	//
+	// 1. An ISO in the "_iso_" folder of the "_nfs_" datastore with the file
+	//   name of "_ubuntu-server-amd64.iso_". "_ubuntu-server-amd64.iso_".
+	// 2. An ISO in the "_Example Content Library_" content library with the
+	//   item name of "_ubuntu-server-amd64_".
 	//
 	// -> **Note:** All files in a content library have an associated item name.
-	// To determine the file name, view the datastore backing the content library or use the `govc` vSphere CLI.
+	// To determine the file name, view the datastore backing the content
+	// library or use the `govc` vSphere CLI.
 	ISOPaths []string `mapstructure:"iso_paths"`
 }
 
@@ -50,8 +66,9 @@ func (c *CDRomConfig) Prepare(k *ReattachCDRomConfig) []error {
 		errs = append(errs, fmt.Errorf("'cdrom_type' must be 'ide' or 'sata'"))
 	}
 
-	// `reattach_cdroms` should be between 1 and 4 to keep the CD-ROM devices without any attached media.
-	// If `reattach_cdroms` is set to 0, it is ignored and the step is skipped.
+	// `reattach_cdroms` should be between 1 and 4 to keep the CD-ROM devices
+	// without any attached media. If `reattach_cdroms` is set to 0, it is
+	// ignored and the step is skipped.
 	if k.ReattachCDRom < 0 || k.ReattachCDRom > 4 {
 		errs = append(errs, fmt.Errorf("'reattach_cdroms' should be between 1 and 4,\n"+
 			"  if set to 0, `reattach_cdroms` is ignored and the step is skipped"))
@@ -74,8 +91,8 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	if path, ok := state.GetOk("iso_remote_path"); ok {
-		// The order matters: docs say "iso_url" should go first, so make sure to
-		// prepend it.
+		// The order matters: docs say "iso_url" should go first, so make sure
+		// to prepend it.
 		s.Config.ISOPaths = append([]string{path.(string)}, s.Config.ISOPaths...)
 	}
 
@@ -85,8 +102,8 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	ui.Say("Mounting ISO images...")
-	// Limitation in govmomi: can't batch-create cdroms and then mount ISO files,
-	// that results in wrong UnitNumber. So do that one-by-one.
+	// Limitation in govmomi: can't batch-create cdroms and then mount ISO
+	// files that results in wrong UnitNumber. So do that one-by-one.
 	for _, path := range s.Config.ISOPaths {
 		if path == "" {
 			state.Put("error", fmt.Errorf("invalid path: empty string"))

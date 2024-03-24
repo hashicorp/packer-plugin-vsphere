@@ -34,11 +34,25 @@ import (
 
 const OvftoolWindows = "ovftool.exe"
 
-// You can export an image in Open Virtualization Format (OVF) to the Packer host.
+// You can export an image in Open Virtualization Format (OVF) to the Packer
+// host.
 //
-// Example usage:
+// HCL Example:
 //
-// In JSON:
+// ```hcl
+//
+//	# ...
+//	vm_name = "example-ubuntu"
+//	# ...
+//	export {
+//	  force = true
+//	  output_directory = "./output-artifacts"
+//	}
+//
+// ```
+//
+// JSON Example:
+//
 // ```json
 // ...
 //
@@ -52,18 +66,7 @@ const OvftoolWindows = "ovftool.exe"
 //	},
 //
 // ```
-// In HCL2:
-// ```hcl
 //
-//	# ...
-//	vm_name = "example-ubuntu"
-//	# ...
-//	export {
-//	  force = true
-//	  output_directory = "./output-artifacts"
-//	}
-//
-// ```
 // The above configuration would create the following files:
 //
 // ```text
@@ -72,48 +75,62 @@ const OvftoolWindows = "ovftool.exe"
 // ./output-artifacts/example-ubuntu.ovf
 // ```
 type ExportConfig struct {
-	// Name of the exported image in Open Virtualization Format (OVF).
-	// The name of the virtual machine with the `.ovf` extension is used if this option is not specified.
+	// The name of the exported image in Open Virtualization Format (OVF).
+	//
+	// -> **Note:** The name of the virtual machine with the `.ovf` extension is
+	// used if this option is not specified.
 	Name string `mapstructure:"name"`
 	// Forces the export to overwrite existing files. Defaults to `false`.
 	// If set to `false`, an error is returned if the file(s) already exists.
 	Force bool `mapstructure:"force"`
-	// Include additional image files that are that are associated with the virtual machine. Defaults to `false`.
-	// For example, `.nvram` and `.log` files.
+	// Include additional image files that are that are associated with the
+	// virtual machine. Defaults to `false`. For example, `.nvram` and `.log`
+	// files.
 	ImageFiles bool `mapstructure:"image_files"`
-	// Generate a manifest file with the specified hash algorithm. Defaults to `sha256`.
-	// Available options include `none`, `sha1`, `sha256`, and `sha512`. Use `none` for no manifest.
+	// The hash algorithm to use when generating a manifest file. Defaults to
+	// `sha256`.
+	//
+	// The available options for this setting are: 'none', 'sha1', 'sha256', and
+	// 'sha512'.
+	//
+	// --> **Tip:** Use `none` to disable the creation of a manifest file.
 	Manifest string `mapstructure:"manifest"`
-	// Path to the directory where the exported image will be saved.
+	// The path to the directory where the exported image will be saved.
 	OutputDir OutputConfig `mapstructure:",squash"`
-	// Advanced image export options. Available options can include:
-	// - mac - MAC address is exported for each Ethernet device.
-	// - uuid - UUID is exported for the virtual machine.
-	// - extraconfig - Extra configuration options are exported for the virtual machine.
-	// - nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
+	// Advanced image export options. Available options include:
+	// * `mac` - MAC address is exported for each Ethernet device.
+	// * `uuid` - UUID is exported for the virtual machine.
+	// * `extraconfig` - Extra configuration options are exported for the
+	//   virtual machine.
+	// * `nodevicesubtypes` - Resource subtypes for CD/DVD drives, floppy
+	//   drives, and SCSI controllers are not exported.
 	//
-	// For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
+	// For example, adding the following export configuration option outputs the
+	// MAC addresses for each Ethernet device in the OVF descriptor:
 	//
-	// In JSON:
-	// ```json
-	// ...
-	//   "export": {
-	//     "options": ["mac"]
-	//   },
-	// ```
-	// In HCL2:
+	// HCL Example:
+	//
 	// ```hcl
 	// ...
 	//   export {
 	//     options = ["mac"]
 	//   }
 	// ```
+	//
+	// JSON: Example:
+	//
+	// ```json
+	// ...
+	//   "export": {
+	//     "options": ["mac"]
+	//   },
+	// ```
 	Options []string `mapstructure:"options"`
-	// The output format for the exported virtual machine image. Defaults to `ovf`.
-	// Available options include `ovf` and `ova`.
+	// The output format for the exported virtual machine image.
+	// Defaults to `ovf`. Available options include `ovf` and `ova`.
 	//
 	// When set to `ova`, the image is first exported using Open Virtualization
-	/// Format (`.ovf`) and then converted to an Open Virtualization Archive
+	// Format (`.ovf`) and then converted to an Open Virtualization Archive
 	// (`.ova`) using the VMware [Open Virtualization Format Tool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
 	// (ovftool). The intermediate files are removed after the conversion.
 	//

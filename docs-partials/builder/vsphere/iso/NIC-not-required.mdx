@@ -1,6 +1,6 @@
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `network` (string) - Specifies the network to which the virtual machine will connect.
+- `network` (string) - The network to which the virtual machine will connect.
   
   For example:
   
@@ -11,14 +11,15 @@
   - Logical Switch UUID: `<uuid>`
   - Segment ID: `/infra/segments/<SegmentID>`
   
-  ~> **Note:** If more than one network resolves to the same name, either the inventory path to
-  network or an ID must be provided.
+  ~> **Note:** If more than one network resolves to the same name, either
+  the inventory path to network or an ID must be provided.
   
-  ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
-  available network.
+  ~> **Note:** If no network is specified, provide `host` to allow the
+  plugin to search for an available network.
 
-- `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+- `mac_address` (string) - The network card MAC address. For example `00:50:56:00:00:00`.
 
-- `passthrough` (\*bool) - Specifies whether to enable DirectPath I/O passthrough for the network device.
+- `passthrough` (\*bool) - Enable DirectPath I/O passthrough for the network device.
+  Defaults to `false`.
 
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->

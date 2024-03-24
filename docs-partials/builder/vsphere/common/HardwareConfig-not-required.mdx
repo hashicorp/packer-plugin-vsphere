@@ -1,45 +1,59 @@
 <!-- Code generated from the comments of the HardwareConfig struct in builder/vsphere/common/step_hardware.go; DO NOT EDIT MANUALLY -->
 
-- `CPUs` (int32) - Number of CPU cores.
+- `CPUs` (int32) - The number of virtual CPUs cores for the virtual machine.
 
-- `cpu_cores` (int32) - Number of CPU cores per socket.
+- `cpu_cores` (int32) - The number of virtual CPU cores per socket for the virtual machine.
 
-- `CPU_reservation` (int64) - Amount of reserved CPU resources in MHz.
+- `CPU_reservation` (int64) - The CPU reservation in MHz.
 
-- `CPU_limit` (int64) - Upper limit of available CPU resources in MHz.
+- `CPU_limit` (int64) - The upper limit of available CPU resources in MHz.
 
-- `CPU_hot_plug` (bool) - Enable CPU hot plug setting for virtual machine. Defaults to `false`.
+- `CPU_hot_plug` (bool) - Enable CPU hot plug setting for virtual machine. Defaults to `false`
 
-- `RAM` (int64) - Amount of RAM in MB.
+- `RAM` (int64) - The amount of memory for the virtual machine in MB.
 
-- `RAM_reservation` (int64) - Amount of reserved RAM in MB.
+- `RAM_reservation` (int64) - The guaranteed minimum allocation of memory for the virtual machine in MB.
 
-- `RAM_reserve_all` (bool) - Reserve all available RAM. Defaults to `false`. Cannot be used together
-  with `RAM_reservation`.
+- `RAM_reserve_all` (bool) - Reserve all allocated memory. Defaults to `false`.
+  
+  -> **Note:** May not be used together with `RAM_reservation`.
 
-- `RAM_hot_plug` (bool) - Enable RAM hot plug setting for virtual machine. Defaults to `false`.
+- `RAM_hot_plug` (bool) - Enable memory hot add setting for virtual machine. Defaults to `false`.
 
-- `video_ram` (int64) - Amount of video memory in KB. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
-  for supported maximums. Defaults to 4096 KB.
+- `video_ram` (int64) - The amount of video memory in KB. Defaults to 4096 KB.
+  
+  -> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+  for supported maximums.
 
-- `displays` (int32) - Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
-  for supported maximums. Defaults to 1.
+- `displays` (int32) - The number of video displays. Defaults to `1`.
+  
+  `-> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+  for supported maximums.
 
 - `pci_passthrough_allowed_device` ([]PCIPassthroughAllowedDevice) - Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
-  virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+  virtual machine. Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
 
-- `vgpu_profile` (string) - vGPU profile for accelerated graphics.
-  vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
+- `vgpu_profile` (string) - vGPU profile for accelerated graphics. Refer to the [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
   for examples of profile names. Defaults to none.
 
-- `NestedHV` (bool) - Enable nested hardware virtualization for VM. Defaults to `false`.
+- `NestedHV` (bool) - Enable nested hardware virtualization for the virtual machine.
+  Defaults to `false`.
 
-- `firmware` (string) - Set the Firmware for virtual machine. Supported values: `bios`, `efi` or `efi-secure`. Defaults to `bios`.
+- `firmware` (string) - The firmware for the virtual machine.
+  
+  The available options for this setting are: 'bios', 'efi', and
+  'efi-secure'.
+  
+  -> **Note:** Use `efi-secure` for UEFI Secure Boot.
 
-- `force_bios_setup` (bool) - During the boot, force entry into the BIOS setup screen. Defaults to `false`.
+- `force_bios_setup` (bool) - Force entry into the BIOS setup screen during boot. Defaults to `false`.
 
-- `vTPM` (bool) - Add virtual TPM device for virtual machine. Defaults to `false`.
+- `vTPM` (bool) - Enable virtual trusted platform module (TPM) device for the virtual
+  machine. Defaults to `false`.
 
-- `precision_clock` (string) - Add a precision clock device for virtual machine. Defaults to `none`.
+- `precision_clock` (string) - The virtual precision clock device for the virtual machine.
+  Defaults to `none`.
+  
+  The available options for this setting are: `none`, `ntp`, and `ptp`.
 
 <!-- End of code generated from the comments of the HardwareConfig struct in builder/vsphere/common/step_hardware.go; -->

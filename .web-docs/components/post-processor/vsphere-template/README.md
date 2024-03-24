@@ -1,48 +1,53 @@
 Type: `vsphere-template`
+
 Artifact BuilderId: `packer.post-processor.vsphere`
 
 This post-processor uses an artifact from the `vmware-iso` builder with an ESXi host or an artifact
 from the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor. It then marks
 the virtual machine as a template and moves it to your specified path.
 
-## Configuration
+-> **Note:** This post-processor is developed to maintain compatibility with VMware vSphere versions until
+their respective End of General Support dates. For detailed information, refer to the
+[Broadcom Product Lifecycle](https://support.broadcom.com/group/ecx/productlifecycle).
+
+## Configuration Reference
 
 The following configuration options are available for the post-processor.
 
-Required:
+**Required:**
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `host` (string) - Specifies the fully qualified domain name or IP address of the vSphere endpoint.
+- `host` (string) - The fully qualified domain name or IP address of the vSphere endpoint.
 
-- `username` (string) - Specifies the username to use to authenticate to the vSphere endpoint.
+- `username` (string) - The username to use to authenticate to the vSphere endpoint.
 
-- `password` (string) - Specifies the password to use to authenticate to the vSphere endpoint.
+- `password` (string) - The password to use to authenticate to the vSphere endpoint.
 
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; -->
 
 
-Optional:
+**Optional:**
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `insecure` (bool) - Specifies whether to skip the verification of the server certificate. Defaults to `false`.
+- `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
-- `datacenter` (string) - Specifies the name of the datacenter to use.
+- `datacenter` (string) - The name of the datacenter to use.
   Required when the vCenter Server instance endpoint has more than one datacenter.
 
-- `template_name` (string) - Specifies the name of the template.
+- `template_name` (string) - The name of the template.
   If not specified, the name of the virtual machine will be used.
 
-- `folder` (string) - Specifies the name of the virtual machine folder path where the template will be created.
+- `folder` (string) - The name of the virtual machine folder path where the template will be created.
 
-- `snapshot_enable` (bool) - Specifies whether to create a snapshot before marking as a template. Defaults to `false`.
+- `snapshot_enable` (bool) - Create a snapshot before marking as a template. Defaults to `false`.
 
-- `snapshot_name` (string) - Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
+- `snapshot_name` (string) - The name of the snapshot. Required when `snapshot_enable` is `true`.
 
-- `snapshot_description` (string) - Specifies a description for the snapshot. Required when `snapshot_enable` is `true`.
+- `snapshot_description` (string) - A description for the snapshot. Required when `snapshot_enable` is `true`.
 
-- `reregister_vm` (boolean) - Specifies to keep the virtual machine registered after marking as a template.
+- `reregister_vm` (boolean) - Keepe the virtual machine registered after marking as a template.
 
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere-template/post-processor.go; -->
 
@@ -58,7 +63,7 @@ Optional:
 
 An example is shown below, showing only the post-processor configuration:
 
-In HCL2:
+HCL Example:
 
 ```hcl
 source "null" "example" {
@@ -83,7 +88,7 @@ build {
 }
 ```
 
-In JSON:
+JSON Example:
 
 ```json
 {
@@ -115,7 +120,7 @@ Once the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post
 from the builder and uploads it to a vSphere endpoint, you may want the virtual machine to be marked
 as a template.
 
-In HCL2:
+HCL Example:
 
 ```hcl
 build {
@@ -135,7 +140,7 @@ build {
 }
 ```
 
-In JSON:
+JSON Example:
 
 ```json
 {
@@ -167,10 +172,12 @@ In JSON:
 In the example above, the result of each builder is passed through the defined sequence of
 post-processors starting with the `vsphere` post-processor which will upload the artifact to a
 vSphere endpoint. The resulting artifact is then passed on to the `vsphere-template` post-processor
-which handles marking a VM as a template. In JSON, note that the `vsphere` and `vsphere-template`
-post-processors can be paired together in their own array.
+which handles marking a virtual machine as a template.
 
-## Permissions
+In JSON, note that the `vsphere` and `vsphere-template` post-processors can be paired together in
+their own array.
+
+## Privileges
 
 The post processor needs several privileges to be able to mark the virtual as a template.
 

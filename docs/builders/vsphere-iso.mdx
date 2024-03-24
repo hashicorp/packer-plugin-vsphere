@@ -2,72 +2,175 @@
 modeline: |
   vim: set ft=pandoc:
 description: |
-  This Packer builder starts from an ISO and creates a virtual machine image on VMware vSphere using the vSphere API.
+  This builder starts from a guest operating system ISO file and builds a virtual machine image on a
+  vSphere cluster or an ESXi host using the vSphere API.
 page_title: vSphere ISO - Builders
 sidebar_title: ISO
 ---
 
-# Packer Builder for VMware vSphere
+# VMware vSphere ISO Builder
 
 Type: `vsphere-iso`
+
 Artifact BuilderId: `jetbrains.vsphere`
 
-This builder uses the vSphere API, and creates virtual machines remotely. It
-starts from an ISO file and creates new VMs from scratch.
+This builder starts from a guest operating system ISO file and builds a virtual machine image on a
+vSphere cluster or an ESXi host using the vSphere API.
 
-- VMware Player is not required.
-- It uses the official vCenter Server API, and does not require ESXi host [modification](/packer/plugins/builders/vsphere/vsphere-iso#building-on-a-remote-vsphere-hypervisor)
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+-> **Note:** This builder is developed to maintain compatibility with VMware vSphere versions until
+their respective End of General Support dates. For detailed information, refer to the
+[Broadcom Product Lifecycle](https://support.broadcom.com/group/ecx/productlifecycle).
 
 ## Examples
 
-See example templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
+- Basic examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/)
+directory of the GitHub repository.
 
-# Configuration Reference
+- Additional examples are available in the [`vmware-samples/packer-examples-for-vsphere`](https://github.com/vmware-samples/packer-examples-for-vsphere)
+GitHub repository maintained by VMware by Broadcom.
 
-There are many configuration options available for this builder. In addition to
-the items listed here, you will want to look at the general configuration
-references for [HTTP](#http-directory-configuration),
-[Floppy](#floppy-configuration),
-[Boot](#boot-configuration),
-[Hardware](#hardware-configuration),
-[Output](#output-configuration),
-[Run](#run-configuration),
-[Shutdown](#shutdown-configuration),
-[Communicator](#communicator-configuration),
-[Export](#export-configuration),
-configuration references, which are
-necessary for this build to succeed and can be found further down the page.
+## Configuration Reference
+
+### HTTP Configuration
+
+@include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig.mdx'
+
+**Optional**:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig-not-required.mdx'
+
+### Connection Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/common/ConnectConfig-not-required.mdx'
+
+### Location Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/common/LocationConfig-not-required.mdx'
 
 @include 'builder/vsphere/iso/Config-not-required.mdx'
 
-## Boot Configuration
+### Hardware Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/common/HardwareConfig-not-required.mdx'
+
+### Create Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/iso/CreateConfig-not-required.mdx'
+
+### ISO Configuration
+
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig.mdx'
+
+**Required**:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-required.mdx'
+
+**Optional**:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-not-required.mdx'
+
+### CD-ROM Configuration
+
+For each ISO defined in the CD-ROM configuration, a CD-ROM device is added.
+
+If the `iso_url` is defined in addition to the `iso_paths`, the `iso_url` is added to the virtual
+machine first. This keeps the `iso_url` first in the boot order by default, allowing the boot ISO to
+be defined by the `iso_url` and the VMware Tools ISO added from ESXi host.
+
+HCL Example:
+
+```hcl
+  iso_urls = [
+    "windows-server.iso",
+    "https://example.com/isos/windows-server.iso"
+  ]
+
+  iso_paths = [
+    "[] /usr/lib/vmware/isoimages/windows.iso"
+  ]
+```
+
+JSON Example:
+
+```json
+  "iso_urls": [
+    "windows-server.iso",
+    "https://example.com/isos/windows-server.iso"
+  ],
+  "iso_paths": [
+      "[] /usr/lib/vmware/isoimages/windows.iso"
+  ],
+```
+
+@include 'packer-plugin-sdk/multistep/commonsteps/CDConfig.mdx'
+
+**Optional**:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/CDConfig-not-required.mdx'
+
+@include 'builder/vsphere/common/CDRomConfig-not-required.mdx'
+
+@include 'builder/vsphere/common/RemoveCDRomConfig-not-required.mdx'
+
+@include 'builder/vsphere/common/ReattachCDRomConfig-not-required.mdx'
+
+### Floppy Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/common/FloppyConfig-not-required.mdx'
+
+### Network Adapter Configuration
+
+@include 'builder/vsphere/iso/NIC.mdx'
+
+**Required**:
+
+@include 'builder/vsphere/iso/NIC-required.mdx'
+
+**Optional**:
+
+@include 'builder/vsphere/iso/NIC-not-required.mdx'
+
+@include 'builder/vsphere/common/RemoveNetworkConfig-not-required.mdx'
+
+### Storage Configuration
+
+@include 'builder/vsphere/common/DiskConfig.mdx'
+
+**Required**:
+
+@include 'builder/vsphere/common/DiskConfig-required.mdx'
+
+**Optional**:
+
+@include 'builder/vsphere/common/DiskConfig-not-required.mdx'
+
+@include 'builder/vsphere/common/StorageConfig-not-required.mdx'
+
+### Flag Configuration
+
+**Optional**:
+
+@include 'builder/vsphere/common/FlagConfig-not-required.mdx'
+
+### Boot Configuration
 
 @include 'packer-plugin-sdk/bootcommand/BootConfig.mdx'
 
-We send each character to the VM with a default delay of 100ms between groups.
-The delay alleviates possible issues with latency and CPU
-contention. If you notice missing keys, you can tune this delay by specifying
-"boot_keygroup_interval" in your Packer template, for example:
+Packer sends each character to the virtual machine with a default delay of 100ms between groups. The
+delay alleviates possible issues with latency and CPU contention. If you notice missing keys, you
+can tune this delay by specifying `boot_keygroup_interval` in your template.
 
-**JSON**
-
-```json
-{
-  "builders": [
-    {
-      "type": "vsphere-iso",
-      "boot_keygroup_interval": "500ms"
-      ...
-    }
-  ]
-}
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
 source "vsphere-iso" "example" {
@@ -76,313 +179,215 @@ source "vsphere-iso" "example" {
 }
 ```
 
+JSON Example:
 
-## Optional:
+```json
+{
+  "builders": [
+    {
+      "type": "vsphere-iso",
+      "boot_keygroup_interval": "500ms"
+    }
+  ]
+}
+```
+
+**Optional**:
+
+@include 'builder/vsphere/common/RunConfig-not-required.mdx'
 
 @include 'packer-plugin-sdk/bootcommand/BootConfig-not-required.mdx'
 
 @include 'builder/vsphere/common/BootConfig-not-required.mdx'
 
-## Http directory configuration
+### Wait Configuration
 
-@include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig.mdx'
-
-## Optional:
-
-@include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig-not-required.mdx'
-
-## Floppy configuration
-
-@include 'builder/vsphere/common/FloppyConfig-not-required.mdx'
-
-## Connection Configuration
-
-@include 'builder/vsphere/common/ConnectConfig-not-required.mdx'
-
-## Hardware Configuration
-
-@include 'builder/vsphere/common/HardwareConfig-not-required.mdx'
-
-### PCI Passthrough Configuration
-
-@include 'builder/vsphere/common/PCIPassthroughAllowedDevice.mdx'
-
-@include 'builder/vsphere/common/PCIPassthroughAllowedDevice-not-required.mdx'
-
-## Location Configuration
-
-@include 'builder/vsphere/common/LocationConfig-not-required.mdx'
-
-## Run Configuration
-
-@include 'builder/vsphere/common/RunConfig-not-required.mdx'
-
-## Shutdown Configuration
-
-@include 'builder/vsphere/common/ShutdownConfig-not-required.mdx'
-
-## Wait Configuration
+**Optional**:
 
 @include 'builder/vsphere/common/WaitIpConfig-not-required.mdx'
-
-## ISO Configuration
-
-@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig.mdx'
-
-## Required:
-
-@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-required.mdx'
-
-## Optional:
-
-@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-not-required.mdx'
-
-## CDRom Configuration
-
-Each iso defined in the CDRom Configuration adds a new drive. If the "iso_url" is defined in
-addition to the "iso_paths", the "iso_url" is added to the VM first. This keeps the "iso_url" first in
-the boot order by default allowing the boot iso being defined by the iso_url and the vmware tools iso added
-from the datastore. Example:
-
-**JSON**
-
-```json
-"iso_urls": [
-  "win10.iso",
-  "http://example.org/isos/win10.iso"
-],
-"iso_paths": [
-    "[] /usr/lib/vmware/isoimages/windows.iso"
-],
-```
-
-**HCL2**
-
-```hcl
-iso_urls = [
-  "win10.iso",
-  "http://example.org/isos/win10.iso"
-]
-
-iso_paths = [
-    "[] /usr/lib/vmware/isoimages/windows.iso"
-]
-```
-
-@include 'builder/vsphere/common/CDRomConfig-not-required.mdx'
-
-@include 'builder/vsphere/common/RemoveCDRomConfig-not-required.mdx'
-
-@include 'builder/vsphere/common/ReattachCDRomConfig-not-required.mdx'
-
-@include 'packer-plugin-sdk/multistep/commonsteps/CDConfig.mdx'
-
-## Optional:
-
-@include 'packer-plugin-sdk/multistep/commonsteps/CDConfig-not-required.mdx'
-
-## Create Configuration
-
-@include 'builder/vsphere/iso/CreateConfig-not-required.mdx'
-
-@include 'builder/vsphere/common/StorageConfig-not-required.mdx'
-
-## Network Adapter Configuration
-
-@include 'builder/vsphere/iso/NIC.mdx'
-
-@include 'builder/vsphere/iso/NIC-required.mdx'
-
-@include 'builder/vsphere/common/RemoveNetworkConfig-not-required.mdx'
-
-## Optional
-
-@include 'builder/vsphere/iso/NIC-not-required.mdx'
-
-## Storage Configuration
-
-@include 'builder/vsphere/common/DiskConfig.mdx'
-
-@include 'builder/vsphere/common/DiskConfig-required.mdx'
-
-## Optional
-
-@include 'builder/vsphere/common/DiskConfig-not-required.mdx'
 
 ## Export Configuration
 
 @include 'builder/vsphere/common/ExportConfig.mdx'
 
-## Optional:
+**Optional**:
 
 @include 'builder/vsphere/common/ExportConfig-not-required.mdx'
 
-## Output Configuration:
+### Output Configuration
+
+**Optional**:
 
 @include 'builder/vsphere/common/OutputConfig-not-required.mdx'
 
-## Content Library Import Configuration
+### Content Library Configuration
 
 @include 'builder/vsphere/common/ContentLibraryDestinationConfig.mdx'
 
+**Optional**:
+
 @include 'builder/vsphere/common/ContentLibraryDestinationConfig-not-required.mdx'
 
-Minimal example of usage to import a VM template:
+**VM Template**
 
-**JSON**
-
-```json
-	"content_library_destination" : {
-	    "library": "Packer Library Test"
-	}
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Content Library"
 	}
 ```
 
-
-Minimal example of usage to import a OVF template:
-
-**JSON**
+JSON Example:
 
 ```json
 	"content_library_destination" : {
-	    "library": "Packer Library Test",
-	    "ovf": true
+	    "library": "Example Content Library"
 	}
 ```
 
-**HCL2**
+**OVF Template**
+
+HCL Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Content Library"
 			ovf = true
 	}
 ```
 
+JSON Example:
 
-## Extra Configuration Parameters
+```json
+	"content_library_destination" : {
+	    "library": "Example Content Library",
+	    "ovf": true
+	}
+```
+
+### Extra Configuration
+
+**Optional**:
 
 @include 'builder/vsphere/common/ConfigParamsConfig-not-required.mdx'
 
-## Communicator configuration
+### Communicator Configuration
 
-## Optional common fields:
+**Optional**:
+
+##### Common
 
 @include 'packer-plugin-sdk/communicator/Config-not-required.mdx'
 
-## Optional SSH fields:
+##### SSH
 
 @include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
 
 @include 'packer-plugin-sdk/communicator/SSH-Private-Key-File-not-required.mdx'
 
-## Optional WinRM fields:
+##### Windows Remote Management (WinRM)
 
 @include 'packer-plugin-sdk/communicator/WinRM-not-required.mdx'
 
-## Working With Clusters And Hosts
+## Working with Clusters and Hosts
 
-### Standalone Hosts
+### Standalone ESXi Hosts
 
-Only use the `host` option. Optionally specify a `resource_pool`:
+Only use the `host` option. Optionally, specify a `resource_pool`:
 
-**JSON**
-
-```json
-"host": "esxi-01.example.com",
-"resource_pool": "pool1",
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
-host = ""esxi-01.example.com""
-resource_pool = "pool1"
+  host = ""esxi-01.example.com""
+  resource_pool = "example_resource_pool"
 ```
 
+JSON Example:
 
-### Clusters Without DRS
+```json
+  "host": "esxi-01.example.com",
+  "resource_pool": "example_resource_pool",
+```
+
+### Clusters with Distributed Resource Scheduler Enabled
+
+Only use the `cluster` option. Optionally, specify a `resource_pool`:
+
+HCL Example:
+
+```hcl
+  cluster = "cluster-01"
+  resource_pool = "example_resource_pool"
+```
+
+JSON Example:
+
+```json
+  "cluster": "cluster-01",
+  "resource_pool": "example_resource_pool",
+```
+
+### Clusters without Distributed Resource Scheduler Enabled
 
 Use the `cluster` and `host`parameters:
 
-**JSON**
-
-```json
-"cluster": "cluster1",
-"host": "esxi-02.example.com",
-```
-
-**HCL2**
+HCL Example:
 
 ```hcl
-cluster = "cluster1"
-host = "esxi-02.example.com"
+  cluster = "cluster-01"
+  host = "esxi-01.example.com"
 ```
 
-
-### Clusters With DRS
-
-Only use the `cluster` option. Optionally specify a `resource_pool`:
-
-**JSON**
+JSON Example:
 
 ```json
-"cluster": "cluster2",
-"resource_pool": "pool1",
+  "cluster": "cluster-01",
+  "host": "esxi-01.example.com",
 ```
 
-**HCL2**
+## Privileges
 
-```hcl
-cluster = "cluster2"
-resource_pool = "pool1"
-```
+It is recommended to create a custom vSphere role with the required privileges to integrate Packer
+with vSphere. Accounts or groups can be added to the role to ensure that Packer has least privilege
+access to the infrastructure.
 
+For example, a named service account (_e.g._ `svc-packer-vsphere@example.com`).
 
-## Required vSphere Privileges
+Clone the default **Read-Only** vSphere role and add the following privileges, which are based on
+the capabilities of the `vsphere-iso` plugin:
 
-It is recommended to create a custom vSphere role with the required privileges to integrate Packer with vSphere. Accounts or groups can be added to the role to ensure that Packer has **_the least privileged_** access to the infrastructure. For example, a named service account (_e.g._ svc-packer-vsphere@example.com).
-
-Clone the default **Read-Only** vSphere role and add the following privileges, which are based on the capabilities of the `vsphere-iso` plugin:
-
-Category        | Privilege                                           | Reference
-----------------|-----------------------------------------------------|---------
-Content Library | Add library item                                    | `ContentLibrary.AddLibraryItem`
- ...            | Update Library Item                                 | `ContentLibrary.UpdateLibraryItem`
-Datastore       | Allocate space                                      | `Datastore.AllocateSpace`
-...             | Browse datastore                                    | `Datastore.Browse`
-...             | Low level file operations                           | `Datastore.FileManagement`
-Network         | Assign network                                      | `Network.Assign`
-Resource        | Assign virtual machine to resource pool             | `Resource.AssignVMToPool`
-vApp            | Export                                              | `vApp.Export`
-Virtual Machine | Configuration > Add new disk                        | `VirtualMachine.Config.AddNewDisk`
-...             | Configuration > Add or remove device                | `VirtualMachine.Config.AddRemoveDevice`
-...             | Configuration > Advanced configuration              | `VirtualMachine.Config.AdvancedConfig`
-...             | Configuration > Change CPU count                    | `VirtualMachine.Config.CPUCount`
-...             | Configuration > Change memory                       | `VirtualMachine.Config.Memory`
-...             | Configuration > Change settings                     | `VirtualMachine.Config.Settings`
-...             | Configuration > Change Resource                     | `VirtualMachine.Config.Resource`
-...             | Configuration > Set annotation                      | `VirtualMachine.Config.Annotation`
-...             | Edit Inventory > Create from existing               | `VirtualMachine.Inventory.CreateFromExisting`
-...             | Edit Inventory > Create new                         | `VirtualMachine.Inventory.Create`
-...             | Edit Inventory > Remove                             | `VirtualMachine.Inventory.Delete`
-...             | Interaction > Configure CD media                    | `VirtualMachine.Interact.SetCDMedia`
-...             | Interaction > Configure floppy media                | `VirtualMachine.Interact.SetFloppyMedia`
-...             | Interaction > Connect devices                       | `VirtualMachine.Interact.DeviceConnection`
-...             | Interaction > Inject USB HID scan codes             | `VirtualMachine.Interact.PutUsbScanCodes`
-...             | Interaction > Power off                             | `VirtualMachine.Interact.PowerOff`
-...             | Interaction > Power on                              | `VirtualMachine.Interact.PowerOn`
-...             | Provisioning > Create template from virtual machine | `VirtualMachine.Provisioning.CreateTemplateFromVM`
-...             | Provisioning > Mark as template                     | `VirtualMachine.Provisioning.MarkAsTemplate`
-...             | Provisioning > Mark as virtual machine              | `VirtualMachine.Provisioning.MarkAsVM`
-...             | State > Create snapshot                             | `VirtualMachine.State.CreateSnapshot`
+| Category        | Privilege                                           | Reference                                          |
+| --------------- | --------------------------------------------------- | -------------------------------------------------- |
+| Content Library | Add library item                                    | `ContentLibrary.AddLibraryItem`                    |
+| ...             | Update Library Item                                 | `ContentLibrary.UpdateLibraryItem`                 |
+| Datastore       | Allocate space                                      | `Datastore.AllocateSpace`                          |
+| ...             | Browse datastore                                    | `Datastore.Browse`                                 |
+| ...             | Low level file operations                           | `Datastore.FileManagement`                         |
+| Network         | Assign network                                      | `Network.Assign`                                   |
+| Resource        | Assign virtual machine to resource pool             | `Resource.AssignVMToPool`                          |
+| vApp            | Export                                              | `vApp.Export`                                      |
+| Virtual Machine | Configuration > Add new disk                        | `VirtualMachine.Config.AddNewDisk`                 |
+| ...             | Configuration > Add or remove device                | `VirtualMachine.Config.AddRemoveDevice`            |
+| ...             | Configuration > Advanced configuration              | `VirtualMachine.Config.AdvancedConfig`             |
+| ...             | Configuration > Change CPU count                    | `VirtualMachine.Config.CPUCount`                   |
+| ...             | Configuration > Change memory                       | `VirtualMachine.Config.Memory`                     |
+| ...             | Configuration > Change settings                     | `VirtualMachine.Config.Settings`                   |
+| ...             | Configuration > Change Resource                     | `VirtualMachine.Config.Resource`                   |
+| ...             | Configuration > Set annotation                      | `VirtualMachine.Config.Annotation`                 |
+| ...             | Edit Inventory > Create from existing               | `VirtualMachine.Inventory.CreateFromExisting`      |
+| ...             | Edit Inventory > Create new                         | `VirtualMachine.Inventory.Create`                  |
+| ...             | Edit Inventory > Remove                             | `VirtualMachine.Inventory.Delete`                  |
+| ...             | Interaction > Configure CD media                    | `VirtualMachine.Interact.SetCDMedia`               |
+| ...             | Interaction > Configure floppy media                | `VirtualMachine.Interact.SetFloppyMedia`           |
+| ...             | Interaction > Connect devices                       | `VirtualMachine.Interact.DeviceConnection`         |
+| ...             | Interaction > Inject USB HID scan codes             | `VirtualMachine.Interact.PutUsbScanCodes`          |
+| ...             | Interaction > Power off                             | `VirtualMachine.Interact.PowerOff`                 |
+| ...             | Interaction > Power on                              | `VirtualMachine.Interact.PowerOn`                  |
+| ...             | Provisioning > Create template from virtual machine | `VirtualMachine.Provisioning.CreateTemplateFromVM` |
+| ...             | Provisioning > Mark as template                     | `VirtualMachine.Provisioning.MarkAsTemplate`       |
+| ...             | Provisioning > Mark as virtual machine              | `VirtualMachine.Provisioning.MarkAsVM`             |
+| ...             | State > Create snapshot                             | `VirtualMachine.State.CreateSnapshot`              |
 
 Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-74F53189-EF41-4AC1-A78E-D25621855800.html#how-do-permissions-work-in-vsphere-0)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
 
@@ -391,10 +396,19 @@ For example:
 1. Log in to the vCenter Server at _https://<management_vcenter_server_fqdn>/ui_ as `administrator@vsphere.local`.
 2. Select **Menu** > **Administration**.
 3. In the left pane, select **Access control** > **Global permissions** and click the **Add permissions** icon.
-4. In the **Add permissions** dialog box, enter the service account (_e.g._ svc-packer-vsphere@example.com), select the custom role (_e.g._ Packer to vSphere Integration Role) and the **Propagate to children** check box, and click OK.
+4. In the **Add permissions** dialog box, enter the service account (_e.g._
+   `svc-packer-vsphere@example.com`), select the custom role (_e.g._ Packer to vSphere Integration
+   Role) and the **Propagate to children** check box, and click **OK**.
 
-In an environment with many vCenter Server instances, such as management and workload, in enhanced linked-mode, you may wish to further reduce the scope of access across the vSphere infrastructure. For example, if you do not want Packer to have access to the management vCenter Server instance, but only allow access to workload vCenter Server instances:
+In an environment with many vCenter Server instances, such as management and workload, in enhanced
+linked-mode, you may wish to further reduce the scope of access across the vSphere infrastructure if
+you do not want Packer to have access to the management vCenter Server instance, but only allow
+access to workload vCenter Server instances.
 
-1. From the **Hosts and clusters** inventory, select management vCenter Server to restrict scope, and click the **Permissions** tab.
+For example:
+
+1. From the **Hosts and clusters** inventory, select management vCenter Server to restrict scope,
+   and click the **Permissions** tab.
 2. Select the service account with the custom role assigned and click the **Change role** icon.
-3. In the **Change role** dialog box, from the **Role** drop-down menu, select **No Access**, select the **Propagate to children** check box, and click **OK**.
+3. In the **Change role** dialog box, from the **Role** drop-down menu, select **No Access**, select
+   the **Propagate to children** check box, and click **OK**.

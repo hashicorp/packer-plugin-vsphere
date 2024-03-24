@@ -1,12 +1,12 @@
 <!-- Code generated from the comments of the FloppyConfig struct in builder/vsphere/common/step_add_floppy.go; DO NOT EDIT MANUALLY -->
 
-- `floppy_img_path` (string) - Datastore path to a floppy image that will be mounted to the VM.
-  Example: `[datastore1] ISO/pvscsi-Windows8.flp`.
+- `floppy_img_path` (string) - Datastore path to a floppy image that will be mounted to the virtual
+  machine. Example: `[datastore] iso/foo.flp`.
 
-- `floppy_files` ([]string) - List of local files to be mounted to the VM floppy drive. Can be used to
-  make Debian preseed or RHEL kickstart files available to the VM.
+- `floppy_files` ([]string) - A list of local files to be mounted to the virtual machine's floppy
+  drive.
 
-- `floppy_dirs` ([]string) - List of directories to copy files from.
+- `floppy_dirs` ([]string) - A list of directories to copy files from.
 
 - `floppy_content` (map[string]string) - Key/Values to add to the floppy disk. The keys represent the paths, and
   the values contents. It can be used alongside `floppy_files` or
@@ -14,7 +14,7 @@
   into memory. If any paths are specified by both, the contents in
   `floppy_content` will take precedence.
   
-  Usage example (HCL):
+  HCL Example:
   
   ```hcl
   floppy_content = {
@@ -23,9 +23,9 @@
   }
   ```
 
-- `floppy_label` (string) - The label to use for the floppy disk that
-  is attached when the VM is booted. This is most useful for cloud-init,
-  Kickstart or other early initialization tools, which can benefit from labelled floppy disks.
+- `floppy_label` (string) - The label to use for the floppy disk that is attached when the virtual
+  machine is booted. This is most useful for cloud-init, Kickstart or other
+  early initialization tools, which can benefit from labelled floppy disks.
   By default, the floppy label will be 'packer'.
 
 <!-- End of code generated from the comments of the FloppyConfig struct in builder/vsphere/common/step_add_floppy.go; -->

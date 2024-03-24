@@ -1,34 +1,42 @@
 <!-- Code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `vm_version` (uint) - Specifies the virtual machine hardware version. Defaults to the most current virtual machine
-  hardware version supported by the ESXi host.
+- `vm_version` (uint) - Specifies the virtual machine hardware version. Defaults to the most
+  current virtual machine hardware version supported by the ESXi host.
   Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
   for more information on supported virtual hardware versions.
 
-- `guest_os_type` (string) - Specifies the guest operating system identifier for the virtual machine.
-  If not specified, the setting defaults to `otherGuest`.
+- `guest_os_type` (string) - The guest operating system identifier for the virtual machine.
+  Defaults to `otherGuest`.
   
-  To get a list of supported guest operating system identifiers for your ESXi host,
-  run the following PowerShell command using `VMware.PowerCLI`:
+  To get a list of supported guest operating system identifiers for your
+  ESXi host, run the following PowerShell command using `VMware.PowerCLI`:
   
   ```powershell
-  Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
-  $esxiHost = Get-VMHost -Name "esxi.example.com"
+  Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
+  $esxiHost = Get-VMHost -Name "esxi-01.example.com"
   $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
   $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
   $osDescriptor = $environmentBrowser.QueryConfigOption($vmxVersion, $null).GuestOSDescriptor
   $osDescriptor | Select-Object Id, Fullname
   ```
 
-- `network_adapters` ([]NIC) - Specifies the network adapters for the virtual machine.
-  If no network adapter is defined, all network-related operations will be skipped.
+- `network_adapters` ([]NIC) - The network adapters for the virtual machine.
+  
+  -> **Note:** If no network adapter is defined, all network-related
+  operations are skipped.
 
-- `usb_controller` ([]string) - Specifies the USB controllers for the virtual machine. Use `usb` for a USB 2.0 controller and
-  `xhci`` for a USB 3.0 controller.
-  -> **Note:** Maximum of one controller of each type.
+- `usb_controller` ([]string) - The USB controllers for the virtual machine.
+  
+  The available options for this setting are: `usb` and `xhci`.
+  
+  - `usb`: USB 2.0
+  - `xhci`: USB 3.0
+  
+  -> **Note:** A maximum of one of each controller type can be defined.
 
-- `notes` (string) - Specifies the annotations for the virtual machine.
+- `notes` (string) - The annotations for the virtual machine.
 
-- `destroy` (bool) - Specifies whether to destroy the virtual machine after the build is complete.
+- `destroy` (bool) - Destroy the virtual machine after the build completes.
+  Defaults to `false`.
 
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
