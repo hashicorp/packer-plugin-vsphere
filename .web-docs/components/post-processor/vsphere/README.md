@@ -5,11 +5,14 @@ This post-processor uploads an artifact to a vSphere endpoint.
 
 The artifact must be a VMX, OVA, or OVF file.
 
-## Configuration
+-> **Important:** This post-processor is developed to maintain compatibility with VMware vSphere
+versions until their respective End of General Support dates. For detailed information, refer to the [VMware Product Lifecycle Matrix](https://lifecycle.vmware.com).
+
+## Configuration Reference
 
 The following configuration options are available for the post-processor.
 
-Required:
+### Required
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
@@ -31,7 +34,7 @@ Required:
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->
 
 
-Optional:
+### Optional
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
@@ -80,15 +83,15 @@ Optional:
 - `keep_input_artifact` (boolean) - Specifies to preserve the local virtual machines files, even
   after importing them to the vSphere endpoint. Defaults to `false`.
 
-# Example Usage
+## Example Usage
 
-The following is an example of the vSphere post-processor being used in conjunction with the `null`
-builder to upload a VMX to a vSphere cluster. You can also use this post-processor with the VMX
-artifact from a build.
+The following is an example of the post-processor used in conjunction with the `null` builder to
+upload a VMX to a vSphere cluster. You can also use this post-processor with the VMX artifact from a
+build.
 
 An example is shown below, showing only the post-processor configuration:
 
-In HCL2:
+HCL2 Example:
 
 ```hcl
 source "null" "example" {
@@ -102,7 +105,7 @@ build {
 
     post-processors {
       post-processor "vsphere"{
-          vm_name             = "packer"
+          vm_name             = "foo"
           host                = "vcenter.example.com"
           username            = "administrator@vsphere.local"
           password            = "VMw@re1!"
@@ -116,7 +119,7 @@ build {
 }
 ```
 
-In JSON:
+JSON Example:
 
 ```json
 {
@@ -130,7 +133,7 @@ In JSON:
     [
       {
         "type": "vsphere",
-        "vm_name": "packer",
+        "vm_name": "foo",
         "host": "vcenter.example.com",
         "username": "administrator@vsphere.local",
         "password": "VMw@re1!",
@@ -145,11 +148,11 @@ In JSON:
 }
 ```
 
-# Privileges
+## Privileges
 
 The post-processor uses `ovftool` and tneeds several privileges to be able to run `ovftool`.
 
-Rather than giving full administrator access, you can create a role to give the post-processor the
+Rather than giving Administrator access, you can create a role to give the post-processor the
 privileges necessary to run.
 
 Below is an example role that will work. Please note that this is a user-supplied list so there may

@@ -1,29 +1,31 @@
 Type: `vsphere-supervisor`
 Artifact BuilderId: `vsphere.supervisor`
 
-This builder deploys and publishes new VMs to a vSphere Supervisor cluster using VM Service.
-If you are new to VM Service, please refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu
-](https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-tanzu/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html) for more information.
+This builder deploys and publishes new virtual machine to a vSphere Supervisor cluster using VM
+Service.
 
-- It uses a kubeconfig file to connect to the vSphere Supervisor cluster.
-- It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy and configure the source VM.
-- It uses the Packer provisioners to customize the VM after establishing a successful connection.
-- It publishes the customized VM as a new VM image to the designated content library in vSphere.
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+If you are new to VM Service, please refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu](https://docs.vmware.com/en/VMware-vSphere/7.0/vmware-vsphere-with-tanzu/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html)
+for more information.
+
+- It uses a `kubeconfig` file to connect to the vSphere Supervisor cluster.
+- It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy
+  and configure the source virtual machine.
+- It uses the Packer provisioners to customize the virtual machine after establishing a successful
+  connection.
+- It publishes the customized virtual machine as a new virtual machine image to the designated
+  content library in vSphere.
+
+-> **Important:** This builder is developed to maintain compatibility with VMware vSphere versions
+until their respective End of General Support dates. For detailed information, refer to the [VMware Product Lifecycle Matrix](https://lifecycle.vmware.com).
 
 ## Examples
 
-Example Packer template:
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
 source "vsphere-supervisor" "example-vm" {
-  image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
-  class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
+  image_name = "<Image name of the source virtual machine, e.g. 'ubuntu-impish-21.10-cloudimg'>"
+  class_name = "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
   storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
   bootstrap_provider = "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>"
   bootstrap_data_file = "<Path to the file containing the bootstrap data for guest OS customization>"
@@ -34,15 +36,15 @@ build {
 }
 ```
 
-**JSON**
+JSON Example:
 
 ```json
 {
   "builders": [
     {
       "type": "vsphere-supervisor",
-      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>",
-      "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
+      "image_name": "<Image name of the source virtual machine, e.g. 'ubuntu-impish-21.10-cloudimg'>",
+      "class_name": "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
       "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
       "bootstrap_provider": "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>",
       "bootstrap_data_file": "<Path to the file containing the bootstrap data for guest OS customization>"
@@ -51,11 +53,12 @@ build {
 }
 ```
 
-
 Refer to the [examples/supervisor directory](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/supervisor) within the GitHub repository for more complete examples.
 
 ## Configuration Reference
-There are various configuration options available for each step in this builder. The _required_ items are listed below as well as the _optional_ configs further down the page.
+
+There are various configuration options available for each step in this builder. The _required_
+items are listed below as well as the _optional_ configurations.
 
 ### Required
 
@@ -70,9 +73,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
 
 
-### Optional
-
 #### Supervisor Connection
+
+### Optional
 
 <!-- Code generated from the comments of the ConnectSupervisorConfig struct in builder/vsphere/supervisor/step_connect_supervisor.go; DO NOT EDIT MANUALLY -->
 
@@ -83,7 +86,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the ConnectSupervisorConfig struct in builder/vsphere/supervisor/step_connect_supervisor.go; -->
 
 
-#### Source VM Creation
+#### Source Virtual Machine Creation
+
+### Optional
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 
@@ -104,7 +109,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
 
 
-#### Source VM Watching
+#### Source Virtual Machine Watching
+
+### Optional
 
 <!-- Code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; DO NOT EDIT MANUALLY -->
 
@@ -113,7 +120,9 @@ There are various configuration options available for each step in this builder.
 <!-- End of code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; -->
 
 
-#### Source VM Publishing
+#### Source Virtual Machine Publishing
+
+### Optional
 
 <!-- Code generated from the comments of the PublishSourceConfig struct in builder/vsphere/supervisor/step_publish_source.go; DO NOT EDIT MANUALLY -->
 
@@ -125,6 +134,8 @@ There are various configuration options available for each step in this builder.
 
 
 #### Communicator Configuration
+
+### Optional
 
 <!-- Code generated from the comments of the SSH struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -294,10 +305,10 @@ There are various configuration options available for each step in this builder.
 
 ## Deprovisioning Tasks
 
-If you would like to clean up the VM after the build is complete, you could use the Ansible
-provisioner to run the following tasks to delete machine-specific files and data.
+If you would like to clean up the virtual machine after the build is complete, you can use the
+Ansible provisioner to run the following tasks to delete machine-specific files and data.
 
-**HCL2**
+HCL2 Example:
 
 ```hcl
 build {
@@ -309,7 +320,7 @@ build {
 }
 ```
 
-**JSON**
+JSON Example:
 
 ```json
 {
@@ -327,13 +338,12 @@ build {
 }
 ```
 
-
 Content of `cleanup-playbook.yml`:
 
 ```yaml
 ---
 # cleanup-playbook.yml
-- name: Clean up source VM
+- name: Clean up source virtual machine
   hosts: default
   become: true
   tasks:

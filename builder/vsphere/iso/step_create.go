@@ -22,11 +22,24 @@ import (
 // Defines a Network Adapter
 // If no adapter is defined, network tasks (communicators, most provisioners) won't work, so it's advised to define one.
 //
-// Example that creates two network adapters:
+// Example configuration with two network adapters:
 //
-// In JSON:
+// HCL2 Example:
+//
+// ```hcl
+//	network_adapters {
+//	    network = "VM Network"
+//	    network_card = "vmxnet3"
+//	}
+//	network_adapters {
+//	    network = "OtherNetwork"
+//	    network_card = "vmxnet3"
+//	}
+// ```
+//
+// JSON Example:
+//
 // ```json
-//
 //	"network_adapters": [
 //	  {
 //	    "network": "VM Network",
@@ -37,24 +50,10 @@ import (
 //	    "network_card": "vmxnet3"
 //	  }
 //	],
-//
-// ```
-// In HCL2:
-// ```hcl
-//
-//	network_adapters {
-//	    network = "VM Network"
-//	    network_card = "vmxnet3"
-//	}
-//	network_adapters {
-//	    network = "OtherNetwork"
-//	    network_card = "vmxnet3"
-//	}
-//
 // ```
 type NIC struct {
 	// Specifies the network to which the virtual machine will connect. If no network is specified,
-	// provide 'host' to allow Packer to search for an available network. For networks placed
+	// provide `host` to allow Packer to search for an available network. For networks placed
 	// within a network folder vCenter Server, provider the object path to the network.
 	// For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 	Network string `mapstructure:"network"`
@@ -69,6 +68,7 @@ type NIC struct {
 type CreateConfig struct {
 	// Specifies the virtual machine hardware version. Defaults to the most current virtual machine
 	// hardware version supported by the ESXi host.
+	//
 	// Refer to [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for the list
 	// of supported virtual machine hardware versions.
 	Version uint `mapstructure:"vm_version"`
@@ -79,8 +79,8 @@ type CreateConfig struct {
 	// run the following PowerShell command using `VMware.PowerCLI`:
 	//
 	// ```powershell
-	// Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
-	// $esxiHost = Get-VMHost -Name "esxi.example.com"
+	// Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
+	// $esxiHost = Get-VMHost -Name "esxi-01.example.com"
 	// $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
 	// $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
 	// $osDescriptor = $environmentBrowser.QueryConfigOption($vmxVersion, $null).GuestOSDescriptor

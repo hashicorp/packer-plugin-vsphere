@@ -1,35 +1,25 @@
 Type: `vsphere-iso`
 Artifact BuilderId: `jetbrains.vsphere`
 
-This builder uses the vSphere API, and creates virtual machines remotely. It
-starts from an ISO file and creates new VMs from scratch.
+This builder starts from an ISO file and utilizes the vSphere API to build a virtual machine image
+on an ESXi host.
 
-- VMware Player is not required.
-- It uses the official vCenter Server API, and does not require ESXi host [modification](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso#building-on-a-remote-vsphere-hypervisor)
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+-> **Important:** This builder is developed to maintain compatibility with VMware vSphere versions
+until their respective End of General Support dates. For detailed information, refer to the [VMware Product Lifecycle Matrix](https://lifecycle.vmware.com).
 
 ## Examples
 
-See example templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
+1. See example templates in the [examples folder](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/builder/vsphere/examples/).
+2.
 
-# Configuration Reference
+## Configuration Reference
 
-There are many configuration options available for this builder. In addition to
-the items listed here, you will want to look at the general configuration
-references for [HTTP](#http-directory-configuration),
-[Floppy](#floppy-configuration),
-[Boot](#boot-configuration),
-[Hardware](#hardware-configuration),
-[Output](#output-configuration),
-[Run](#run-configuration),
-[Shutdown](#shutdown-configuration),
-[Communicator](#communicator-configuration),
-[Export](#export-configuration),
-configuration references, which are
-necessary for this build to succeed and can be found further down the page.
+There are many configuration options available for this builder. In addition to the items listed
+here, you will want to look at the general configuration references for [HTTP](#http-directory-configuration),
+[Floppy](#floppy-configuration), [Boot](#boot-configuration), [Hardware](#hardware-configuration), [Output](#output-configuration),
+[Run](#run-configuration), [Shutdown](#shutdown-configuration), [Communicator](#communicator-configuration),
+[Export](#export-configuration), configuration references, which are necessary for a build to
+succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the Config struct in builder/vsphere/iso/config.go; DO NOT EDIT MANUALLY -->
 
@@ -53,7 +43,7 @@ necessary for this build to succeed and can be found further down the page.
 <!-- End of code generated from the comments of the Config struct in builder/vsphere/iso/config.go; -->
 
 
-## Boot Configuration
+### Boot Configuration
 
 <!-- Code generated from the comments of the BootConfig struct in bootcommand/config.go; DO NOT EDIT MANUALLY -->
 
@@ -195,26 +185,11 @@ For more examples of various boot commands, see the sample projects from our
 <!-- End of code generated from the comments of the BootConfig struct in bootcommand/config.go; -->
 
 
-We send each character to the VM with a default delay of 100ms between groups.
-The delay alleviates possible issues with latency and CPU
-contention. If you notice missing keys, you can tune this delay by specifying
-"boot_keygroup_interval" in your Packer template, for example:
+Packer sends each character to the virtual machine with a default delay of 100ms between groups. The
+delay alleviates possible issues with latency and CPU contention. If you notice missing keys, you
+can tune this delay by specifying `boot_keygroup_interval` in your template.
 
-**JSON**
-
-```json
-{
-  "builders": [
-    {
-      "type": "vsphere-iso",
-      "boot_keygroup_interval": "500ms"
-      ...
-    }
-  ]
-}
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
 source "vsphere-iso" "example" {
@@ -223,8 +198,20 @@ source "vsphere-iso" "example" {
 }
 ```
 
+JSON Example:
 
-## Optional:
+```json
+{
+  "builders": [
+    {
+      "type": "vsphere-iso",
+      "boot_keygroup_interval": "500ms"
+    }
+  ]
+}
+```
+
+### Optional
 
 <!-- Code generated from the comments of the BootConfig struct in bootcommand/config.go; DO NOT EDIT MANUALLY -->
 
@@ -258,7 +245,7 @@ source "vsphere-iso" "example" {
 <!-- End of code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; -->
 
 
-## Http directory configuration
+## HTTP Directory Configuration
 
 <!-- Code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; DO NOT EDIT MANUALLY -->
 
@@ -275,7 +262,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
 
-## Optional:
+### Optional
 
 <!-- Code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; DO NOT EDIT MANUALLY -->
 
@@ -316,7 +303,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
 
-## Floppy configuration
+## Floppy Configuration
 
 <!-- Code generated from the comments of the FloppyConfig struct in builder/vsphere/common/step_add_floppy.go; DO NOT EDIT MANUALLY -->
 
@@ -334,7 +321,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   into memory. If any paths are specified by both, the contents in
   `floppy_content` will take precedence.
   
-  Usage example (HCL):
+  HCL2 Example:
   
   ```hcl
   floppy_content = {
@@ -587,7 +574,7 @@ In HCL2:
 <!-- End of code generated from the comments of the ISOConfig struct in multistep/commonsteps/iso_config.go; -->
 
 
-## Required:
+### Required
 
 <!-- Code generated from the comments of the ISOConfig struct in multistep/commonsteps/iso_config.go; DO NOT EDIT MANUALLY -->
 
@@ -618,7 +605,7 @@ In HCL2:
 <!-- End of code generated from the comments of the ISOConfig struct in multistep/commonsteps/iso_config.go; -->
 
 
-## Optional:
+### Optional
 
 <!-- Code generated from the comments of the ISOConfig struct in multistep/commonsteps/iso_config.go; DO NOT EDIT MANUALLY -->
 
@@ -637,38 +624,38 @@ In HCL2:
 <!-- End of code generated from the comments of the ISOConfig struct in multistep/commonsteps/iso_config.go; -->
 
 
-## CDRom Configuration
+## CD-ROM Configuration
 
-Each iso defined in the CDRom Configuration adds a new drive. If the "iso_url" is defined in
-addition to the "iso_paths", the "iso_url" is added to the VM first. This keeps the "iso_url" first in
-the boot order by default allowing the boot iso being defined by the iso_url and the vmware tools iso added
-from the datastore. Example:
+For each ISO defined in the CD-ROM configuration, a CD-ROM device is added.
 
-**JSON**
+If the `iso_url` is defined in addition to the `iso_paths`, the `iso_url` is added to the virtual
+machine first. This keeps the `iso_url` first in the boot order by default, allowing the boot ISO to
+be defined by the `iso_url` and the VMware Tools ISO added from ESXi host.
+
+HCL2 Example:
+
+```hcl
+iso_urls = [
+  "windows-server.iso",
+  "https://example.com/isos/windows-server.iso"
+]
+
+iso_paths = [
+  "[] /usr/lib/vmware/isoimages/windows.iso"
+]
+```
+
+JSON Example:
 
 ```json
 "iso_urls": [
-  "win10.iso",
-  "http://example.org/isos/win10.iso"
+  "windows-server.iso",
+  "https://example.com/isos/windows-server.iso"
 ],
 "iso_paths": [
     "[] /usr/lib/vmware/isoimages/windows.iso"
 ],
 ```
-
-**HCL2**
-
-```hcl
-iso_urls = [
-  "win10.iso",
-  "http://example.org/isos/win10.iso"
-]
-
-iso_paths = [
-    "[] /usr/lib/vmware/isoimages/windows.iso"
-]
-```
-
 
 <!-- Code generated from the comments of the CDRomConfig struct in builder/vsphere/common/step_add_cdrom.go; DO NOT EDIT MANUALLY -->
 
@@ -676,7 +663,7 @@ iso_paths = [
 
 - `iso_paths` ([]string) - A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
   
-  Usage example (HCL):
+  HCL2 Example:
   
   ```hcl
   iso_paths = [
@@ -717,7 +704,7 @@ boot time.
 <!-- End of code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; -->
 
 
-## Optional:
+### Optional
 
 <!-- Code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; DO NOT EDIT MANUALLY -->
 
@@ -826,12 +813,12 @@ boot time.
 
 <!-- Code generated from the comments of the StorageConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_controller_type` ([]string) - Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
-  Defaults to `lsilogic`. See
-  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
-  for additional details.
+- `disk_controller_type` ([]string) - Specifies the disk controller type. One of `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Defaults to `lsilogic`.
+  Use a list to define additional controllers.
+  Refer to [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
+  for additional information.
 
-- `storage` ([]DiskConfig) - Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).
+- `storage` ([]DiskConfig) - Specified a collection of one or more disks to be provisioned. Refer to the [Storage Configuration](#storage-configuration) section for additional information.
 
 <!-- End of code generated from the comments of the StorageConfig struct in builder/vsphere/common/storage_config.go; -->
 
@@ -843,11 +830,24 @@ boot time.
 Defines a Network Adapter
 If no adapter is defined, network tasks (communicators, most provisioners) won't work, so it's advised to define one.
 
-Example that creates two network adapters:
+Example configuration with two network adapters:
 
-In JSON:
+HCL2 Example:
+
+```hcl
+	network_adapters {
+	    network = "VM Network"
+	    network_card = "vmxnet3"
+	}
+	network_adapters {
+	    network = "OtherNetwork"
+	    network_card = "vmxnet3"
+	}
+```
+
+JSON Example:
+
 ```json
-
 	"network_adapters": [
 	  {
 	    "network": "VM Network",
@@ -858,24 +858,12 @@ In JSON:
 	    "network_card": "vmxnet3"
 	  }
 	],
-
-```
-In HCL2:
-```hcl
-
-	network_adapters {
-	    network = "VM Network"
-	    network_card = "vmxnet3"
-	}
-	network_adapters {
-	    network = "OtherNetwork"
-	    network_card = "vmxnet3"
-	}
-
 ```
 
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->
 
+
+### Required
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
@@ -884,12 +872,12 @@ In HCL2:
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->
 
 
-## Optional
+### Optional
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
 - `network` (string) - Specifies the network to which the virtual machine will connect. If no network is specified,
-  provide 'host' to allow Packer to search for an available network. For networks placed
+  provide `host` to allow Packer to search for an available network. For networks placed
   within a network folder vCenter Server, provider the object path to the network.
   For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 
@@ -904,13 +892,24 @@ In HCL2:
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-Defines the disk storage for a VM.
+The following example that will create a 15GB and a 20GB disk on the virtual machine.
+The second disk will be thin provisioned:
 
-Example that will create a 15GB and a 20GB disk on the VM. The second disk will be thin provisioned:
+HCL2 Example:
 
-In JSON:
+```hcl
+	storage {
+	    disk_size = 15000
+	}
+	storage {
+	    disk_size = 20000
+	    disk_thin_provisioned = true
+	}
+```
+
+JSON Example:
+
 ```json
-
 	"storage": [
 	  {
 	    "disk_size": 15000
@@ -920,26 +919,35 @@ In JSON:
 	    "disk_thin_provisioned": true
 	  }
 	],
-
 ```
-In HCL2:
+
+The following example will use two PVSCSI controllers and two disks on each controller.
+
+HCL2 Example:
+
 ```hcl
-
+	disk_controller_type = ["pvscsi", "pvscsi"]
 	storage {
-	    disk_size = 15000
+	   disk_size = 15000,
+	   disk_controller_index = 0
 	}
 	storage {
-	    disk_size = 20000
-	    disk_thin_provisioned = true
+	   disk_size = 15000
+	   disk_controller_index = 0
 	}
-
+	storage {
+	   disk_size = 15000
+	   disk_controller_index = 1
+	}
+	storage {
+	   disk_size = 15000
+	   disk_controller_index = 1
+	}
 ```
 
-Example that creates 2 pvscsi controllers and adds 2 disks to each one:
+JSON Example:
 
-In JSON:
 ```json
-
 	"disk_controller_type": ["pvscsi", "pvscsi"],
 	"storage": [
 	  {
@@ -959,51 +967,29 @@ In JSON:
 	    "disk_controller_index": 1
 	  }
 	],
-
-```
-
-In HCL2:
-```hcl
-
-	disk_controller_type = ["pvscsi", "pvscsi"]
-	storage {
-	   disk_size = 15000,
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-
 ```
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
 
+### Required
+
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_size` (int64) - The size of the disk in MiB.
+- `disk_size` (int64) - Specifics the size of the disk in MiB.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
 
-## Optional
+### Optional
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_thin_provisioned` (bool) - Enable VMDK thin provisioning for VM. Defaults to `false`.
+- `disk_thin_provisioned` (bool) - Specifies to enable VMDK thin provisioning for the disk. Defaults to `false`.
 
-- `disk_eagerly_scrub` (bool) - Enable VMDK eager scrubbing for VM. Defaults to `false`.
+- `disk_eagerly_scrub` (bool) - Specifies to enable VMDK eager scrubbing for the disk. Defaults to `false`.
 
-- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0).
+- `disk_controller_index` (int) - Specifies the assigned disk controller for the disk. Defaults to the first controller, `(0)`.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
@@ -1014,25 +1000,9 @@ In HCL2:
 
 You can export an image in Open Virtualization Format (OVF) to the Packer host.
 
-Example usage:
+HCL2 Example:
 
-In JSON:
-```json
-...
-
-	"vm_name": "example-ubuntu",
-
-...
-
-	"export": {
-	  "force": true,
-	  "output_directory": "./output-artifacts"
-	},
-
-```
-In HCL2:
 ```hcl
-
 	# ...
 	vm_name = "example-ubuntu"
 	# ...
@@ -1040,8 +1010,20 @@ In HCL2:
 	  force = true
 	  output_directory = "./output-artifacts"
 	}
-
 ```
+
+JSON Example:
+
+```json
+...
+	"vm_name": "example-ubuntu",
+...
+	"export": {
+	  "force": true,
+	  "output_directory": "./output-artifacts"
+	},
+```
+
 The above configuration would create the following files:
 
 ```text
@@ -1053,7 +1035,7 @@ The above configuration would create the following files:
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
 
 
-## Optional:
+### Optional
 
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
@@ -1077,14 +1059,17 @@ The above configuration would create the following files:
   
   For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
   
-  In JSON:
+  JSON: Example:
+  
   ```json
   ...
     "export": {
       "options": ["mac"]
     },
   ```
-  In HCL2:
+  
+  HCL2 Example:
+  
   ```hcl
   ...
     export {
@@ -1095,7 +1080,9 @@ The above configuration would create the following files:
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
 
 
-## Output Configuration:
+## Output Configuration
+
+### Optional
 
 <!-- Code generated from the comments of the OutputConfig struct in builder/vsphere/common/output_config.go; DO NOT EDIT MANUALLY -->
 
@@ -1127,6 +1114,8 @@ The template is stored in a existing or newly created library item.
 
 <!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->
 
+
+### Optional
 
 <!-- Code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; DO NOT EDIT MANUALLY -->
 
@@ -1181,47 +1170,47 @@ The template is stored in a existing or newly created library item.
 <!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->
 
 
-Minimal example of usage to import a VM template:
+#### Virtual Machine Template
 
-**JSON**
-
-```json
-	"content_library_destination" : {
-	    "library": "Packer Library Test"
-	}
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Content Library"
 	}
 ```
 
-
-Minimal example of usage to import a OVF template:
-
-**JSON**
+JSON Example:
 
 ```json
 	"content_library_destination" : {
-	    "library": "Packer Library Test",
-	    "ovf": true
+	    "library": "Example Content Library"
 	}
 ```
 
-**HCL2**
+#### OVF Template
+
+HCL2 Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Content Library"
 			ovf = true
 	}
 ```
 
+JSON Example:
 
-## Extra Configuration Parameters
+```json
+	"content_library_destination" : {
+	    "library": "Example Content Library",
+	    "ovf": true
+	}
+```
+
+## Extra Configuration
+
+### Optional
 
 <!-- Code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; DO NOT EDIT MANUALLY -->
 
@@ -1236,9 +1225,11 @@ Minimal example of usage to import a OVF template:
 <!-- End of code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; -->
 
 
-## Communicator configuration
+## Communicator Configuration
 
-## Optional common fields:
+### Optional
+
+#### Common
 
 <!-- Code generated from the comments of the Config struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1272,7 +1263,7 @@ Minimal example of usage to import a OVF template:
 <!-- End of code generated from the comments of the Config struct in communicator/config.go; -->
 
 
-## Optional SSH fields:
+#### SSH
 
 <!-- Code generated from the comments of the SSH struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1383,7 +1374,7 @@ Minimal example of usage to import a OVF template:
   of current user.
 
 
-## Optional WinRM fields:
+#### Windows Remote Management (WinRM)
 
 <!-- Code generated from the comments of the WinRM struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1422,75 +1413,77 @@ Minimal example of usage to import a OVF template:
 <!-- End of code generated from the comments of the WinRM struct in communicator/config.go; -->
 
 
-## Working With Clusters And Hosts
+## Working with Clusters and Hosts
 
-### Standalone Hosts
+### Standalone ESXi Hosts
 
 Only use the `host` option. Optionally specify a `resource_pool`:
 
-**JSON**
-
-```json
-"host": "esxi-01.example.com",
-"resource_pool": "pool1",
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
 host = ""esxi-01.example.com""
-resource_pool = "pool1"
+resource_pool = "example_resource_pool"
 ```
 
+JSON Example:
 
-### Clusters Without DRS
+```json
+"host": "esxi-01.example.com",
+"resource_pool": "example_resource_pool",
+```
+
+### Clusters without Distributed Resource Scheduler (DRS) Enabled
 
 Use the `cluster` and `host`parameters:
 
-**JSON**
-
-```json
-"cluster": "cluster1",
-"host": "esxi-02.example.com",
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
-cluster = "cluster1"
-host = "esxi-02.example.com"
+cluster = "cluster-01"
+host = "esxi-01.example.com"
 ```
 
+JSON Example:
 
-### Clusters With DRS
+```json
+"cluster": "cluster-01",
+"host": "esxi-01.example.com",
+```
+
+### Clusters with Distributed Resource Scheduler (DRS) Enabled
 
 Only use the `cluster` option. Optionally specify a `resource_pool`:
 
-**JSON**
-
-```json
-"cluster": "cluster2",
-"resource_pool": "pool1",
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
-cluster = "cluster2"
-resource_pool = "pool1"
+cluster = "cluster-01"
+resource_pool = "example_resource_pool"
 ```
 
+JSON Example:
 
-## Required vSphere Privileges
+```json
+"cluster": "cluster-01",
+"resource_pool": "example_resource_pool",
+```
 
-It is recommended to create a custom vSphere role with the required privileges to integrate Packer with vSphere. Accounts or groups can be added to the role to ensure that Packer has **_the least privileged_** access to the infrastructure. For example, a named service account (_e.g._ svc-packer-vsphere@example.com).
+## Privileges
 
-Clone the default **Read-Only** vSphere role and add the following privileges, which are based on the capabilities of the `vsphere-iso` plugin:
+It is recommended to create a custom vSphere role with the required privileges to integrate Packer
+with vSphere. Accounts or groups can be added to the role to ensure that Packer has least privilege
+access to the infrastructure.
+
+For example, a named service account (_e.g._ `svc-packer-vsphere@example.com`).
+
+Clone the default **Read-Only** vSphere role and add the following privileges, which are based on
+the capabilities of the `vsphere-iso` plugin:
 
 Category        | Privilege                                           | Reference
 ----------------|-----------------------------------------------------|---------
 Content Library | Add library item                                    | `ContentLibrary.AddLibraryItem`
- ...            | Update Library Item                                 | `ContentLibrary.UpdateLibraryItem`
+...             | Update Library Item                                 | `ContentLibrary.UpdateLibraryItem`
 Datastore       | Allocate space                                      | `Datastore.AllocateSpace`
 ...             | Browse datastore                                    | `Datastore.Browse`
 ...             | Low level file operations                           | `Datastore.FileManagement`
@@ -1519,17 +1512,29 @@ Virtual Machine | Configuration > Add new disk                        | `Virtual
 ...             | Provisioning > Mark as virtual machine              | `VirtualMachine.Provisioning.MarkAsVM`
 ...             | State > Create snapshot                             | `VirtualMachine.State.CreateSnapshot`
 
-Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.security.doc/GUID-03B36057-B38C-479C-BD78-341CD83A0584.html)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
+Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.security.doc/GUID-03B36057-B38C-479C-BD78-341CD83A0584.html)**
+for the content library based on the hierarchical inheritance of permissions. Once the custom
+vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for
+the Packer to vSphere integration, if using the content library.
 
 For example:
 
 1. Log in to the vCenter Server at _https://<management_vcenter_server_fqdn>/ui_ as `administrator@vsphere.local`.
 2. Select **Menu** > **Administration**.
 3. In the left pane, select **Access control** > **Global permissions** and click the **Add permissions** icon.
-4. In the **Add permissions** dialog box, enter the service account (_e.g._ svc-packer-vsphere@example.com), select the custom role (_e.g._ Packer to vSphere Integration Role) and the **Propagate to children** check box, and click OK.
+4. In the **Add permissions** dialog box, enter the service account (_e.g._
+   `svc-packer-vsphere@example.com`), select the custom role (_e.g._ Packer to vSphere Integration
+   Role) and the **Propagate to children** check box, and click **OK**.
 
-In an environment with many vCenter Server instances, such as management and workload, in enhanced linked-mode, you may wish to further reduce the scope of access across the vSphere infrastructure. For example, if you do not want Packer to have access to the management vCenter Server instance, but only allow access to workload vCenter Server instances:
+In an environment with many vCenter Server instances, such as management and workload, in enhanced
+linked-mode, you may wish to further reduce the scope of access across the vSphere infrastructure if
+you do not want Packer to have access to the management vCenter Server instance, but only allow
+access to workload vCenter Server instances.
 
-1. From the **Hosts and clusters** inventory, select management vCenter Server to restrict scope, and click the **Permissions** tab.
+For example:
+
+1. From the **Hosts and clusters** inventory, select management vCenter Server to restrict scope,
+   and click the **Permissions** tab.
 2. Select the service account with the custom role assigned and click the **Change role** icon.
-3. In the **Change role** dialog box, from the **Role** drop-down menu, select **No Access**, select the **Propagate to children** check box, and click **OK**.
+3. In the **Change role** dialog box, from the **Role** drop-down menu, select **No Access**, select
+   the **Propagate to children** check box, and click **OK**.

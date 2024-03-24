@@ -1,14 +1,10 @@
-Type: `vsphere-clone`
-Artifact BuilderId: `jetbrains.vsphere`
+Type: `vsphere-clone` Artifact BuilderId: `jetbrains.vsphere`
 
-This builder clones VMs from existing templates.
+This builder clones a virtual machine from an existing template using the uses the vSphere API and
+then modifies and saves it as a new template.
 
-- VMware Player is not required.
-- It uses the official vCenter Server API, and does not require ESXi host [modification](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso#building-on-a-remote-vsphere-hypervisor)
-- The builder supports versions following the VMware Product Lifecycle Matrix
-  from General Availability to End of General Support. Builds on versions that
-  are end of support may work, but configuration options may throw errors if
-  they do not exist in the vSphere API for those versions.
+-> **Important:** This builder is developed to maintain compatibility with VMware vSphere versions
+until their respective End of General Support dates. For detailed information, refer to the [VMware Product Lifecycle Matrix](https://lifecycle.vmware.com).
 
 ## Examples
 
@@ -16,17 +12,13 @@ See example templates in the [examples folder](https://github.com/hashicorp/pack
 
 ## Configuration Reference
 
-There are many configuration options available for this builder. In addition to
-the items listed here, you will want to look at the general configuration
-references for [Hardware](#hardware-configuration),
-[Output](#output-configuration),
-[Boot](#boot-configuration),
-[Run](#run-configuration),
-[Shutdown](#shutdown-configuration),
-[Communicator](#communicator-configuration),
-[Export](#export-configuration),
-configuration references, which are
-necessary for this build to succeed and can be found further down the page.
+There are many configuration options available for this builder. In addition to the items listed
+here, you will want to review the general configuration references for [Hardware](#hardware-configuration),
+[Output](#output-configuration), [Boot](#boot-configuration), [Run](#run-configuration), [Shutdown](#shutdown-configuration),
+[Communicator](#communicator-configuration), and [Export](#export-configuration) configuration
+references, which are necessary for a build to succeed and can be found further down the page.
+
+### Optional
 
 <!-- Code generated from the comments of the Config struct in builder/vsphere/clone/config.go; DO NOT EDIT MANUALLY -->
 
@@ -55,6 +47,8 @@ necessary for this build to succeed and can be found further down the page.
 
 ### Clone Configuration
 
+#### Optional
+
 <!-- Code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
 - `template` (string) - Specifies the name of the source virtual machine to clone.
@@ -63,10 +57,10 @@ necessary for this build to succeed and can be found further down the page.
   Cannot be used with `linked_clone`.
 
 - `linked_clone` (bool) - Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
-  Cannot be used with `disk_size`.`
+  Cannot be used with `disk_size`.
 
 - `network` (string) - Specifies the network to which the virtual machine will connect. If no network is specified,
-  provide 'host' to allow Packer to search for an available network. For networks placed
+  provide `host` to allow Packer to search for an available network. For networks placed
   within a network folder vCenter Server, provider the object path to the network.
   For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
 
@@ -86,30 +80,42 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the StorageConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_controller_type` ([]string) - Set VM disk controller type. Example `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Use a list to define additional controllers.
-  Defaults to `lsilogic`. See
-  [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
-  for additional details.
+- `disk_controller_type` ([]string) - Specifies the disk controller type. One of `lsilogic`, `lsilogic-sas`, `pvscsi`, `nvme`, or `scsi`. Defaults to `lsilogic`.
+  Use a list to define additional controllers.
+  Refer to [SCSI, SATA, and NVMe Storage Controller Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
+  for additional information.
 
-- `storage` ([]DiskConfig) - Configures a collection of one or more disks to be provisioned along with the VM. See the [Storage Configuration](#storage-configuration).
+- `storage` ([]DiskConfig) - Specified a collection of one or more disks to be provisioned. Refer to the [Storage Configuration](#storage-configuration) section for additional information.
 
 <!-- End of code generated from the comments of the StorageConfig struct in builder/vsphere/common/storage_config.go; -->
 
 
 ### Storage Configuration
 
-When cloning a VM, the storage configuration can be used to add additional storage and disk controllers. The resulting VM
-will contain the origin VM storage and disk controller plus the new configured ones.
+When cloning a virtual machine, the storage configuration can be used to add additional storage and
+disk controllers. The resulting virtual machine will contain the origin virtual machine storage and
+disk controller plus the new configured ones.
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-Defines the disk storage for a VM.
+The following example that will create a 15GB and a 20GB disk on the virtual machine.
+The second disk will be thin provisioned:
 
-Example that will create a 15GB and a 20GB disk on the VM. The second disk will be thin provisioned:
+HCL2 Example:
 
-In JSON:
+```hcl
+	storage {
+	    disk_size = 15000
+	}
+	storage {
+	    disk_size = 20000
+	    disk_thin_provisioned = true
+	}
+```
+
+JSON Example:
+
 ```json
-
 	"storage": [
 	  {
 	    "disk_size": 15000
@@ -119,26 +125,35 @@ In JSON:
 	    "disk_thin_provisioned": true
 	  }
 	],
-
 ```
-In HCL2:
+
+The following example will use two PVSCSI controllers and two disks on each controller.
+
+HCL2 Example:
+
 ```hcl
-
+	disk_controller_type = ["pvscsi", "pvscsi"]
 	storage {
-	    disk_size = 15000
+	   disk_size = 15000,
+	   disk_controller_index = 0
 	}
 	storage {
-	    disk_size = 20000
-	    disk_thin_provisioned = true
+	   disk_size = 15000
+	   disk_controller_index = 0
 	}
-
+	storage {
+	   disk_size = 15000
+	   disk_controller_index = 1
+	}
+	storage {
+	   disk_size = 15000
+	   disk_controller_index = 1
+	}
 ```
 
-Example that creates 2 pvscsi controllers and adds 2 disks to each one:
+JSON Example:
 
-In JSON:
 ```json
-
 	"disk_controller_type": ["pvscsi", "pvscsi"],
 	"storage": [
 	  {
@@ -158,38 +173,16 @@ In JSON:
 	    "disk_controller_index": 1
 	  }
 	],
-
-```
-
-In HCL2:
-```hcl
-
-	disk_controller_type = ["pvscsi", "pvscsi"]
-	storage {
-	   disk_size = 15000,
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 0
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-	storage {
-	   disk_size = 15000
-	   disk_controller_index = 1
-	}
-
 ```
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
 
+#### Required:
+
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_size` (int64) - The size of the disk in MiB.
+- `disk_size` (int64) - Specifics the size of the disk in MiB.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
@@ -198,16 +191,18 @@ In HCL2:
 
 <!-- Code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; DO NOT EDIT MANUALLY -->
 
-- `disk_thin_provisioned` (bool) - Enable VMDK thin provisioning for VM. Defaults to `false`.
+- `disk_thin_provisioned` (bool) - Specifies to enable VMDK thin provisioning for the disk. Defaults to `false`.
 
-- `disk_eagerly_scrub` (bool) - Enable VMDK eager scrubbing for VM. Defaults to `false`.
+- `disk_eagerly_scrub` (bool) - Specifies to enable VMDK eager scrubbing for the disk. Defaults to `false`.
 
-- `disk_controller_index` (int) - The assigned disk controller. Defaults to the first one (0).
+- `disk_controller_index` (int) - Specifies the assigned disk controller for the disk. Defaults to the first controller, `(0)`.
 
 <!-- End of code generated from the comments of the DiskConfig struct in builder/vsphere/common/storage_config.go; -->
 
 
 ### vApp Options Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
@@ -225,36 +220,35 @@ In HCL2:
 <!-- End of code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; -->
 
 
-Example of usage:
-
-**JSON**
-
-```json
- "vapp": {
-     "properties": {
-         "hostname": "{{ user `hostname`}}",
-         "user-data": "{{ env `USERDATA`}}"
-     }
- }
-```
-
-A `user-data` field requires the content of a yaml file to be encoded with base64. This
-can be done via environment variable:
-`export USERDATA=$(gzip -c9 <userdata.yaml | { base64 -w0 2>/dev/null || base64; })`
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
-   vapp {
-     properties = {
-        hostname  = var.hostname
-        user-data = base64encode(var.user_data)
-     }
-   }
+  vapp {
+    properties = {
+      hostname  = var.hostname
+      user-data = base64encode(var.user_data)
+    }
+  }
 ```
 
+JSON Example:
+
+```json
+  "vapp": {
+      "properties": {
+          "hostname": "{{ user `hostname`}}",
+          "user-data": "{{ env `USERDATA`}}"
+      }
+  }
+```
+
+A `user-data` field requires the content of a YAML file to be encoded with base64. This
+can be done using an environment variable:
+`export USERDATA=$(gzip -c9 <userdata.yaml | { base64 -w0 2>/dev/null || base64; })`
 
 ### Extra Configuration Parameters
+
+#### Optional
 
 <!-- Code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; DO NOT EDIT MANUALLY -->
 
@@ -287,6 +281,8 @@ The settings for guest customization include:
 <!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
 
 
+#### Optional
+
 <!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
 - `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
@@ -297,9 +293,7 @@ The settings for guest customization include:
 
 - `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
   
-  Example usage:
-  
-  In HCL2:
+  HCL2 Examples:
   
   ```hcl
   customize {
@@ -324,6 +318,8 @@ The settings for guest customization include:
 
 
 #### Network Interface Settings
+
+#### Optional
 
 <!-- Code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
@@ -353,6 +349,8 @@ The settings must match the IP address and subnet mask of at least one `network_
 <!-- End of code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
+##### Optional
+
 <!-- Code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
 - `ipv4_gateway` (string) - Specifies the IPv4 default gateway when using `network_interface` customization.
@@ -372,6 +370,8 @@ For Windows guest operating systems, this is set for each network interface. Ref
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
+##### Optional
+
 <!-- Code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
 - `dns_server_list` ([]string) - Specifies a list of DNS servers to configure on the guest operating system.
@@ -382,6 +382,8 @@ For Windows guest operating systems, this is set for each network interface. Ref
 
 
 #### Linux Customization Settings
+
+##### Optional
 
 <!-- Code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
@@ -396,46 +398,43 @@ For Windows guest operating systems, this is set for each network interface. Ref
 <!-- End of code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; -->
 
 
-#### Customization Example
-
-**JSON**
-
-```json
- "customize": {
-          "linux_options": {
-            "host_name": "packer-test",
-            "domain": "test.internal"
-          },
-          "network_interface": {
-            "ipv4_address": "10.0.0.10",
-            "ipv4_netmask": "24"
-          },
-          "ipv4_gateway": "10.0.0.1",
-          "dns_server_list": ["10.0.0.18"]
- }
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
-   customize {
-         linux_options {
-           host_name = "packer-test"
-           domain = "test.internal"
-         }
+    customize {
+          linux_options {
+            host_name = "foo"
+            domain = "example.com"
+          }
 
-         network_interface {
-           ipv4_address = "10.0.0.10"
-           ipv4_netmask = "24"
-         }
+          network_interface {
+            ipv4_address = "10.0.0.10"
+            ipv4_netmask = "24"
+          }
 
-         ipv4_gateway = 10.0.0.1
-         dns_server_list = ["10.0.0.18"]
-   }
+          ipv4_gateway = 10.0.0.1
+          dns_server_list = ["10.0.0.18"]
+    }
 ```
 
+JSON Example:
 
-### Boot configuration
+```json
+    "customize": {
+            "linux_options": {
+              "host_name": "foo",
+              "domain": "example.com"
+            },
+            "network_interface": {
+              "ipv4_address": "10.0.0.10",
+              "ipv4_netmask": "24"
+            },
+            "ipv4_gateway": "10.0.0.1",
+            "dns_server_list": ["10.0.0.18"]
+    }
+```
+
+### Boot Configuration
 
 <!-- Code generated from the comments of the BootConfig struct in bootcommand/config.go; DO NOT EDIT MANUALLY -->
 
@@ -577,7 +576,7 @@ For more examples of various boot commands, see the sample projects from our
 <!-- End of code generated from the comments of the BootConfig struct in bootcommand/config.go; -->
 
 
-#### Optional:
+#### Optional
 
 <!-- Code generated from the comments of the BootConfig struct in bootcommand/config.go; DO NOT EDIT MANUALLY -->
 
@@ -611,7 +610,7 @@ For more examples of various boot commands, see the sample projects from our
 <!-- End of code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; -->
 
 
-### Http directory configuration
+### HTTP Directory Configuration
 
 <!-- Code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; DO NOT EDIT MANUALLY -->
 
@@ -628,7 +627,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
 
-#### Optional:
+#### Optional
 
 <!-- Code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; DO NOT EDIT MANUALLY -->
 
@@ -669,7 +668,9 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
 
-### Floppy configuration
+### Floppy Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the FloppyConfig struct in builder/vsphere/common/step_add_floppy.go; DO NOT EDIT MANUALLY -->
 
@@ -687,7 +688,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   into memory. If any paths are specified by both, the contents in
   `floppy_content` will take precedence.
   
-  Usage example (HCL):
+  HCL2 Example:
   
   ```hcl
   floppy_content = {
@@ -706,6 +707,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 ### Connection Configuration
 
+#### Optional
+
 <!-- Code generated from the comments of the ConnectConfig struct in builder/vsphere/common/step_connect.go; DO NOT EDIT MANUALLY -->
 
 - `vcenter_server` (string) - vCenter Server hostname.
@@ -722,6 +725,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 
 ### Hardware Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the HardwareConfig struct in builder/vsphere/common/step_hardware.go; DO NOT EDIT MANUALLY -->
 
@@ -768,6 +773,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 ### Location Configuration
 
+#### Optional
+
 <!-- Code generated from the comments of the LocationConfig struct in builder/vsphere/common/config_location.go; DO NOT EDIT MANUALLY -->
 
 - `vm_name` (string) - Name of the virtual machine.
@@ -801,6 +808,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 ### Run Configuration
 
+#### Optional
+
 <!-- Code generated from the comments of the RunConfig struct in builder/vsphere/common/step_run.go; DO NOT EDIT MANUALLY -->
 
 - `boot_order` (string) - Priority of boot devices. Defaults to `disk,cdrom`
@@ -809,6 +818,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 
 ### Shutdown Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; DO NOT EDIT MANUALLY -->
 
@@ -831,6 +842,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 
 ### Wait Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the WaitIpConfig struct in builder/vsphere/common/step_wait_for_ip.go; DO NOT EDIT MANUALLY -->
 
@@ -856,7 +869,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the WaitIpConfig struct in builder/vsphere/common/step_wait_for_ip.go; -->
 
 
-### CDRom Configuration
+### CD-ROM Configuration
 
 <!-- Code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; DO NOT EDIT MANUALLY -->
 
@@ -873,7 +886,7 @@ boot time.
 <!-- End of code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; -->
 
 
-#### Optional:
+#### Optional
 
 <!-- Code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; DO NOT EDIT MANUALLY -->
 
@@ -948,7 +961,7 @@ boot time.
 
 - `iso_paths` ([]string) - A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
   
-  Usage example (HCL):
+  HCL2 Example:
   
   ```hcl
   iso_paths = [
@@ -974,9 +987,11 @@ boot time.
 <!-- End of code generated from the comments of the RemoveCDRomConfig struct in builder/vsphere/common/step_remove_cdrom.go; -->
 
 
-### Communicator configuration
+### Communicator Configuration
 
-#### Optional common fields:
+#### Common
+
+##### Optional
 
 <!-- Code generated from the comments of the Config struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1010,7 +1025,9 @@ boot time.
 <!-- End of code generated from the comments of the Config struct in communicator/config.go; -->
 
 
-#### Optional SSH fields:
+#### SSH
+
+##### Optional
 
 <!-- Code generated from the comments of the SSH struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1163,16 +1180,15 @@ boot time.
   properly.
 
 
--> **NOTE:** Packer uses vApp Options to inject ssh public keys to the virtual machine.
-The [temporary_key_pair_name](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone#temporary_key_pair_name) will only work
-if the template being cloned contains the vApp property `public-keys`.
-If using [ssh_private_key_file](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone#ssh_private_key_file), provide
-the public key via [configuration_parameters](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone#configuration_parameters) or
-[vApp Options Configuration](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone#vapp-options-configuration) whenever the `guestinto.userdata`
-is available. See [DataSourceVMware](https://cloudinit.readthedocs.io/en/latest/topics/data-source/vmware.html) in
-cloud-init 21.3 and later for more information.
+-> **NOTE:** The builder uses vApp Options to inject SSH public keys to the virtual machine. The `temporary_key_pair_name`
+will only work if the template being cloned contains the vApp property `public-keys`. If using `ssh_private_key_file`,
+provide the public key using the `configuration_parameters` or [vApp Options Configuration](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone#vapp-options-configuration) whenever the `guestinto.userdata` is available.
 
-#### Optional WinRM fields:
+Refer to the [VMware](https://docs.cloud-init.io/en/latest/reference/data-source/vmware.html) datasource in cloud-init 21.3 and later for additional information.
+
+#### Windows Remote Management (WinRM)
+
+##### Optional
 
 <!-- Code generated from the comments of the WinRM struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
@@ -1217,25 +1233,9 @@ cloud-init 21.3 and later for more information.
 
 You can export an image in Open Virtualization Format (OVF) to the Packer host.
 
-Example usage:
+HCL2 Example:
 
-In JSON:
-```json
-...
-
-	"vm_name": "example-ubuntu",
-
-...
-
-	"export": {
-	  "force": true,
-	  "output_directory": "./output-artifacts"
-	},
-
-```
-In HCL2:
 ```hcl
-
 	# ...
 	vm_name = "example-ubuntu"
 	# ...
@@ -1243,8 +1243,20 @@ In HCL2:
 	  force = true
 	  output_directory = "./output-artifacts"
 	}
-
 ```
+
+JSON Example:
+
+```json
+...
+	"vm_name": "example-ubuntu",
+...
+	"export": {
+	  "force": true,
+	  "output_directory": "./output-artifacts"
+	},
+```
+
 The above configuration would create the following files:
 
 ```text
@@ -1256,7 +1268,7 @@ The above configuration would create the following files:
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
 
 
-#### Optional:
+#### Optional
 
 <!-- Code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; DO NOT EDIT MANUALLY -->
 
@@ -1280,14 +1292,17 @@ The above configuration would create the following files:
   
   For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
   
-  In JSON:
+  JSON: Example:
+  
   ```json
   ...
     "export": {
       "options": ["mac"]
     },
   ```
-  In HCL2:
+  
+  HCL2 Example:
+  
   ```hcl
   ...
     export {
@@ -1298,7 +1313,9 @@ The above configuration would create the following files:
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
 
 
-#### Output Configuration:
+### Output Configuration
+
+#### Optional
 
 <!-- Code generated from the comments of the OutputConfig struct in builder/vsphere/common/output_config.go; DO NOT EDIT MANUALLY -->
 
@@ -1330,6 +1347,8 @@ The template is stored in a existing or newly created library item.
 
 <!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->
 
+
+#### Optional
 
 <!-- Code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; DO NOT EDIT MANUALLY -->
 
@@ -1384,87 +1403,82 @@ The template is stored in a existing or newly created library item.
 <!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->
 
 
-Minimal example of usage:
-
-**JSON**
-
-```json
-	"content_library_destination" : {
-	    "library": "Packer Library Test"
-	}
-```
-
-**HCL2**
+HCL2 Example:
 
 ```hcl
 	content_library_destination {
-			library = "Packer Library Test"
+			library = "Example Conent Library"
 	}
 ```
 
+JSON Example:
 
-## Working With Clusters And Hosts
+```json
+	"content_library_destination" : {
+	    "library": "Example Conent Library"
+	}
+```
 
-### Standalone Hosts
+## Working with Clusters and Hosts
+
+### Standalone ESXi Hosts
 
 Only use the `host` option. Optionally specify a `resource_pool`:
 
-**JSON**
-
-```json
-"host": "esxi-01.example.com",
-"resource_pool": "pool1",
-```
-
 **HCL2**
 
 ```hcl
-host = "esxi-01.example.com"
-resource_pool = "pool1"
+  host = "esxi-01.example.com"
+  resource_pool = "example_resource_pool"
 ```
-
-
-### Clusters Without DRS
-
-Use the `cluster` and `host`parameters:
 
 **JSON**
 
 ```json
-"cluster": "cluster1",
-"host": "esxi-02.example.com",
+  "host": "esxi-01.example.com",
+  "resource_pool": "example_resource_pool",
 ```
+
+### Clusters without Distributed Resource Scheduler (DRS) Enabled
+
+Use the `cluster` and `host` parameters:
 
 **HCL2**
 
 ```hcl
-cluster = "cluster1"
-host = "esxi-02.example.com"
+  cluster = "cluster-01"
+  host = "esxi-01.example.com"
 ```
 
+**JSON**
 
-### Clusters With DRS
+```json
+  "cluster": "cluster-01",
+  "host": "esxi-01.example.com",
+```
+
+### Clusters with Distributed Resource Scheduler (DRS) Enabled
 
 Only use the `cluster` option. Optionally specify a `resource_pool`:
 
-**JSON**
-
-```json
-"cluster": "cluster2",
-"resource_pool": "pool1",
-```
-
 **HCL2**
 
 ```hcl
-cluster = "cluster2"
-resource_pool = "pool1"
+cluster = "cluster-01"
+resource_pool = "example_resource_pool"
 ```
 
+**JSON**
 
-## Required vSphere Privileges
+```json
+"cluster": "cluster-01",
+"resource_pool": "example_resource_pool",
+```
+
+## Privileges
 
 - VM folder (this object and children):
+
   ```text
   Virtual machine -> Inventory
   Virtual machine -> Configuration
@@ -1472,26 +1486,37 @@ resource_pool = "pool1"
   Virtual machine -> Snapshot management
   Virtual machine -> Provisioning
   ```
+
   Individual privileges are listed in https://github.com/jetbrains-infra/packer-builder-vsphere/issues/97#issuecomment-436063235.
+
 - Resource pool, host, or cluster (this object):
+
   ```text
   Resource -> Assign virtual machine to resource pool
   ```
+
 - Host in clusters without DRS (this object):
+
   ```text
   Read-only
   ```
+
 - Datastore (this object):
+
   ```text
   Datastore -> Allocate space
   Datastore -> Browse datastore
   Datastore -> Low level file operations
   ```
+
 - Network (this object):
+
   ```text
   Network -> Assign network
   ```
+
 - Distributed switch (this object):
+
   ```text
   Read-only
   ```
@@ -1499,10 +1524,13 @@ resource_pool = "pool1"
 For floppy image upload:
 
 - Datacenter (this object):
+
   ```text
   Datastore -> Low level file operations
   ```
+
 - Host (this object):
+
   ```text
   Host -> Configuration -> System Management
   ```

@@ -5,7 +5,10 @@ This post-processor uses an artifact from the `vmware-iso` builder with an ESXi 
 from the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor. It then marks
 the virtual machine as a template and moves it to your specified path.
 
-## Configuration
+-> **Important:** This post-processor is developed to maintain compatibility with VMware vSphere
+versions until their respective End of General Support dates. For detailed information, refer to the [VMware Product Lifecycle Matrix](https://lifecycle.vmware.com).
+
+## Configuration Reference
 
 The following configuration options are available for the post-processor.
 
@@ -55,7 +58,7 @@ Optional:
 
 An example is shown below, showing only the post-processor configuration:
 
-In HCL2:
+HCL2 Example:
 
 ```hcl
 source "null" "example" {
@@ -80,7 +83,7 @@ build {
 }
 ```
 
-In JSON:
+JSON Example:
 
 ```json
 {
@@ -112,7 +115,7 @@ Once the [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post
 from the builder and uploads it to a vSphere endpoint, you may want the virtual machine to be marked
 as a template.
 
-In HCL2:
+HCL2 Example:
 
 ```hcl
 build {
@@ -132,7 +135,7 @@ build {
 }
 ```
 
-In JSON:
+JSON Example:
 
 ```json
 {
@@ -164,10 +167,12 @@ In JSON:
 In the example above, the result of each builder is passed through the defined sequence of
 post-processors starting with the `vsphere` post-processor which will upload the artifact to a
 vSphere endpoint. The resulting artifact is then passed on to the `vsphere-template` post-processor
-which handles marking a VM as a template. In JSON, note that the `vsphere` and `vsphere-template`
-post-processors can be paired together in their own array.
+which handles marking a virtual machine as a template.
 
-## Permissions
+In JSON, note that the `vsphere` and `vsphere-template` post-processors can be paired together in
+their own array.
+
+## Privileges
 
 The post processor needs several privileges to be able to mark the virtual as a template.
 

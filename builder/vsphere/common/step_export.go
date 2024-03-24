@@ -32,25 +32,9 @@ import (
 
 // You can export an image in Open Virtualization Format (OVF) to the Packer host.
 //
-// Example usage:
+// HCL2 Example:
 //
-// In JSON:
-// ```json
-// ...
-//
-//	"vm_name": "example-ubuntu",
-//
-// ...
-//
-//	"export": {
-//	  "force": true,
-//	  "output_directory": "./output-artifacts"
-//	},
-//
-// ```
-// In HCL2:
 // ```hcl
-//
 //	# ...
 //	vm_name = "example-ubuntu"
 //	# ...
@@ -58,8 +42,20 @@ import (
 //	  force = true
 //	  output_directory = "./output-artifacts"
 //	}
-//
 // ```
+//
+// JSON Example:
+//
+// ```json
+// ...
+//	"vm_name": "example-ubuntu",
+// ...
+//	"export": {
+//	  "force": true,
+//	  "output_directory": "./output-artifacts"
+//	},
+// ```
+//
 // The above configuration would create the following files:
 //
 // ```text
@@ -90,14 +86,17 @@ type ExportConfig struct {
 	//
 	// For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
 	//
-	// In JSON:
+	// JSON: Example:
+	//
 	// ```json
 	// ...
 	//   "export": {
 	//     "options": ["mac"]
 	//   },
 	// ```
-	// In HCL2:
+	//
+	// HCL2 Example:
+	//
 	// ```hcl
 	// ...
 	//   export {

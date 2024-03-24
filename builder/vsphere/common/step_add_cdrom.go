@@ -20,7 +20,7 @@ type CDRomConfig struct {
 	CdromType string `mapstructure:"cdrom_type"`
 	// A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
 	//
-	// Usage example (HCL):
+	// HCL2 Example:
 	//
 	// ```hcl
 	// iso_paths = [

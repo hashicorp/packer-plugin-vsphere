@@ -2,25 +2,9 @@
 
 You can export an image in Open Virtualization Format (OVF) to the Packer host.
 
-Example usage:
+HCL2 Example:
 
-In JSON:
-```json
-...
-
-	"vm_name": "example-ubuntu",
-
-...
-
-	"export": {
-	  "force": true,
-	  "output_directory": "./output-artifacts"
-	},
-
-```
-In HCL2:
 ```hcl
-
 	# ...
 	vm_name = "example-ubuntu"
 	# ...
@@ -28,8 +12,20 @@ In HCL2:
 	  force = true
 	  output_directory = "./output-artifacts"
 	}
-
 ```
+
+JSON Example:
+
+```json
+...
+	"vm_name": "example-ubuntu",
+...
+	"export": {
+	  "force": true,
+	  "output_directory": "./output-artifacts"
+	},
+```
+
 The above configuration would create the following files:
 
 ```text

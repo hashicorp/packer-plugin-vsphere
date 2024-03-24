@@ -30,7 +30,7 @@ type FloppyConfig struct {
 	// into memory. If any paths are specified by both, the contents in
 	// `floppy_content` will take precedence.
 	//
-	// Usage example (HCL):
+	// HCL2 Example:
 	//
 	// ```hcl
 	// floppy_content = {

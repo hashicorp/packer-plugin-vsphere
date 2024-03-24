@@ -1,8 +1,10 @@
-The vSphere plugin is able to create vSphere virtual machines for use with any VMware product. 
-To achieve this, the plugin comes with three builders, and two post-processors
-to build the VM depending on the strategy you want to use.
+The vSphere plugin is able to create vSphere virtual machines for use with VMware products.
+
+To achieve this, the plugin comes with three builders, and two post-processors to build the virtual
+machine depending on the strategy you want to use.
 
 ### Installation
+
 To install this plugin add this code into your Packer configuration and run [packer init](/packer/docs/commands/init)
 
 ```hcl
@@ -23,25 +25,27 @@ packer plugins install github.com/hashicorp/vsphere
 ```
 
 ### Components
-#### Builders:
-- [vsphere-iso](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso) - This builder starts from an
-  ISO file and utilizes the vSphere API to build on a remote esx instance.
-  This allows you to build vms even if you do not have SSH access to your vSphere cluster.
 
-- [vsphere-clone](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) - This builder clones a
-  vm from an existing template, then modifies it and saves it as a new
-  template. It uses the vSphere API to build on a remote esx instance.
-  This allows you to build vms even if you do not have SSH access to your vSphere cluster.
+#### Builders
 
-- [vsphere-supervisor](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-supervisor) - This builder deploys a
-  vm to a vSphere Supervisor cluster, using the VM-Service API. This allows you to build
-  vms without spec yaml files and configure them after using the Packer provisioners.
+- [vsphere-iso](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso) - This
+  builder starts from an ISO file and uses the vSphere API to build a virtual machine image on
+  an ESXi host.
+
+- [vsphere-clone](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) -
+  This builder clones a virtual machine from an existing template using the uses the vSphere API and
+  then modifies and saves it as a new template.
+
+- [vsphere-supervisor](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-supervisor) -
+  This builder deploys and publishes new virtual machine to a vSphere Supervisor cluster using VM
+  Service.
 
 #### Post-Processors
-- [vsphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) - The Packer vSphere post-processor takes an artifact 
-  and uploads it to a vSphere endpoint.
 
-- [vsphere-template](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere-template) - The Packer vSphere Template post-processor takes an 
-  artifact from the vmware-iso builder, built on an ESXi host (i.e. remote) or an artifact from the 
-  [vSphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) post-processor, marks the VM as a template, and leaves it in the path of 
-  your choice.
+- [vsphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) - This
+  post-processor uploads an artifact to a vSphere endpoint. The artifact must be a VMX, OVA, or OVF
+  file.
+
+- [vsphere-template](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere-template) - This post-processor uses an artifact from the `vmware-iso` builder with an ESXi host or an
+  artifact from the [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor. It
+  then marks the virtual machine as a template and moves it to your specified path.

@@ -42,9 +42,7 @@ type CustomizeConfig struct {
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
 	// Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
 	//
-	// Example usage:
-	//
-	// In HCL2:
+	// HCL2 Examples:
 	//
 	// ```hcl
 	// customize {
