@@ -75,11 +75,10 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 	}
 
 	// Verify if CDROM was created
-	devices, err := vm.Devices()
+	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
-	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
 	if len(cdroms) != 1 {
 		t.Fatalf("unexpected numbers of cdrom: %d", len(cdroms))
 	}
@@ -90,11 +89,10 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
 	// Verify if CDROM was removed
-	devices, err = vm.Devices()
+	cdroms, err = vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
-	cdroms = devices.SelectByType((*types.VirtualCdrom)(nil))
 	if len(cdroms) != 0 {
 		t.Fatalf("unexpected numbers of cdrom: %d", len(cdroms))
 	}
@@ -134,11 +132,10 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 	}
 
 	// Verify if CDROM was created
-	devices, err := vm.Devices()
+	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
-	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
 	if len(cdroms) != 1 {
 		t.Fatalf("unexpected numbers of cdrom: %d", len(cdroms))
 	}
@@ -149,11 +146,10 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
 	// Verify if CDROM was removed
-	devices, err = vm.Devices()
+	cdroms, err = vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("should not fail: %s", err.Error())
 	}
-	cdroms = devices.SelectByType((*types.VirtualCdrom)(nil))
 	if len(cdroms) != 1 {
 		t.Fatalf("unexpected numbers of cdrom: %d", len(cdroms))
 	}

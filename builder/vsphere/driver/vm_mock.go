@@ -53,6 +53,10 @@ type VirtualMachineMock struct {
 	FloppyDevicesReturn object.VirtualDeviceList
 	FloppyDevicesCalled bool
 
+	CdromDevicesErr    error
+	CdromDevicesList   object.VirtualDeviceList
+	CdromDevicesCalled bool
+
 	RemoveDeviceErr       error
 	RemoveDeviceCalled    bool
 	RemoveDeviceKeepFiles bool
@@ -86,6 +90,11 @@ func (vm *VirtualMachineMock) Devices() (object.VirtualDeviceList, error) {
 func (vm *VirtualMachineMock) FloppyDevices() (object.VirtualDeviceList, error) {
 	vm.FloppyDevicesCalled = true
 	return vm.FloppyDevicesReturn, vm.FloppyDevicesErr
+}
+
+func (vm *VirtualMachineMock) CdromDevices() (object.VirtualDeviceList, error) {
+	vm.CdromDevicesCalled = true
+	return vm.CdromDevicesList, vm.CdromDevicesErr
 }
 
 func (vm *VirtualMachineMock) Clone(ctx context.Context, config *CloneConfig) (VirtualMachine, error) {
@@ -191,6 +200,7 @@ func (vm *VirtualMachineMock) GetDir() (string, error) {
 func (vm *VirtualMachineMock) AddCdrom(controllerType string, isoPath string) error {
 	vm.AddCdromCalledTimes++
 	vm.AddCdromTypes = append(vm.AddCdromTypes, controllerType)
+	vm.CdromDevicesList = append(vm.CdromDevicesList, nil)
 	if isoPath != "" {
 		vm.AddCdromPaths = append(vm.AddCdromPaths, isoPath)
 	}
@@ -266,11 +276,16 @@ func (vm *VirtualMachineMock) CreateCdrom(c *types.VirtualController) (*types.Vi
 
 func (vm *VirtualMachineMock) RemoveCdroms() error {
 	vm.RemoveCdromsCalled = true
+	vm.CdromDevicesList = nil
 	return vm.RemoveCdromsErr
 }
 
 func (vm *VirtualMachineMock) RemoveNCdroms(n_cdroms int) error {
 	vm.RemoveNCdromsCalled = true
+	if n_cdroms == 0 {
+		return nil
+	}
+	vm.CdromDevicesList = vm.CdromDevicesList[:n_cdroms]
 	return vm.RemoveNCdromsErr
 }
 
@@ -280,6 +295,7 @@ func (vm *VirtualMachineMock) ReattachCDRoms() error {
 
 func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
+	vm.AddCdromPaths = nil
 	return vm.EjectCdromsErr
 }
 

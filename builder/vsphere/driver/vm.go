@@ -27,6 +27,7 @@ import (
 type VirtualMachine interface {
 	Info(params ...string) (*mo.VirtualMachine, error)
 	Devices() (object.VirtualDeviceList, error)
+	CdromDevices() (object.VirtualDeviceList, error)
 	FloppyDevices() (object.VirtualDeviceList, error)
 	Clone(ctx context.Context, config *CloneConfig) (VirtualMachine, error)
 	updateVAppConfig(ctx context.Context, newProps map[string]string) (*types.VmConfigSpec, error)
@@ -310,6 +311,15 @@ func (vm *VirtualMachineDriver) FloppyDevices() (object.VirtualDeviceList, error
 		return device, err
 	}
 	floppies := device.SelectByType((*types.VirtualFloppy)(nil))
+	return floppies, nil
+}
+
+func (vm *VirtualMachineDriver) CdromDevices() (object.VirtualDeviceList, error) {
+	device, err := vm.Devices()
+	if err != nil {
+		return device, err
+	}
+	floppies := device.SelectByType((*types.VirtualCdrom)(nil))
 	return floppies, nil
 }
 
