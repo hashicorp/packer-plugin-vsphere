@@ -213,6 +213,12 @@ func basicStepConfigureHardware() *StepConfigureHardware {
 }
 
 func driverHardwareConfigFromConfig(config *HardwareConfig) *driver.HardwareConfig {
+
+	var allowedDevices []driver.PCIPassthroughAllowedDevice
+	for _, device := range config.AllowedDevices {
+		allowedDevices = append(allowedDevices, driver.PCIPassthroughAllowedDevice(device))
+	}
+
 	return &driver.HardwareConfig{
 		CPUs:                config.CPUs,
 		CpuCores:            config.CpuCores,
@@ -225,6 +231,7 @@ func driverHardwareConfigFromConfig(config *HardwareConfig) *driver.HardwareConf
 		CpuHotAddEnabled:    config.CpuHotAddEnabled,
 		MemoryHotAddEnabled: config.MemoryHotAddEnabled,
 		VideoRAM:            config.VideoRAM,
+		AllowedDevices:      allowedDevices,
 		VGPUProfile:         config.VGPUProfile,
 		Firmware:            config.Firmware,
 		ForceBIOSSetup:      config.ForceBIOSSetup,

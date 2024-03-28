@@ -2,18 +2,26 @@
 // SPDX-License-Identifier: MPL-2.0
 
 //go:generate packer-sdc struct-markdown
-//go:generate packer-sdc mapstructure-to-hcl2 -type HardwareConfig
+//go:generate packer-sdc mapstructure-to-hcl2 -type HardwareConfig,PCIPassthroughAllowedDevice
 
 package common
 
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
+
+type PCIPassthroughAllowedDevice struct {
+	DeviceId    string `mapstructure:"device_id"`
+	VendorId    string `mapstructure:"vendor_id"`
+	SubVendorId string `mapstructure:"sub_vendor_id"`
+	SubDeviceId string `mapstructure:"sub_device_id"`
+}
 
 type HardwareConfig struct {
 	// Number of CPU cores.
@@ -41,6 +49,9 @@ type HardwareConfig struct {
 	// Number of video displays. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
 	// for supported maximums. Defaults to 1.
 	Displays int32 `mapstructure:"displays"`
+	// Configure Dynamic DirectPath I/O PCI Passthrough for virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+	AllowedDevices []PCIPassthroughAllowedDevice `mapstructure:"pci_passthrough_allowed_device"`
+	// vGPU profile for accelerated graphics.
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
 	// for examples of profile names. Defaults to none.
 	VGPUProfile string `mapstructure:"vgpu_profile"`
@@ -86,8 +97,13 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	if *s.Config != (HardwareConfig{}) {
+	if !reflect.DeepEqual(*s.Config, HardwareConfig{}) {
 		ui.Say("Customizing hardware...")
+
+		var allowedDevices []driver.PCIPassthroughAllowedDevice
+		for _, device := range s.Config.AllowedDevices {
+			allowedDevices = append(allowedDevices, driver.PCIPassthroughAllowedDevice(device))
+		}
 
 		err := vm.Configure(&driver.HardwareConfig{
 			CPUs:                  s.Config.CPUs,
@@ -102,6 +118,7 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 			MemoryHotAddEnabled:   s.Config.MemoryHotAddEnabled,
 			VideoRAM:              s.Config.VideoRAM,
 			Displays:              s.Config.Displays,
+			AllowedDevices:        allowedDevices,
 			VGPUProfile:           s.Config.VGPUProfile,
 			Firmware:              s.Config.Firmware,
 			ForceBIOSSetup:        s.Config.ForceBIOSSetup,
