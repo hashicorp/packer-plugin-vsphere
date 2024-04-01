@@ -149,6 +149,11 @@ type FlatConfig struct {
 	ConvertToTemplate               *bool                                       `mapstructure:"convert_to_template" cty:"convert_to_template" hcl:"convert_to_template"`
 	Export                          *common.FlatExportConfig                    `mapstructure:"export" cty:"export" hcl:"export"`
 	ContentLibraryDestinationConfig *common.FlatContentLibraryDestinationConfig `mapstructure:"content_library_destination" cty:"content_library_destination" hcl:"content_library_destination"`
+	LocalCacheOverwrite             *bool                                       `mapstructure:"local_cache_overwrite" cty:"local_cache_overwrite" hcl:"local_cache_overwrite"`
+	RemoteCacheCleanup              *bool                                       `mapstructure:"remote_cache_cleanup" cty:"remote_cache_cleanup" hcl:"remote_cache_cleanup"`
+	RemoteCacheOverwrite            *bool                                       `mapstructure:"remote_cache_overwrite" cty:"remote_cache_overwrite" hcl:"remote_cache_overwrite"`
+	RemoteCacheDatastore            *string                                     `mapstructure:"remote_cache_datastore" cty:"remote_cache_datastore" hcl:"remote_cache_datastore"`
+	RemoteCachePath                 *string                                     `mapstructure:"remote_cache_path" cty:"remote_cache_path" hcl:"remote_cache_path"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -301,6 +306,11 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"convert_to_template":            &hcldec.AttrSpec{Name: "convert_to_template", Type: cty.Bool, Required: false},
 		"export":                         &hcldec.BlockSpec{TypeName: "export", Nested: hcldec.ObjectSpec((*common.FlatExportConfig)(nil).HCL2Spec())},
 		"content_library_destination":    &hcldec.BlockSpec{TypeName: "content_library_destination", Nested: hcldec.ObjectSpec((*common.FlatContentLibraryDestinationConfig)(nil).HCL2Spec())},
+		"local_cache_overwrite":          &hcldec.AttrSpec{Name: "local_cache_overwrite", Type: cty.Bool, Required: false},
+		"remote_cache_cleanup":           &hcldec.AttrSpec{Name: "remote_cache_cleanup", Type: cty.Bool, Required: false},
+		"remote_cache_overwrite":         &hcldec.AttrSpec{Name: "remote_cache_overwrite", Type: cty.Bool, Required: false},
+		"remote_cache_datastore":         &hcldec.AttrSpec{Name: "remote_cache_datastore", Type: cty.String, Required: false},
+		"remote_cache_path":              &hcldec.AttrSpec{Name: "remote_cache_path", Type: cty.String, Required: false},
 	}
 	return s
 }

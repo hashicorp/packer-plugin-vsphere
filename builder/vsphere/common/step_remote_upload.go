@@ -6,7 +6,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"log"
 	"path/filepath"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -14,10 +13,16 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
+const DefaultRemoteCachePath = "packer_cache"
+
 type StepRemoteUpload struct {
 	Datastore                  string
 	Host                       string
 	SetHostForDatastoreUploads bool
+	RemoteCacheCleanup         bool
+	RemoteCacheOverwrite       bool
+	RemoteCacheDatastore       string
+	RemoteCachePath            string
 	UploadedCustomCD           bool
 }
 
@@ -45,40 +50,71 @@ func (s *StepRemoteUpload) Run(_ context.Context, state multistep.StateBag) mult
 		state.Put("cd_path", fullRemotePath)
 	}
 
+	if s.RemoteCacheCleanup {
+		state.Put("remote_cache_cleanup", s.RemoteCacheCleanup)
+	}
+
 	return multistep.ActionContinue
 }
 
-func GetRemoteDirectoryAndPath(path string, ds driver.Datastore) (string, string, string, string) {
+func GetRemoteDirectoryAndPath(path string, ds driver.Datastore, remoteCachePath string) (string, string, string, string) {
 	filename := filepath.Base(path)
-	remotePath := fmt.Sprintf("packer_cache/%s", filename)
-	remoteDirectory := fmt.Sprintf("[%s] packer_cache/", ds.Name())
+	remotePath := fmt.Sprintf("%s/%s", remoteCachePath, filename)
+	remoteDirectory := fmt.Sprintf("[%s] %s", ds.Name(), remoteCachePath)
 	fullRemotePath := fmt.Sprintf("%s/%s", remoteDirectory, filename)
 
 	return filename, remotePath, remoteDirectory, fullRemotePath
-
 }
+
 func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk.Ui) (string, error) {
-	ds, err := d.FindDatastore(s.Datastore, s.Host)
+
+	// Set the remote cache datastore. If not set, use the default datastore for the build.
+	remoteCacheDatastore := s.Datastore
+	if s.RemoteCacheDatastore != "" {
+		remoteCacheDatastore = s.RemoteCacheDatastore
+	}
+
+	// Find the datastore to use for the remote cache.
+	ds, err := d.FindDatastore(remoteCacheDatastore, s.Host)
 	if err != nil {
-		return "", fmt.Errorf("datastore doesn't exist: %v", err)
+		return "", fmt.Errorf("error finding the remote cache datastore: %v", err)
 	}
 
-	filename, remotePath, remoteDirectory, fullRemotePath := GetRemoteDirectoryAndPath(path, ds)
-
-	if exists := ds.FileExists(remotePath); exists == true {
-		ui.Say(fmt.Sprintf("File %s already exists; skipping upload.", fullRemotePath))
-		return fullRemotePath, nil
+	// Set the remote cache path. If not set, use the default cache path.
+	remoteCachePath := s.RemoteCachePath
+	if remoteCachePath == "" {
+		remoteCachePath = DefaultRemoteCachePath
 	}
 
-	ui.Say(fmt.Sprintf("Uploading %s to %s", filename, remotePath))
+	filename, remotePath, remoteDirectory, fullRemotePath := GetRemoteDirectoryAndPath(path, ds, remoteCachePath)
 
+	if exists := ds.FileExists(remotePath); exists {
+		// If the remote cache overwrite flag is set to true, delete the file and download the
+		// ISO file again.
+		if s.RemoteCacheOverwrite {
+			ui.Say(fmt.Sprintf("Overwriting %s in remote cache %s...", filename, remoteDirectory))
+			// Delete the file from the remote cache datastore.
+			if err := ds.Delete(remotePath); err != nil {
+				return "", fmt.Errorf("error overwriting file in remote cache: %w", err)
+			}
+		} else {
+			// Skip the download step if the remote cache overwrite flag is not set.
+			ui.Say(fmt.Sprintf("Skipping upload, %s already exists in remote cache...", fullRemotePath))
+			return fullRemotePath, nil
+		}
+	}
+
+	ui.Say(fmt.Sprintf("Uploading %s to %s...", filename, remoteDirectory))
+
+	// Check if the remote cache directory exists. If not, create it.
 	if exists := ds.DirExists(remotePath); exists == false {
-		log.Printf("Remote directory doesn't exist; creating...")
+		ui.Say(fmt.Sprintf("Remote cache directory does not exist; creating %s...", remoteDirectory))
 		if err := ds.MakeDirectory(remoteDirectory); err != nil {
 			return "", err
 		}
 	}
 
+	// Upload the file to the remote cache datastore.
 	if err := ds.UploadFile(path, remotePath, s.Host, s.SetHostForDatastoreUploads); err != nil {
 		return "", err
 	}
@@ -88,7 +124,9 @@ func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk
 func (s *StepRemoteUpload) Cleanup(state multistep.StateBag) {
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
-	if !cancelled && !halted {
+	_, remoteCacheCleanup := state.GetOk("remote_cache_cleanup")
+
+	if !cancelled && !halted && !remoteCacheCleanup {
 		return
 	}
 
@@ -103,18 +141,17 @@ func (s *StepRemoteUpload) Cleanup(state multistep.StateBag) {
 
 	ui := state.Get("ui").(packersdk.Ui)
 	d := state.Get("driver").(*driver.VCenterDriver)
-	ui.Say("Deleting cd_files image from remote datastore ...")
+	ui.Say(fmt.Sprintf("Removing %s...", UploadedCDPath))
 
 	ds, err := d.FindDatastore(s.Datastore, s.Host)
 	if err != nil {
-		log.Printf("Error finding datastore to delete custom CD; please delete manually: %s", err)
+		ui.Say(fmt.Sprintf("Unable to find the remote cache datastore. Please remove the item manually: %s", err))
 		return
 	}
 
 	err = ds.Delete(UploadedCDPath.(string))
 	if err != nil {
-		log.Printf("Error deleting custom CD from remote datastore; please delete manually: %s", err)
+		ui.Say(fmt.Sprintf("Unable to remove item from the remote cache. Please remove the item manually: %s", err))
 		return
-
 	}
 }
