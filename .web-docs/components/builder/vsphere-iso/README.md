@@ -702,6 +702,17 @@ iso_paths = [
 <!-- End of code generated from the comments of the RemoveCDRomConfig struct in builder/vsphere/common/step_remove_cdrom.go; -->
 
 
+<!-- Code generated from the comments of the ReattachCDRomConfig struct in builder/vsphere/common/step_reattach_cdrom.go; DO NOT EDIT MANUALLY -->
+
+- `reattach_cdroms` (int) - Reattach one or more configured CD-ROM devices. Range: 1-4.
+  You can reattach up to 4 CD-ROM devices to the final build artifact.
+  If set to 0, `reattach_cdroms` is ignored and the step is skipped.
+  When set to a value in the range, `remove_cdrom` is ignored and
+  the CD-ROM devices are kept without any attached media.
+
+<!-- End of code generated from the comments of the ReattachCDRomConfig struct in builder/vsphere/common/step_reattach_cdrom.go; -->
+
+
 <!-- Code generated from the comments of the CDConfig struct in multistep/commonsteps/extra_iso_config.go; DO NOT EDIT MANUALLY -->
 
 An iso (CD) containing custom files can be made available for your build.

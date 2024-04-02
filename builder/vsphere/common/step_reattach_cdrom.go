@@ -51,7 +51,12 @@ func (s *StepReattachCDRom) Run(_ context.Context, state multistep.StateBag) mul
 
 	// Add the CD-ROM devices to the image based on the value of `reattach_cdroms`.
 	// A valid ISO path is required for this step. The media will subsequently be ejected.
-	nAttachableCdroms := ReattachCDRom - len(s.CDRomConfig.ISOPaths)
+	cdroms, err := vm.CdromDevices()
+	if err != nil {
+		state.Put("error listing cdrom devices: %v", err)
+		return multistep.ActionHalt
+	}
+	nAttachableCdroms := ReattachCDRom - len(cdroms)
 	if nAttachableCdroms < 0 {
 		err = vm.RemoveNCdroms(int(math.Abs(float64(nAttachableCdroms))))
 		if err != nil {

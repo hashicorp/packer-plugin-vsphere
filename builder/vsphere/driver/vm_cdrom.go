@@ -80,11 +80,10 @@ func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
 	if n == 0 {
 		return nil
 	}
-	devices, err := vm.Devices()
+	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		return err
 	}
-	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
 	if (n < 0) || (n > len(cdroms)) {
 		return fmt.Errorf("invalid number: n must be between 0 and %d", len(cdroms))
 	}
@@ -98,11 +97,10 @@ func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
 }
 
 func (vm *VirtualMachineDriver) EjectCdroms() error {
-	devices, err := vm.Devices()
+	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		return err
 	}
-	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
 	for _, cd := range cdroms {
 		c := cd.(*types.VirtualCdrom)
 		c.Backing = &types.VirtualCdromRemotePassthroughBackingInfo{}
