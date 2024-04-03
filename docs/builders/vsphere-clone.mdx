@@ -120,19 +120,19 @@ can be done via environment variable:
 
 @include 'builder/vsphere/clone/GlobalDnsSettings-not-required.mdx'
 
-#### Linux Customization Settings
+#### Linux Options
 
 @include 'builder/vsphere/clone/LinuxOptions-not-required.mdx'
 
-#### Customization Example
+Example of usage:
 
 **JSON**
 
 ```json
  "customize": {
           "linux_options": {
-            "host_name": "packer-test",
-            "domain": "test.internal"
+            "host_name": "foo",
+            "domain": "example.com"
           },
           "network_interface": {
             "ipv4_address": "10.0.0.10",
@@ -148,8 +148,8 @@ can be done via environment variable:
 ```hcl
    customize {
          linux_options {
-           host_name = "packer-test"
-           domain = "test.internal"
+           host_name = "foo"
+           domain = "example.com"
          }
 
          network_interface {
@@ -162,6 +162,51 @@ can be done via environment variable:
    }
 ```
 
+#### Windows Options
+
+@include 'builder/vsphere/clone/WindowsOptions-not-required.mdx'
+
+Example of usage:
+
+**JSON**
+
+```json
+ "customize": {
+          "windows_options": {
+            "host_name": "foo",
+            "workgroup": "example",
+            "product_key": "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX",
+            "admin_password": "password"
+          },
+          "network_interface": {
+            "ipv4_address": "10.0.0.10",
+            "ipv4_netmask": "24"
+          },
+          "ipv4_gateway": "10.0.0.1",
+          "dns_server_list": ["10.0.0.18"]
+ }
+```
+
+**HCL2**
+
+```hcl
+   customize {
+         windows_options {
+           computer_name = "foo"
+           workgroup = "example"
+           product_key = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXXX"
+           admin_password = "password"
+         }
+
+         network_interface {
+           ipv4_address = "10.0.0.10"
+           ipv4_netmask = "24"
+         }
+
+         ipv4_gateway = 10.0.0.1
+         dns_server_list = ["10.0.0.18"]
+   }
+```
 
 ### Boot configuration
 
