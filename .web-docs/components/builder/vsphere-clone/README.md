@@ -381,7 +381,7 @@ For Windows guest operating systems, this is set for each network interface. Ref
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
-#### Linux Customization Settings
+#### Linux Options
 
 <!-- Code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
@@ -396,15 +396,15 @@ For Windows guest operating systems, this is set for each network interface. Ref
 <!-- End of code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; -->
 
 
-#### Customization Example
+Example of usage:
 
 **JSON**
 
 ```json
  "customize": {
           "linux_options": {
-            "host_name": "packer-test",
-            "domain": "test.internal"
+            "host_name": "foo",
+            "domain": "example.com"
           },
           "network_interface": {
             "ipv4_address": "10.0.0.10",
@@ -420,8 +420,8 @@ For Windows guest operating systems, this is set for each network interface. Ref
 ```hcl
    customize {
          linux_options {
-           host_name = "packer-test"
-           domain = "test.internal"
+           host_name = "foo"
+           domain = "example.com"
          }
 
          network_interface {
@@ -434,6 +434,74 @@ For Windows guest operating systems, this is set for each network interface. Ref
    }
 ```
 
+#### Windows Options
+
+<!-- Code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
+
+- `run_once_command_list` (\*[]string) - Specifies a list of commands to run at first logon after the guest operating system is customized.
+
+- `auto_logon` (\*bool) - Specifies whether the guest operating system automatically logs on as Administrator.
+
+- `auto_logon_count` (\*int32) - Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
+
+- `admin_password` (\*string) - Specifies the password for the guest operating system's Administrator account.
+
+- `time_zone` (\*int32) - Specifies the time zone for the guest operating system. Default to `85` (Pacific Time).
+
+- `workgroup` (string) - Specifies the workgroup for the guest operating system. Joining an Active Directory domain is not supported.
+
+- `computer_name` (string) - Specifies the hostname for the guest operating system.
+
+- `full_name` (string) - Specifies the full name for the guest operating system's Administrator account. Defaults to `Administrator`.
+
+- `organization_name` (string) - Specifies the organization name for the guest operating system. Defaults to `Built by Packer`.
+
+- `product_key` (string) - Specifies the product key for the guest operating system.
+
+<!-- End of code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; -->
+
+
+Example of usage:
+
+**JSON**
+
+```json
+ "customize": {
+          "windows_options": {
+            "host_name": "foo",
+            "workgroup": "example",
+            "product_key": "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX",
+            "admin_password": "password"
+          },
+          "network_interface": {
+            "ipv4_address": "10.0.0.10",
+            "ipv4_netmask": "24"
+          },
+          "ipv4_gateway": "10.0.0.1",
+          "dns_server_list": ["10.0.0.18"]
+ }
+```
+
+**HCL2**
+
+```hcl
+   customize {
+         windows_options {
+           computer_name = "foo"
+           workgroup = "example"
+           product_key = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXXX"
+           admin_password = "password"
+         }
+
+         network_interface {
+           ipv4_address = "10.0.0.10"
+           ipv4_netmask = "24"
+         }
+
+         ipv4_gateway = 10.0.0.1
+         dns_server_list = ["10.0.0.18"]
+   }
+```
 
 ### Boot configuration
 
