@@ -21,10 +21,15 @@ import (
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/retry"
 	shelllocal "github.com/hashicorp/packer-plugin-sdk/shell-local"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
+
+const DefaultMaxRetries = 5
+const DefaultDiskMode = "thick"
+const OvftoolWindows = "ovftool.exe"
 
 var ovftool string = "ovftool"
 
@@ -94,6 +99,9 @@ type Config struct {
 	// See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information on the
 	// virtual hardware versions supported.
 	HardwareVersion string `mapstructure:"hardware_version"`
+	// Specifies the maximum number of times to retry the upload operation if it fails.
+	// Defaults to `5`.
+	MaxRetries int `mapstructure:"max_retries"`
 
 	ctx interpolate.Context
 }
@@ -117,16 +125,21 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		return err
 	}
 
+	// Set default value for MaxRetries if not provided.
+	if p.config.MaxRetries == 0 {
+		p.config.MaxRetries = DefaultMaxRetries // Set default value
+	}
+
 	// Defaults
 	if p.config.DiskMode == "" {
-		p.config.DiskMode = "thick"
+		p.config.DiskMode = DefaultDiskMode
 	}
 
 	// Accumulate any errors
 	errs := new(packersdk.MultiError)
 
 	if runtime.GOOS == "windows" {
-		ovftool = "ovftool.exe"
+		ovftool = OvftoolWindows
 	}
 
 	if _, err := exec.LookPath(ovftool); err != nil {
@@ -171,7 +184,7 @@ func (p *PostProcessor) generateURI() (*url.URL, error) {
 
 	u, err := url.Parse(ovftool_uri)
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't generate uri for ovftool: %s", err)
+		return nil, fmt.Errorf("error generating uri for ovftool: %s", err)
 	}
 	u.User = url.UserPassword(p.config.Username, p.config.Password)
 
@@ -207,7 +220,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	}
 
 	if source == "" {
-		return nil, false, false, fmt.Errorf("VMX, OVF or OVA file not found")
+		return nil, false, false, fmt.Errorf("error locating expected .vmx, .ovf, or .ova artifact")
 	}
 
 	ovftool_uri, err := p.generateURI()
@@ -224,31 +237,39 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		ui.Message(fmt.Sprintf("Failed: %s\n", err))
 	}
 
-	ui.Message(fmt.Sprintf("Uploading %s to vSphere", source))
+	ui.Message(fmt.Sprintf("Uploading %s to vSphere...", source))
 
 	log.Printf("Starting ovftool with parameters: %s", strings.Join(args, " "))
 
-	ui.Message("Validating Username and Password with dry-run")
+	ui.Message("Validating username and password with dry-run...")
 	err = p.ValidateOvfTool(args, ovftool)
 	if err != nil {
 		return nil, false, false, err
 	}
 
 	// Validation has passed, so run for real.
-	ui.Message("Calling OVFtool to upload vm")
+	ui.Message("Uploading virtual machine using OVFtool...")
 	commandAndArgs := []string{ovftool}
 	commandAndArgs = append(commandAndArgs, args...)
 	comm := &shelllocal.Communicator{
 		ExecuteCommand: commandAndArgs,
 	}
 	flattenedCmd := strings.Join(commandAndArgs, " ")
-	cmd := &packersdk.RemoteCmd{Command: flattenedCmd}
-	log.Printf("[INFO] (vsphere): starting ovftool command: %s", flattenedCmd)
-	err = cmd.RunWithUi(ctx, comm, ui)
-	if err != nil || cmd.ExitStatus() != 0 {
-		return nil, false, false, fmt.Errorf(
-			"Error uploading virtual machine: Please see output above for more information.")
-	}
+	err = retry.Config{
+		Tries: p.config.MaxRetries,
+		ShouldRetry: func(err error) bool {
+			return err != nil
+		},
+		RetryDelay: (&retry.Backoff{InitialBackoff: 200 * time.Millisecond, MaxBackoff: 30 * time.Second, Multiplier: 2}).Linear,
+	}.Run(ctx, func(ctx context.Context) error {
+		cmd := &packersdk.RemoteCmd{Command: flattenedCmd}
+		log.Printf("Starting OVFtool command: %s", flattenedCmd)
+		err = cmd.RunWithUi(ctx, comm, ui)
+		if err != nil || cmd.ExitStatus() != 0 {
+			return fmt.Errorf("error uploading virtual machine")
+		}
+		return nil
+	})
 
 	artifact = NewArtifact(p.config.Datastore, p.config.VMFolder, p.config.VMName, artifact.Files())
 
@@ -275,8 +296,8 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string) error {
 	if err := cmd.Run(); err != nil {
 		outString := out.String()
 		if strings.Contains(outString, "Enter login information for") {
-			err = fmt.Errorf("Error performing OVFtool dry run; the username " +
-				"or password you provided to ovftool is likely invalid.")
+			err = fmt.Errorf("error performing ovftool dry run; the username " +
+				"or password you provided may be incorrect")
 			return err
 		}
 		return nil

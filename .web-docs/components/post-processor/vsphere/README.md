@@ -74,6 +74,9 @@ Optional:
   See [VMware KB 1003746](https://kb.vmware.com/s/article/1003746) for more information on the
   virtual hardware versions supported.
 
+- `max_retries` (int) - Specifies the maximum number of times to retry the upload operation if it fails.
+  Defaults to `5`.
+
 <!-- End of code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; -->
 
 
