@@ -6,6 +6,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -33,7 +34,7 @@ func TestStepAddFloppy_Run(t *testing.T) {
 		{
 			name:         "Add floppy from state floppy path",
 			floppyPath:   "floppy/path",
-			uploadedPath: "vm/dir/packer-tmp-created-floppy.flp",
+			uploadedPath: "vm/dir/packer-*.flp",
 			step: &StepAddFloppy{
 				Config:                     new(FloppyConfig),
 				Datastore:                  "datastore",
@@ -62,7 +63,7 @@ func TestStepAddFloppy_Run(t *testing.T) {
 			expectedDsMock: &driver.DatastoreMock{
 				UploadFileCalled:  true,
 				UploadFileSrc:     "floppy/path",
-				UploadFileDst:     "vm/dir/packer-tmp-created-floppy.flp",
+				UploadFileDst:     "vm/dir/packer-*.flp",
 				UploadFileHost:    "host",
 				UploadFileSetHost: true,
 				ResolvePathCalled: true,
@@ -151,7 +152,7 @@ func TestStepAddFloppy_Run(t *testing.T) {
 			expectedDsMock: &driver.DatastoreMock{
 				UploadFileCalled:  true,
 				UploadFileSrc:     "floppy/path",
-				UploadFileDst:     "vm/dir/packer-tmp-created-floppy.flp",
+				UploadFileDst:     "vm/dir/packer-*.flp",
 				UploadFileHost:    "host",
 				UploadFileSetHost: true,
 			},
@@ -161,7 +162,7 @@ func TestStepAddFloppy_Run(t *testing.T) {
 		{
 			name:         "State floppy path - vm fail to add floppy",
 			floppyPath:   "floppy/path",
-			uploadedPath: "vm/dir/packer-tmp-created-floppy.flp",
+			uploadedPath: "vm/dir/packer-*.flp",
 			step: &StepAddFloppy{
 				Config:                     new(FloppyConfig),
 				Datastore:                  "datastore",
@@ -191,7 +192,7 @@ func TestStepAddFloppy_Run(t *testing.T) {
 			expectedDsMock: &driver.DatastoreMock{
 				UploadFileCalled:  true,
 				UploadFileSrc:     "floppy/path",
-				UploadFileDst:     "vm/dir/packer-tmp-created-floppy.flp",
+				UploadFileDst:     "vm/dir/packer-*.flp",
 				UploadFileHost:    "host",
 				UploadFileSetHost: true,
 				ResolvePathCalled: true,
@@ -268,9 +269,12 @@ func TestStepAddFloppy_Run(t *testing.T) {
 				}
 			}
 
-			uploadedPath, _ := state.Get("uploaded_floppy_path").(string)
-			if uploadedPath != c.uploadedPath {
-				t.Fatalf("Unexpected uploaded path state %s", uploadedPath)
+			if c.driverMock.DatastoreMock.UploadFileDst != "" {
+				pattern := regexp.MustCompile(`vm/dir/packer-(\d{10}|tmp-created-floppy)\.flp`)
+				if !pattern.MatchString(c.driverMock.DatastoreMock.UploadFileDst) {
+					t.Fatalf("unexpected UploadFileDst %v", c.driverMock.DatastoreMock.UploadFileDst)
+				}
+				c.driverMock.DatastoreMock.UploadFileDst = "vm/dir/packer-*.flp"
 			}
 
 			if diff := cmp.Diff(c.vmMock, c.expectedVmMock,

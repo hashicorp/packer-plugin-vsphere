@@ -9,6 +9,8 @@ package common
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -59,7 +61,7 @@ func (s *StepAddFloppy) Run(_ context.Context, state multistep.StateBag) multist
 	d := state.Get("driver").(driver.Driver)
 
 	if floppyPath, ok := state.GetOk("floppy_path"); ok {
-		ui.Say("Uploading created floppy image")
+		ui.Say("Uploading floppy image...")
 
 		ds, err := d.FindDatastore(s.Datastore, s.Host)
 		if err != nil {
@@ -72,14 +74,22 @@ func (s *StepAddFloppy) Run(_ context.Context, state multistep.StateBag) multist
 			return multistep.ActionHalt
 		}
 
-		uploadPath := fmt.Sprintf("%v/packer-tmp-created-floppy.flp", vmDir)
+		// Create a new random number generator
+		src := rand.NewSource(time.Now().UnixNano())
+		r := rand.New(src)
+
+		// Generate a unique ID for the floppy image using the packer-##########.flp.
+		// This helps avoid conflicts with other floppy images that might be uploaded.
+		// This naming pattern matches the one used by packer-sdk for generated ISOs.
+		uniqueID := r.Int63n(9000000000) + 1000000000
+		uploadPath := fmt.Sprintf("%v/packer-%d.flp", vmDir, uniqueID)
 		if err := ds.UploadFile(floppyPath.(string), uploadPath, s.Host, s.SetHostForDatastoreUploads); err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
 		state.Put("uploaded_floppy_path", uploadPath)
 
-		ui.Say("Adding generated Floppy...")
+		ui.Say("Adding generated floppy image...")
 		floppyIMGPath := ds.ResolvePath(uploadPath)
 		err = vm.AddFloppy(floppyIMGPath)
 		if err != nil {
@@ -89,7 +99,7 @@ func (s *StepAddFloppy) Run(_ context.Context, state multistep.StateBag) multist
 	}
 
 	if s.Config.FloppyIMGPath != "" {
-		ui.Say("Adding Floppy image...")
+		ui.Say("Adding floppy image...")
 		err := vm.AddFloppy(s.Config.FloppyIMGPath)
 		if err != nil {
 			state.Put("error", err)
@@ -111,7 +121,7 @@ func (s *StepAddFloppy) Cleanup(state multistep.StateBag) {
 	d := state.Get("driver").(driver.Driver)
 
 	if UploadedFloppyPath, ok := state.GetOk("uploaded_floppy_path"); ok {
-		ui.Say("Deleting Floppy image ...")
+		ui.Say("Deleting floppy image...")
 
 		ds, err := d.FindDatastore(s.Datastore, s.Host)
 		if err != nil {
