@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
@@ -37,7 +38,8 @@ func (c *OutputConfig) Prepare(ctx *interpolate.Context, pc *common.PackerConfig
 	if c.OutputDir == "" {
 		c.OutputDir = fmt.Sprintf("output-%s", pc.PackerBuildName)
 	}
-	if c.DirPerm == 0 {
+
+	if runtime.GOOS != "windows" && c.DirPerm == 0 {
 		c.DirPerm = 0750
 	}
 
