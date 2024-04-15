@@ -499,8 +499,8 @@ github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec57
 github.com/vmware-tanzu/image-registry-operator-api v0.0.0-20230523235530-62ec5758f097/go.mod h1:S0HMBgdo3S/0a5hwq+Ya4XZI2aEDtGkSGeojU1cINOg=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1 h1:krW4K3Vj8DkVqLMUOlW1OMLr1BY9Lg+PLZ7mAzlJz/A=
 github.com/vmware-tanzu/vm-operator/api v0.0.0-20230424164826-7ee71aebc7b1/go.mod h1:vauVboD3sQxP+pb28TnI9wfrj+0nH2zSEc9Q7AzWJ54=
-github.com/vmware/govmomi v0.36.2 h1:fFTicZmjwPCiBJGyKLZ5Ty9JbTgBPVSXJDv1Duw0r7c=
-github.com/vmware/govmomi v0.36.2/go.mod h1:mtGWtM+YhTADHlCgJBiskSRPOZRsN9MSjPzaZLte/oQ=
+github.com/vmware/govmomi v0.37.0 h1:xX5AnIrVn4yfH0fYSjyjMg/Kq6q7cNxA+vyfV5YcF70=
+github.com/vmware/govmomi v0.37.0/go.mod h1:mtGWtM+YhTADHlCgJBiskSRPOZRsN9MSjPzaZLte/oQ=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
