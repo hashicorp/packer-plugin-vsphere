@@ -48,7 +48,7 @@ func TestStepRemoteUpload_Run(t *testing.T) {
 	if !ok {
 		t.Fatalf("state should contain iso_remote_path")
 	}
-	expectedRemovePath := fmt.Sprintf("[%s] packer_cache//path", driverMock.DatastoreMock.Name())
+	expectedRemovePath := fmt.Sprintf("[%s] packer_cache/path", driverMock.DatastoreMock.Name())
 	if remotePath != expectedRemovePath {
 		t.Fatalf("iso_remote_path expected to be %s but was %s", expectedRemovePath, remotePath)
 	}
