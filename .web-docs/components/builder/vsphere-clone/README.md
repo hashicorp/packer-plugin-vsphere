@@ -1355,20 +1355,20 @@ The above configuration would create the following files:
 - `name` (string) - Name of the exported image in Open Virtualization Format (OVF).
   The name of the virtual machine with the `.ovf` extension is used if this option is not specified.
 
-- `force` (bool) - Forces the export to overwrite existing files. Defaults to false.
-  If set to false, the export will fail if the files already exists.
+- `force` (bool) - Forces the export to overwrite existing files. Defaults to `false`.
+  If set to `false`, an error is returned if the file(s) already exists.
 
-- `image_files` (bool) - Include additional image files that are that are associated with the virtual machine. Defaults to false.
+- `image_files` (bool) - Include additional image files that are that are associated with the virtual machine. Defaults to `false`.
   For example, `.nvram` and `.log` files.
 
 - `manifest` (string) - Generate a manifest file with the specified hash algorithm. Defaults to `sha256`.
   Available options include `none`, `sha1`, `sha256`, and `sha512`. Use `none` for no manifest.
 
-- `options` ([]string) - Advanced image export options. Options can include:
-  * mac - MAC address is exported for each Ethernet device.
-  * uuid - UUID is exported for the virtual machine.
-  * extraconfig - Extra configuration options are exported for the virtual machine.
-  * nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
+- `options` ([]string) - Advanced image export options. Available options can include:
+  - mac - MAC address is exported for each Ethernet device.
+  - uuid - UUID is exported for the virtual machine.
+  - extraconfig - Extra configuration options are exported for the virtual machine.
+  - nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
   
   For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
   
@@ -1386,6 +1386,18 @@ The above configuration would create the following files:
       options = ["mac"]
     }
   ```
+
+- `output_format` (string) - The output format for the exported virtual machine image. Defaults to `ovf`.
+  Available options include `ovf` and `ova`.
+  
+  When set to `ova`, the image is first exported using Open Virtualization
+  / Format (`.ovf`) and then converted to an Open Virtualization Archive
+  (`.ova`) using the VMware [Open Virtualization Format Tool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
+  (ovftool). The intermediate files are removed after the conversion.
+  
+  ~> **Note:** To use the `ova` format option, VMware ovftool must be
+  installed on the Packer host and accessible in either the system `PATH`
+  or the user's `PATH`.
 
 <!-- End of code generated from the comments of the ExportConfig struct in builder/vsphere/common/step_export.go; -->
 
@@ -1434,7 +1446,7 @@ The template is stored in a existing or newly created library item.
   For OVF templates, the name defaults to [vm_name](#vm_name) when not set, and if an item with the same name already
   exists it will be then updated with the new OVF template, otherwise a new item will be created.
   
-  ~> **Note**: It's not possible to update existing library items with a new VM template. If updating an existing library
+  ~> **Note:** It's not possible to update existing library items with a new VM template. If updating an existing library
   item is necessary, use an OVF template instead by setting the [ovf](#ovf) option as `true`.
 
 - `description` (string) - Description of the library item that will be created.
