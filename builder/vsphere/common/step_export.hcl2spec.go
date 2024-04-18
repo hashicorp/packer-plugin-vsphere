@@ -19,6 +19,7 @@ type FlatExportConfig struct {
 	OutputDir  *string      `mapstructure:"output_directory" required:"false" cty:"output_directory" hcl:"output_directory"`
 	DirPerm    *fs.FileMode `mapstructure:"directory_permission" required:"false" cty:"directory_permission" hcl:"directory_permission"`
 	Options    []string     `mapstructure:"options" cty:"options" hcl:"options"`
+	Format     *string      `mapstructure:"output_format" cty:"output_format" hcl:"output_format"`
 }
 
 // FlatMapstructure returns a new FlatExportConfig.
@@ -40,6 +41,7 @@ func (*FlatExportConfig) HCL2Spec() map[string]hcldec.Spec {
 		"output_directory":     &hcldec.AttrSpec{Name: "output_directory", Type: cty.String, Required: false},
 		"directory_permission": &hcldec.AttrSpec{Name: "directory_permission", Type: cty.Number, Required: false},
 		"options":              &hcldec.AttrSpec{Name: "options", Type: cty.List(cty.String), Required: false},
+		"output_format":        &hcldec.AttrSpec{Name: "output_format", Type: cty.String, Required: false},
 	}
 	return s
 }
