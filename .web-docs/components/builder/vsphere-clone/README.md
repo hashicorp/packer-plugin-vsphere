@@ -61,6 +61,7 @@ necessary for this build to succeed and can be found further down the page.
 
 - `disk_size` (int64) - Specifies the size of the primary disk in MiB.
   Cannot be used with `linked_clone`.
+  -> **Note:** Only the primary disk size can be specified. Additional disks are not supported.
 
 - `linked_clone` (bool) - Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
   Cannot be used with `disk_size`.`

@@ -38,6 +38,7 @@ type CloneConfig struct {
 	Template string `mapstructure:"template"`
 	// Specifies the size of the primary disk in MiB.
 	// Cannot be used with `linked_clone`.
+	// -> **Note:** Only the primary disk size can be specified. Additional disks are not supported.
 	DiskSize int64 `mapstructure:"disk_size"`
 	// Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
 	// Cannot be used with `disk_size`.`
