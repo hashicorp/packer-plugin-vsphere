@@ -18,15 +18,14 @@ type Disk struct {
 }
 
 type StorageConfig struct {
-	DiskControllerType []string // example: "scsi", "pvscsi", "nvme", "lsilogic"
+	DiskControllerType []string // Example: "scsi", "pvscsi", "nvme", "lsilogic"
 	Storage            []Disk
 }
 
 func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	newDevices := object.VirtualDeviceList{}
 
-	// Create new controller based on existing devices list and add it to the new devices list
-	// to confirm creation
+	// Create new controller based on existing devices list and add it to the new devices list.
 	var controllers []types.BaseVirtualController
 	for _, controllerType := range c.DiskControllerType {
 		var device types.BaseVirtualDevice
@@ -69,6 +68,8 @@ func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceLi
 	return newDevices.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
 }
 
+// Returns the first virtual disk found in the devices list.
+// TODO: Add support for multiple disks.
 func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 	var disks []*types.VirtualDisk
 	for _, device := range devices {
@@ -80,9 +81,12 @@ func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 
 	switch len(disks) {
 	case 0:
-		return nil, errors.New("VM has no disks")
+		// No disks found.
+		return nil, errors.New("error finding virtual disk")
 	case 1:
+		// Single disk found.
 		return disks[0], nil
 	}
-	return nil, errors.New("VM has multiple disks")
+	// More than one disk found.
+	return nil, errors.New("more than one virtual disk found, only a single disk is allowed")
 }

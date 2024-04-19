@@ -704,6 +704,7 @@ func (vm *VirtualMachineDriver) Customize(spec types.CustomizationSpec) error {
 	return task.Wait(vm.driver.ctx)
 }
 
+// TODO: Add support to resize multiple disks.
 func (vm *VirtualMachineDriver) ResizeDisk(diskSize int64) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	devices, err := vm.vm.Device(vm.driver.ctx)
 	if err != nil {
