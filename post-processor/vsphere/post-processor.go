@@ -234,21 +234,21 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 
 	args, err := p.BuildArgs(source, ovftool_uri.String())
 	if err != nil {
-		ui.Message(fmt.Sprintf("Failed: %s\n", err))
+		return nil, false, false, fmt.Errorf("error building ovftool arguments: %s", err)
 	}
 
-	ui.Message(fmt.Sprintf("Uploading %s to vSphere...", source))
+	ui.Message(fmt.Sprintf("Uploading %s to %s", source, p.config.Host))
 
 	log.Printf("Starting ovftool with parameters: %s", strings.Join(args, " "))
 
-	ui.Message("Validating username and password with dry-run...")
-	err = p.ValidateOvfTool(args, ovftool)
+	ui.Message("Validating username and password...")
+	err = p.ValidateOvfTool(args, ovftool, ui)
 	if err != nil {
 		return nil, false, false, err
 	}
 
 	// Validation has passed, so run for real.
-	ui.Message("Uploading virtual machine using OVFtool...")
+	ui.Message("Uploading virtual machine...")
 	commandAndArgs := []string{ovftool}
 	commandAndArgs = append(commandAndArgs, args...)
 	comm := &shelllocal.Communicator{
@@ -263,7 +263,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		RetryDelay: (&retry.Backoff{InitialBackoff: 200 * time.Millisecond, MaxBackoff: 30 * time.Second, Multiplier: 2}).Linear,
 	}.Run(ctx, func(ctx context.Context) error {
 		cmd := &packersdk.RemoteCmd{Command: flattenedCmd}
-		log.Printf("Starting OVFtool command: %s", flattenedCmd)
+		log.Printf("Starting ovfttool command: %s", flattenedCmd)
 		err = cmd.RunWithUi(ctx, comm, ui)
 		if err != nil || cmd.ExitStatus() != 0 {
 			return fmt.Errorf("error uploading virtual machine")
@@ -276,8 +276,12 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	return artifact, false, false, nil
 }
 
-func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string) error {
+func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packersdk.Ui) error {
 	args = append([]string{"--verifyOnly"}, args...)
+	if p.config.Insecure {
+		args = append(args, "--noSSLVerify")
+		ui.Message("Skipping SSL thumbprint verification; insecure flag set to true...")
+	}
 	var out bytes.Buffer
 	cmdCtx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
@@ -295,12 +299,16 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string) error {
 
 	if err := cmd.Run(); err != nil {
 		outString := out.String()
-		if strings.Contains(outString, "Enter login information for") {
-			err = fmt.Errorf("error performing ovftool dry run; the username " +
+		if strings.Contains(outString, "Enter login information for source") {
+			err = fmt.Errorf("error running ovftool with --verifyOnly; the username " +
 				"or password you provided may be incorrect")
 			return err
+		} else if strings.Contains(outString, "Accept SSL fingerprint") {
+			err = fmt.Errorf("error running ovftool with --verifyOnly; the ssl thumbprint " +
+				"returned by the server is not trusted. manually accept the thumbprint, " +
+				"set the insecure flag to true, or pass the --noSSLVerify option")
+			return err
 		}
-		return nil
 	}
 	return nil
 }
