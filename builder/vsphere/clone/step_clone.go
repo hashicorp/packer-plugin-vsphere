@@ -42,10 +42,22 @@ type CloneConfig struct {
 	// Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
 	// Cannot be used with `disk_size`.`
 	LinkedClone bool `mapstructure:"linked_clone"`
-	// Specifies the network to which the virtual machine will connect. If no network is specified,
-	// provide 'host' to allow Packer to search for an available network. For networks placed
-	// within a network folder vCenter Server, provider the object path to the network.
-	// For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
+	// Specifies the network to which the virtual machine will connect.
+	//
+	// For example:
+	//
+	// - Name: `<NetworkName>`
+	// - Inventory Path: `/<DatacenterName>/<FolderName>/<NetworkName>`
+	// - Managed Object ID (Port Group): `Network:network-<xxxxx>`
+	// - Managed Object ID (Distributed Port Group): `DistributedVirtualPortgroup::dvportgroup-<xxxxx>`
+	// - Logical Switch UUID: `<uuid>`
+	// - Segment ID: `/infra/segments/<SegmentID>`
+	//
+	// ~> **Note:** If more than one network resolves to the same name, either the inventory path to
+	// network or an ID must be provided.
+	//
+	// ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
+	// available network.
 	Network string `mapstructure:"network"`
 	// Specifies the network card MAC address. For example `00:50:56:00:00:00`.
 	// If set, the `network` must be also specified.
