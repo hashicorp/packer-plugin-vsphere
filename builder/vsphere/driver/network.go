@@ -76,5 +76,5 @@ type MultipleNetworkFoundError struct {
 }
 
 func (e *MultipleNetworkFoundError) Error() string {
-	return fmt.Sprintf("path '%s' resolves to multiple networks. %s", e.path, e.append)
+	return fmt.Sprintf("'%s' resolves to more than one network name; %s", e.path, e.append)
 }

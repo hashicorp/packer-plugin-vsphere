@@ -974,10 +974,22 @@ In HCL2:
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
-- `network` (string) - Specifies the network to which the virtual machine will connect. If no network is specified,
-  provide 'host' to allow Packer to search for an available network. For networks placed
-  within a network folder vCenter Server, provider the object path to the network.
-  For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
+- `network` (string) - Specifies the network to which the virtual machine will connect.
+  
+  For example:
+  
+  - Name: `<NetworkName>`
+  - Inventory Path: `/<DatacenterName>/<FolderName>/<NetworkName>`
+  - Managed Object ID (Port Group): `Network:network-<xxxxx>`
+  - Managed Object ID (Distributed Port Group): `DistributedVirtualPortgroup::dvportgroup-<xxxxx>`
+  - Logical Switch UUID: `<uuid>`
+  - Segment ID: `/infra/segments/<SegmentID>`
+  
+  ~> **Note:** If more than one network resolves to the same name, either the inventory path to
+  network or an ID must be provided.
+  
+  ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
+  available network.
 
 - `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
 

@@ -1070,7 +1070,7 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 			return nil, &MultipleNetworkFoundError{network, fmt.Sprintf("unable to match a network to the host %s", host)}
 		}
 
-		return nil, &MultipleNetworkFoundError{network, "please provide a host to match or the network full path"}
+		return nil, &MultipleNetworkFoundError{network, "specify the inventory path or id of the network"}
 	}
 
 	if host != "" {

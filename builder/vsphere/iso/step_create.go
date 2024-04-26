@@ -53,10 +53,22 @@ import (
 //
 // ```
 type NIC struct {
-	// Specifies the network to which the virtual machine will connect. If no network is specified,
-	// provide 'host' to allow Packer to search for an available network. For networks placed
-	// within a network folder vCenter Server, provider the object path to the network.
-	// For example, `network = "/<DatacenterName>/<FolderName>/<NetworkName>"`.
+	// Specifies the network to which the virtual machine will connect.
+	//
+	// For example:
+	//
+	// - Name: `<NetworkName>`
+	// - Inventory Path: `/<DatacenterName>/<FolderName>/<NetworkName>`
+	// - Managed Object ID (Port Group): `Network:network-<xxxxx>`
+	// - Managed Object ID (Distributed Port Group): `DistributedVirtualPortgroup::dvportgroup-<xxxxx>`
+	// - Logical Switch UUID: `<uuid>`
+	// - Segment ID: `/infra/segments/<SegmentID>`
+	//
+	// ~> **Note:** If more than one network resolves to the same name, either the inventory path to
+	// network or an ID must be provided.
+	//
+	// ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
+	// available network.
 	Network string `mapstructure:"network"`
 	// Specifies the virtual machine network card type. For example `vmxnet3`.
 	NetworkCard string `mapstructure:"network_card" required:"true"`
