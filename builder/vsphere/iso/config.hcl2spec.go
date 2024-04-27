@@ -80,6 +80,7 @@ type FlatConfig struct {
 	ISOPaths                        []string                                    `mapstructure:"iso_paths" cty:"iso_paths" hcl:"iso_paths"`
 	RemoveCdrom                     *bool                                       `mapstructure:"remove_cdrom" cty:"remove_cdrom" hcl:"remove_cdrom"`
 	ReattachCDRom                   *int                                        `mapstructure:"reattach_cdroms" cty:"reattach_cdroms" hcl:"reattach_cdroms"`
+	RemoveNetworkAdapter            *bool                                       `mapstructure:"remove_network_adapter" cty:"remove_network_adapter" hcl:"remove_network_adapter"`
 	FloppyIMGPath                   *string                                     `mapstructure:"floppy_img_path" cty:"floppy_img_path" hcl:"floppy_img_path"`
 	FloppyFiles                     []string                                    `mapstructure:"floppy_files" cty:"floppy_files" hcl:"floppy_files"`
 	FloppyDirectories               []string                                    `mapstructure:"floppy_dirs" cty:"floppy_dirs" hcl:"floppy_dirs"`
@@ -238,6 +239,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"iso_paths":                      &hcldec.AttrSpec{Name: "iso_paths", Type: cty.List(cty.String), Required: false},
 		"remove_cdrom":                   &hcldec.AttrSpec{Name: "remove_cdrom", Type: cty.Bool, Required: false},
 		"reattach_cdroms":                &hcldec.AttrSpec{Name: "reattach_cdroms", Type: cty.Number, Required: false},
+		"remove_network_adapter":         &hcldec.AttrSpec{Name: "remove_network_adapter", Type: cty.Bool, Required: false},
 		"floppy_img_path":                &hcldec.AttrSpec{Name: "floppy_img_path", Type: cty.String, Required: false},
 		"floppy_files":                   &hcldec.AttrSpec{Name: "floppy_files", Type: cty.List(cty.String), Required: false},
 		"floppy_dirs":                    &hcldec.AttrSpec{Name: "floppy_dirs", Type: cty.List(cty.String), Required: false},

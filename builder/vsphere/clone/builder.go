@@ -143,6 +143,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			CreateSnapshot: b.config.CreateSnapshot,
 			SnapshotName:   b.config.SnapshotName,
 		},
+		&common.StepRemoveNetworkAdapter{
+			Config: &b.config.RemoveNetworkAdapterConfig,
+		},
 		&common.StepConvertToTemplate{
 			ConvertToTemplate: b.config.ConvertToTemplate,
 		},

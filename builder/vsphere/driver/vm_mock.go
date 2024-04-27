@@ -74,6 +74,10 @@ type VirtualMachineMock struct {
 	ReattachCDRomsCalled bool
 	ReattachCDRomsErr    error
 
+	RemoveNetworkAdaptersCalled bool
+	NetworkAdaptersList         object.VirtualDeviceList
+	RemoveNetworkAdaptersErr    error
+
 	CloneCalled bool
 	CloneConfig *CloneConfig
 	CloneError  error
@@ -297,6 +301,12 @@ func (vm *VirtualMachineMock) EjectCdroms() error {
 	vm.EjectCdromsCalled = true
 	vm.AddCdromPaths = nil
 	return vm.EjectCdromsErr
+}
+
+func (vm *VirtualMachineMock) RemoveNetworkAdapters() error {
+	vm.RemoveNetworkAdaptersCalled = true
+	vm.NetworkAdaptersList = nil
+	return vm.RemoveNetworkAdaptersErr
 }
 
 func (vm *VirtualMachineMock) Datacenter() *object.Datacenter {

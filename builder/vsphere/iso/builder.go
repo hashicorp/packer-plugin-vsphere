@@ -149,6 +149,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Config:      &b.config.ReattachCDRomConfig,
 			CDRomConfig: &b.config.CDRomConfig,
 		},
+		&common.StepRemoveNetworkAdapter{
+			Config: &b.config.RemoveNetworkAdapterConfig,
+		},
 		&common.StepCreateSnapshot{
 			CreateSnapshot: b.config.CreateSnapshot,
 			SnapshotName:   b.config.SnapshotName,
