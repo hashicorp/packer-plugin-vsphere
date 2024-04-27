@@ -21,21 +21,22 @@ type Config struct {
 	commonsteps.HTTPConfig    `mapstructure:",squash"`
 	commonsteps.CDConfig      `mapstructure:",squash"`
 
-	common.ConnectConfig       `mapstructure:",squash"`
-	CloneConfig                `mapstructure:",squash"`
-	common.LocationConfig      `mapstructure:",squash"`
-	common.HardwareConfig      `mapstructure:",squash"`
-	common.ConfigParamsConfig  `mapstructure:",squash"`
-	common.FlagConfig          `mapstructure:",squash"`
-	common.CDRomConfig         `mapstructure:",squash"`
-	common.RemoveCDRomConfig   `mapstructure:",squash"`
-	common.ReattachCDRomConfig `mapstructure:",squash"`
-	common.FloppyConfig        `mapstructure:",squash"`
-	common.RunConfig           `mapstructure:",squash"`
-	common.BootConfig          `mapstructure:",squash"`
-	common.WaitIpConfig        `mapstructure:",squash"`
-	Comm                       communicator.Config `mapstructure:",squash"`
-	common.ShutdownConfig      `mapstructure:",squash"`
+	common.ConnectConfig              `mapstructure:",squash"`
+	CloneConfig                       `mapstructure:",squash"`
+	common.LocationConfig             `mapstructure:",squash"`
+	common.HardwareConfig             `mapstructure:",squash"`
+	common.ConfigParamsConfig         `mapstructure:",squash"`
+	common.FlagConfig                 `mapstructure:",squash"`
+	common.CDRomConfig                `mapstructure:",squash"`
+	common.RemoveCDRomConfig          `mapstructure:",squash"`
+	common.ReattachCDRomConfig        `mapstructure:",squash"`
+	common.RemoveNetworkAdapterConfig `mapstructure:",squash"`
+	common.FloppyConfig               `mapstructure:",squash"`
+	common.RunConfig                  `mapstructure:",squash"`
+	common.BootConfig                 `mapstructure:",squash"`
+	common.WaitIpConfig               `mapstructure:",squash"`
+	Comm                              communicator.Config `mapstructure:",squash"`
+	common.ShutdownConfig             `mapstructure:",squash"`
 
 	// Specifies to create a snapshot of the virtual machine to use as a base for linked clones.
 	// Defaults to `false`.

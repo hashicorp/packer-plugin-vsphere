@@ -70,6 +70,8 @@ type VirtualMachine interface {
 	EjectCdroms() error
 	AddSATAController() error
 	FindSATAController() (*types.VirtualAHCIController, error)
+
+	RemoveNetworkAdapters() error
 }
 
 type VirtualMachineDriver struct {
@@ -1335,4 +1337,25 @@ func findNetworkAdapter(l object.VirtualDeviceList) (types.BaseVirtualEthernetCa
 	}
 
 	return c[0].(types.BaseVirtualEthernetCard), nil
+}
+
+func (vm *VirtualMachineDriver) RemoveNetworkAdapters() error {
+	devices, err := vm.Devices()
+	if err != nil {
+		return fmt.Errorf("error retrieving devices: %s", err)
+	}
+
+	networkAdapters := devices.SelectByType((*types.VirtualEthernetCard)(nil))
+	if len(networkAdapters) == 0 {
+		return nil
+	}
+
+	for _, adapter := range networkAdapters {
+		err = vm.RemoveDevice(false, adapter)
+		if err != nil {
+			return fmt.Errorf("error removing network adapter: %s", err)
+		}
+	}
+
+	return nil
 }

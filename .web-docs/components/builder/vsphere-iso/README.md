@@ -914,6 +914,13 @@ In HCL2:
 <!-- End of code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; -->
 
 
+<!-- Code generated from the comments of the RemoveNetworkConfig struct in builder/vsphere/common/step_remove_network.go; DO NOT EDIT MANUALLY -->
+
+- `remove_network_adapter` (bool) - Remove all network adapters from template. Defaults to `false`.
+
+<!-- End of code generated from the comments of the RemoveNetworkConfig struct in builder/vsphere/common/step_remove_network.go; -->
+
+
 ## Optional
 
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
