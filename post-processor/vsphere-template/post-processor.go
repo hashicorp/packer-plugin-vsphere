@@ -51,9 +51,12 @@ type Config struct {
 	// Specifies the name of the datacenter to use.
 	// Required when the vCenter Server instance endpoint has more than one datacenter.
 	Datacenter string `mapstructure:"datacenter"`
+	// Specifies the name of the template.
+	// If not specified, the name of the virtual machine will be used.
+	TemplateName string `mapstructure:"template_name"`
 	// Specifies the name of the virtual machine folder path where the template will be created.
 	Folder string `mapstructure:"folder"`
-	// Specifies whether to create a snapshot before marking as a template. Defaults to `false`.\
+	// Specifies whether to create a snapshot before marking as a template. Defaults to `false`.
 	SnapshotEnable bool `mapstructure:"snapshot_enable"`
 	// Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
 	SnapshotName string `mapstructure:"snapshot_name"`
@@ -122,7 +125,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	// Check if the artifact is supported by the post-processor.
 	if _, ok := builtins[artifact.BuilderId()]; !ok {
 		return nil, false, false, fmt.Errorf(
-			"error: unsupported artifact type %s. supported types: vmware-iso (ESXi) or vSphere post-processor", artifact.BuilderId())
+			"error: unsupported artifact type %s. supported types: vsphere-iso exported OVF or vSphere post-processor", artifact.BuilderId())
 	}
 
 	f := artifact.State(ArtifactConfFormat)
