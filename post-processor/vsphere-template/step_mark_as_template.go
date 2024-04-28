@@ -21,6 +21,7 @@ import (
 
 type stepMarkAsTemplate struct {
 	VMName       string
+	TemplateName string
 	RemoteFolder string
 	ReregisterVM config.Trilean
 }
@@ -44,6 +45,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepM
 
 	return &stepMarkAsTemplate{
 		VMName:       vmname,
+		TemplateName: p.config.TemplateName,
 		RemoteFolder: remoteFolder,
 		ReregisterVM: p.config.ReregisterVM,
 	}
@@ -74,8 +76,6 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionContinue
 	}
 
-	ui.Message("Registering virtual machine as a template...")
-
 	dsPath, err := datastorePath(vm)
 	if err != nil {
 		state.Put("error", err)
@@ -102,7 +102,13 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	task, err := folder.RegisterVM(context.Background(), dsPath.String(), s.VMName, true, nil, host)
+	artifactName := s.VMName
+	if s.TemplateName != "" {
+		artifactName = s.TemplateName
+	}
+	ui.Message("Registering virtual machine as a template: " + artifactName)
+
+	task, err := folder.RegisterVM(context.Background(), dsPath.String(), artifactName, true, nil, host)
 	if err != nil {
 		state.Put("error", err)
 		ui.Error("RegisterVM:" + err.Error())

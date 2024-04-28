@@ -23,6 +23,7 @@ type FlatConfig struct {
 	Password            *string           `mapstructure:"password" required:"true" cty:"password" hcl:"password"`
 	Insecure            *bool             `mapstructure:"insecure" cty:"insecure" hcl:"insecure"`
 	Datacenter          *string           `mapstructure:"datacenter" cty:"datacenter" hcl:"datacenter"`
+	TemplateName        *string           `mapstructure:"template_name" cty:"template_name" hcl:"template_name"`
 	Folder              *string           `mapstructure:"folder" cty:"folder" hcl:"folder"`
 	SnapshotEnable      *bool             `mapstructure:"snapshot_enable" cty:"snapshot_enable" hcl:"snapshot_enable"`
 	SnapshotName        *string           `mapstructure:"snapshot_name" cty:"snapshot_name" hcl:"snapshot_name"`
@@ -55,6 +56,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"password":                   &hcldec.AttrSpec{Name: "password", Type: cty.String, Required: false},
 		"insecure":                   &hcldec.AttrSpec{Name: "insecure", Type: cty.Bool, Required: false},
 		"datacenter":                 &hcldec.AttrSpec{Name: "datacenter", Type: cty.String, Required: false},
+		"template_name":              &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"folder":                     &hcldec.AttrSpec{Name: "folder", Type: cty.String, Required: false},
 		"snapshot_enable":            &hcldec.AttrSpec{Name: "snapshot_enable", Type: cty.Bool, Required: false},
 		"snapshot_name":              &hcldec.AttrSpec{Name: "snapshot_name", Type: cty.String, Required: false},

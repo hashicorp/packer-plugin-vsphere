@@ -31,9 +31,12 @@ Optional:
 - `datacenter` (string) - Specifies the name of the datacenter to use.
   Required when the vCenter Server instance endpoint has more than one datacenter.
 
+- `template_name` (string) - Specifies the name of the template.
+  If not specified, the name of the virtual machine will be used.
+
 - `folder` (string) - Specifies the name of the virtual machine folder path where the template will be created.
 
-- `snapshot_enable` (bool) - Specifies whether to create a snapshot before marking as a template. Defaults to `false`.\
+- `snapshot_enable` (bool) - Specifies whether to create a snapshot before marking as a template. Defaults to `false`.
 
 - `snapshot_name` (string) - Specifies the name of the snapshot. Required when `snapshot_enable` is `true`.
 
