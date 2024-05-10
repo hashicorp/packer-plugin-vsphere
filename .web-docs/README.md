@@ -5,15 +5,16 @@ The vSphere plugin is able to create vSphere virtual machines for use with VMwar
 To achieve this, the plugin comes with three builders, and two post-processors to build the virtual
 machine depending on the strategy you want to use.
 
-The Packer Plugin for VMware vSphere is a multi-component plugin can be used with
-HashiCorp Packer to create virtual machine images for VMware vSphere.
+The Packer Plugin for VMware vSphere is a multi-component plugin can be used with HashiCorp Packer
+to create virtual machine images for VMware vSphere.
 
 The plugin includes three builders which are able to create images, depending on your desired
 strategy:
 
 ### Installation
 
-To install this plugin add this code into your Packer configuration and run [packer init](/packer/docs/commands/init)
+To install this plugin add this code into your Packer configuration and run
+[packer init](/packer/docs/commands/init)
 
 ```hcl
 packer {
@@ -50,13 +51,13 @@ packer plugins install github.com/hashicorp/vsphere
 
 #### Post-Processors
 
-- [vsphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) - This
-  post-processor uploads an artifact to a vSphere endpoint. The artifact must be a VMX, OVA, or OVF
-  file.
+- [vsphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) -
+  This post-processor uploads an artifact to a vSphere endpoint. The artifact must be a VMX, OVA,
+  or OVF file.
 
 - [vsphere-template](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere-template) - This post-processor uses an artifact from the `vmware-iso` builder with an ESXi host or an
-  artifact from the [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor. It
-  then marks the virtual machine as a template and moves it to your specified path.
+    artifact from the [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor. It
+    then marks the virtual machine as a template and moves it to your specified path.
 
 ### Differences from the Packer Plugin for VMware
 
