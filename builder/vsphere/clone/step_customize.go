@@ -26,21 +26,30 @@ var (
 // A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 // to configure host, network, or licensing settings.
 //
-// To perform virtual machine customization as a part of the clone process, specify the customize block with the
-// respective customization options. Windows guests are customized using Sysprep, which will result in the machine SID being reset.
-// Before using customization, check that your source virtual machine meets the
-// [requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
+// To perform virtual machine customization as a part of the clone process,
+// specify the customize block with the respective customization options.
+// Windows guests are customized using Sysprep, which will result in the machine
+// SID being reset. Before using customization, check that your source virtual
+// machine meets the [requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
 // for guest OS customization on vSphere. Refer to the [customization example](#customization-example) for a usage synopsis.
 //
 // The settings for guest customization include:
 type CustomizeConfig struct {
-	// Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
+	// Settings for the guest customization of Linux operating systems.
+	// Refer to the [Linux options](#linux-options) section for additional
+	// details.
 	LinuxOptions *LinuxOptions `mapstructure:"linux_options"`
-	// Settings for the guest customization of Windows operating systems. Refer to the [Windows options](#windows-options) section for additional details.
+	// Settings for the guest customization of Windows operating systems.
+	// Refer to the [Windows options](#windows-options) section for additional
+	// details.
 	WindowsOptions *WindowsOptions `mapstructure:"windows_options"`
-	// Provide a `sysprep.xml` file to allow control of the customization process independent of vSphere. This option is deprecated, please use `windows_sysprep_text`.
+	// Provide a `sysprep.xml` file to allow control of the customization
+	// process independent of vSphere. This option is deprecated, please use
+	// `windows_sysprep_text`.
 	WindowsSysPrepFile string `mapstructure:"windows_sysprep_file"`
-	// Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+	// Provide the text for the `sysprep.xml` content to allow control of the
+	// customization process independent of vSphere. This option is intended to
+	// be used with HCL templates.
 	//
 	// Example usage:
 	//
@@ -61,81 +70,107 @@ type CustomizeConfig struct {
 	// }
 	// ```
 	WindowsSysPrepText string `mapstructure:"windows_sysprep_text"`
-	// Set up network interfaces individually to correspond with the network adapters on the virtual machine.
-	// To use DHCP, specify an empty `network_interface` for each configured adapter. This field is mandatory.
-	// Refer to the [network interface](#network-interface-settings) section for additional details.
+	// Set up network interfaces individually to correspond with the network
+	// adapters on the virtual machine. To use DHCP, specify an empty
+	// `network_interface` for each configured adapter. This field is mandatory.
+	// Refer to the [network interface](#network-interface-settings) section for
+	// additional details.
 	NetworkInterfaces     NetworkInterfaces `mapstructure:"network_interface"`
 	GlobalRoutingSettings `mapstructure:",squash"`
 	GlobalDnsSettings     `mapstructure:",squash"`
 }
 
 type LinuxOptions struct {
-	// Specifies the domain name for the guest operating system. Used with [host_name](#host_name) to construct the fully qualified domain name (FQDN).
+	// The domain name for the guest operating system. Used with
+	// [host_name](#host_name) to construct the fully qualified domain name
+	// (FQDN).
 	Domain string `mapstructure:"domain"`
-	// Specifies the hostname for the guest operating system. Used with [domain](#domain) to construct the fully qualified domain name (FQDN).
+	// The hostname for the guest operating system. Used with [domain](#domain)
+	// to construct the fully qualified domain name (FQDN).
 	Hostname string `mapstructure:"host_name"`
-	// Specifies whether the hardware clock is set to Coordinated Universal Time (UTC). Defaults to `true`.
+	// Set the hardware clock to Coordinated Universal Time (UTC).
+	// Defaults to `true`.
 	HWClockUTC config.Trilean `mapstructure:"hw_clock_utc"`
-	// Specifies the time zone for the guest operating system.
+	// The time zone for the guest operating system.
 	Timezone string `mapstructure:"time_zone"`
 }
 
 type WindowsOptions struct {
-	// Specifies a list of commands to run at first logon after the guest operating system is customized.
+	// A list of commands to run at first logon after the guest operating system
+	// is customized.
 	RunOnceCommandList []string `mapstructure:"run_once_command_list"`
-	// Specifies whether the guest operating system automatically logs on as Administrator.
+	// Aautomatically log on the Administrator account after the guest operating
+	// system is customized.
 	AutoLogon *bool `mapstructure:"auto_logon"`
-	// Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
+	// The number of times the guest operating system should auto-logon the
+	// Administrator account when `auto_logon` is set to `true`.
+	// Defaults to `1`.
 	AutoLogonCount *int32 `mapstructure:"auto_logon_count"`
-	// Specifies the password for the guest operating system's Administrator account.
+	// The password for the guest operating system's `Administrator`` account.
 	AdminPassword *string `mapstructure:"admin_password"`
-	// Specifies the time zone for the guest operating system. Default to `85` (Pacific Time).
+	// The time zone for the guest operating system.
+	// Defaults to `85` (Pacific Time).
 	TimeZone *int32 `mapstructure:"time_zone"`
-	// Specifies the workgroup for the guest operating system. Joining an Active Directory domain is not supported.
+	// The workgroup for the guest operating system.
+	// Joining an Active Directory domain is not supported.
 	Workgroup string `mapstructure:"workgroup"`
-	// Specifies the hostname for the guest operating system.
+	// The hostname for the guest operating system.
 	ComputerName string `mapstructure:"computer_name"`
-	// Specifies the full name for the guest operating system's Administrator account. Defaults to `Administrator`.
+	// The full name for the guest operating system's Administrator account.
+	// Defaults to `Administrator`.
 	FullName string `mapstructure:"full_name"`
-	// Specifies the organization name for the guest operating system. Defaults to `Built by Packer`.
+	// The organization name for the guest operating system.
+	// Defaults to `Built by Packer`.
 	OrganizationName string `mapstructure:"organization_name"`
-	// Specifies the product key for the guest operating system.
+	// The product key for the guest operating system.
 	ProductKey string `mapstructure:"product_key"`
 }
 
 type NetworkInterface struct {
-	// Specifies the DNS servers for a specific network interface on a Windows guest operating system.
-	// Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+	// The DNS servers for a specific network interface on a Windows guest
+	// operating system. Ignored on Linux. Refer to the
+	// [global DNS settings](#global-dns-settings) section for additional
+	// details.
 	DnsServerList []string `mapstructure:"dns_server_list"`
-	// Specifies the DNS search domain for a specific network interface on a Windows guest operating system.
-	// Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+	// The DNS search domain for a specific network interface on a Windows guest
+	// operating system. Ignored on Linux. Refer to the
+	// [global DNS settings](#global-dns-settings) section for additional
+	// details.
 	DnsDomain string `mapstructure:"dns_domain"`
-	// Specifies the IPv4 address assigned to the network adapter. If left blank or not included, DHCP is used.
+	// The IPv4 address assigned to the network adapter. If left blank or not
+	// included, DHCP is used.
 	Ipv4Address string `mapstructure:"ipv4_address"`
-	// Specifies the IPv4 subnet mask, in bits, for the network adapter. For example, `24` for a `/24` subnet.
+	// The IPv4 subnet mask, in bits, for the network adapter. For example, `24`
+	// for a `/24` subnet.
 	Ipv4NetMask int `mapstructure:"ipv4_netmask"`
-	// Specifies the IPv6 address assigned to the network adapter. If left blank or not included, auto-configuration is used.
+	// The IPv6 address assigned to the network adapter. If left blank or not
+	// included, auto-configuration is used.
 	Ipv6Address string `mapstructure:"ipv6_address"`
-	// Specifies the IPv6 subnet mask, in bits, for the network adapter. For example, `64` for a `/64` subnet.
+	// The IPv6 subnet mask, in bits, for the network adapter. For example, `64`
+	// for a `/64` subnet.
 	Ipv6NetMask int `mapstructure:"ipv6_netmask"`
 }
 
 type NetworkInterfaces []NetworkInterface
 
-// The settings must match the IP address and subnet mask of at least one `network_interface` for the customization.
+// The settings must match the IP address and subnet mask of at least one
+// `network_interface` for the customization.
 type GlobalRoutingSettings struct {
-	// Specifies the IPv4 default gateway when using `network_interface` customization.
+	// The IPv4 default gateway when using `network_interface` customization.
 	Ipv4Gateway string `mapstructure:"ipv4_gateway"`
-	// Specifies the IPv6 default gateway when using `network_interface` customization.
+	// The IPv6 default gateway when using `network_interface` customization.
 	Ipv6Gateway string `mapstructure:"ipv6_gateway"`
 }
 
-// The following settings configure DNS globally for Linux guest operating systems.
-// For Windows guest operating systems, this is set for each network interface. Refer to the [network interface](#network_interface) section for additional details.
+// The following settings configure DNS globally for Linux guest operating
+// systems. For Windows guest operating systems, this is set for each network
+// interface. Refer to the [network interface](#network_interface) section for
+// additional details.
 type GlobalDnsSettings struct {
-	// Specifies a list of DNS servers to configure on the guest operating system.
+	// A list of DNS servers to configure on the guest operating system.
 	DnsServerList []string `mapstructure:"dns_server_list"`
-	// Specifies a list of DNS search domains to add to the DNS configuration on the guest operating system.
+	// A list of DNS search domains to add to the DNS configuration on the guest
+	// operating system.
 	DnsSuffixList []string `mapstructure:"dns_suffix_list"`
 }
 

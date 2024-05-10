@@ -1,12 +1,20 @@
 <!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
+- `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems.
+  Refer to the [Linux options](#linux-options) section for additional
+  details.
 
-- `windows_options` (\*WindowsOptions) - Settings for the guest customization of Windows operating systems. Refer to the [Windows options](#windows-options) section for additional details.
+- `windows_options` (\*WindowsOptions) - Settings for the guest customization of Windows operating systems.
+  Refer to the [Windows options](#windows-options) section for additional
+  details.
 
-- `windows_sysprep_file` (string) - Provide a `sysprep.xml` file to allow control of the customization process independent of vSphere. This option is deprecated, please use `windows_sysprep_text`.
+- `windows_sysprep_file` (string) - Provide a `sysprep.xml` file to allow control of the customization
+  process independent of vSphere. This option is deprecated, please use
+  `windows_sysprep_text`.
 
-- `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+- `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the
+  customization process independent of vSphere. This option is intended to
+  be used with HCL templates.
   
   Example usage:
   
@@ -27,8 +35,10 @@
   }
   ```
 
-- `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network adapters on the virtual machine.
-  To use DHCP, specify an empty `network_interface` for each configured adapter. This field is mandatory.
-  Refer to the [network interface](#network-interface-settings) section for additional details.
+- `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network
+  adapters on the virtual machine. To use DHCP, specify an empty
+  `network_interface` for each configured adapter. This field is mandatory.
+  Refer to the [network interface](#network-interface-settings) section for
+  additional details.
 
 <!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
