@@ -81,8 +81,8 @@ type NIC struct {
 type CreateConfig struct {
 	// Specifies the virtual machine hardware version. Defaults to the most current virtual machine
 	// hardware version supported by the ESXi host.
-	// Refer to [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for the list
-	// of supported virtual machine hardware versions.
+	// Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
+	// for more information on supported virtual hardware versions.
 	Version uint `mapstructure:"vm_version"`
 	// Specifies the guest operating system identifier for the virtual machine.
 	// If not specified, the setting defaults to `otherGuest`.

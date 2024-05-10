@@ -86,7 +86,7 @@ type HardwareConfig struct {
 	// for supported maximums. Defaults to 1.
 	Displays int32 `mapstructure:"displays"`
 	// Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
-	// virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+	// virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
 	AllowedDevices []PCIPassthroughAllowedDevice `mapstructure:"pci_passthrough_allowed_device"`
 	// vGPU profile for accelerated graphics.
 	// vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)

@@ -19,14 +19,14 @@ import (
 
 type ConfigParamsConfig struct {
 	// configuration_parameters is a direct passthrough to the vSphere API's
-	// ConfigSpec: https://vdc-download.vmware.com/vmwb-repository/dcr-public/bf660c0a-f060-46e8-a94d-4b5e6ffc77ad/208bc706-e281-49b6-a0ce-b402ec19ef82/SDK/vsphere-ws/docs/ReferenceGuide/vim.vm.ConfigSpec.html
+	// [VirtualMachineConfigSpec](https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/8.0.2.0/data-structures/VirtualMachineConfigSpec/)
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
 
 	// Enables time synchronization with the host. Defaults to false.
 	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
 
-	// If sets to true, vSphere will automatically check and upgrade VMware Tools upon a system power cycle.
-	// If not set, defaults to manual upgrade.
+	// If sets to true, vSphere will automatically check and upgrade VMware
+	// Tools upon a system power cycle. If not set, defaults to manual upgrade.
 	ToolsUpgradePolicy bool `mapstructure:"tools_upgrade_policy"`
 }
 

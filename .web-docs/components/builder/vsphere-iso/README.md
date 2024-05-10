@@ -417,7 +417,7 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   for supported maximums. Defaults to 1.
 
 - `pci_passthrough_allowed_device` ([]PCIPassthroughAllowedDevice) - Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
-  virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+  virtual machine. See [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
 
 - `vgpu_profile` (string) - vGPU profile for accelerated graphics.
   vGPU profile for accelerated graphics. See [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
@@ -878,8 +878,8 @@ boot time.
 
 - `vm_version` (uint) - Specifies the virtual machine hardware version. Defaults to the most current virtual machine
   hardware version supported by the ESXi host.
-  Refer to [VMware KB article 1003746](https://kb.vmware.com/s/article/1003746) for the list
-  of supported virtual machine hardware versions.
+  Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
+  for more information on supported virtual hardware versions.
 
 - `guest_os_type` (string) - Specifies the guest operating system identifier for the virtual machine.
   If not specified, the setting defaults to `otherGuest`.
@@ -1343,12 +1343,12 @@ Minimal example of usage to import a OVF template:
 <!-- Code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; DO NOT EDIT MANUALLY -->
 
 - `configuration_parameters` (map[string]string) - configuration_parameters is a direct passthrough to the vSphere API's
-  ConfigSpec: https://vdc-download.vmware.com/vmwb-repository/dcr-public/bf660c0a-f060-46e8-a94d-4b5e6ffc77ad/208bc706-e281-49b6-a0ce-b402ec19ef82/SDK/vsphere-ws/docs/ReferenceGuide/vim.vm.ConfigSpec.html
+  [VirtualMachineConfigSpec](https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/8.0.2.0/data-structures/VirtualMachineConfigSpec/)
 
 - `tools_sync_time` (bool) - Enables time synchronization with the host. Defaults to false.
 
-- `tools_upgrade_policy` (bool) - If sets to true, vSphere will automatically check and upgrade VMware Tools upon a system power cycle.
-  If not set, defaults to manual upgrade.
+- `tools_upgrade_policy` (bool) - If sets to true, vSphere will automatically check and upgrade VMware
+  Tools upon a system power cycle. If not set, defaults to manual upgrade.
 
 <!-- End of code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; -->
 

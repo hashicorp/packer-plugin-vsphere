@@ -55,10 +55,7 @@ Please refer to the documentation for each plugin to understand the specific cap
 
 - [VMware vSphere][docs-vsphere]
 
-    The provider supports versions in accordance with the VMware Product Lifecycle Matrix from
-    General Availability to End of General Support.
-
-    Learn more: [VMware Product Lifecycle Matrix][vmware-product-lifecycle-matrix]
+    The plugin supports versions in accordance with the [Broadcom Product Lifecycle][product-lifecycle].
 
 - [Go 1.19][golang-install]
 
@@ -133,4 +130,4 @@ For more information on how to configure the plugin, please see the [plugin docu
 [golang-install]: https://golang.org/doc/install
 [packer]: https://www.packer.io
 [releases-vsphere-plugin]: https://github.com/hashicorp/packer-plugin-vsphere/releases
-[vmware-product-lifecycle-matrix]: https://lifecycle.vmware.com
+[product-lifecycle]: https://support.broadcom.com/group/ecx/productlifecycle
