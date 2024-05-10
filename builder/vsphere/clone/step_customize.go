@@ -82,7 +82,7 @@ type LinuxOptions struct {
 
 type WindowsOptions struct {
 	// Specifies a list of commands to run at first logon after the guest operating system is customized.
-	RunOnceCommandList *[]string `mapstructure:"run_once_command_list"`
+	RunOnceCommandList []string `mapstructure:"run_once_command_list"`
 	// Specifies whether the guest operating system automatically logs on as Administrator.
 	AutoLogon *bool `mapstructure:"auto_logon"`
 	// Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
@@ -389,11 +389,14 @@ func (w *WindowsOptions) sysprep() *types.CustomizationSysprep {
 }
 
 func (w *WindowsOptions) guiRunOnce() *types.CustomizationGuiRunOnce {
-	if w.RunOnceCommandList == nil || len(*w.RunOnceCommandList) < 1 {
-		return nil
+	if w.RunOnceCommandList == nil || len(w.RunOnceCommandList) == 0 {
+		return &types.CustomizationGuiRunOnce{
+			CommandList: []string{""},
+		}
 	}
+
 	return &types.CustomizationGuiRunOnce{
-		CommandList: *w.RunOnceCommandList,
+		CommandList: w.RunOnceCommandList,
 	}
 }
 
