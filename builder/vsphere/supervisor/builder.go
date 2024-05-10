@@ -57,6 +57,19 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepValidatePublish{
 			Config: &b.config.ValidatePublishConfig,
 		},
+	)
+
+	// conditionally add steps to validate import spec and import images from source URL as VM image.
+	if b.config.ImportImageConfig.ImportSourceURL != "" {
+		steps = append(steps,
+			&StepImportImage{
+				ImportImageConfig:  &b.config.ImportImageConfig,
+				CreateSourceConfig: &b.config.CreateSourceConfig,
+			},
+		)
+	}
+
+	steps = append(steps,
 		// Create a source VM and other related resources in Supervisor cluster.
 		&StepCreateSource{
 			Config:             &b.config.CreateSourceConfig,

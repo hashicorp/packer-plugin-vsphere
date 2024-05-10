@@ -1,0 +1,22 @@
+<!-- Code generated from the comments of the ImportImageConfig struct in builder/vsphere/supervisor/step_import_image.go; DO NOT EDIT MANUALLY -->
+
+- `import_source_url` (string) - The remote URL where the to-be-imported image is hosted.
+
+- `import_source_ssl_certificate` (string) - The SSL certificate of the remote HTTP server that hosts the to-be-imported image.
+
+- `import_target_location_name` (string) - Name of a writable & import-allowed ContentLibrary resource in the namespace where the image will be imported.
+
+- `import_target_image_type` (string) - The type of the imported image.
+  Defaults to `ovf`. Available options include `ovf`.
+
+- `import_request_name` (string) - The name of the image import request.
+  Defaults to `packer-vsphere-supervisor-import-req-<random-suffix>`.
+
+- `watch_import_timeout_sec` (int) - The timeout in seconds to wait for the image to be imported.
+  Defaults to `600`.
+
+- `clean_imported_image` (bool) - Whether to clean the image imported in this step. If it is set to true, the imported image will be deleted after
+  source VM is created and becomes ready.
+  Defaults to false.
+
+<!-- End of code generated from the comments of the ImportImageConfig struct in builder/vsphere/supervisor/step_import_image.go; -->

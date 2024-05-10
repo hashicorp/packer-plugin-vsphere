@@ -25,6 +25,7 @@ type Config struct {
 	CommunicatorConfig        communicator.Config `mapstructure:",squash"`
 	ValidatePublishConfig     `mapstructure:",squash"`
 	ConnectSupervisorConfig   `mapstructure:",squash"`
+	ImportImageConfig         `mapstructure:",squash"`
 	CreateSourceConfig        `mapstructure:",squash"`
 	WatchSourceConfig         `mapstructure:",squash"`
 	PublishSourceConfig       `mapstructure:",squash"`
@@ -62,6 +63,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	errs = packersdk.MultiErrorAppend(errs, c.CommunicatorConfig.Prepare(&c.ctx)...)
 	errs = packersdk.MultiErrorAppend(errs, c.ConnectSupervisorConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.ValidatePublishConfig.Prepare()...)
+	errs = packersdk.MultiErrorAppend(errs, c.ImportImageConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.CreateSourceConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.WatchSourceConfig.Prepare()...)
 	errs = packersdk.MultiErrorAppend(errs, c.PublishSourceConfig.Prepare()...)

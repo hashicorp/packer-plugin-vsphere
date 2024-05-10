@@ -28,11 +28,16 @@ HCL Example:
 
 ```hcl
 source "vsphere-supervisor" "example-vm" {
-  image_name = "<image name of the source virtual machine, e.g. 'ubuntu-24.04-server-cloudimg'>"
-  class_name = "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
-  storage_class = "<storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
-  bootstrap_provider = "<cloud-init, sysprep, or vAppConfig to customize the guest os>"
-  bootstrap_data_file = "<path to the file containing the bootstrap data for guest os customization>"
+  import_source_url = "<remote URL to import image from, optional, e.g. 'https://example.com/example.ovf'>"
+  import_source_ssl_certificate = "<SSL certificate of the remote HTTPS server, optional, e.g. '-----BEGIN CERTIFICATE-----xxxxx-----END CERTIFICATE-----'>"
+  import_target_location_name = "<target location / content library for the imported image, optional, e.g. 'cl-6066c61f7931c5ef9'>"
+  import_target_image_type = "<target image type, optional, e.g. 'OVF'>"
+  image_name = "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>"
+  class_name = "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>"
+  storage_class = "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>"
+  bootstrap_provider = "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>"
+  bootstrap_data_file = "<Path to the file containing the bootstrap data for guest OS customization>"
+  publish_location_name = "<target location / content library for the published image, optional, e.g. 'cl-6066c61f7931c5ef9'>"
 }
 
 build {
@@ -47,11 +52,16 @@ JSON Example:
   "builders": [
     {
       "type": "vsphere-supervisor",
-      "image_name": "<image name of the source virtual machine, e.g. 'ubuntu-24.04-server-cloudimg'>",
-      "class_name": "<virtual machine class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
-      "storage_class": "<storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
-      "bootstrap_provider": "<cloud-init, sysprep, or vAppConfig to customize the guest os>",
-      "bootstrap_data_file": "<path to the file containing the bootstrap data for guest os customization>"
+      "import_source_url": "<remote URL to import image from, optional, e.g. 'https://example.com/example.ovf'>",
+      "import_source_ssl_certificate": "<SSL certificate of the remote HTTPS server, optional, e.g. '-----BEGIN CERTIFICATE-----xxxxx-----END CERTIFICATE-----'>",
+      "import_target_location_name": "<target location / content library for the import image, optional, e.g. 'cl-6066c61f7931c5ef9'>",
+      "import_target_image_type": "<target image type, optional, e.g. 'OVF'>",
+      "image_name": "<Image name of the source VM, e.g. 'ubuntu-impish-21.10-cloudimg'>",
+      "class_name": "<VM class that describes the virtual hardware settings, e.g. 'best-effort-large'>",
+      "storage_class": "<Storage class that provides the backing storage for volume, e.g. 'wcplocal-storage-profile'>",
+      "bootstrap_provider": "<CloudInit, Sysprep, or vAppConfig to customize the guest OS>",
+      "bootstrap_data_file": "<Path to the file containing the bootstrap data for guest OS customization>",
+      "publish_location_name": "<target location / content library for the published image, optional, e.g. 'cl-6066c61f7931c5ef9'>"
     }
   ]
 }
@@ -88,9 +98,35 @@ items are listed below as well as the _optional_ configurations.
 <!-- End of code generated from the comments of the ConnectSupervisorConfig struct in builder/vsphere/supervisor/step_connect_supervisor.go; -->
 
 
-### Source Virtual Machine Creation
+#### Source VM Image Importing
 
-**Optional**:
+**Optional:**
+
+<!-- Code generated from the comments of the ImportImageConfig struct in builder/vsphere/supervisor/step_import_image.go; DO NOT EDIT MANUALLY -->
+
+- `import_source_url` (string) - The remote URL where the to-be-imported image is hosted.
+
+- `import_source_ssl_certificate` (string) - The SSL certificate of the remote HTTP server that hosts the to-be-imported image.
+
+- `import_target_location_name` (string) - Name of a writable & import-allowed ContentLibrary resource in the namespace where the image will be imported.
+
+- `import_target_image_type` (string) - The type of the imported image.
+  Defaults to `ovf`. Available options include `ovf`.
+
+- `import_request_name` (string) - The name of the image import request.
+  Defaults to `packer-vsphere-supervisor-import-req-<random-suffix>`.
+
+- `watch_import_timeout_sec` (int) - The timeout in seconds to wait for the image to be imported.
+  Defaults to `600`.
+
+- `clean_imported_image` (bool) - Whether to clean the image imported in this step. If it is set to true, the imported image will be deleted after
+  source VM is created and becomes ready.
+  Defaults to false.
+
+<!-- End of code generated from the comments of the ImportImageConfig struct in builder/vsphere/supervisor/step_import_image.go; -->
+
+
+#### Source Virtual Machine Creation
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 

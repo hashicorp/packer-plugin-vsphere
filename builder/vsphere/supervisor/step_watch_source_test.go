@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	imgregv1 "github.com/vmware-tanzu/image-registry-operator-api/api/v1alpha1"
 	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -129,6 +131,64 @@ func newFakeVMObj(namespace, name, vmIP string) *vmopv1alpha1.VirtualMachine {
 			Name:      name,
 		},
 	}
+}
+
+func TestStepWatchSource_Cleanup(t *testing.T) {
+	step := &supervisor.StepWatchSource{
+		Namespace: testNamespace,
+	}
+	importedImage := &imgregv1.ContentLibraryItem{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      testCLItemName,
+			Namespace: testNamespace,
+		},
+	}
+	fakeClient := newFakeKubeClient(importedImage)
+	step.KubeWatchClient = fakeClient
+
+	ctx := context.TODO()
+	objKey := client.ObjectKey{
+		Name:      testCLItemName,
+		Namespace: testNamespace,
+	}
+	testWriter := new(bytes.Buffer)
+	state := newBasicTestState(testWriter)
+
+	// 1. Test when 'clean_imported_image' config is not set.
+	step.Cleanup(state)
+
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); err != nil {
+		t.Fatal("The ContentLibraryItem object should still exist")
+	}
+
+	// 2. Test when 'clean_imported_image' is set but 'imported_image_name' is not set.
+	state.Put(supervisor.StateKeyCleanImportedImage, true)
+	step.Cleanup(state)
+
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); err != nil {
+		t.Fatal("The ContentLibraryItem object should still exist")
+	}
+	// Check the output lines from the step runs.
+	expectedOutput := []string{
+		fmt.Sprintf("Skip cleaning imported image since config %s is not set", supervisor.StateKeyImportedImageName),
+	}
+	checkOutputLines(t, testWriter, expectedOutput)
+
+	// 3. Test when 'clean_imported_image' and 'imported_image_name' are set to be true.
+	state.Put(supervisor.StateKeyImportedImageName, testCLItemName)
+	step.Cleanup(state)
+
+	// Check if the imported image object is deleted from the cluster.
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); !errors.IsNotFound(err) {
+		t.Fatal("Expected the ContentLibraryItem object to be deleted")
+	}
+
+	// Check the output lines from the step runs.
+	expectedOutput = []string{
+		fmt.Sprintf("Deleting the imported ContentLibraryItem object %s in namespace %s.", testCLItemName, testNamespace),
+		fmt.Sprintf("Successfully deleted the ContentLibraryItem object %s in namespace %s.", testCLItemName, testNamespace),
+	}
+	checkOutputLines(t, testWriter, expectedOutput)
 }
 
 func newFakeVMServiceObj(namespace, name string) *vmopv1alpha1.VirtualMachineService {
