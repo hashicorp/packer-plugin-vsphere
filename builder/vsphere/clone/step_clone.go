@@ -20,30 +20,31 @@ import (
 )
 
 type vAppConfig struct {
-	// Specifies the values for the available vApp properties. These are used to supply
-	// configuration parameters to a virtual machine. This machine is cloned from a template
-	// that originated from an imported OVF or OVA file.
+	// The values for the available vApp properties. These are used to supply
+	// configuration parameters to a virtual machine. This machine is cloned
+	// from a template that originated from an imported OVF or OVA file.
 	//
-	// -> **Note:** The only supported usage path for vApp properties is for existing
-	// user-configurable keys. These generally come from an existing template that was
-	// created from an imported OVF or OVA file.
+	// -> **Note:** The only supported usage path for vApp properties is for
+	// existing user-configurable keys. These generally come from an existing
+	// template that was created from an imported OVF or OVA file.
 	//
-	// You cannot set values for vApp properties on virtual machines created from scratch,
-	// on virtual machines that lack a vApp configuration, or on property keys that do not exist.
+	// You cannot set values for vApp properties on virtual machines created
+	// from scratch, on virtual machines that lack a vApp configuration, or on
+	// property keys that do not exist.
 	Properties map[string]string `mapstructure:"properties"`
 }
 
 type CloneConfig struct {
-	// Specifies the name of the source virtual machine to clone.
+	// The name of the source virtual machine to clone.
 	Template string `mapstructure:"template"`
-	// Specifies the size of the primary disk in MiB.
-	// Cannot be used with `linked_clone`.
-	// -> **Note:** Only the primary disk size can be specified. Additional disks are not supported.
+	// The size of the primary disk in MiB. Cannot be used with `linked_clone`.
+	// -> **Note:** Only the primary disk size can be specified. Additional
+	// disks are not supported.
 	DiskSize int64 `mapstructure:"disk_size"`
-	// Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
-	// Cannot be used with `disk_size`.`
+	// Create the virtual machine as a linked clone from the latest snapshot.
+	// Defaults to `false`. Cannot be used with `disk_size`.`
 	LinkedClone bool `mapstructure:"linked_clone"`
-	// Specifies the network to which the virtual machine will connect.
+	// The network to which the virtual machine will connect.
 	//
 	// For example:
 	//
@@ -54,21 +55,22 @@ type CloneConfig struct {
 	// - Logical Switch UUID: `<uuid>`
 	// - Segment ID: `/infra/segments/<SegmentID>`
 	//
-	// ~> **Note:** If more than one network resolves to the same name, either the inventory path to
-	// network or an ID must be provided.
+	// ~> **Note:** If more than one network resolves to the same name, either
+	// the inventory path to network or an ID must be provided.
 	//
-	// ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
-	// available network.
+	// ~> **Note:** If no network is specified, provide `host` to allow the
+	// plugin to search for an available network.
 	Network string `mapstructure:"network"`
-	// Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+	// The network card MAC address. For example `00:50:56:00:00:00`.
 	// If set, the `network` must be also specified.
 	MacAddress string `mapstructure:"mac_address"`
-	// Specifies the annotations for the virtual machine.
+	// The annotations for the virtual machine.
 	Notes string `mapstructure:"notes"`
-	// Specifies whether to destroy the virtual machine after the build is complete.
+	// Destroy the virtual machine after the build is complete.
+	// Defaults to `false`.
 	Destroy bool `mapstructure:"destroy"`
-	// Specifies the vApp Options for the virtual machine. For more information, refer to the
-	// [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
+	// The vApp Options for the virtual machine. For more information, refer to
+	// the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
 	// section.
 	VAppConfig    vAppConfig           `mapstructure:"vapp"`
 	StorageConfig common.StorageConfig `mapstructure:",squash"`

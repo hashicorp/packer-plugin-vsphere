@@ -30,25 +30,29 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the Config struct in builder/vsphere/clone/config.go; DO NOT EDIT MANUALLY -->
 
-- `create_snapshot` (bool) - Specifies to create a snapshot of the virtual machine to use as a base for linked clones.
-  Defaults to `false`.
+- `create_snapshot` (bool) - Create a snapshot of the virtual machine to use as a base for linked
+  clones. Defaults to `false`.
 
-- `snapshot_name` (string) - Specifies the name of the snapshot when `create_snapshot` is `true`.
+- `snapshot_name` (string) - The name of the snapshot when `create_snapshot` is `true`.
   Defaults to `Created By Packer`.
 
-- `convert_to_template` (bool) - Specifies to convert the cloned virtual machine to a template after the build is complete.
-  Defaults to `false`.
-  If set to `true`, the virtual machine can not be imported to a content library.
+- `convert_to_template` (bool) - Convert the cloned virtual machine to a template after the build is
+  complete. Defaults to `false`.
+  If set to `true`, the virtual machine can not be imported to a content
+  library.
 
-- `export` (\*common.ExportConfig) - Specifies the configuration for exporting the virtual machine to an OVF.
-  The virtual machine is not exported if [export configuration](#export-configuration) is not specified.
+- `export` (\*common.ExportConfig) - The configuration for exporting the virtual machine to an OVF.
+  The virtual machine is not exported if [export configuration](#export-configuration)
+  is not specified.
 
-- `content_library_destination` (\*common.ContentLibraryDestinationConfig) - Specifies the configuration for importing a VM template or OVF template to a content library.
-  The template will not be imported if no [content library import configuration](#content-library-import-configuration) is specified.
-  If set, `convert_to_template` must be set to `false`.
+- `content_library_destination` (\*common.ContentLibraryDestinationConfig) - The configuration for importing a VM template or OVF template to a
+  content library. The template will not be imported if no
+  [content library import configuration](#content-library-import-configuration)
+  is specified. If set, `convert_to_template` must be set to `false`.
 
-- `customize` (\*CustomizeConfig) - Specifies the customization options for the virtual machine.
-  Refer to the [customization options](#customization) section for more information.
+- `customize` (\*CustomizeConfig) - The customization options for the virtual machine.
+  Refer to the [customization options](#customization) section for more
+  information.
 
 <!-- End of code generated from the comments of the Config struct in builder/vsphere/clone/config.go; -->
 
@@ -57,16 +61,16 @@ necessary for this build to succeed and can be found further down the page.
 
 <!-- Code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `template` (string) - Specifies the name of the source virtual machine to clone.
+- `template` (string) - The name of the source virtual machine to clone.
 
-- `disk_size` (int64) - Specifies the size of the primary disk in MiB.
-  Cannot be used with `linked_clone`.
-  -> **Note:** Only the primary disk size can be specified. Additional disks are not supported.
+- `disk_size` (int64) - The size of the primary disk in MiB. Cannot be used with `linked_clone`.
+  -> **Note:** Only the primary disk size can be specified. Additional
+  disks are not supported.
 
-- `linked_clone` (bool) - Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
-  Cannot be used with `disk_size`.`
+- `linked_clone` (bool) - Create the virtual machine as a linked clone from the latest snapshot.
+  Defaults to `false`. Cannot be used with `disk_size`.`
 
-- `network` (string) - Specifies the network to which the virtual machine will connect.
+- `network` (string) - The network to which the virtual machine will connect.
   
   For example:
   
@@ -77,21 +81,22 @@ necessary for this build to succeed and can be found further down the page.
   - Logical Switch UUID: `<uuid>`
   - Segment ID: `/infra/segments/<SegmentID>`
   
-  ~> **Note:** If more than one network resolves to the same name, either the inventory path to
-  network or an ID must be provided.
+  ~> **Note:** If more than one network resolves to the same name, either
+  the inventory path to network or an ID must be provided.
   
-  ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
-  available network.
+  ~> **Note:** If no network is specified, provide `host` to allow the
+  plugin to search for an available network.
 
-- `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+- `mac_address` (string) - The network card MAC address. For example `00:50:56:00:00:00`.
   If set, the `network` must be also specified.
 
-- `notes` (string) - Specifies the annotations for the virtual machine.
+- `notes` (string) - The annotations for the virtual machine.
 
-- `destroy` (bool) - Specifies whether to destroy the virtual machine after the build is complete.
+- `destroy` (bool) - Destroy the virtual machine after the build is complete.
+  Defaults to `false`.
 
-- `vapp` (vAppConfig) - Specifies the vApp Options for the virtual machine. For more information, refer to the
-  [vApp Options Configuration](/packer/integrations/hashicorp/vmware/latest/components/builder/vsphere-clone#vapp-options-configuration)
+- `vapp` (vAppConfig) - The vApp Options for the virtual machine. For more information, refer to
+  the [vApp Options Configuration](/packer/integrations/hashicorp/vmware/latest/components/builder/vsphere-clone#vapp-options-configuration)
   section.
 
 <!-- End of code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; -->
@@ -224,16 +229,17 @@ In HCL2:
 
 <!-- Code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `properties` (map[string]string) - Specifies the values for the available vApp properties. These are used to supply
-  configuration parameters to a virtual machine. This machine is cloned from a template
-  that originated from an imported OVF or OVA file.
+- `properties` (map[string]string) - The values for the available vApp properties. These are used to supply
+  configuration parameters to a virtual machine. This machine is cloned
+  from a template that originated from an imported OVF or OVA file.
   
-  -> **Note:** The only supported usage path for vApp properties is for existing
-  user-configurable keys. These generally come from an existing template that was
-  created from an imported OVF or OVA file.
+  -> **Note:** The only supported usage path for vApp properties is for
+  existing user-configurable keys. These generally come from an existing
+  template that was created from an imported OVF or OVA file.
   
-  You cannot set values for vApp properties on virtual machines created from scratch,
-  on virtual machines that lack a vApp configuration, or on property keys that do not exist.
+  You cannot set values for vApp properties on virtual machines created
+  from scratch, on virtual machines that lack a vApp configuration, or on
+  property keys that do not exist.
 
 <!-- End of code generated from the comments of the vAppConfig struct in builder/vsphere/clone/step_clone.go; -->
 
@@ -289,10 +295,11 @@ can be done via environment variable:
 A cloned virtual machine can be [customized](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-58E346FF-83AE-42B8-BE58-253641D257BC.html)
 to configure host, network, or licensing settings.
 
-To perform virtual machine customization as a part of the clone process, specify the customize block with the
-respective customization options. Windows guests are customized using Sysprep, which will result in the machine SID being reset.
-Before using customization, check that your source virtual machine meets the
-[requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
+To perform virtual machine customization as a part of the clone process,
+specify the customize block with the respective customization options.
+Windows guests are customized using Sysprep, which will result in the machine
+SID being reset. Before using customization, check that your source virtual
+machine meets the [requirements](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-E63B6FAA-8D35-428D-B40C-744769845906.html)
 for guest OS customization on vSphere. Refer to the [customization example](#customization-example) for a usage synopsis.
 
 The settings for guest customization include:
@@ -302,13 +309,21 @@ The settings for guest customization include:
 
 <!-- Code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems. Refer to the [Linux options](#linux-options) section for additional details.
+- `linux_options` (\*LinuxOptions) - Settings for the guest customization of Linux operating systems.
+  Refer to the [Linux options](#linux-options) section for additional
+  details.
 
-- `windows_options` (\*WindowsOptions) - Settings for the guest customization of Windows operating systems. Refer to the [Windows options](#windows-options) section for additional details.
+- `windows_options` (\*WindowsOptions) - Settings for the guest customization of Windows operating systems.
+  Refer to the [Windows options](#windows-options) section for additional
+  details.
 
-- `windows_sysprep_file` (string) - Provide a `sysprep.xml` file to allow control of the customization process independent of vSphere. This option is deprecated, please use `windows_sysprep_text`.
+- `windows_sysprep_file` (string) - Provide a `sysprep.xml` file to allow control of the customization
+  process independent of vSphere. This option is deprecated, please use
+  `windows_sysprep_text`.
 
-- `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the customization process independent of vSphere. This option is intended to be used with HCL templates.
+- `windows_sysprep_text` (string) - Provide the text for the `sysprep.xml` content to allow control of the
+  customization process independent of vSphere. This option is intended to
+  be used with HCL templates.
   
   Example usage:
   
@@ -329,9 +344,11 @@ The settings for guest customization include:
   }
   ```
 
-- `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network adapters on the virtual machine.
-  To use DHCP, specify an empty `network_interface` for each configured adapter. This field is mandatory.
-  Refer to the [network interface](#network-interface-settings) section for additional details.
+- `network_interface` (NetworkInterfaces) - Set up network interfaces individually to correspond with the network
+  adapters on the virtual machine. To use DHCP, specify an empty
+  `network_interface` for each configured adapter. This field is mandatory.
+  Refer to the [network interface](#network-interface-settings) section for
+  additional details.
 
 <!-- End of code generated from the comments of the CustomizeConfig struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -340,19 +357,27 @@ The settings for guest customization include:
 
 <!-- Code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `dns_server_list` ([]string) - Specifies the DNS servers for a specific network interface on a Windows guest operating system.
-  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+- `dns_server_list` ([]string) - The DNS servers for a specific network interface on a Windows guest
+  operating system. Ignored on Linux. Refer to the
+  [global DNS settings](#global-dns-settings) section for additional
+  details.
 
-- `dns_domain` (string) - Specifies the DNS search domain for a specific network interface on a Windows guest operating system.
-  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+- `dns_domain` (string) - The DNS search domain for a specific network interface on a Windows guest
+  operating system. Ignored on Linux. Refer to the
+  [global DNS settings](#global-dns-settings) section for additional
+  details.
 
-- `ipv4_address` (string) - Specifies the IPv4 address assigned to the network adapter. If left blank or not included, DHCP is used.
+- `ipv4_address` (string) - The IPv4 address assigned to the network adapter. If left blank or not
+  included, DHCP is used.
 
-- `ipv4_netmask` (int) - Specifies the IPv4 subnet mask, in bits, for the network adapter. For example, `24` for a `/24` subnet.
+- `ipv4_netmask` (int) - The IPv4 subnet mask, in bits, for the network adapter. For example, `24`
+  for a `/24` subnet.
 
-- `ipv6_address` (string) - Specifies the IPv6 address assigned to the network adapter. If left blank or not included, auto-configuration is used.
+- `ipv6_address` (string) - The IPv6 address assigned to the network adapter. If left blank or not
+  included, auto-configuration is used.
 
-- `ipv6_netmask` (int) - Specifies the IPv6 subnet mask, in bits, for the network adapter. For example, `64` for a `/64` subnet.
+- `ipv6_netmask` (int) - The IPv6 subnet mask, in bits, for the network adapter. For example, `64`
+  for a `/64` subnet.
 
 <!-- End of code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -368,16 +393,17 @@ The settings for guest customization include:
 
 <!-- Code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-The settings must match the IP address and subnet mask of at least one `network_interface` for the customization.
+The settings must match the IP address and subnet mask of at least one
+`network_interface` for the customization.
 
 <!-- End of code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
 <!-- Code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `ipv4_gateway` (string) - Specifies the IPv4 default gateway when using `network_interface` customization.
+- `ipv4_gateway` (string) - The IPv4 default gateway when using `network_interface` customization.
 
-- `ipv6_gateway` (string) - Specifies the IPv6 default gateway when using `network_interface` customization.
+- `ipv6_gateway` (string) - The IPv6 default gateway when using `network_interface` customization.
 
 <!-- End of code generated from the comments of the GlobalRoutingSettings struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -386,17 +412,20 @@ The settings must match the IP address and subnet mask of at least one `network_
 
 <!-- Code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-The following settings configure DNS globally for Linux guest operating systems.
-For Windows guest operating systems, this is set for each network interface. Refer to the [network interface](#network_interface) section for additional details.
+The following settings configure DNS globally for Linux guest operating
+systems. For Windows guest operating systems, this is set for each network
+interface. Refer to the [network interface](#network_interface) section for
+additional details.
 
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
 
 <!-- Code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `dns_server_list` ([]string) - Specifies a list of DNS servers to configure on the guest operating system.
+- `dns_server_list` ([]string) - A list of DNS servers to configure on the guest operating system.
 
-- `dns_suffix_list` ([]string) - Specifies a list of DNS search domains to add to the DNS configuration on the guest operating system.
+- `dns_suffix_list` ([]string) - A list of DNS search domains to add to the DNS configuration on the guest
+  operating system.
 
 <!-- End of code generated from the comments of the GlobalDnsSettings struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -405,13 +434,17 @@ For Windows guest operating systems, this is set for each network interface. Ref
 
 <!-- Code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `domain` (string) - Specifies the domain name for the guest operating system. Used with [host_name](#host_name) to construct the fully qualified domain name (FQDN).
+- `domain` (string) - The domain name for the guest operating system. Used with
+  [host_name](#host_name) to construct the fully qualified domain name
+  (FQDN).
 
-- `host_name` (string) - Specifies the hostname for the guest operating system. Used with [domain](#domain) to construct the fully qualified domain name (FQDN).
+- `host_name` (string) - The hostname for the guest operating system. Used with [domain](#domain)
+  to construct the fully qualified domain name (FQDN).
 
-- `hw_clock_utc` (boolean) - Specifies whether the hardware clock is set to Coordinated Universal Time (UTC). Defaults to `true`.
+- `hw_clock_utc` (boolean) - Set the hardware clock to Coordinated Universal Time (UTC).
+  Defaults to `true`.
 
-- `time_zone` (string) - Specifies the time zone for the guest operating system.
+- `time_zone` (string) - The time zone for the guest operating system.
 
 <!-- End of code generated from the comments of the LinuxOptions struct in builder/vsphere/clone/step_customize.go; -->
 
@@ -458,25 +491,33 @@ Example of usage:
 
 <!-- Code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `run_once_command_list` ([]string) - Specifies a list of commands to run at first logon after the guest operating system is customized.
+- `run_once_command_list` ([]string) - A list of commands to run at first logon after the guest operating system
+  is customized.
 
-- `auto_logon` (\*bool) - Specifies whether the guest operating system automatically logs on as Administrator.
+- `auto_logon` (\*bool) - Aautomatically log on the Administrator account after the guest operating
+  system is customized.
 
-- `auto_logon_count` (\*int32) - Specifies how many times the guest operating system should auto-logon the Administrator account when `auto_logon` is set to `true`. Default:s to `1`.
+- `auto_logon_count` (\*int32) - The number of times the guest operating system should auto-logon the
+  Administrator account when `auto_logon` is set to `true`.
+  Defaults to `1`.
 
-- `admin_password` (\*string) - Specifies the password for the guest operating system's Administrator account.
+- `admin_password` (\*string) - The password for the guest operating system's `Administrator`` account.
 
-- `time_zone` (\*int32) - Specifies the time zone for the guest operating system. Default to `85` (Pacific Time).
+- `time_zone` (\*int32) - The time zone for the guest operating system.
+  Defaults to `85` (Pacific Time).
 
-- `workgroup` (string) - Specifies the workgroup for the guest operating system. Joining an Active Directory domain is not supported.
+- `workgroup` (string) - The workgroup for the guest operating system.
+  Joining an Active Directory domain is not supported.
 
-- `computer_name` (string) - Specifies the hostname for the guest operating system.
+- `computer_name` (string) - The hostname for the guest operating system.
 
-- `full_name` (string) - Specifies the full name for the guest operating system's Administrator account. Defaults to `Administrator`.
+- `full_name` (string) - The full name for the guest operating system's Administrator account.
+  Defaults to `Administrator`.
 
-- `organization_name` (string) - Specifies the organization name for the guest operating system. Defaults to `Built by Packer`.
+- `organization_name` (string) - The organization name for the guest operating system.
+  Defaults to `Built by Packer`.
 
-- `product_key` (string) - Specifies the product key for the guest operating system.
+- `product_key` (string) - The product key for the guest operating system.
 
 <!-- End of code generated from the comments of the WindowsOptions struct in builder/vsphere/clone/step_customize.go; -->
 

@@ -1,17 +1,25 @@
 <!-- Code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; DO NOT EDIT MANUALLY -->
 
-- `dns_server_list` ([]string) - Specifies the DNS servers for a specific network interface on a Windows guest operating system.
-  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+- `dns_server_list` ([]string) - The DNS servers for a specific network interface on a Windows guest
+  operating system. Ignored on Linux. Refer to the
+  [global DNS settings](#global-dns-settings) section for additional
+  details.
 
-- `dns_domain` (string) - Specifies the DNS search domain for a specific network interface on a Windows guest operating system.
-  Ignored on Linux. Refer to the [global DNS settings](#global-dns-settings) section for additional details.
+- `dns_domain` (string) - The DNS search domain for a specific network interface on a Windows guest
+  operating system. Ignored on Linux. Refer to the
+  [global DNS settings](#global-dns-settings) section for additional
+  details.
 
-- `ipv4_address` (string) - Specifies the IPv4 address assigned to the network adapter. If left blank or not included, DHCP is used.
+- `ipv4_address` (string) - The IPv4 address assigned to the network adapter. If left blank or not
+  included, DHCP is used.
 
-- `ipv4_netmask` (int) - Specifies the IPv4 subnet mask, in bits, for the network adapter. For example, `24` for a `/24` subnet.
+- `ipv4_netmask` (int) - The IPv4 subnet mask, in bits, for the network adapter. For example, `24`
+  for a `/24` subnet.
 
-- `ipv6_address` (string) - Specifies the IPv6 address assigned to the network adapter. If left blank or not included, auto-configuration is used.
+- `ipv6_address` (string) - The IPv6 address assigned to the network adapter. If left blank or not
+  included, auto-configuration is used.
 
-- `ipv6_netmask` (int) - Specifies the IPv6 subnet mask, in bits, for the network adapter. For example, `64` for a `/64` subnet.
+- `ipv6_netmask` (int) - The IPv6 subnet mask, in bits, for the network adapter. For example, `64`
+  for a `/64` subnet.
 
 <!-- End of code generated from the comments of the NetworkInterface struct in builder/vsphere/clone/step_customize.go; -->

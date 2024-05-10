@@ -1,15 +1,15 @@
 <!-- Code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; DO NOT EDIT MANUALLY -->
 
-- `template` (string) - Specifies the name of the source virtual machine to clone.
+- `template` (string) - The name of the source virtual machine to clone.
 
-- `disk_size` (int64) - Specifies the size of the primary disk in MiB.
-  Cannot be used with `linked_clone`.
-  -> **Note:** Only the primary disk size can be specified. Additional disks are not supported.
+- `disk_size` (int64) - The size of the primary disk in MiB. Cannot be used with `linked_clone`.
+  -> **Note:** Only the primary disk size can be specified. Additional
+  disks are not supported.
 
-- `linked_clone` (bool) - Specifies that the virtual machine is created as a linked clone from the latest snapshot. Defaults to `false`.
-  Cannot be used with `disk_size`.`
+- `linked_clone` (bool) - Create the virtual machine as a linked clone from the latest snapshot.
+  Defaults to `false`. Cannot be used with `disk_size`.`
 
-- `network` (string) - Specifies the network to which the virtual machine will connect.
+- `network` (string) - The network to which the virtual machine will connect.
   
   For example:
   
@@ -20,21 +20,22 @@
   - Logical Switch UUID: `<uuid>`
   - Segment ID: `/infra/segments/<SegmentID>`
   
-  ~> **Note:** If more than one network resolves to the same name, either the inventory path to
-  network or an ID must be provided.
+  ~> **Note:** If more than one network resolves to the same name, either
+  the inventory path to network or an ID must be provided.
   
-  ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
-  available network.
+  ~> **Note:** If no network is specified, provide `host` to allow the
+  plugin to search for an available network.
 
-- `mac_address` (string) - Specifies the network card MAC address. For example `00:50:56:00:00:00`.
+- `mac_address` (string) - The network card MAC address. For example `00:50:56:00:00:00`.
   If set, the `network` must be also specified.
 
-- `notes` (string) - Specifies the annotations for the virtual machine.
+- `notes` (string) - The annotations for the virtual machine.
 
-- `destroy` (bool) - Specifies whether to destroy the virtual machine after the build is complete.
+- `destroy` (bool) - Destroy the virtual machine after the build is complete.
+  Defaults to `false`.
 
-- `vapp` (vAppConfig) - Specifies the vApp Options for the virtual machine. For more information, refer to the
-  [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
+- `vapp` (vAppConfig) - The vApp Options for the virtual machine. For more information, refer to
+  the [vApp Options Configuration](/packer/plugins/builders/vmware/vsphere-clone#vapp-options-configuration)
   section.
 
 <!-- End of code generated from the comments of the CloneConfig struct in builder/vsphere/clone/step_clone.go; -->
