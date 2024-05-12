@@ -39,6 +39,22 @@ their respective End of General Support dates. For detailed information, refer t
 
 @include 'packer-plugin-sdk/multistep/commonsteps/HTTPConfig-not-required.mdx'
 
+- `http_interface` (string) - The network interface (for example, `en0`, `ens192`, etc.) that the
+  HTTP server will use to serve the `http_directory`. The plugin will identify the IP address
+  associated with this network interface and bind to it.
+
+@include 'builder/vsphere/common/BootConfig-not-required.mdx'
+
+~> **Notes:**
+  - The options `http_bind_address` and `http_interface` are mutually exclusive.
+  - Both `http_bind_address` and `http_interface` have higher priority than `http_ip`.
+  - The `http_bind_address` is matched against the IP addresses of the host's network interfaces. If
+    no match is found, the plugin will terminate.
+  - Similarly, `http_interface` is compared with the host's network interfaces. If there's no
+    corresponding network interface, the plugin will also terminate.
+  - If neither `http_bind_address`, `http_interface`, and `http_ip` are provided, the plugin will
+    automatically find and use the IP address of the first non-loopback interface for `http_ip`.
+
 ### Connection Configuration
 
 **Optional**:
@@ -197,8 +213,6 @@ JSON Example:
 @include 'builder/vsphere/common/RunConfig-not-required.mdx'
 
 @include 'packer-plugin-sdk/bootcommand/BootConfig-not-required.mdx'
-
-@include 'builder/vsphere/common/BootConfig-not-required.mdx'
 
 ### Wait Configuration
 
