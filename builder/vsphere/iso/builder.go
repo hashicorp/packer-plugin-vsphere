@@ -104,10 +104,31 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Host:                       b.config.Host,
 			SetHostForDatastoreUploads: b.config.SetHostForDatastoreUploads,
 		},
-		&common.StepHTTPIPDiscover{
+	)
+
+	// Set the address for the HTTP server based on the configuration
+	// provided by the user.
+	if addrs := b.config.HTTPConfig.HTTPAddress; addrs != "" && addrs != common.DefaultHttpBindAddress {
+		// Validate and use the specified HTTPAddress.
+		err := common.ValidateHTTPAddress(addrs)
+		if err != nil {
+			ui.Errorf("error validating IP address for HTTP server: %s", err)
+			return nil, err
+		}
+		state.Put("http_bind_address", addrs)
+	} else if intf := b.config.HTTPConfig.HTTPInterface; intf != "" {
+		// Use the specified HTTPInterface.
+		state.Put("http_interface", intf)
+	} else {
+		// Use IP discovery if neither HTTPAddress nor HTTPInterface
+		// is specified.
+		steps = append(steps, &common.StepHTTPIPDiscover{
 			HTTPIP:  b.config.BootConfig.HTTPIP,
 			Network: b.config.WaitIpConfig.GetIPNet(),
-		},
+		})
+	}
+
+	steps = append(steps,
 		commonsteps.HTTPServerFromHTTPConfig(&b.config.HTTPConfig),
 		&common.StepRun{
 			Config:   &b.config.RunConfig,
