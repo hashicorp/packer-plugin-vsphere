@@ -7,6 +7,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/bootcommand"
@@ -14,13 +15,13 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/pkg/errors"
 	"golang.org/x/mobile/event/key"
 )
 
 type BootConfig struct {
 	bootcommand.BootConfig `mapstructure:",squash"`
-	// The IP address to use for the HTTP server started to serve the `http_directory`.
-	// If unset, Packer will automatically discover and assign an IP.
+	// The IP address to use for the HTTP server to serve the `http_directory`.
 	HTTPIP string `mapstructure:"http_ip"`
 }
 
@@ -34,6 +35,7 @@ func (c *BootConfig) Prepare(ctx *interpolate.Context) []error {
 	if c.BootWait == 0 {
 		c.BootWait = 10 * time.Second
 	}
+
 	return c.BootConfig.Prepare(ctx)
 }
 
@@ -68,16 +70,59 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		pauseFn = state.Get("pauseFn").(multistep.DebugPauseFn)
 	}
 
-	port := state.Get("http_port").(int)
-	if port > 0 {
-		ip := state.Get("http_ip").(string)
-		s.Ctx.Data = &bootCommandTemplateData{
-			ip,
-			port,
-			s.VMName,
-		}
-		ui.Sayf("HTTP server is working at http://%v:%v/", ip, port)
+	var ip string
+	var err error
+	port, ok := state.Get("http_port").(int)
+	if !ok {
+		ui.Error("error retrieving 'http_port' from state")
+		return multistep.ActionHalt
 	}
+
+	if port > 0 {
+		keys := []string{"http_bind_address", "http_interface", "http_ip"}
+
+		for _, key := range keys {
+			value, ok := state.Get(key).(string)
+			if ok && value != "" {
+				switch key {
+				case "http_bind_address":
+					ip = value
+					ui.Sayf("Using IP address %s from 'http_bind_address'.", ip)
+				case "http_interface":
+					ip, err = hostIP(value)
+					if err != nil {
+						err = fmt.Errorf("error determining IP address from interface %s: %s", value, err)
+						state.Put("error", err)
+						ui.Error(err.Error())
+						return multistep.ActionHalt
+					}
+					ui.Sayf("Using IP address %s from 'http_interface' %s.", ip, value)
+				case "http_ip":
+					ip = value
+					httpIPSetByUser, ok := state.Get("http_ip_set_by_user").(bool)
+					if ok && httpIPSetByUser {
+						ui.Sayf("Using IP address %s from 'http_ip'.", ip)
+					} else {
+						ui.Sayf("Using IP address %s from first non-loopback interface.", ip)
+					}
+				}
+				break
+			}
+		}
+
+		if ip == "" {
+			ui.Error("error determining IP address")
+			return multistep.ActionHalt
+		}
+	}
+
+	s.Ctx.Data = &bootCommandTemplateData{
+		ip,
+		port,
+		s.VMName,
+	}
+
+	ui.Sayf("Serving HTTP requests at http://%v:%v/.", ip, port)
 
 	var keyAlt, keyCtrl, keyShift bool
 	sendCodes := func(code key.Code, down bool) error {
@@ -104,7 +149,7 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		if err != nil {
 			// retry once if error
 			ui.Errorf("error typing a boot command (code, down) `%d, %t`: %v", code, down, err)
-			ui.Say("Trying key input again...")
+			ui.Say("Trying boot command again...")
 			time.Sleep(s.Config.BootGroupInterval)
 			_, err = vm.TypeOnKeyboard(driver.KeyInput{
 				Scancode: code,
@@ -153,3 +198,32 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 }
 
 func (s *StepBootCommand) Cleanup(_ multistep.StateBag) {}
+
+func hostIP(ifname string) (string, error) {
+	var addrs []net.Addr
+	var err error
+
+	if ifname != "" {
+		iface, err := net.InterfaceByName(ifname)
+		if err != nil {
+			return "", err
+		}
+		addrs, err = iface.Addrs()
+		if err != nil {
+			return "", err
+		}
+	} else {
+		addrs, err = net.InterfaceAddrs()
+		if err != nil {
+			return "", err
+		}
+	}
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String(), nil
+			}
+		}
+	}
+	return "", errors.New("error returning host ip address")
+}

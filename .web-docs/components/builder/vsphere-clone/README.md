@@ -773,14 +773,6 @@ For more examples of various boot commands, see the sample projects from our
 <!-- End of code generated from the comments of the BootConfig struct in bootcommand/config.go; -->
 
 
-<!-- Code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; DO NOT EDIT MANUALLY -->
-
-- `http_ip` (string) - The IP address to use for the HTTP server started to serve the `http_directory`.
-  If unset, Packer will automatically discover and assign an IP.
-
-<!-- End of code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; -->
-
-
 ### HTTP Directory Configuration
 
 <!-- Code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; DO NOT EDIT MANUALLY -->
@@ -838,6 +830,27 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
+
+- `http_interface` (string) - The network interface (for example, `en0`, `ens192`, etc.) that the
+  HTTP server will use to serve the `http_directory`. The plugin will identify the IP address
+  associated with this network interface and bind to it.
+
+<!-- Code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; DO NOT EDIT MANUALLY -->
+
+- `http_ip` (string) - The IP address to use for the HTTP server to serve the `http_directory`.
+
+<!-- End of code generated from the comments of the BootConfig struct in builder/vsphere/common/step_boot_command.go; -->
+
+
+~> **Notes:**
+  - The options `http_bind_address` and `http_interface` are mutually exclusive.
+  - Both `http_bind_address` and `http_interface` have higher priority than `http_ip`.
+  - The `http_bind_address` is matched against the IP addresses of the host's network interfaces. If
+    no match is found, the plugin will terminate.
+  - Similarly, `http_interface` is compared with the host's network interfaces. If there's no
+    corresponding network interface, the plugin will also terminate.
+  - If neither `http_bind_address`, `http_interface`, and `http_ip` are provided, the plugin will
+    automatically find and use the IP address of the first non-loopback interface for `http_ip`.
 
 ### Floppy Configuration
 

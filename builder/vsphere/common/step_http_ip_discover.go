@@ -25,6 +25,8 @@ func (s *StepHTTPIPDiscover) Run(ctx context.Context, state multistep.StateBag) 
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
+
+	state.Put("http_ip_set_by_user", s.HTTPIP != "")
 	state.Put("http_ip", ip)
 
 	return multistep.ActionContinue
