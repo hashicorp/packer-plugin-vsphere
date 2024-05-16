@@ -401,6 +401,7 @@ func driverCreateConfig(config *CreateConfig, location *common.LocationConfig) *
 	}
 
 	return &driver.CreateConfig{
+		VAppProperties: config.VAppConfig.Properties,
 		StorageConfig: driver.StorageConfig{
 			DiskControllerType: config.StorageConfig.DiskControllerType,
 			Storage:            disks,
