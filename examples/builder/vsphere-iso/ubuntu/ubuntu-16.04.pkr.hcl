@@ -31,14 +31,14 @@ source "vsphere-iso" "example" {
   network_adapters {
     network_card = "vmxnet3"
   }
-  password     = "jetbrains"
-  ssh_password = "jetbrains"
-  ssh_username = "jetbrains"
+  password     = "VMw@re1!"
+  ssh_password = "VMw@re1!"
+  ssh_username = "packer"
   storage {
     disk_size             = 32768
     disk_thin_provisioned = true
   }
-  username       = "root"
+  username       = "administrator@vsphere.local"
   vcenter_server = "vcenter.example.com"
   vm_name        = "example-ubuntu"
 }

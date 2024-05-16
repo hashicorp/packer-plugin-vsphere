@@ -6,6 +6,8 @@ package driver
 import (
 	"log"
 	"testing"
+
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 )
 
 func TestVMAcc_create(t *testing.T) {
@@ -20,7 +22,7 @@ func TestVMAcc_create(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.config.Host = TestHostName
+			tc.config.Host = utils.DefaultVsphereHost
 			tc.config.Name = newVMName()
 
 			d := newTestDriver(t)
@@ -71,8 +73,8 @@ func createDefaultCheck(t *testing.T, vm VirtualMachine, config *CreateConfig) {
 	if err != nil {
 		t.Fatal("Cannot read host properties: ", err)
 	}
-	if hostInfo.Name != TestHostName {
-		t.Errorf("Invalid host name: expected '%v', got '%v'", TestHostName, hostInfo.Name)
+	if hostInfo.Name != utils.DefaultVsphereHost {
+		t.Errorf("Invalid host name: expected '%v', got '%v'", utils.DefaultVsphereHost, hostInfo.Name)
 	}
 
 	p := d.NewResourcePool(vmInfo.ResourcePool)

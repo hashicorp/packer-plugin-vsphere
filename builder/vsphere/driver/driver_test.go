@@ -10,10 +10,10 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/session"
@@ -23,21 +23,13 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 )
 
-// Defines whether acceptance tests should be run
-const TestHostName = "esxi-01.example.com"
-
 func newTestDriver(t *testing.T) Driver {
-	username := os.Getenv("VSPHERE_USERNAME")
-	if username == "" {
-		username = "root"
-	}
-	password := os.Getenv("VSPHERE_PASSWORD")
-	if password == "" {
-		password = "jetbrains"
-	}
+	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
+	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
+	password := utils.GetenvOrDefault(utils.EnvVspherePassword, utils.DefaultVspherePassword)
 
 	d, err := NewDriver(&ConnectConfig{
-		VCenterServer:      "vcenter.example.com",
+		VCenterServer:      vcenter,
 		Username:           username,
 		Password:           password,
 		InsecureConnection: true,
@@ -49,8 +41,8 @@ func newTestDriver(t *testing.T) Driver {
 }
 
 func newVMName() string {
-	rand.Seed(time.Now().UTC().UnixNano())
-	return fmt.Sprintf("test-%v", rand.Intn(1000))
+	r := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	return fmt.Sprintf("test-%v", r.Intn(1000))
 }
 
 type VCenterSimulator struct {
@@ -94,7 +86,7 @@ func (s *VCenterSimulator) Close() {
 	}
 }
 
-// Simulator shortcut to choose any pre created VM.
+// Simulator shortcut to choose any pre-created virtual machine.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simulator.VirtualMachine) {
 	machine := simulator.Map.Any("VirtualMachine").(*simulator.VirtualMachine)
 	ref := machine.Reference()
@@ -102,7 +94,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simul
 	return vm, machine
 }
 
-// Simulator shortcut to choose any pre created Datastore.
+// Simulator shortcut to choose any pre-created datastore.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *simulator.Datastore) {
 	ds := simulator.Map.Any("Datastore").(*simulator.Datastore)
 	ref := ds.Reference()
@@ -110,7 +102,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *sim
 	return datastore, ds
 }
 
-// Simulator shortcut to choose any pre created Host.
+// Simulator shortcut to choose any pre-created EXSi host.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedHost() (*Host, *simulator.HostSystem) {
 	h := simulator.Map.Any("HostSystem").(*simulator.HostSystem)
 	ref := h.Reference()

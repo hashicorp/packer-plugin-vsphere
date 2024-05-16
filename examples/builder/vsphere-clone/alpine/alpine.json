@@ -4,8 +4,8 @@
       "type": "vsphere-clone",
 
       "vcenter_server": "vcenter.example.com",
-      "username":            "root",
-      "password":            "jetbrains",
+      "username": "administrator@vsphere.local",
+      "password": "VMw@re1!",
       "insecure_connection": "true",
 
       "template": "alpine",

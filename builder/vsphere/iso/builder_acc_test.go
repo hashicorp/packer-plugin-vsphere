@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/acctest"
 	commonT "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/testing"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 	"github.com/vmware/govmomi/vim25/types"
 )
 
@@ -39,24 +40,10 @@ func TestAccISOBuilderAcc_default(t *testing.T) {
 }
 
 func defaultConfig() map[string]interface{} {
-	username := os.Getenv("VSPHERE_USERNAME")
-	if username == "" {
-		username = "root"
-	}
-	password := os.Getenv("VSPHERE_PASSWORD")
-	if password == "" {
-		password = "jetbrains"
-	}
-
-	vcenter := os.Getenv("VSPHERE_VCENTER_SERVER")
-	if vcenter == "" {
-		vcenter = "vcenter.example.com"
-	}
-
-	host := os.Getenv("VSPHERE_HOST")
-	if host == "" {
-		host = "esxi-01.example.com"
-	}
+	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
+	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
+	password := utils.GetenvOrDefault(utils.EnvVspherePassword, utils.DefaultVspherePassword)
+	host := utils.GetenvOrDefault(utils.EnvVsphereHost, utils.DefaultVsphereHost)
 
 	config := map[string]interface{}{
 		"vcenter_server":      vcenter,
@@ -65,8 +52,8 @@ func defaultConfig() map[string]interface{} {
 		"host":                host,
 		"insecure_connection": true,
 
-		"ssh_username": "root",
-		"ssh_password": "jetbrains",
+		"ssh_username": "packer",
+		"ssh_password": "VMw@re1!",
 
 		"vm_name": commonT.NewVMName(),
 		"storage": map[string]interface{}{
@@ -544,23 +531,19 @@ func TestAccISOBuilderAcc_full(t *testing.T) {
 }
 
 func fullConfig() map[string]interface{} {
-	username := os.Getenv("VSPHERE_USERNAME")
-	if username == "" {
-		username = "root"
-	}
-	password := os.Getenv("VSPHERE_PASSWORD")
-	if password == "" {
-		password = "jetbrains"
-	}
+	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
+	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
+	password := utils.GetenvOrDefault(utils.EnvVspherePassword, utils.DefaultVspherePassword)
+	host := utils.GetenvOrDefault(utils.EnvVsphereHost, utils.DefaultVsphereHost)
 
 	config := map[string]interface{}{
-		"vcenter_server":      "vcenter.example.com",
+		"vcenter_server":      vcenter,
 		"username":            username,
 		"password":            password,
+		"host":                host,
 		"insecure_connection": true,
 
 		"vm_name": commonT.NewVMName(),
-		"host":    "esxi-01.example.com",
 
 		"RAM": 512,
 		"disk_controller_type": []string{
@@ -602,8 +585,8 @@ func fullConfig() map[string]interface{} {
 			"/media/floppy/SETUP.SH<enter>",
 		},
 
-		"ssh_username": "root",
-		"ssh_password": "jetbrains",
+		"ssh_username": "packer",
+		"ssh_password": "VMw@re1!",
 	}
 
 	return config
