@@ -10,11 +10,7 @@ import (
 )
 
 func TestArtifact_ImplementsArtifact(t *testing.T) {
-	var raw interface{}
-	raw = &Artifact{}
-	if _, ok := raw.(packersdk.Artifact); !ok {
-		t.Fatalf("Artifact should be a Artifact")
-	}
+	var _ packersdk.Artifact = &Artifact{}
 }
 
 func TestArtifact_Id(t *testing.T) {

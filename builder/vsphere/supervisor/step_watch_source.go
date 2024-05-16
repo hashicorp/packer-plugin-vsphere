@@ -209,7 +209,7 @@ func (s *StepWatchSource) getVMIngressIP(ctx context.Context, logger *PackerLogg
 		ingress := vmServiceObj.Status.LoadBalancer.Ingress
 		if len(ingress) == 0 || ingress[0].IP == "" {
 			logger.Info("VMService object's ingress IP is empty, continue checking...")
-			return errors.New("VMService object's ingress IP is empty, continue checking...")
+			return errors.New("vmservice object's ingress IP address is empty")
 		}
 
 		logger.Info("Successfully retrieved the source VM ingress IP: %s", ingress[0].IP)

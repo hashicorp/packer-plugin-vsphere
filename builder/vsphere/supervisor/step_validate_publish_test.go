@@ -93,7 +93,7 @@ func TestValidatePublish_Run(t *testing.T) {
 		t.Fatal("Step should halt")
 	}
 
-	expectedError = fmt.Sprintf("The specified publish location %q is not writable", testPublishLocationName)
+	expectedError = fmt.Sprintf("publish location %q is not writable", testPublishLocationName)
 	if rawErr, ok := state.GetOk("error"); ok {
 		if rawErr.(error).Error() != expectedError {
 			t.Errorf("Expected error is %v, but got %v", expectedError, rawErr.(error).Error())

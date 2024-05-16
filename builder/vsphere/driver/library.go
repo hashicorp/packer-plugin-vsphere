@@ -40,7 +40,7 @@ func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*
 			return &item, nil
 		}
 	}
-	return nil, fmt.Errorf("Item %s not found", name)
+	return nil, fmt.Errorf("content library item %s not found", name)
 }
 
 func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
@@ -108,7 +108,7 @@ func (l *LibraryFilePath) Validate() error {
 	l.path = strings.TrimLeft(l.path, "/")
 	parts := strings.Split(l.path, "/")
 	if len(parts) != 3 {
-		return fmt.Errorf("invalid content library file path. path must contain the names for the library, item, and file.")
+		return fmt.Errorf("content library file path must contain the names for the library, item, and file")
 	}
 	return nil
 }

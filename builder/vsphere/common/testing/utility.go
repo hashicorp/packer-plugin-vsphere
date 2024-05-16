@@ -51,7 +51,7 @@ func TestConn() (driver.Driver, error) {
 		InsecureConnection: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Cannot connect: %#v", err)
+		return nil, fmt.Errorf("error connecting to vCenter Server instance: %v", err)
 	}
 	return d, nil
 }
@@ -59,7 +59,7 @@ func TestConn() (driver.Driver, error) {
 func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot find VM: %v", err)
+		return nil, fmt.Errorf("error finding virtual machine: %v", err)
 	}
 
 	return vm, nil
@@ -68,7 +68,7 @@ func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
 func CleanupVM(d driver.Driver, name string) error {
 	vm, err := GetVM(d, name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("error finding virtual machine: %v", err)
 	}
 	return vm.Destroy()
 }

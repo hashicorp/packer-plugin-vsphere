@@ -369,7 +369,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	cloneSpec.Location = relocateSpec
 	cloneSpec.PowerOn = false
 
-	if config.LinkedClone == true {
+	if config.LinkedClone {
 		cloneSpec.Location.DiskMoveType = "createNewChildDiskBacking"
 
 		tpl, err := vm.Info("snapshot")
@@ -502,7 +502,7 @@ func (vm *VirtualMachineDriver) updateVAppConfig(ctx context.Context, newProps m
 			continue
 		}
 
-		if *p.UserConfigurable == false {
+		if !*p.UserConfigurable {
 			return nil, fmt.Errorf("vApp property with userConfigurable=false specified in vapp.properties: %+v", reflect.ValueOf(newProps).MapKeys())
 		}
 
@@ -826,7 +826,7 @@ func (vm *VirtualMachineDriver) WaitForShutdown(ctx context.Context, timeout tim
 
 		select {
 		case <-shutdownTimer:
-			err := errors.New("Timeout while waiting for machine to shut down.")
+			err := errors.New("timeout while waiting for machine to shutdown")
 			return err
 		case <-ctx.Done():
 			return nil
@@ -1087,13 +1087,13 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 		}
 
 		if len(i.Network) > 1 {
-			return nil, fmt.Errorf("Host has multiple networks. Specify it explicitly")
+			return nil, fmt.Errorf("more than one network found on host %s, specify the network", host)
 		}
 
 		return object.NewNetwork(d.client.Client, i.Network[0]), nil
 	}
 
-	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified.")
+	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified")
 }
 
 func newVirtualPCIPassthroughAllowedDevice(devices []PCIPassthroughAllowedDevice) types.VirtualPCIPassthrough {

@@ -183,7 +183,7 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 	var warnings []string
 
 	if len(c.NetworkInterfaces) == 0 {
-		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided."))
+		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided"))
 	}
 
 	options_number := 0

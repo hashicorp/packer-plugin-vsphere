@@ -84,7 +84,7 @@ func (c *CloneConfig) Prepare() []error {
 		errs = append(errs, fmt.Errorf("'template' is required"))
 	}
 
-	if c.LinkedClone == true && c.DiskSize != 0 {
+	if c.LinkedClone && c.DiskSize != 0 {
 		errs = append(errs, fmt.Errorf("'linked_clone' and 'disk_size' cannot be used together"))
 	}
 

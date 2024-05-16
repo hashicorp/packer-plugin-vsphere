@@ -107,7 +107,7 @@ func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk
 	ui.Say(fmt.Sprintf("Uploading %s to %s...", filename, remoteDirectory))
 
 	// Check if the remote cache directory exists. If not, create it.
-	if exists := ds.DirExists(remotePath); exists == false {
+	if !ds.DirExists(remotePath) {
 		ui.Say(fmt.Sprintf("Remote cache directory does not exist; creating %s...", remoteDirectory))
 		if err := ds.MakeDirectory(remoteDirectory); err != nil {
 			return "", err
