@@ -20,16 +20,16 @@ source "vsphere-iso" "example_windows" {
   network_adapters {
     network_card = "vmxnet3"
   }
-  password = "jetbrains"
+  password = "VMw@re1!"
   storage {
     disk_size             = 32768
     disk_thin_provisioned = true
   }
-  username       = "root"
+  username       = "administrator@vsphere.local"
   vcenter_server = "vcenter.example.com"
   vm_name        = "example-windows"
-  winrm_password = "jetbrains"
-  winrm_username = "jetbrains"
+  winrm_password = "VMw@re1!"
+  winrm_username = "packer"
 }
 
 # a build block invokes sources and runs provisioning steps on them. The

@@ -12,9 +12,9 @@ source "vsphere-clone" "example_clone" {
   communicator        = "none"
   host                = "esxi-01.example.com"
   insecure_connection = "true"
-  password            = "jetbrains"
+  password            = "VMw@re1!"
   template            = "alpine"
-  username            = "root"
+  username            = "administrator@vsphere.local"
   vcenter_server      = "vcenter.example.com"
   vm_name             = "alpine-clone-${local.timestamp}"
 }

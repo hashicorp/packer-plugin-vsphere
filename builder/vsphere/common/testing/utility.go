@@ -37,15 +37,21 @@ func RenderConfig(builderType string, config map[string]interface{}) string {
 func TestConn() (driver.Driver, error) {
 	username := os.Getenv("VSPHERE_USERNAME")
 	if username == "" {
-		username = "root"
+		username = "administrator@vsphere.local"
 	}
+
 	password := os.Getenv("VSPHERE_PASSWORD")
 	if password == "" {
-		password = "jetbrains"
+		password = "VMw@re1!"
+	}
+
+	vcenter := os.Getenv("VSPHERE_VCENTER_SERVER")
+	if vcenter == "" {
+		vcenter = "vcenter.example.com"
 	}
 
 	d, err := driver.NewDriver(&driver.ConnectConfig{
-		VCenterServer:      "vcenter.example.com",
+		VCenterServer:      vcenter,
 		Username:           username,
 		Password:           password,
 		InsecureConnection: true,

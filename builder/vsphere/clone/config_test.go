@@ -47,14 +47,14 @@ func TestCloneConfig_RAMReservation(t *testing.T) {
 
 func minimalConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"vcenter_server": "vcenter.domain.local",
-		"username":       "root",
-		"password":       "vmware",
+		"vcenter_server": "vcenter.example.com",
+		"username":       "administrator@vsphere.local",
+		"password":       "VMw@re1!",
 		"template":       "ubuntu",
 		"vm_name":        "vm1",
-		"host":           "esxi1.domain.local",
-		"ssh_username":   "root",
-		"ssh_password":   "secret",
+		"host":           "esxi-01.example.com",
+		"ssh_username":   "packer",
+		"ssh_password":   "VMw@re1!",
 	}
 }
 

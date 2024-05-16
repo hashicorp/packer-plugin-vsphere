@@ -55,7 +55,7 @@ necessary for this build to succeed and can be found further down the page.
 
 - `remote_cache_cleanup` (bool) - Cleanup items added to the remote cache after the build is complete.
   Defaults to `false`.
-  
+
   -> **Note:** If the local cache overwrite flag is set to `true`, `RemoteCacheOverwrite` will
   implicitly be set to `true`. This is to ensure consistency between the local and remote
   cache.
@@ -352,9 +352,9 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   `floppy_dirs`, which is useful to add large files without loading them
   into memory. If any paths are specified by both, the contents in
   `floppy_content` will take precedence.
-  
+
   Usage example (HCL):
-  
+
   ```hcl
   floppy_content = {
     "meta-data" = jsonencode(local.instance_data)
@@ -571,7 +571,7 @@ configuration. Instead, the attributes, or capabilities, are exposed to the virt
 
 - `ip_wait_address` (\*string) - Set this to a CIDR address to cause the service to wait for an address that is contained in
   this network range. Defaults to "0.0.0.0/0" for any ipv4 address. Examples include:
-  
+
   * empty string ("") - remove all filters
   * `0:0:0:0:0:0:0:0/0` - allow only ipv6 addresses
   * `192.168.1.0/24` - only allow ipv4 addresses from 192.168.1.1 to 192.168.1.254
@@ -750,20 +750,20 @@ iso_paths = [
 - `cdrom_type` (string) - Which controller to use. Example: `sata`. Defaults to `ide`.
 
 - `iso_paths` ([]string) - A list of paths to ISO files in either a datastore or a content library that will be mounted to the VM.
-  
+
   Usage example (HCL):
-  
+
   ```hcl
   iso_paths = [
     "[nfs] iso/ubuntu-server-amd64.iso",
     "Packer/ubuntu-server-amd64/ubuntu-server-amd64.iso"
   ]
   ```
-  
+
   Two ISOs are referenced:
   1. An ISO in the "_iso_" folder of the "_nfs_" datastore with the file name of "_ubuntu-server-amd64.iso_".
   2. An ISO in the "_Packer_" content library with the item name of "_ubuntu-server-amd64_".
-  
+
   -> **Note:** All files in a content library have an associated item name.
   To determine the file name, view the datastore backing the content library or use the `govc` vSphere CLI.
 
@@ -812,40 +812,40 @@ boot time.
   will be copied onto the CD recursively, preserving directory structure
   hierarchy. Symlinks will have the link's target copied into the directory
   tree on the CD where the symlink was. File globbing is allowed.
-  
+
   Usage example (JSON):
-  
+
   ```json
   "cd_files": ["./somedirectory/meta-data", "./somedirectory/user-data"],
   "cd_label": "cidata",
   ```
-  
+
   Usage example (HCL):
-  
+
   ```hcl
   cd_files = ["./somedirectory/meta-data", "./somedirectory/user-data"]
   cd_label = "cidata"
   ```
-  
+
   The above will create a CD with two files, user-data and meta-data in the
   CD root. This specific example is how you would create a CD that can be
   used for an Ubuntu 20.04 autoinstall.
-  
+
   Since globbing is also supported,
-  
+
   ```hcl
   cd_files = ["./somedirectory/*"]
   cd_label = "cidata"
   ```
-  
+
   Would also be an acceptable way to define the above cd. The difference
   between providing the directory with or without the glob is whether the
   directory itself or its contents will be at the CD root.
-  
+
   Use of this option assumes that you have a command line tool installed
   that can handle the iso creation. Packer will use one of the following
   tools:
-  
+
     * xorriso
     * mkisofs
     * hdiutil (normally found in macOS)
@@ -855,9 +855,9 @@ boot time.
   contents. It can be used alongside `cd_files`, which is useful to add large
   files without loading them into memory. If any paths are specified by both,
   the contents in `cd_content` will take precedence.
-  
+
   Usage example (HCL):
-  
+
   ```hcl
   cd_files = ["vendor-data"]
   cd_content = {
@@ -883,12 +883,12 @@ boot time.
 
 - `guest_os_type` (string) - Specifies the guest operating system identifier for the virtual machine.
   If not specified, the setting defaults to `otherGuest`.
-  
+
   To get a list of supported guest operating system identifiers for your ESXi host,
   run the following PowerShell command using `VMware.PowerCLI`:
-  
+
   ```powershell
-  Connect-VIServer -Server "vc.example.com" -User "administrator@vsphere" -Password "password"
+  Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere" -Password "password"
   $esxiHost = Get-VMHost -Name "esxi.example.com"
   $environmentBrowser = Get-View -Id $esxiHost.ExtensionData.Parent.ExtensionData.ConfigManager.EnvironmentBrowser
   $vmxVersion = ($environmentBrowser.QueryConfigOptionDescriptor() | Where-Object DefaultConfigOption).Key
@@ -982,19 +982,19 @@ In HCL2:
 <!-- Code generated from the comments of the NIC struct in builder/vsphere/iso/step_create.go; DO NOT EDIT MANUALLY -->
 
 - `network` (string) - Specifies the network to which the virtual machine will connect.
-  
+
   For example:
-  
+
   - Name: `<NetworkName>`
   - Inventory Path: `/<DatacenterName>/<FolderName>/<NetworkName>`
   - Managed Object ID (Port Group): `Network:network-<xxxxx>`
   - Managed Object ID (Distributed Port Group): `DistributedVirtualPortgroup::dvportgroup-<xxxxx>`
   - Logical Switch UUID: `<uuid>`
   - Segment ID: `/infra/segments/<SegmentID>`
-  
+
   ~> **Note:** If more than one network resolves to the same name, either the inventory path to
   network or an ID must be provided.
-  
+
   ~> **Note:** If no network is specified, provide `host` to allow the plugin to search for an
   available network.
 
@@ -1179,9 +1179,9 @@ The above configuration would create the following files:
   - uuid - UUID is exported for the virtual machine.
   - extraconfig - Extra configuration options are exported for the virtual machine.
   - nodevicesubtypes - Resource subtypes for CD/DVD drives, floppy drives, and serial and parallel ports are not exported.
-  
+
   For example, adding the following export config option outputs the MAC addresses for each Ethernet device in the OVF descriptor:
-  
+
   In JSON:
   ```json
   ...
@@ -1199,12 +1199,12 @@ The above configuration would create the following files:
 
 - `output_format` (string) - The output format for the exported virtual machine image. Defaults to `ovf`.
   Available options include `ovf` and `ova`.
-  
+
   When set to `ova`, the image is first exported using Open Virtualization
   / Format (`.ovf`) and then converted to an Open Virtualization Archive
   (`.ova`) using the VMware [Open Virtualization Format Tool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
   (ovftool). The intermediate files are removed after the conversion.
-  
+
   ~> **Note:** To use the `ova` format option, VMware ovftool must be
   installed on the Packer host and accessible in either the system `PATH`
   or the user's `PATH`.
@@ -1255,7 +1255,7 @@ The template is stored in a existing or newly created library item.
   the default is [vm_name](#vm_name) + timestamp when not set. VM templates will be always imported to a new library item.
   For OVF templates, the name defaults to [vm_name](#vm_name) when not set, and if an item with the same name already
   exists it will be then updated with the new OVF template, otherwise a new item will be created.
-  
+
   ~> **Note:** It's not possible to update existing library items with a new VM template. If updating an existing library
   item is necessary, use an OVF template instead by setting the [ovf](#ovf) option as `true`.
 
@@ -1360,15 +1360,15 @@ Minimal example of usage to import a OVF template:
 <!-- Code generated from the comments of the Config struct in communicator/config.go; DO NOT EDIT MANUALLY -->
 
 - `communicator` (string) - Packer currently supports three kinds of communicators:
-  
+
   -   `none` - No communicator will be used. If this is set, most
       provisioners also can't be used.
-  
+
   -   `ssh` - An SSH connection will be established to the machine. This
       is usually the default.
-  
+
   -   `winrm` - A WinRM connection will be established.
-  
+
   In addition to the above, some builders have custom communicators they
   can use. For example, the Docker builder has a "docker" communicator
   that uses `docker exec` and `docker cp` to execute scripts and copy
@@ -1378,7 +1378,7 @@ Minimal example of usage to import a OVF template:
   guest's bootstrap script, but sometimes you may have a race condition
   where you need Packer to wait before attempting to connect to your
   guest.
-  
+
   If you end up in this situation, you can use the template option
   `pause_before_connecting`. By default, there is no pause. For example if
   you set `pause_before_connecting` to `10m` Packer will check whether it
@@ -1408,7 +1408,7 @@ Minimal example of usage to import a OVF template:
     "chacha20-poly1305@openssh.com",
     "aes128-ctr", "aes192-ctr", "aes256-ctr",
   ]
-  
+
   Valid options for ciphers include:
   "aes128-ctr", "aes192-ctr", "aes256-ctr", "aes128-gcm@openssh.com",
   "chacha20-poly1305@openssh.com",
@@ -1467,7 +1467,7 @@ Minimal example of usage to import a OVF template:
 
 - `ssh_file_transfer_method` (string) - `scp` or `sftp` - How to transfer files, Secure copy (default) or SSH
   File Transfer Protocol.
-  
+
   **NOTE**: Guests using Windows with Win32-OpenSSH v9.1.0.0p1-Beta, scp
   (the default protocol for copying data) returns a a non-zero error code since the MOTW
   cannot be set, which cause any file transfer to fail. As a workaround you can override the transfer protocol
@@ -1488,9 +1488,9 @@ Minimal example of usage to import a OVF template:
   useful if, for example, packer hangs on a connection after a reboot.
   Example: `5m`. Disabled by default.
 
-- `ssh_remote_tunnels` ([]string) - 
+- `ssh_remote_tunnels` ([]string) -
 
-- `ssh_local_tunnels` ([]string) - 
+- `ssh_local_tunnels` ([]string) -
 
 <!-- End of code generated from the comments of the SSH struct in communicator/config.go; -->
 
@@ -1509,7 +1509,7 @@ Minimal example of usage to import a OVF template:
 - `winrm_password` (string) - The password to use to connect to WinRM.
 
 - `winrm_host` (string) - The address for WinRM to connect to.
-  
+
   NOTE: If using an Amazon EBS builder, you can specify the interface
   WinRM connects to via
   [`ssh_interface`](/packer/integrations/hashicorp/amazon/latest/components/builder/ebs#ssh_interface)

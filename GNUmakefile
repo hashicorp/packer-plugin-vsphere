@@ -4,6 +4,7 @@ PLUGIN_FQN="$(shell grep -E '^module' <go.mod | sed -E 's/module *//')"
 
 COUNT?=1
 TEST?=$(shell go list ./...)
+TEST_EXCLUDE_DIRS := builder/vsphere/common/testing builder/vsphere/examples/driver version
 HASHICORP_PACKER_PLUGIN_SDK_VERSION?=$(shell go list -m github.com/hashicorp/packer-plugin-sdk | cut -d " " -f2)
 
 .PHONY: dev
@@ -16,7 +17,11 @@ dev:
 	packer plugins install --path ${BINARY} "$(shell echo "${PLUGIN_FQN}" | sed 's/packer-plugin-//')"
 
 test:
-	@go test -race -count $(COUNT) $(TEST) -timeout=3m
+	@dirs=$$(go list $(TEST)); \
+    for dir in $(TEST_EXCLUDE_DIRS); do \
+        dirs=$$(echo "$$dirs" | grep -v $$dir); \
+    done; \
+    echo "$$dirs" | xargs -L1 go test -race -count $(COUNT) -timeout=3m
 
 install-packer-sdc: ## Install packer sofware development command
 	@go install github.com/hashicorp/packer-plugin-sdk/cmd/packer-sdc@${HASHICORP_PACKER_PLUGIN_SDK_VERSION}
