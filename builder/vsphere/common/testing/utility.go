@@ -7,23 +7,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"os"
 	"time"
 
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func NewVMName() string {
-	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("test-%v", rand.Intn(1000))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return fmt.Sprintf("test-%v", r.Intn(1000))
 }
 
 func RenderConfig(builderType string, config map[string]interface{}) string {
 	t := map[string][]map[string]interface{}{
 		"builders": {
-			map[string]interface{}{
-				"type": builderType,
-			},
+			{"type": builderType},
 		},
 	}
 	for k, v := range config {
@@ -35,23 +33,18 @@ func RenderConfig(builderType string, config map[string]interface{}) string {
 }
 
 func TestConn() (driver.Driver, error) {
-	username := os.Getenv("VSPHERE_USERNAME")
-	if username == "" {
-		username = "root"
-	}
-	password := os.Getenv("VSPHERE_PASSWORD")
-	if password == "" {
-		password = "jetbrains"
-	}
+	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
+	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
+	password := utils.GetenvOrDefault(utils.EnvVspherePassword, utils.DefaultVspherePassword)
 
 	d, err := driver.NewDriver(&driver.ConnectConfig{
-		VCenterServer:      "vcenter.example.com",
+		VCenterServer:      vcenter,
 		Username:           username,
 		Password:           password,
 		InsecureConnection: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to vCenter Server instance: %v", err)
+		return nil, fmt.Errorf("error connecting to endpoint: %v", err)
 	}
 	return d, nil
 }
@@ -61,7 +54,6 @@ func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error finding virtual machine: %v", err)
 	}
-
 	return vm, nil
 }
 

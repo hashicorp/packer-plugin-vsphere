@@ -10,6 +10,8 @@ import (
 	"net"
 	"testing"
 	"time"
+
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 )
 
 func TestVMAcc_clone(t *testing.T) {
@@ -32,7 +34,7 @@ func TestVMAcc_clone(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.config.Host = TestHostName
+			tc.config.Host = utils.DefaultVsphereHost
 			tc.config.Name = newVMName()
 
 			templateName := "alpine"
@@ -88,8 +90,8 @@ func cloneDefaultCheck(t *testing.T, vm VirtualMachine, config *CloneConfig) {
 	if err != nil {
 		t.Fatal("Cannot read host properties: ", err)
 	}
-	if hostInfo.Name != TestHostName {
-		t.Errorf("Invalid host name: expected '%v', got '%v'", TestHostName, hostInfo.Name)
+	if hostInfo.Name != utils.DefaultVsphereHost {
+		t.Errorf("Invalid host name: expected '%v', got '%v'", utils.DefaultVsphereHost, hostInfo.Name)
 	}
 
 	p := d.NewResourcePool(vmInfo.ResourcePool)
