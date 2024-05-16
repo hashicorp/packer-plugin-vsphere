@@ -115,7 +115,7 @@ func (s *StepValidatePublish) isPublishFeatureEnabled(ctx context.Context, logge
 	// Use dry run mode to send a VM publish creation request to API-Server without applying the resource.
 	err := client.NewDryRunClient(s.KubeClient).Create(ctx, vmPublishReq)
 	if err != nil && strings.Contains(err.Error(), vmPubFeatureNotEnabledMsg) {
-		logger.Error("The VM publish feature is NOT enabled in the current version of vSphere Supervisor cluster")
+		logger.Error("publish feature is not enabled in the version of vsphere supervisor cluster")
 		return err
 	}
 
@@ -130,7 +130,7 @@ func (s *StepValidatePublish) isPublishLocationValid(ctx context.Context, logger
 	}
 
 	if !cl.Spec.Writable {
-		return fmt.Errorf("The specified publish location %q is not writable", s.Config.PublishLocationName)
+		return fmt.Errorf("publish location %q is not writable", s.Config.PublishLocationName)
 	}
 
 	return nil

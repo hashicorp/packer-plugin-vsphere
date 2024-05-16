@@ -37,7 +37,7 @@ func (s *StepRemoveCDRom) Run(_ context.Context, state multistep.StateBag) multi
 	}
 
 	// Remove all CD-ROM devices from the image.
-	if s.Config.RemoveCdrom == true {
+	if s.Config.RemoveCdrom {
 		ui.Say("Removing CD-ROM devices...")
 		err := vm.RemoveCdroms()
 		if err != nil {

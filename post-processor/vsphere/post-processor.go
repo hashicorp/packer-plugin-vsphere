@@ -340,7 +340,7 @@ func (p *PostProcessor) BuildArgs(source, ovftool_uri string) ([]string, error) 
 		args = append(args, fmt.Sprintf(`--network=%s`, p.config.VMNetwork))
 	}
 
-	if p.config.Overwrite == true {
+	if p.config.Overwrite {
 		args = append(args, "--overwrite")
 	}
 

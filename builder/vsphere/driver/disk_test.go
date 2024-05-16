@@ -37,6 +37,9 @@ func TestAddStorageDevices(t *testing.T) {
 
 	existingDevices := object.VirtualDeviceList{}
 	device, err := existingDevices.CreateNVMEController()
+	if err != nil {
+		t.Fatalf("unexpected error: %q", err.Error())
+	}
 	existingDevices = append(existingDevices, device)
 
 	storageConfigSpec, err = config.AddStorageDevices(existingDevices)

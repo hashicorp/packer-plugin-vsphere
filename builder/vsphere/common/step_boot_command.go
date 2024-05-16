@@ -124,7 +124,7 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	flatBootCommand := s.Config.FlatBootCommand()
 	command, err := interpolate.Render(flatBootCommand, &s.Ctx)
 	if err != nil {
-		err := fmt.Errorf("Error preparing boot command: %s", err)
+		err := fmt.Errorf("error preparing boot command: %s", err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
@@ -132,14 +132,14 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 
 	seq, err := bootcommand.GenerateExpressionSequence(command)
 	if err != nil {
-		err := fmt.Errorf("Error generating boot command: %s", err)
+		err := fmt.Errorf("error generating boot command: %s", err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
 	}
 
 	if err := seq.Do(ctx, d); err != nil {
-		err := fmt.Errorf("Error running boot command: %s", err)
+		err := fmt.Errorf("error running boot command: %s", err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt

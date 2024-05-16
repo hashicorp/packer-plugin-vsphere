@@ -107,7 +107,7 @@ type HardwareConfig struct {
 func (c *HardwareConfig) Prepare() []error {
 	var errs []error
 
-	if c.RAMReservation > 0 && c.RAMReserveAll != false {
+	if c.RAMReservation > 0 && c.RAMReserveAll {
 		errs = append(errs, fmt.Errorf("'RAM_reservation' and 'RAM_reserve_all' cannot be used together"))
 	}
 

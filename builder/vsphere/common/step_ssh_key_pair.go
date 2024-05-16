@@ -73,7 +73,7 @@ func (s *StepSshKeyPair) Run(ctx context.Context, state multistep.StateBag) mult
 		Type:    ssh.Rsa,
 	})
 	if err != nil {
-		state.Put("error", fmt.Errorf("Error creating temporary keypair: %s", err))
+		state.Put("error", fmt.Errorf("error creating temporary keypair: %s", err))
 		return multistep.ActionHalt
 	}
 
@@ -98,7 +98,7 @@ func (s *StepSshKeyPair) Run(ctx context.Context, state multistep.StateBag) mult
 		ui.Message(fmt.Sprintf("Saving communicator private key for debug purposes: %s", s.DebugKeyPath))
 		// Write the key out
 		if err := os.WriteFile(s.DebugKeyPath, kp.PrivateKeyPemBlock, 0600); err != nil {
-			state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
+			state.Put("error", fmt.Errorf("error saving debug key: %s", err))
 			return multistep.ActionHalt
 		}
 	}

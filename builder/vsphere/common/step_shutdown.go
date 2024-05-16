@@ -86,7 +86,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 		}
 		err := comm.Start(ctx, cmd)
 		if err != nil {
-			state.Put("error", fmt.Errorf("Failed to send shutdown command: %s", err))
+			state.Put("error", fmt.Errorf("error sending shutdown command: %s", err))
 			return multistep.ActionHalt
 		}
 	} else {
@@ -94,7 +94,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 
 		err := vm.StartShutdown()
 		if err != nil {
-			state.Put("error", fmt.Errorf("Cannot shut down VM: %v", err))
+			state.Put("error", fmt.Errorf("error shutting down virtual machine: %v", err))
 			return multistep.ActionHalt
 		}
 	}
