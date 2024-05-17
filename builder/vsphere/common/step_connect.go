@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -68,14 +69,25 @@ func (s *StepConnect) Run(_ context.Context, state multistep.StateBag) multistep
 
 func (s *StepConnect) Cleanup(state multistep.StateBag) {
 	ui := state.Get("ui").(packersdk.Ui)
+	d, ok := state.GetOk("driver")
+	if !ok {
+		log.Printf("[INFO] No driver in state - nothing to cleanup")
+		return
+	}
+
+	driver, ok := d.(driver.Driver)
+	if !ok {
+		log.Printf("[ERROR] The driver stored in state was not a driver.Driver (%s), something might be wrong", reflect.TypeOf(d))
+		return
+	}
+
 	ui.Message("Closing sessions ....")
-	if driver, ok := state.Get("driver").(driver.Driver); ok {
-		errorRestClient, errorSoapClient := driver.Cleanup()
-		if errorRestClient != nil {
-			log.Printf("[WARN] Failed to close REST client session. The session may already be closed: %s", errorRestClient.Error())
-		}
-		if errorSoapClient != nil {
-			log.Printf("[WARN] Failed to close SOAP client session. The session may already be closed: %s", errorSoapClient.Error())
-		}
+
+	errorRestClient, errorSoapClient := driver.Cleanup()
+	if errorRestClient != nil {
+		log.Printf("[WARN] Failed to close REST client session. The session may already be closed: %s", errorRestClient.Error())
+	}
+	if errorSoapClient != nil {
+		log.Printf("[WARN] Failed to close SOAP client session. The session may already be closed: %s", errorSoapClient.Error())
 	}
 }
