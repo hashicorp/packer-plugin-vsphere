@@ -27,9 +27,9 @@ const (
 
 	DefaultWatchImageImportTimeoutSec = 600
 
-	ImportRequestDefaultNamePrefix    = "packer-vsphere-supervisor-import-req-"
+	ImportRequestDefaultNamePrefix = "packer-vsphere-supervisor-import-req-"
+
 	StateKeyImageImportRequestCreated = "item_import_req_created"
-	StateKeyCleanImportedImage        = "clean_imported_image"
 	StateKeyImportedImageName         = "imported_image_name"
 
 	importOVFFeatureNotEnabledMsg = "WCP_VMImageService_ImportOVF feature is not enabled"
@@ -42,32 +42,41 @@ type ImportImageConfig struct {
 	ImportSourceURL string `mapstructure:"import_source_url"`
 	// The SSL certificate of the remote HTTP server that hosts the to-be-imported image.
 	ImportSourceSSLCertificate string `mapstructure:"import_source_ssl_certificate"`
-
-	// Name of a writable & import-allowed ContentLibrary resource in the namespace where the image will be imported.
+	// Name of a writable and import-allowed ContentLibrary resource in the namespace where the image will be imported.
 	ImportTargetLocationName string `mapstructure:"import_target_location_name"`
-	// The type of the imported image.
+	// The type of imported image.
 	// Defaults to `ovf`. Available options include `ovf`.
 	ImportTargetImageType string `mapstructure:"import_target_image_type"`
-
+	// Name of the imported image.
+	// Defaults to the file name of the image referenced in the source URL.
+	ImportTargetImageName string `mapstructure:"import_target_image_name"`
 	// The name of the image import request.
 	// Defaults to `packer-vsphere-supervisor-import-req-<random-suffix>`.
 	ImportRequestName string `mapstructure:"import_request_name"`
 	// The timeout in seconds to wait for the image to be imported.
 	// Defaults to `600`.
 	WatchImportTimeoutSec int `mapstructure:"watch_import_timeout_sec"`
-
-	// Whether to clean the image imported in this step. If it is set to true, the imported image will be deleted after
-	// source VM is created and becomes ready.
-	// Defaults to false.
+	// Preserve the import request in the Supervisor cluster after the build finishes.
+	// Defaults to `false`.
+	KeepImportRequest bool `mapstructure:"keep_import_request"`
+	// Clean the imported image after the build finishes. If set to `true`, the imported image will be deleted.
+	// Defaults to `false`.
 	CleanImportedImage bool `mapstructure:"clean_imported_image"`
 }
 
 func (c *ImportImageConfig) Prepare() []error {
-	if c.ImportSourceURL == "" || c.ImportTargetLocationName == "" {
+	if c.ImportSourceURL == "" {
 		return nil
 	}
 
 	var errs []error
+	if c.ImportSourceURL != "" && c.ImportTargetLocationName == "" {
+		errs = append(errs, fmt.Errorf("config import_target_location_name is required for importing image"))
+	}
+
+	if strings.HasPrefix(c.ImportSourceURL, "https://") && c.ImportSourceSSLCertificate == "" {
+		errs = append(errs, fmt.Errorf("config import_source_ssl_certificate is required for https based source urls"))
+	}
 
 	switch c.ImportTargetImageType {
 	case "":
@@ -89,13 +98,11 @@ func (c *ImportImageConfig) Prepare() []error {
 }
 
 type StepImportImage struct {
-	ImportImageConfig  *ImportImageConfig
-	CreateSourceConfig *CreateSourceConfig
+	ImportImageConfig *ImportImageConfig
 
-	SourceURL, SourceSSLCertificate, TargetLocationName, TargetItemName, Namespace string
-	TargetItemType                                                                 imgregv1.ContentLibraryItemType
-	KeepInputArtifact                                                              bool
-	KubeWatchClient                                                                client.WithWatch
+	ImportItemResourceName, Namespace string
+	TargetItemType                    imgregv1.ContentLibraryItemType
+	KubeWatchClient                   client.WithWatch
 }
 
 func (s *StepImportImage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -108,12 +115,6 @@ func (s *StepImportImage) Run(ctx context.Context, state multistep.StateBag) mul
 		}
 	}()
 
-	// Skip importing if the import source URL or target location is not specified.
-	if s.ImportImageConfig.ImportSourceURL == "" || s.ImportImageConfig.ImportTargetLocationName == "" {
-		logger.Info("Skipping image import step. Required configurations for the import are not set.")
-		return multistep.ActionContinue
-	}
-
 	if err = s.initStep(state, logger); err != nil {
 		logger.Error("failed to initialize image import: %s", err.Error())
 		return multistep.ActionHalt
@@ -124,7 +125,8 @@ func (s *StepImportImage) Run(ctx context.Context, state multistep.StateBag) mul
 		return multistep.ActionHalt
 	}
 
-	logger.Info("Importing the source image from %s to %s.", s.SourceURL, s.TargetLocationName)
+	logger.Info("Importing the source image from %s to %s.",
+		s.ImportImageConfig.ImportSourceURL, s.ImportImageConfig.ImportTargetLocationName)
 
 	if err = s.createImageImportRequest(ctx, logger); err != nil {
 		return multistep.ActionHalt
@@ -135,7 +137,8 @@ func (s *StepImportImage) Run(ctx context.Context, state multistep.StateBag) mul
 		return multistep.ActionHalt
 	}
 
-	logger.Info("Finished importing the image from %s to %s.", s.SourceURL, s.TargetLocationName)
+	logger.Info("Finished importing the image from %s to %s.",
+		s.ImportImageConfig.ImportSourceURL, s.ImportImageConfig.ImportTargetLocationName)
 
 	return multistep.ActionContinue
 }
@@ -144,19 +147,15 @@ func (s *StepImportImage) validate(ctx context.Context, logger *PackerLogger) er
 	logger.Info("Validating image import request...")
 
 	var err error
-	if err = s.isImportFeatureEnabled(ctx, logger); err != nil {
+	if err = s.checkImportFeatureEnabled(ctx, logger); err != nil {
 		return err
 	}
 
-	if err = s.isImportSourceValid(); err != nil {
+	if err = s.checkImportTarget(ctx, logger); err != nil {
 		return err
 	}
 
-	if err = s.isImportTargetValid(ctx, logger); err != nil {
-		return err
-	}
-
-	logger.Info("Image import request source and target are valid.")
+	logger.Info("Image import configs are valid.")
 	return nil
 }
 
@@ -168,25 +167,50 @@ func (s *StepImportImage) Cleanup(state multistep.StateBag) {
 	}
 
 	logger := state.Get("logger").(*PackerLogger)
-	if s.KeepInputArtifact {
+	if s.ImportImageConfig.KeepImportRequest && !s.ImportImageConfig.CleanImportedImage {
 		logger.Info("Skipping clean up of the ContentLibraryItemImportRequest object as specified in config.")
 		return
 	}
 
-	logger.Info(fmt.Sprintf("Deleting the ContentLibraryItemImportRequest object %s in namespace %s.",
-		s.ImportImageConfig.ImportRequestName, s.Namespace))
-	ctx := context.Background()
-	itemImportReqObj := &imgregv1.ContentLibraryItemImportRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.ImportImageConfig.ImportRequestName,
-			Namespace: s.Namespace,
-		},
+	if !s.ImportImageConfig.KeepImportRequest {
+		logger.Info(fmt.Sprintf("Deleting the ContentLibraryItemImportRequest object %s in namespace %s.",
+			s.ImportImageConfig.ImportRequestName, s.Namespace))
+		ctx := context.Background()
+		itemImportReqObj := &imgregv1.ContentLibraryItemImportRequest{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      s.ImportImageConfig.ImportRequestName,
+				Namespace: s.Namespace,
+			},
+		}
+		if err := s.KubeWatchClient.Delete(ctx, itemImportReqObj); err != nil {
+			logger.Error("error deleting the ContentLibraryItemImportRequest object : %s", err)
+		} else {
+			logger.Info("Successfully deleted the ContentLibraryItemImportRequest object %s in namespace %s.",
+				s.ImportImageConfig.ImportRequestName, s.Namespace)
+		}
 	}
-	if err := s.KubeWatchClient.Delete(ctx, itemImportReqObj); err != nil {
-		logger.Error("error deleting the ContentLibraryItemImportRequest object : %s", err)
-	} else {
-		logger.Info("Successfully deleted the ContentLibraryItemImportRequest object %s in namespace %s.",
-			s.ImportImageConfig.ImportRequestName, s.Namespace)
+
+	if s.ImportImageConfig.CleanImportedImage {
+		if s.ImportItemResourceName == "" {
+			return
+		}
+
+		// Clean imported image if the image is imported and clean image is set as true.
+		logger.Info(fmt.Sprintf("Deleting the imported ContentLibraryItem object %s in namespace %s.",
+			s.ImportItemResourceName, s.Namespace))
+		importedImage := &imgregv1.ContentLibraryItem{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      s.ImportItemResourceName,
+				Namespace: s.Namespace,
+			},
+		}
+		ctx := context.Background()
+		if err := s.KubeWatchClient.Delete(ctx, importedImage); err != nil {
+			logger.Error("error deleting the ContentLibraryItem object %s: %s", s.ImportItemResourceName, err)
+		} else {
+			logger.Info(fmt.Sprintf("Successfully deleted the ContentLibraryItem object %s in namespace %s.",
+				s.ImportItemResourceName, s.Namespace))
+		}
 	}
 }
 
@@ -207,24 +231,14 @@ func (s *StepImportImage) initStep(state multistep.StateBag, logger *PackerLogge
 		return fmt.Errorf("failed to cast %s to type client.WithWatch", StateKeyKubeClient)
 	}
 
-	s.SourceURL = s.ImportImageConfig.ImportSourceURL
-	s.SourceSSLCertificate = s.ImportImageConfig.ImportSourceSSLCertificate
-	s.TargetLocationName = s.ImportImageConfig.ImportTargetLocationName
 	if s.ImportImageConfig.ImportTargetImageType != "" {
 		s.TargetItemType = imgregv1.ContentLibraryItemType(strings.ToUpper(s.ImportImageConfig.ImportTargetImageType))
 	}
 
-	// Use the ImageName from create source config as the target item name.
-	s.TargetItemName = s.CreateSourceConfig.ImageName
-	s.KeepInputArtifact = s.CreateSourceConfig.KeepInputArtifact
-
-	state.Put(StateKeyCleanImportedImage, s.ImportImageConfig.CleanImportedImage)
-	state.Put(StateKeyImportedImageName, s.TargetItemName)
-
 	return nil
 }
 
-func (s *StepImportImage) isImportFeatureEnabled(ctx context.Context, logger *PackerLogger) error {
+func (s *StepImportImage) checkImportFeatureEnabled(ctx context.Context, logger *PackerLogger) error {
 	importReq := &imgregv1.ContentLibraryItemImportRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:    s.Namespace,
@@ -233,8 +247,7 @@ func (s *StepImportImage) isImportFeatureEnabled(ctx context.Context, logger *Pa
 	}
 
 	// Use dry run mode to send an image import creation request to API-Server without applying the resource.
-	err := client.NewDryRunClient(s.KubeWatchClient).Create(ctx, importReq)
-	if err != nil && strings.Contains(err.Error(), importOVFFeatureNotEnabledMsg) {
+	if err := client.NewDryRunClient(s.KubeWatchClient).Create(ctx, importReq); err != nil && strings.Contains(err.Error(), importOVFFeatureNotEnabledMsg) {
 		logger.Error("image import feature is not enabled")
 		return err
 	}
@@ -242,24 +255,18 @@ func (s *StepImportImage) isImportFeatureEnabled(ctx context.Context, logger *Pa
 	return nil
 }
 
-func (s *StepImportImage) isImportSourceValid() error {
-	if strings.HasPrefix(s.ImportImageConfig.ImportSourceURL, "https://") && s.ImportImageConfig.ImportSourceSSLCertificate == "" {
-		return fmt.Errorf("import request source url certificate is empty")
-	}
-
-	return nil
-}
-
-func (s *StepImportImage) isImportTargetValid(ctx context.Context, logger *PackerLogger) error {
+func (s *StepImportImage) checkImportTarget(ctx context.Context, logger *PackerLogger) error {
 	cl := &imgregv1.ContentLibrary{}
-	objKey := client.ObjectKey{Name: s.TargetLocationName, Namespace: s.Namespace}
+	objKey := client.ObjectKey{Name: s.ImportImageConfig.ImportTargetLocationName, Namespace: s.Namespace}
 	if err := s.KubeWatchClient.Get(ctx, objKey, cl); err != nil {
-		logger.Error(fmt.Sprintf("failed to return the content library by name %s in namespace %s", s.TargetLocationName, s.Namespace))
+		logger.Error(fmt.Sprintf("failed to return the content library by name %s in namespace %s",
+			s.ImportImageConfig.ImportTargetLocationName, s.Namespace))
 		return err
 	}
 
 	if !cl.Spec.Writable || !cl.Spec.AllowImport {
-		return fmt.Errorf("import target content library %q is not writable or does not allow import", s.TargetLocationName)
+		return fmt.Errorf("import target content library %q is not writable or does not allow import",
+			s.ImportImageConfig.ImportTargetLocationName)
 	}
 
 	// Only supports OVF type for now, this check needs to be updated when supporting other types.
@@ -280,17 +287,17 @@ func (s *StepImportImage) createImageImportRequest(ctx context.Context, logger *
 		},
 		Spec: imgregv1.ContentLibraryItemImportRequestSpec{
 			Source: imgregv1.ContentLibraryItemImportRequestSource{
-				URL:            s.SourceURL,
-				SSLCertificate: s.SourceSSLCertificate,
+				URL:            s.ImportImageConfig.ImportSourceURL,
+				SSLCertificate: s.ImportImageConfig.ImportSourceSSLCertificate,
 			},
 			Target: imgregv1.ContentLibraryItemImportRequestTarget{
 				Library: imgregv1.LocalObjectRef{
 					Kind:       ImportTargetKind,
 					APIVersion: ImportTargetAPIVersion,
-					Name:       s.TargetLocationName,
+					Name:       s.ImportImageConfig.ImportTargetLocationName,
 				},
 				Item: imgregv1.ContentLibraryItemImportRequestTargetItem{
-					Name: s.TargetItemName,
+					Name: s.ImportImageConfig.ImportTargetImageName,
 					Type: s.TargetItemType,
 				},
 			},
@@ -313,7 +320,7 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 	})
 
 	if err != nil {
-		logger.Error("error watching the ContentLibraryItemImportRequest object in Supervisor cluster")
+		logger.Error("error watching the ContentLibraryItemImportRequest object in supervisor cluster")
 		return err
 	}
 
@@ -344,6 +351,10 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 				return fmt.Errorf("failed to convert the watch ContentLibraryItemImportRequest event object")
 			}
 
+			if itemImportReqObj.Status.ItemRef != nil {
+				s.ImportItemResourceName = itemImportReqObj.Status.ItemRef.Name
+			}
+
 			importSuccess := false
 			for _, cond := range itemImportReqObj.Status.Conditions {
 				if cond.Type == imgregv1.ContentLibraryItemImportRequestComplete {
@@ -351,8 +362,8 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 				}
 			}
 			if importSuccess {
-				// Set item ref name if the import is successful.
-				state.Put(StateKeyImportedImageName, itemImportReqObj.Status.ItemRef.Name)
+				// Set VM image ref name if the import is successful.
+				state.Put(StateKeyImportedImageName, strings.ReplaceAll(s.ImportItemResourceName, "clitem-", "vmi-"))
 
 				logger.Info("Successfully imported the image as a content library item %q.", itemImportReqObj.Status.ItemRef)
 				return nil

@@ -16,9 +16,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/retry"
-	imgregv1 "github.com/vmware-tanzu/image-registry-operator-api/api/v1alpha1"
 	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -94,33 +92,7 @@ func (s *StepWatchSource) Run(ctx context.Context, state multistep.StateBag) mul
 	return multistep.ActionContinue
 }
 
-func (s *StepWatchSource) Cleanup(state multistep.StateBag) {
-	if cleanImage, ok := state.GetOk(StateKeyCleanImportedImage); ok && cleanImage.(bool) {
-		logger := state.Get("logger").(*PackerLogger)
-
-		if state.Get(StateKeyImportedImageName) == nil {
-			logger.Info(fmt.Sprintf("Skip cleaning imported image since config %s is not set", StateKeyImportedImageName))
-			return
-		}
-		importImageName := state.Get(StateKeyImportedImageName).(string)
-
-		logger.Info(fmt.Sprintf("Deleting the imported ContentLibraryItem object %s in namespace %s.",
-			importImageName, s.Namespace))
-		ctx := context.Background()
-		importedImage := &imgregv1.ContentLibraryItem{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      importImageName,
-				Namespace: s.Namespace,
-			},
-		}
-		if err := s.KubeWatchClient.Delete(ctx, importedImage); err != nil {
-			logger.Error("error deleting the ContentLibraryItem object %s: %s", importImageName, err)
-		} else {
-			logger.Info(fmt.Sprintf("Successfully deleted the ContentLibraryItem object %s in namespace %s.",
-				importImageName, s.Namespace))
-		}
-	}
-}
+func (s *StepWatchSource) Cleanup(state multistep.StateBag) {}
 
 func (s *StepWatchSource) initStep(state multistep.StateBag) error {
 	if err := CheckRequiredStates(state,

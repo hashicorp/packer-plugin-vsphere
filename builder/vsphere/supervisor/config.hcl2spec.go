@@ -74,12 +74,14 @@ type FlatConfig struct {
 	ImportSourceSSLCertificate *string           `mapstructure:"import_source_ssl_certificate" cty:"import_source_ssl_certificate" hcl:"import_source_ssl_certificate"`
 	ImportTargetLocationName   *string           `mapstructure:"import_target_location_name" cty:"import_target_location_name" hcl:"import_target_location_name"`
 	ImportTargetImageType      *string           `mapstructure:"import_target_image_type" cty:"import_target_image_type" hcl:"import_target_image_type"`
+	ImportTargetImageName      *string           `mapstructure:"import_target_image_name" cty:"import_target_image_name" hcl:"import_target_image_name"`
 	ImportRequestName          *string           `mapstructure:"import_request_name" cty:"import_request_name" hcl:"import_request_name"`
 	WatchImportTimeoutSec      *int              `mapstructure:"watch_import_timeout_sec" cty:"watch_import_timeout_sec" hcl:"watch_import_timeout_sec"`
+	KeepImportRequest          *bool             `mapstructure:"keep_import_request" cty:"keep_import_request" hcl:"keep_import_request"`
 	CleanImportedImage         *bool             `mapstructure:"clean_imported_image" cty:"clean_imported_image" hcl:"clean_imported_image"`
-	ImageName                  *string           `mapstructure:"image_name" required:"true" cty:"image_name" hcl:"image_name"`
 	ClassName                  *string           `mapstructure:"class_name" required:"true" cty:"class_name" hcl:"class_name"`
 	StorageClass               *string           `mapstructure:"storage_class" required:"true" cty:"storage_class" hcl:"storage_class"`
+	ImageName                  *string           `mapstructure:"image_name" cty:"image_name" hcl:"image_name"`
 	SourceName                 *string           `mapstructure:"source_name" cty:"source_name" hcl:"source_name"`
 	NetworkType                *string           `mapstructure:"network_type" cty:"network_type" hcl:"network_type"`
 	NetworkName                *string           `mapstructure:"network_name" cty:"network_name" hcl:"network_name"`
@@ -167,12 +169,14 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"import_source_ssl_certificate": &hcldec.AttrSpec{Name: "import_source_ssl_certificate", Type: cty.String, Required: false},
 		"import_target_location_name":   &hcldec.AttrSpec{Name: "import_target_location_name", Type: cty.String, Required: false},
 		"import_target_image_type":      &hcldec.AttrSpec{Name: "import_target_image_type", Type: cty.String, Required: false},
+		"import_target_image_name":      &hcldec.AttrSpec{Name: "import_target_image_name", Type: cty.String, Required: false},
 		"import_request_name":           &hcldec.AttrSpec{Name: "import_request_name", Type: cty.String, Required: false},
 		"watch_import_timeout_sec":      &hcldec.AttrSpec{Name: "watch_import_timeout_sec", Type: cty.Number, Required: false},
+		"keep_import_request":           &hcldec.AttrSpec{Name: "keep_import_request", Type: cty.Bool, Required: false},
 		"clean_imported_image":          &hcldec.AttrSpec{Name: "clean_imported_image", Type: cty.Bool, Required: false},
-		"image_name":                    &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"class_name":                    &hcldec.AttrSpec{Name: "class_name", Type: cty.String, Required: false},
 		"storage_class":                 &hcldec.AttrSpec{Name: "storage_class", Type: cty.String, Required: false},
+		"image_name":                    &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"source_name":                   &hcldec.AttrSpec{Name: "source_name", Type: cty.String, Required: false},
 		"network_type":                  &hcldec.AttrSpec{Name: "network_type", Type: cty.String, Required: false},
 		"network_name":                  &hcldec.AttrSpec{Name: "network_name", Type: cty.String, Required: false},

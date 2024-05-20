@@ -76,8 +76,6 @@ items are listed below as well as the _optional_ configurations.
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 
-- `image_name` (string) - Name of the source virtual machine (VM) image.
-
 - `class_name` (string) - Name of the VM class that describes virtual hardware settings.
 
 - `storage_class` (string) - Name of the storage class that configures storage-related attributes.
@@ -108,10 +106,13 @@ items are listed below as well as the _optional_ configurations.
 
 - `import_source_ssl_certificate` (string) - The SSL certificate of the remote HTTP server that hosts the to-be-imported image.
 
-- `import_target_location_name` (string) - Name of a writable & import-allowed ContentLibrary resource in the namespace where the image will be imported.
+- `import_target_location_name` (string) - Name of a writable and import-allowed ContentLibrary resource in the namespace where the image will be imported.
 
-- `import_target_image_type` (string) - The type of the imported image.
+- `import_target_image_type` (string) - The type of imported image.
   Defaults to `ovf`. Available options include `ovf`.
+
+- `import_target_image_name` (string) - Name of the imported image.
+  Defaults to the file name of the image referenced in the source URL.
 
 - `import_request_name` (string) - The name of the image import request.
   Defaults to `packer-vsphere-supervisor-import-req-<random-suffix>`.
@@ -119,9 +120,11 @@ items are listed below as well as the _optional_ configurations.
 - `watch_import_timeout_sec` (int) - The timeout in seconds to wait for the image to be imported.
   Defaults to `600`.
 
-- `clean_imported_image` (bool) - Whether to clean the image imported in this step. If it is set to true, the imported image will be deleted after
-  source VM is created and becomes ready.
-  Defaults to false.
+- `keep_import_request` (bool) - Preserve the import request in the Supervisor cluster after the build finishes.
+  Defaults to `false`.
+
+- `clean_imported_image` (bool) - Clean the imported image after the build finishes. If set to `true`, the imported image will be deleted.
+  Defaults to `false`.
 
 <!-- End of code generated from the comments of the ImportImageConfig struct in builder/vsphere/supervisor/step_import_image.go; -->
 
@@ -129,6 +132,9 @@ items are listed below as well as the _optional_ configurations.
 #### Source Virtual Machine Creation
 
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
+
+- `image_name` (string) - Name of the source virtual machine (VM) image. If it is specified, the image with the name will be used for the
+  source VM, otherwise the image name from imported image will be used.
 
 - `source_name` (string) - Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
 

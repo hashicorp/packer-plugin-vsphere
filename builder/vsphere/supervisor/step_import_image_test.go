@@ -34,9 +34,11 @@ const (
 )
 
 func TestImportImage_Prepare(t *testing.T) {
+	// 1. Prepare() should succeed with required configs.
 	config := &supervisor.ImportImageConfig{
-		ImportSourceURL:          testSourceURL,
-		ImportTargetLocationName: testTargetLibrary,
+		ImportSourceURL:            testSourceURL,
+		ImportSourceSSLCertificate: testSSLCertificate,
+		ImportTargetLocationName:   testTargetLibrary,
 	}
 	if actualErrs := config.Prepare(); len(actualErrs) != 0 {
 		t.Fatalf("Prepare should NOT fail: %v", actualErrs)
@@ -55,7 +57,7 @@ func TestImportImage_Prepare(t *testing.T) {
 		t.Fatal("The default import request name should start with packer-vsphere-supervisor-import-req-")
 	}
 
-	// Prepare() should fail by setting image type other.
+	// 2. Prepare() should fail by setting image type other.
 	config.ImportTargetImageType = "other"
 	actualErrs := config.Prepare()
 	if len(actualErrs) != 1 {
@@ -65,42 +67,29 @@ func TestImportImage_Prepare(t *testing.T) {
 	if actualErrs[0].Error() != expectedErr {
 		t.Fatalf("expected error is %v, but got %v", expectedErr, actualErrs[0].Error())
 	}
-}
 
-func TestStepImportImage_Run_Skip(t *testing.T) {
-	// Initialize the step without `import_source_url` set.
-	config := &supervisor.ImportImageConfig{
-		WatchImportTimeoutSec: 5,
+	// 3. Prepare() should fail by not setting SSL certificate.
+	config.ImportTargetImageType = "ovf"
+	config.ImportSourceSSLCertificate = ""
+	actualErrs = config.Prepare()
+	if len(actualErrs) != 1 {
+		t.Fatalf("Prepare should have failed.")
 	}
-	step := &supervisor.StepImportImage{
-		ImportImageConfig: config,
-		CreateSourceConfig: &supervisor.CreateSourceConfig{
-			ImageName: "test-image-name",
-		},
-	}
-
-	// Set up required state for running this step.
-	state := newBasicTestState(new(bytes.Buffer))
-	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
-	state.Put(supervisor.StateKeyKubeClient, newFakeKubeClient())
-
-	action := step.Run(context.TODO(), state)
-	if action != multistep.ActionContinue {
-		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("error running step: %s", rawErr.(error))
-		}
-		t.Fatal("Step should continue")
+	expectedErr = "config import_source_ssl_certificate is required for https based source urls"
+	if actualErrs[0].Error() != expectedErr {
+		t.Fatalf("expected error is %v, but got %v", expectedErr, actualErrs[0].Error())
 	}
 
-	// Step still skips with `import_source_url` but not `import_target_location_name`
-	step.ImportImageConfig.ImportSourceURL = testSourceURL
-
-	action = step.Run(context.TODO(), state)
-	if action != multistep.ActionContinue {
-		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("error running step: %s", rawErr.(error))
-		}
-		t.Fatal("Step should continue")
+	// 4. Prepare() should fail by not setting target location name.
+	config.ImportSourceSSLCertificate = testSSLCertificate
+	config.ImportTargetLocationName = ""
+	actualErrs = config.Prepare()
+	if len(actualErrs) != 1 {
+		t.Fatalf("Prepare should have failed.")
+	}
+	expectedErr = "config import_target_location_name is required for importing image"
+	if actualErrs[0].Error() != expectedErr {
+		t.Fatalf("expected error is %v, but got %v", expectedErr, actualErrs[0].Error())
 	}
 }
 
@@ -110,12 +99,10 @@ func TestStepImportImage_Run_Validate(t *testing.T) {
 		ImportRequestName:        testImportReqName,
 		ImportSourceURL:          testSourceURL,
 		ImportTargetLocationName: testTargetLibrary,
+		ImportTargetImageName:    testImageName,
 	}
 	step := &supervisor.StepImportImage{
 		ImportImageConfig: config,
-		CreateSourceConfig: &supervisor.CreateSourceConfig{
-			ImageName: testImageName,
-		},
 	}
 
 	ctx := context.TODO()
@@ -162,34 +149,13 @@ func TestStepImportImage_Run_Validate(t *testing.T) {
 	}
 	checkOutputLines(t, testWriter, expectedOutput)
 
-	// 3. Test with empty source SSL certificate with https source URL.
+	// 3. Test with non-existing target content library.
 	kubeClient := newFakeKubeClient()
 	step.ImportImageConfig.ImportSourceURL = testSourceURL
-	step.ImportImageConfig.ImportSourceSSLCertificate = ""
+	step.ImportImageConfig.ImportSourceSSLCertificate = testSSLCertificate
+
 	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
-
-	action = step.Run(ctx, state)
-	if action != multistep.ActionHalt {
-		t.Fatal("Step should halt")
-	}
-
-	expectedError = "import request source url certificate is empty"
-	if rawErr, ok := state.GetOk("error"); ok {
-		if !strings.Contains(rawErr.(error).Error(), expectedError) {
-			t.Errorf("expected error contains %v, but got %v", expectedError, rawErr.(error).Error())
-		}
-	}
-
-	expectedOutput = []string{
-		"Validating image import request...",
-		"failed to validate import image configs: import request source url certificate is empty",
-	}
-	checkOutputLines(t, testWriter, expectedOutput)
-
-	// 4. Test with non-existing target content library.
-	step.ImportImageConfig.ImportSourceSSLCertificate = testSSLCertificate
-	kubeClient = newFakeKubeClient()
 	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
 
@@ -212,7 +178,7 @@ func TestStepImportImage_Run_Validate(t *testing.T) {
 	}
 	checkOutputLines(t, testWriter, expectedOutput)
 
-	// 5. Test with existing but non-allow-import "import_target_location_name".
+	// 4. Test with existing but non-allow-import "import_target_location_name".
 	clObj := &imgregv1.ContentLibrary{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: testNamespace,
@@ -244,7 +210,7 @@ func TestStepImportImage_Run_Validate(t *testing.T) {
 	}
 	checkOutputLines(t, testWriter, expectedOutput)
 
-	// 6. Test with invalid target type.
+	// 5. Test with invalid target type.
 	clObj.Spec.AllowImport = true
 	kubeClient = newFakeKubeClient(clObj)
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
@@ -269,7 +235,7 @@ func TestStepImportImage_Run_Validate(t *testing.T) {
 }
 
 func TestStepImportImage_Run(t *testing.T) {
-	// Initialize the step without `import_source_url` set.
+	// Initialize the step with valid configs.
 	config := &supervisor.ImportImageConfig{
 		WatchImportTimeoutSec:      5,
 		ImportRequestName:          testImportReqName,
@@ -277,12 +243,10 @@ func TestStepImportImage_Run(t *testing.T) {
 		ImportSourceSSLCertificate: testSSLCertificate,
 		ImportTargetLocationName:   testTargetLibrary,
 		ImportTargetImageType:      "ovf",
+		ImportTargetImageName:      testImageName,
 	}
 	step := &supervisor.StepImportImage{
 		ImportImageConfig: config,
-		CreateSourceConfig: &supervisor.CreateSourceConfig{
-			ImageName: testImageName,
-		},
 	}
 
 	targetLib := &imgregv1.ContentLibrary{
@@ -335,7 +299,7 @@ func TestStepImportImage_Run(t *testing.T) {
 
 		expectedOutput := []string{
 			"Validating image import request...",
-			"Image import request source and target are valid.",
+			"Image import configs are valid.",
 			fmt.Sprintf("Importing the source image from %s to %s.", testSourceURL, testTargetLibrary),
 			fmt.Sprintf("Creating ContentLibraryItemImportRequest object %s in namespace %s.", testImportReqName, testNamespace),
 			fmt.Sprintf("Successfully created the ContentLibraryItemImportRequest object %s.", testImportReqName),
@@ -383,10 +347,15 @@ func TestStepImportImage_Run(t *testing.T) {
 	wg.Wait()
 }
 
-func TestStepImportImage_Cleanup(t *testing.T) {
-	// Test when 'keep_input_artifact' config is set to true (should skip cleanup).
-	step := &supervisor.StepImportImage{}
-	step.KeepInputArtifact = true
+// TestStepImportImage_Cleanup_Request tests cleaning request resource only by setting clean_imported_image false.
+func TestStepImportImage_Cleanup_Request(t *testing.T) {
+	// 1. Test when 'keep_input_artifact' config is set to true (should skip cleanup).
+	step := &supervisor.StepImportImage{
+		ImportImageConfig: &supervisor.ImportImageConfig{
+			KeepImportRequest:  true,
+			CleanImportedImage: false,
+		},
+	}
 	testWriter := new(bytes.Buffer)
 	state := newBasicTestState(testWriter)
 	state.Put(supervisor.StateKeyImageImportRequestCreated, true)
@@ -395,8 +364,8 @@ func TestStepImportImage_Cleanup(t *testing.T) {
 	expectedOutput := []string{"Skipping clean up of the ContentLibraryItemImportRequest object as specified in config."}
 	checkOutputLines(t, testWriter, expectedOutput)
 
-	// Test when 'keep_input_artifact' config is false (should delete the ContentLibraryItemImportRequest object).
-	step.KeepInputArtifact = false
+	// 2. Test when 'keep_input_artifact' config is false (should delete the ContentLibraryItemImportRequest object).
+	step.ImportImageConfig.KeepImportRequest = false
 	step.ImportImageConfig = &supervisor.ImportImageConfig{}
 	step.ImportImageConfig.ImportRequestName = testImportReqName
 	step.Namespace = testNamespace
@@ -412,7 +381,7 @@ func TestStepImportImage_Cleanup(t *testing.T) {
 	state.Put(supervisor.StateKeyImageImportRequestCreated, true)
 	step.Cleanup(state)
 
-	// Check if the source objects are deleted from the cluster.
+	// Check if the ContentLibraryItemImportRequest object is deleted from the cluster.
 	ctx := context.TODO()
 	objKey := client.ObjectKey{
 		Name:      testImportReqName,
@@ -424,8 +393,71 @@ func TestStepImportImage_Cleanup(t *testing.T) {
 
 	// Check the output lines from the step runs.
 	expectedOutput = []string{
-		fmt.Sprintf("Deleting the ContentLibraryItemImportRequest object %s from Supervisor cluster.", testImportReqName),
-		"Successfully deleted the ContentLibraryItemImportRequest object.",
+		fmt.Sprintf("Deleting the ContentLibraryItemImportRequest object %s in namespace %s.", testImportReqName, testNamespace),
+		fmt.Sprintf("Successfully deleted the ContentLibraryItemImportRequest object %s in namespace %s.", testImportReqName, testNamespace),
+	}
+	checkOutputLines(t, testWriter, expectedOutput)
+}
+
+// TestStepImportImage_Cleanup_Image tests cleaning imported image only by setting keep_input_artifact true.
+func TestStepImportImage_Cleanup_Image(t *testing.T) {
+	step := &supervisor.StepImportImage{
+		Namespace: testNamespace,
+		ImportImageConfig: &supervisor.ImportImageConfig{
+			KeepImportRequest: true,
+		},
+	}
+	importedImage := &imgregv1.ContentLibraryItem{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      testCLItemName,
+			Namespace: testNamespace,
+		},
+	}
+	fakeClient := newFakeKubeClient(importedImage)
+	step.KubeWatchClient = fakeClient
+
+	ctx := context.TODO()
+	objKey := client.ObjectKey{
+		Name:      testCLItemName,
+		Namespace: testNamespace,
+	}
+	testWriter := new(bytes.Buffer)
+	state := newBasicTestState(testWriter)
+
+	// 1. Test when 'clean_imported_image' config is not set.
+	step.ImportImageConfig.ImportRequestName = testImportReqName
+
+	step.Cleanup(state)
+
+	expectedOutput := []string{"Skipping clean up of the ContentLibraryItemImportRequest object as specified in config."}
+	checkOutputLines(t, testWriter, expectedOutput)
+
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); err != nil {
+		t.Fatal("The ContentLibraryItem object should still exist")
+	}
+
+	// 2. Test when 'clean_imported_image' is set as true but imported item name is not set.
+	step.ImportImageConfig.CleanImportedImage = true
+	step.ImportItemResourceName = ""
+	step.Cleanup(state)
+
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); err != nil {
+		t.Fatal("The ContentLibraryItem object should still exist")
+	}
+
+	// 3. Test when 'clean_imported_image' and the imported item name is set.
+	step.ImportItemResourceName = testCLItemName
+	step.Cleanup(state)
+
+	// Check if the imported image object is deleted from the cluster.
+	if err := fakeClient.Get(ctx, objKey, &imgregv1.ContentLibraryItem{}); !errors.IsNotFound(err) {
+		t.Fatal("Expected the ContentLibraryItem object to be deleted")
+	}
+
+	// Check the output lines from the step runs.
+	expectedOutput = []string{
+		fmt.Sprintf("Deleting the imported ContentLibraryItem object %s in namespace %s.", testCLItemName, testNamespace),
+		fmt.Sprintf("Successfully deleted the ContentLibraryItem object %s in namespace %s.", testCLItemName, testNamespace),
 	}
 	checkOutputLines(t, testWriter, expectedOutput)
 }

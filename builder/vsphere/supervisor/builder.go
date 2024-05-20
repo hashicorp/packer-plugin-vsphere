@@ -63,8 +63,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	if b.config.ImportImageConfig.ImportSourceURL != "" {
 		steps = append(steps,
 			&StepImportImage{
-				ImportImageConfig:  &b.config.ImportImageConfig,
-				CreateSourceConfig: &b.config.CreateSourceConfig,
+				ImportImageConfig: &b.config.ImportImageConfig,
 			},
 		)
 	}
