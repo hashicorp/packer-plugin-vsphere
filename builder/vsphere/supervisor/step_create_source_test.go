@@ -133,8 +133,10 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	}
 	checkOutputLines(t, testWriter, expectedOutput)
 
-	// Step should not halt after specifying image name.
+	// Step should not halt after specifying image name and the imported image name.
+	importedImageName := "imported-image"
 	config.ImageName = "test-image"
+	state.Put(supervisor.StateKeyImportedImageName, importedImageName)
 	action = step.Run(ctx, state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
@@ -225,6 +227,7 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	// Check the output lines from the step runs.
 	expectedOutput = []string{
 		"Creating required source objects in Supervisor cluster...",
+		fmt.Sprintf("The configured image with name %s will be used to create the source VirtualMachine object instead of the imported image %s", config.ImageName, importedImageName),
 		"Creating a K8s Secret object for providing source VM bootstrap data...",
 		"Using default cloud-init user data as the 'bootstrap_data_file' is not specified",
 		"Successfully created the K8s Secret object",

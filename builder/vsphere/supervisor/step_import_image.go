@@ -70,7 +70,7 @@ func (c *ImportImageConfig) Prepare() []error {
 	}
 
 	var errs []error
-	if c.ImportSourceURL != "" && c.ImportTargetLocationName == "" {
+	if c.ImportTargetLocationName == "" {
 		errs = append(errs, fmt.Errorf("config import_target_location_name is required for importing image"))
 	}
 
@@ -359,6 +359,7 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 			for _, cond := range itemImportReqObj.Status.Conditions {
 				if cond.Type == imgregv1.ContentLibraryItemImportRequestComplete {
 					importSuccess = cond.Status == corev1.ConditionTrue
+					break
 				}
 			}
 			if importSuccess {

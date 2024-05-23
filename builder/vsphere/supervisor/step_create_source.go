@@ -108,7 +108,7 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		}
 	}()
 
-	if err = s.initStep(state); err != nil {
+	if err = s.initStep(state, logger); err != nil {
 		return multistep.ActionHalt
 	}
 
@@ -190,7 +190,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	}
 }
 
-func (s *StepCreateSource) initStep(state multistep.StateBag) error {
+func (s *StepCreateSource) initStep(state multistep.StateBag, logger *PackerLogger) error {
 	if err := CheckRequiredStates(state,
 		StateKeyKubeClient,
 		StateKeySupervisorNamespace,
@@ -204,10 +204,17 @@ func (s *StepCreateSource) initStep(state multistep.StateBag) error {
 		kubeClient client.Client
 	)
 
+	importedImageName, _ := state.Get(StateKeyImportedImageName).(string)
 	if s.Config.ImageName == "" {
-		if s.Config.ImageName, ok = state.Get(StateKeyImportedImageName).(string); !ok {
+		if importedImageName == "" {
 			return fmt.Errorf("the image name should be specified in config 'image_name' or generated from image import")
+		} else {
+			s.Config.ImageName = importedImageName
 		}
+	} else if importedImageName != "" {
+		// If both are set, the image name specified in the config will be used for the source image.
+		logger.Info(fmt.Sprintf("The configured image with name %s will be used to create the source VirtualMachine object instead of the imported image %s",
+			s.Config.ImageName, importedImageName))
 	}
 
 	if namespace, ok = state.Get(StateKeySupervisorNamespace).(string); !ok {
