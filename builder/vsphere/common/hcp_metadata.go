@@ -13,25 +13,35 @@ import (
 
 func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) map[string]string {
 	labels := make(map[string]string)
-
 	info, err := vm.Info("config.uuid", "config.annotation", "config.hardware", "resourcePool", "datastore", "network", "summary")
 	if err != nil || info == nil {
-		log.Printf("[TRACE] error extracting VM metadata: %s", err)
+		log.Printf("[TRACE] error extracting virtual machine metadata: %s", err)
 		return labels
 	}
 	if info.Config != nil {
-		labels["vsphere_uuid"] = info.Config.Uuid
+		// Saved the virtual machine UUID.
+		// If destroyed after import to content library, the UUID is not saved.
+		destroyAfterImport, ok := state.Get("destroy_vm").(bool)
+		if !ok || !destroyAfterImport {
+			labels["vsphere_uuid"] = info.Config.Uuid
+		}
 
-		// VM description
+		// If the content library is used, save the content library item UUID.
+		if itemUuid, ok := state.Get("content_library_item_uuid").(string); ok {
+			labels["content_library_item_uuid"] = itemUuid
+		}
+
+		// Save the virtual machine annotation, if exists.
 		if info.Config.Annotation != "" {
 			labels["annotation"] = info.Config.Annotation
 		}
 
-		// Hardware
+		// Save the basic virtual machine hardware summary.
 		labels["num_cpu"] = fmt.Sprintf("%d", info.Config.Hardware.NumCPU)
 		labels["memory_mb"] = fmt.Sprintf("%d", info.Config.Hardware.MemoryMB)
 	}
 
+	// Save the virtual machine resource pool, if exists.
 	if info.ResourcePool != nil {
 		p := vm.NewResourcePool(info.ResourcePool)
 		poolPath, err := p.Path()
@@ -40,6 +50,7 @@ func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) ma
 		}
 	}
 
+	// Save the virtual machine datastore.
 	for i, datastore := range info.Datastore {
 		dsr := datastore.Reference()
 		ds := vm.NewDatastore(&dsr)
@@ -54,6 +65,7 @@ func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) ma
 		}
 	}
 
+	// Save the virtual machine network.
 	for i, network := range info.Network {
 		net := network.Reference()
 		n := vm.NewNetwork(&net)
@@ -68,6 +80,7 @@ func GetVMMetadata(vm *driver.VirtualMachineDriver, state multistep.StateBag) ma
 		}
 	}
 
+	// Save the virtual machine content library datastore.
 	if datastores, ok := state.Get("content_library_datastore").([]string); ok {
 		for i, ds := range datastores {
 			if i == 0 {

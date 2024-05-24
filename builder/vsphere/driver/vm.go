@@ -1368,6 +1368,29 @@ func (vm *VirtualMachineDriver) Datacenter() *object.Datacenter {
 	return vm.driver.datacenter
 }
 
+func (vm *VirtualMachineDriver) FindContentLibraryItemUUID(library string, name string) (string, error) {
+	err := vm.driver.restClient.Login(vm.driver.ctx)
+	if err != nil {
+		return "", err
+	}
+
+	l, err := vm.driver.FindContentLibraryByName(library)
+	if err != nil {
+		log.Printf("cannot find content library: %v", err)
+		vm.logout()
+		return "", err
+	}
+
+	item, err := vm.driver.FindContentLibraryItemUUID(l.library.ID, name)
+	if err != nil {
+		log.Printf("cannot find content library item: %v", err)
+		vm.logout()
+		return "", err
+	}
+
+	return item, nil
+}
+
 func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library string) ([]string, error) {
 	err := vm.driver.restClient.Login(vm.driver.ctx)
 	if err != nil {
