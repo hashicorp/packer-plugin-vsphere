@@ -71,13 +71,13 @@ func (s *StepConnect) Cleanup(state multistep.StateBag) {
 	ui := state.Get("ui").(packersdk.Ui)
 	d, ok := state.GetOk("driver")
 	if !ok {
-		log.Printf("[INFO] No driver in state - nothing to cleanup")
+		log.Printf("[INFO] No driver in state; nothing to cleanup.")
 		return
 	}
 
 	driver, ok := d.(driver.Driver)
 	if !ok {
-		log.Printf("[ERROR] The driver stored in state was not a driver.Driver (%s), something might be wrong", reflect.TypeOf(d))
+		log.Printf("[ERROR] The object stored in the state under 'driver' key is of type '%s', not 'driver.Driver'. This could indicate a problem with the state initialization or management.", reflect.TypeOf(d))
 		return
 	}
 
