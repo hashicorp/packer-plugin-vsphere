@@ -155,6 +155,7 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	}
 	ui.Say(fmt.Sprintf("Importing %s template %s to Content Library '%s' as the item '%s' with the description '%s'...",
 		vmTypeLabel, s.ContentLibConfig.Name, s.ContentLibConfig.Library, s.ContentLibConfig.Name, s.ContentLibConfig.Description))
+
 	if s.ContentLibConfig.Ovf {
 		err = s.importOvfTemplate(vm)
 	} else {
@@ -167,14 +168,27 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 		return multistep.ActionHalt
 	}
 
+	// Add a tracer to the state to track if the Destroy parameter was used.
 	if s.ContentLibConfig.Destroy {
 		state.Put("destroy_vm", s.ContentLibConfig.Destroy)
 	}
 
-	// For HCP Packer metadata, we save the template's datastore in state.
+	// For HCP Packer metadata, save the content library item UUID in state.
+	itemUuid, err := vm.FindContentLibraryItemUUID(s.ContentLibConfig.Library, s.ContentLibConfig.Name)
+	if err != nil {
+		ui.Error(fmt.Sprintf("Failed to get content library item uuid: %s", err.Error()))
+		state.Put("error", err)
+		return multistep.ActionHalt
+	} else {
+		state.Put("content_library_item_uuid", itemUuid)
+	}
+
+	// For HCP Packer metadata, save the content library datastore name in state.
 	datastores, err := vm.FindContentLibraryTemplateDatastoreName(s.ContentLibConfig.Library)
 	if err != nil {
-		ui.Say(fmt.Sprintf("[TRACE] Failed to get Content Library datastore name: %s", err.Error()))
+		ui.Error(fmt.Sprintf("Failed to get content library datastore name: %s", err.Error()))
+		state.Put("error", err)
+		return multistep.ActionHalt
 	} else {
 		state.Put("content_library_datastore", datastores)
 	}
