@@ -68,7 +68,7 @@ func (s *StepRun) Cleanup(state multistep.StateBag) {
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
 	if s.Config.BootOrder == "" && s.SetOrder {
-		ui.Say("Clearing the boot order...")
+		ui.Say("Clearing boot order...")
 		if err := vm.SetBootOrder([]string{"-"}); err != nil {
 			state.Put("error", err)
 			return

@@ -295,7 +295,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		}
 
 		if len(unknown) > 0 {
-			ui.Error(fmt.Sprintf("unknown export options %s", strings.Join(unknown, ",")))
+			ui.Errorf("unknown export options %s", strings.Join(unknown, ","))
 		}
 	}
 
@@ -311,7 +311,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		file := i.File()
 
 		// Download the virtual machine image in Open Virtualization Format.
-		ui.Say(fmt.Sprintf("Downloading %s...", file.Path))
+		ui.Sayf("Downloading %s...", file.Path)
 		size, err := s.Download(ctx, lease, i)
 		if err != nil {
 			state.Put("error", err)
@@ -322,7 +322,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		file.Size = size
 
 		// Export the virtual machine image in Open Virtualization Format.
-		ui.Say(fmt.Sprintf("Exporting %s...", file.Path))
+		ui.Sayf("Exporting %s...", file.Path)
 		cdp.OvfFiles = append(cdp.OvfFiles, file)
 	}
 
@@ -351,7 +351,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 	}
 
 	// Write the Open Virtualization Format descriptor.
-	ui.Say(fmt.Sprintf("Writing OVF descriptor %s...", s.Name+".ovf"))
+	ui.Sayf("Writing OVF descriptor %s...", s.Name+".ovf")
 	_, err = io.WriteString(w, desc.OvfDescriptor)
 	if err != nil {
 		state.Put("error", errors.Wrap(err, "unable to write ovf descriptor"))
@@ -369,7 +369,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 	}
 
 	// Create a manifest file with the specified hash algorithm.
-	ui.Say(fmt.Sprintf("Writing %s manifest %s...", strings.ToUpper(s.Manifest), s.Name+".mf"))
+	ui.Sayf("Writing %s manifest %s...", strings.ToUpper(s.Manifest), s.Name+".mf")
 	s.addHash(filepath.Base(target), h)
 
 	file, err = os.Create(filepath.Join(s.OutputDir, s.Name+".mf"))
@@ -393,7 +393,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 	// Check the export format to determine if the image should be converted.
 	switch s.Format {
 	case "", "ovf":
-		ui.Say(fmt.Sprintf("Completed export to Open Virtualization Format (OVF): %s", s.Name+".ovf"))
+		ui.Sayf("Completed export to Open Virtualization Format (OVF): %s", s.Name+".ovf")
 		return multistep.ActionContinue
 	case "ova":
 		ovftool := getOvftool()
@@ -403,7 +403,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		if s.Force {
 			_, err := os.Stat(ovaTarget)
 			if err == nil {
-				ui.Say(fmt.Sprintf("Force export enabled; removing existing OVA file: %s...", s.Name+".ova"))
+				ui.Sayf("Force export enabled; removing existing OVA file: %s...", s.Name+".ova")
 				err := os.Remove(ovaTarget)
 				if err != nil {
 					state.Put("error", errors.Wrap(err, "unable to remove existing ova file"))
@@ -438,25 +438,25 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 		// Removes the .vmdk files.
 		for _, file := range cdp.OvfFiles {
 			absPath := filepath.Join(s.OutputDir, file.Path)
-			ui.Say(fmt.Sprintf("Removing %s...", file.Path))
+			ui.Sayf("Removing %s...", file.Path)
 			err := os.Remove(absPath)
 			if err != nil {
-				ui.Say(fmt.Sprintf("Unable to remove file %s: %s", file.Path, err))
+				ui.Sayf("Unable to remove file %s: %s", file.Path, err)
 			}
 		}
 
 		// Removes the .mf, .ovf, .nvram, and .log files.
 		for _, ext := range []string{".mf", ".ovf", ".nvram", ".log"} {
 			filePath := filepath.Join(s.OutputDir, s.Name+ext)
-			ui.Say(fmt.Sprintf("Removing %s...", s.Name+ext))
+			ui.Sayf("Removing %s...", s.Name+ext)
 			err := os.Remove(filePath)
 			if err != nil && !errors.Is(err, os.ErrNotExist) {
-				ui.Say(fmt.Sprintf("Unable to remove file %s: %s", s.Name+ext, err))
+				ui.Sayf("Unable to remove file %s: %s", s.Name+ext, err)
 			}
 		}
 
 		ui.Say("Completed removing intermediate files.")
-		ui.Say(fmt.Sprintf("Completed export to Open Virtualization Archive (OVA): %s", s.Name+".ova"))
+		ui.Sayf("Completed export to Open Virtualization Archive (OVA): %s", s.Name+".ova")
 	}
 	return multistep.ActionContinue
 }

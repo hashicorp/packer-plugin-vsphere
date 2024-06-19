@@ -20,7 +20,7 @@ func (s *StepConvertToTemplate) Run(_ context.Context, state multistep.StateBag)
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
 	if s.ConvertToTemplate {
-		ui.Say("Convert VM into template...")
+		ui.Say("Converting virtual machine to template...")
 		err := vm.ConvertToTemplate()
 		if err != nil {
 			state.Put("error", err)

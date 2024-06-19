@@ -142,7 +142,7 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 	var err error
 
-	ui.Say("Clear boot order...")
+	ui.Say("Clearing boot order...")
 	err = vm.SetBootOrder([]string{"-"})
 	if err != nil {
 		state.Put("error", err)
@@ -153,8 +153,8 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	if s.ContentLibConfig.Ovf {
 		vmTypeLabel = "VM OVF"
 	}
-	ui.Say(fmt.Sprintf("Importing %s template %s to Content Library '%s' as the item '%s' with the description '%s'...",
-		vmTypeLabel, s.ContentLibConfig.Name, s.ContentLibConfig.Library, s.ContentLibConfig.Name, s.ContentLibConfig.Description))
+	ui.Sayf("Importing %s template %s to Content Library '%s' as the item '%s' with the description '%s'...",
+		vmTypeLabel, s.ContentLibConfig.Name, s.ContentLibConfig.Library, s.ContentLibConfig.Name, s.ContentLibConfig.Description)
 
 	if s.ContentLibConfig.Ovf {
 		err = s.importOvfTemplate(vm)
@@ -163,7 +163,7 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	}
 
 	if err != nil {
-		ui.Error(fmt.Sprintf("Failed to import template %s: %s", s.ContentLibConfig.Name, err.Error()))
+		ui.Errorf("Failed to import template %s: %s", s.ContentLibConfig.Name, err)
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
@@ -176,7 +176,7 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	// For HCP Packer metadata, save the content library item UUID in state.
 	itemUuid, err := vm.FindContentLibraryItemUUID(s.ContentLibConfig.Library, s.ContentLibConfig.Name)
 	if err != nil {
-		ui.Error(fmt.Sprintf("Failed to get content library item uuid: %s", err.Error()))
+		ui.Errorf("Failed to get content library item uuid: %s", err)
 		state.Put("error", err)
 		return multistep.ActionHalt
 	} else {
@@ -186,7 +186,7 @@ func (s *StepImportToContentLibrary) Run(_ context.Context, state multistep.Stat
 	// For HCP Packer metadata, save the content library datastore name in state.
 	datastores, err := vm.FindContentLibraryTemplateDatastoreName(s.ContentLibConfig.Library)
 	if err != nil {
-		ui.Error(fmt.Sprintf("Failed to get content library datastore name: %s", err.Error()))
+		ui.Errorf("Failed to get content library datastore name: %s", err)
 		state.Put("error", err)
 		return multistep.ActionHalt
 	} else {

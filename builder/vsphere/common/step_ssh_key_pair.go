@@ -73,7 +73,7 @@ func (s *StepSshKeyPair) Run(ctx context.Context, state multistep.StateBag) mult
 		Type:    ssh.Rsa,
 	})
 	if err != nil {
-		state.Put("error", fmt.Errorf("error creating temporary keypair: %s", err))
+		state.Put("error", fmt.Errorf("error creating temporary key pair: %s", err))
 		return multistep.ActionHalt
 	}
 
@@ -86,17 +86,14 @@ func (s *StepSshKeyPair) Run(ctx context.Context, state multistep.StateBag) mult
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 	err = vm.AddPublicKeys(ctx, string(s.Comm.SSHPublicKey))
 	if err != nil {
-		state.Put("error", fmt.Errorf("error saving temporary keypair in the vm: %s", err))
+		state.Put("error", fmt.Errorf("error saving temporary key pair in the vm: %s", err))
 		return multistep.ActionHalt
 	}
 
-	ui.Say("Created ephemeral SSH key pair for communicator")
-
-	// If we're in debug mode, output the private key to the working
-	// directory.
+	// If we're in debug mode, output the private key to the working directory.
 	if s.Debug {
 		ui.Message(fmt.Sprintf("Saving communicator private key for debug purposes: %s", s.DebugKeyPath))
-		// Write the key out
+		// Write the key to the file.
 		if err := os.WriteFile(s.DebugKeyPath, kp.PrivateKeyPemBlock, 0600); err != nil {
 			state.Put("error", fmt.Errorf("error saving debug key: %s", err))
 			return multistep.ActionHalt
@@ -110,8 +107,7 @@ func (s *StepSshKeyPair) Cleanup(state multistep.StateBag) {
 	if s.Debug {
 		if err := os.Remove(s.DebugKeyPath); err != nil {
 			ui := state.Get("ui").(packersdk.Ui)
-			ui.Error(fmt.Sprintf(
-				"Error removing debug key '%s': %s", s.DebugKeyPath, err))
+			ui.Errorf("Error removing the debug key pair from path '%s': %s", s.DebugKeyPath, err)
 		}
 	}
 }
