@@ -1,0 +1,14 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+blank_issues_enabled: false
+contact_links:
+  - name: Community Discussions
+    url: https://discuss.hashicorp.com/tags/c/packer/23/vsphere
+    about: Need some help? Join the community discussions.
+  - name: Packer Plugin Documentation
+    url: https://developer.hashicorp.com/packer/integrations/hashicorp/vsphere
+    about: Having trouble with this Packer plugin? Check out the plugin documentation.
+  - name: Packer Documentation
+    url: https://developer.hashicorp.com/packer/
+    about: Having trouble with Packer? Check out the product documentation.
