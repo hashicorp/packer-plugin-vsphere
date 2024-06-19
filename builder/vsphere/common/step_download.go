@@ -84,7 +84,7 @@ func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multis
 			// If the local cache overwrite flag is set to true, delete the file and download the
 			// ISO file again.
 			if s.LocalCacheOverwrite {
-				ui.Say(fmt.Sprintf("Overwriting %s in local cache...", filename))
+				ui.Sayf("Overwriting %s in local cache...", filename)
 				// Delete the file from the local cache.
 				if err := os.Remove(targetPath); err != nil {
 					state.Put("error", fmt.Errorf("error overwriting file in local cache: %w", err))
@@ -102,7 +102,7 @@ func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multis
 				if s.LocalCacheOverwrite {
 					log.Println("The local cache overwrite flag is set to true. Files will also be overwritten in the remote cache datastore to ensure consistency.")
 				}
-				ui.Say(fmt.Sprintf("Overwriting %s in remote cache %s...", filename, remoteDirectory))
+				ui.Sayf("Overwriting %s in remote cache %s...", filename, remoteDirectory)
 				// Delete the file from the remote cache datastore.
 				if err := ds.Delete(remotePath); err != nil {
 					state.Put("error", fmt.Errorf("error overwriting file in remote cache: %w", err))
@@ -110,7 +110,7 @@ func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multis
 				}
 			} else {
 				// Skip the download step if the file exists in the local cache.
-				ui.Say(fmt.Sprintf("Skipping download, %s already exists in the local cache...", filename))
+				ui.Sayf("Skipping download, %s already exists in the local cache...", filename)
 				state.Put(s.ResultKey, targetPath)
 				state.Put("SourceImageURL", source)
 				return multistep.ActionContinue

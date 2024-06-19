@@ -54,7 +54,7 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 
 	// Wait the for the vm to boot.
 	if int64(s.Config.BootWait) > 0 {
-		ui.Say(fmt.Sprintf("Waiting %s for boot...", s.Config.BootWait.String()))
+		ui.Sayf("Waiting %s for boot...", s.Config.BootWait.String())
 		select {
 		case <-time.After(s.Config.BootWait):
 			break
@@ -76,7 +76,7 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 			port,
 			s.VMName,
 		}
-		ui.Say(fmt.Sprintf("HTTP server is working at http://%v:%v/", ip, port))
+		ui.Sayf("HTTP server is working at http://%v:%v/", ip, port)
 	}
 
 	var keyAlt, keyCtrl, keyShift bool
@@ -103,8 +103,8 @@ func (s *StepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		})
 		if err != nil {
 			// retry once if error
-			ui.Error(fmt.Errorf("error typing a boot command (code, down) `%d, %t`: %w", code, down, err).Error())
-			ui.Say("trying key input again")
+			ui.Errorf("error typing a boot command (code, down) `%d, %t`: %v", code, down, err)
+			ui.Say("Trying key input again...")
 			time.Sleep(s.Config.BootGroupInterval)
 			_, err = vm.TypeOnKeyboard(driver.KeyInput{
 				Scancode: code,

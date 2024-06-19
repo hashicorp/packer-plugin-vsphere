@@ -60,7 +60,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 
 	if off, _ := vm.IsPoweredOff(); off {
 		// Probably power off initiated by last provisioner, though disable_shutdown is not set
-		ui.Say("VM is already powered off")
+		ui.Say("Virtual machine is already powered off.")
 		return multistep.ActionContinue
 	}
 
@@ -75,7 +75,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 	} else if s.Config.Command != "" {
 		// Communicator is not needed unless shutdown_command is populated
 
-		ui.Say("Executing shutdown command...")
+		ui.Say("Running shutdown command...")
 		log.Printf("Shutdown command: %s", s.Config.Command)
 
 		var stdout, stderr bytes.Buffer
@@ -90,7 +90,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 			return multistep.ActionHalt
 		}
 	} else {
-		ui.Say("Shutting down VM...")
+		ui.Say("Shutting down virtual machine...")
 
 		err := vm.StartShutdown()
 		if err != nil {

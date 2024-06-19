@@ -70,7 +70,7 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 		if err := vm.MarkAsTemplate(context.Background()); err != nil {
 			state.Put("error", err)
-			ui.Error("vm.MarkAsTemplate:" + err.Error())
+			ui.Errorf("vm.MarkAsTemplate: %s", err)
 			return multistep.ActionHalt
 		}
 		return multistep.ActionContinue
@@ -79,26 +79,26 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	dsPath, err := datastorePath(vm)
 	if err != nil {
 		state.Put("error", err)
-		ui.Error("datastorePath:" + err.Error())
+		ui.Errorf("datastorePath: %s", err)
 		return multistep.ActionHalt
 	}
 
 	host, err := vm.HostSystem(context.Background())
 	if err != nil {
 		state.Put("error", err)
-		ui.Error("vm.HostSystem:" + err.Error())
+		ui.Errorf("vm.HostSystem: %s", err)
 		return multistep.ActionHalt
 	}
 
 	if err := vm.Unregister(context.Background()); err != nil {
 		state.Put("error", err)
-		ui.Error("vm.Unregister:" + err.Error())
+		ui.Errorf("vm.Unregister: %s", err)
 		return multistep.ActionHalt
 	}
 
 	if err := unregisterPreviousVM(cli, folder, s.VMName); err != nil {
 		state.Put("error", err)
-		ui.Error("unregisterPreviousVM:" + err.Error())
+		ui.Errorf("unregisterPreviousVM: %s", err)
 		return multistep.ActionHalt
 	}
 
@@ -111,13 +111,13 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	task, err := folder.RegisterVM(context.Background(), dsPath.String(), artifactName, true, nil, host)
 	if err != nil {
 		state.Put("error", err)
-		ui.Error("RegisterVM:" + err.Error())
+		ui.Errorf("RegisterVM: %s", err)
 		return multistep.ActionHalt
 	}
 
 	if err = task.Wait(context.Background()); err != nil {
 		state.Put("error", err)
-		ui.Error("task.Wait:" + err.Error())
+		ui.Errorf("task.Wait: %s", err)
 		return multistep.ActionHalt
 	}
 

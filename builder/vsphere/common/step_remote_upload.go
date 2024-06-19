@@ -92,23 +92,23 @@ func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk
 		// If the remote cache overwrite flag is set to true, delete the file and download the
 		// ISO file again.
 		if s.RemoteCacheOverwrite {
-			ui.Say(fmt.Sprintf("Overwriting %s in remote cache %s...", filename, remoteDirectory))
+			ui.Sayf("Overwriting %s in remote cache %s...", filename, remoteDirectory)
 			// Delete the file from the remote cache datastore.
 			if err := ds.Delete(remotePath); err != nil {
 				return "", fmt.Errorf("error overwriting file in remote cache: %w", err)
 			}
 		} else {
 			// Skip the download step if the remote cache overwrite flag is not set.
-			ui.Say(fmt.Sprintf("Skipping upload, %s already exists in remote cache...", fullRemotePath))
+			ui.Sayf("Skipping upload, %s already exists in remote cache...", fullRemotePath)
 			return fullRemotePath, nil
 		}
 	}
 
-	ui.Say(fmt.Sprintf("Uploading %s to %s...", filename, remoteDirectory))
+	ui.Sayf("Uploading %s to %s...", filename, remoteDirectory)
 
 	// Check if the remote cache directory exists. If not, create it.
 	if !ds.DirExists(remotePath) {
-		ui.Say(fmt.Sprintf("Remote cache directory does not exist; creating %s...", remoteDirectory))
+		ui.Sayf("Remote cache directory does not exist; creating %s...", remoteDirectory)
 		if err := ds.MakeDirectory(remoteDirectory); err != nil {
 			return "", err
 		}
@@ -141,17 +141,17 @@ func (s *StepRemoteUpload) Cleanup(state multistep.StateBag) {
 
 	ui := state.Get("ui").(packersdk.Ui)
 	d := state.Get("driver").(*driver.VCenterDriver)
-	ui.Say(fmt.Sprintf("Removing %s...", UploadedCDPath))
+	ui.Sayf("Removing %s...", UploadedCDPath)
 
 	ds, err := d.FindDatastore(s.Datastore, s.Host)
 	if err != nil {
-		ui.Say(fmt.Sprintf("Unable to find the remote cache datastore. Please remove the item manually: %s", err))
+		ui.Sayf("Unable to find the remote cache datastore. Please remove the item manually: %s", err)
 		return
 	}
 
 	err = ds.Delete(UploadedCDPath.(string))
 	if err != nil {
-		ui.Say(fmt.Sprintf("Unable to remove item from the remote cache. Please remove the item manually: %s", err))
+		ui.Sayf("Unable to remove item from the remote cache. Please remove the item manually: %s", err)
 		return
 	}
 }

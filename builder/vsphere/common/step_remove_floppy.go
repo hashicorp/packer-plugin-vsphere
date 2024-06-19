@@ -21,7 +21,7 @@ func (s *StepRemoveFloppy) Run(_ context.Context, state multistep.StateBag) mult
 	vm := state.Get("vm").(driver.VirtualMachine)
 	d := state.Get("driver").(driver.Driver)
 
-	ui.Say("Deleting Floppy drives...")
+	ui.Say("Deleting floppy drives...")
 	floppies, err := vm.FloppyDevices()
 	if err != nil {
 		state.Put("error", err)
@@ -33,7 +33,7 @@ func (s *StepRemoveFloppy) Run(_ context.Context, state multistep.StateBag) mult
 	}
 
 	if UploadedFloppyPath, ok := state.GetOk("uploaded_floppy_path"); ok {
-		ui.Say("Deleting Floppy image...")
+		ui.Say("Deleting floppy image...")
 		ds, err := d.FindDatastore(s.Datastore, s.Host)
 		if err != nil {
 			state.Put("error", err)

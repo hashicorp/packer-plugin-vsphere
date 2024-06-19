@@ -168,11 +168,11 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, v
 	vm, err := d.FindVM(vmPath)
 	if err != nil {
 		if _, ok := err.(*find.NotFoundError); !ok {
-			return fmt.Errorf("error looking up old vm: %v", err)
+			return fmt.Errorf("error looking up existing virtual machine: %v", err)
 		}
 	}
 	if force && vm != nil {
-		ui.Say(fmt.Sprintf("the vm/template %s already exists, but deleting it due to -force flag", vmPath))
+		ui.Sayf("Removing the existing virtual machine at %s based on use of the '-force' option...", vmPath)
 
 		// power off just in case it is still on
 		_ = vm.PowerOff()
@@ -180,9 +180,9 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, v
 		// covert to a vm if it is a template so it can be deleted
 		isTemplate, err := vm.IsTemplate()
 		if err != nil {
-			return fmt.Errorf("error determining if the vm is a template%s: %v", vmPath, err)
+			return fmt.Errorf("error determining if the virtual machine is a template%s: %v", vmPath, err)
 		} else if isTemplate {
-			ui.Say(fmt.Sprintf("%s is a template, attempting to convert it to a vm", vmPath))
+			ui.Sayf("Attempting to convert the template at %s to a virtual machine...", vmPath)
 			err := vm.ConvertToVirtualMachine(vsphereCluster, vsphereHost, vsphereResourcePool)
 			if err != nil {
 				return fmt.Errorf("error converting template back to virtual machine for cleanup %s: %v", vmPath, err)

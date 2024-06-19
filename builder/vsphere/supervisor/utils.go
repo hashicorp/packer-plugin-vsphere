@@ -19,7 +19,7 @@ func (pl *PackerLogger) Info(msg string, args ...interface{}) {
 }
 
 func (pl *PackerLogger) Error(msg string, args ...interface{}) {
-	pl.UI.Error(fmt.Sprintf(msg, args...))
+	pl.UI.Errorf(msg, args...)
 }
 
 func CheckRequiredStates(state multistep.StateBag, keys ...string) error {

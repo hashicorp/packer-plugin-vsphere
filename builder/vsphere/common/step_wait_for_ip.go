@@ -122,7 +122,7 @@ func (s *StepWaitForIp) Run(ctx context.Context, state multistep.StateBag) multi
 				return multistep.ActionHalt
 			}
 			state.Put("ip", ip)
-			ui.Say(fmt.Sprintf("IP address: %v", ip))
+			ui.Sayf("IP address: %v", ip)
 			return multistep.ActionContinue
 		case <-time.After(1 * time.Second):
 			if _, ok := state.GetOk(multistep.StateCancelled); ok {
