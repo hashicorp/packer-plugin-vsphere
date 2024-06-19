@@ -67,7 +67,7 @@ type VirtualMachine interface {
 	AddCdrom(controllerType string, datastoreIsoPath string) error
 	CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error)
 	RemoveCdroms() error
-	RemoveNCdroms(n_cdroms int) error
+	RemoveNCdroms(nCdroms int) error
 	EjectCdroms() error
 	AddSATAController() error
 	FindSATAController() (*types.VirtualAHCIController, error)

@@ -96,9 +96,9 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 		s.Config.ISOPaths = append([]string{path.(string)}, s.Config.ISOPaths...)
 	}
 
-	// Add our custom CD, if it exists
-	if cd_path, _ := state.Get("cd_path").(string); cd_path != "" {
-		s.Config.ISOPaths = append(s.Config.ISOPaths, cd_path)
+	// Add our custom CD, if it exists.
+	if cdPath, _ := state.Get("cd_path").(string); cdPath != "" {
+		s.Config.ISOPaths = append(s.Config.ISOPaths, cdPath)
 	}
 
 	ui.Say("Mounting ISO images...")
