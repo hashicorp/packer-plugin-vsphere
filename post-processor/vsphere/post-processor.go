@@ -173,16 +173,16 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 func (p *PostProcessor) generateURI() (*url.URL, error) {
 	// use net/url lib to encode and escape url elements
-	ovftool_uri := fmt.Sprintf("vi://%s/%s/host/%s",
+	ovftoolURI := fmt.Sprintf("vi://%s/%s/host/%s",
 		p.config.Host,
 		p.config.Datacenter,
 		p.config.Cluster)
 
 	if p.config.ResourcePool != "" {
-		ovftool_uri += "/Resources/" + p.config.ResourcePool
+		ovftoolURI += "/Resources/" + p.config.ResourcePool
 	}
 
-	u, err := url.Parse(ovftool_uri)
+	u, err := url.Parse(ovftoolURI)
 	if err != nil {
 		return nil, fmt.Errorf("error generating uri for ovftool: %s", err)
 	}
@@ -223,16 +223,16 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil, false, false, fmt.Errorf("error locating expected .vmx, .ovf, or .ova artifact")
 	}
 
-	ovftool_uri, err := p.generateURI()
+	ovftoolURI, err := p.generateURI()
 	if err != nil {
 		return nil, false, false, err
 	}
-	encodedPassword, isSet := getEncodedPassword(ovftool_uri)
+	encodedPassword, isSet := getEncodedPassword(ovftoolURI)
 	if isSet {
 		packersdk.LogSecretFilter.Set(encodedPassword)
 	}
 
-	args, err := p.BuildArgs(source, ovftool_uri.String())
+	args, err := p.BuildArgs(source, ovftoolURI.String())
 	if err != nil {
 		return nil, false, false, fmt.Errorf("error building ovftool arguments: %s", err)
 	}
@@ -313,7 +313,7 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packer
 	return nil
 }
 
-func (p *PostProcessor) BuildArgs(source, ovftool_uri string) ([]string, error) {
+func (p *PostProcessor) BuildArgs(source, ovftoolURI string) ([]string, error) {
 	args := []string{
 		"--acceptAllEulas",
 		fmt.Sprintf(`--name=%s`, p.config.VMName),
@@ -349,7 +349,7 @@ func (p *PostProcessor) BuildArgs(source, ovftool_uri string) ([]string, error) 
 	}
 
 	args = append(args, source)
-	args = append(args, ovftool_uri)
+	args = append(args, ovftoolURI)
 
 	return args, nil
 }

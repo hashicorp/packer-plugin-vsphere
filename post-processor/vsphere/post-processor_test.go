@@ -31,7 +31,7 @@ func TestArgs(t *testing.T) {
 	p.config = getTestConfig()
 
 	source := "something.vmx"
-	ovftool_uri := fmt.Sprintf("vi://%s:%s@%s/%s/host/%s",
+	ovftoolURI := fmt.Sprintf("vi://%s:%s@%s/%s/host/%s",
 		url.QueryEscape(p.config.Username),
 		url.QueryEscape(p.config.Password),
 		p.config.Host,
@@ -39,10 +39,10 @@ func TestArgs(t *testing.T) {
 		p.config.Cluster)
 
 	if p.config.ResourcePool != "" {
-		ovftool_uri += "/Resources/" + p.config.ResourcePool
+		ovftoolURI += "/Resources/" + p.config.ResourcePool
 	}
 
-	args, err := p.BuildArgs(source, ovftool_uri)
+	args, err := p.BuildArgs(source, ovftoolURI)
 	if err != nil {
 		t.Errorf("Error: %s", err)
 	}
@@ -59,9 +59,9 @@ func TestGenerateURI_Basic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("had error: %s", err)
 	}
-	expected_uri := "vi://me:notpassword@myhost/mydc/host/mycluster"
-	if uri.String() != expected_uri {
-		t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expected_uri)
+	expectedURI := "vi://me:notpassword@myhost/mydc/host/mycluster"
+	if uri.String() != expectedURI {
+		t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expectedURI)
 	}
 }
 
@@ -97,10 +97,10 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 		if err != nil {
 			t.Fatalf("had error: %s", err)
 		}
-		expected_uri := fmt.Sprintf("vi://me:%s@myhost/mydc/host/mycluster", escapeCase.Expected)
+		expectedURI := fmt.Sprintf("vi://me:%s@myhost/mydc/host/mycluster", escapeCase.Expected)
 
-		if uri.String() != expected_uri {
-			t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expected_uri)
+		if uri.String() != expectedURI {
+			t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expectedURI)
 		}
 	}
 }
@@ -108,9 +108,9 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 func TestGetEncodedPassword(t *testing.T) {
 
 	// Password is encoded, and contains a colon
-	ovftool_uri := "vi://hostname/Datacenter/host/cluster"
+	ovftoolURI := "vi://hostname/Datacenter/host/cluster"
 
-	u, _ := url.Parse(ovftool_uri)
+	u, _ := url.Parse(ovftoolURI)
 	u.User = url.UserPassword("us:ername", "P@ssW:rd")
 
 	encoded, isSet := getEncodedPassword(u)

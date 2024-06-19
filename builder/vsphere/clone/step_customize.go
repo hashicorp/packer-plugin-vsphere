@@ -202,25 +202,25 @@ func (c *CustomizeConfig) Prepare() ([]string, []error) {
 		errs = append(errs, fmt.Errorf("one or more `network_interface` must be provided"))
 	}
 
-	options_number := 0
+	optionsNumber := 0
 	if c.LinuxOptions != nil {
-		options_number = options_number + 1
+		optionsNumber++
 	}
 	if c.WindowsOptions != nil {
-		options_number = options_number + 1
+		optionsNumber++
 	}
 	if c.WindowsSysPrepFile != "" {
 		warnings = append(warnings, windowsSysprepFileDeprecatedMessage)
-		options_number = options_number + 1
+		optionsNumber++
 	}
 	if c.WindowsSysPrepText != "" {
-		options_number = options_number + 1
+		optionsNumber++
 	}
 
-	if options_number > 1 {
+	if optionsNumber > 1 {
 		errs = append(errs, errCustomizeOptionMutualExclusive)
-	} else if options_number == 0 {
-		errs = append(errs, fmt.Errorf("one of `linux_options`, `windows_options`, `windows_sysprep_file` must be set"))
+	} else if optionsNumber == 0 {
+		errs = append(errs, fmt.Errorf("one of `linux_options`, `windows_options`, `windows_sysprep_file`, or 'windows_sysprep_text' must be set"))
 	}
 
 	if c.LinuxOptions != nil {

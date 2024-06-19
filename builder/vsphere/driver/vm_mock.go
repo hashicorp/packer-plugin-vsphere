@@ -284,12 +284,12 @@ func (vm *VirtualMachineMock) RemoveCdroms() error {
 	return vm.RemoveCdromsErr
 }
 
-func (vm *VirtualMachineMock) RemoveNCdroms(n_cdroms int) error {
+func (vm *VirtualMachineMock) RemoveNCdroms(nCdroms int) error {
 	vm.RemoveNCdromsCalled = true
-	if n_cdroms == 0 {
+	if nCdroms == 0 {
 		return nil
 	}
-	vm.CdromDevicesList = vm.CdromDevicesList[:n_cdroms]
+	vm.CdromDevicesList = vm.CdromDevicesList[:nCdroms]
 	return vm.RemoveNCdromsErr
 }
 
