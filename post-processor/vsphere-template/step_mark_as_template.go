@@ -60,7 +60,7 @@ func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	vm, err := findRuntimeVM(cli, dcPath, s.VMName, s.RemoteFolder)
 	if err != nil {
 		state.Put("error", err)
-		ui.Error(err.Error())
+		ui.Errorf("%s", err)
 		return multistep.ActionHalt
 	}
 
