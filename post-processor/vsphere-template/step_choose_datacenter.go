@@ -29,7 +29,7 @@ func (s *stepChooseDatacenter) Run(ctx context.Context, state multistep.StateBag
 	if err != nil {
 		err = fmt.Errorf("error finding datacenter %s: %s", s.Datacenter, err)
 		state.Put("error", err)
-		ui.Error(err.Error())
+		ui.Errorf("%s", err)
 		return multistep.ActionHalt
 	}
 

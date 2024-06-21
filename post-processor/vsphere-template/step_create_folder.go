@@ -39,7 +39,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 		ref, err = si.FindByInventoryPath(context.Background(), fullPath)
 		if err != nil {
 			state.Put("error", err)
-			ui.Error(err.Error())
+			ui.Errorf("%s", err)
 			return multistep.ActionHalt
 		}
 
@@ -50,7 +50,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 			if fullPath == dcPath {
 				err = fmt.Errorf("error finding base path %s", base)
 				state.Put("error", err)
-				ui.Error(err.Error())
+				ui.Errorf("%s", err)
 				return multistep.ActionHalt
 			}
 
@@ -67,7 +67,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 			root, err = root.CreateFolder(context.Background(), folders[i])
 			if err != nil {
 				state.Put("error", err)
-				ui.Error(err.Error())
+				ui.Errorf("%s", err)
 				return multistep.ActionHalt
 			}
 
@@ -78,7 +78,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 	} else {
 		err = fmt.Errorf("error finding virtual machine folder at path %v", ref)
 		state.Put("error", err)
-		ui.Error(err.Error())
+		ui.Errorf("%s", err)
 		return multistep.ActionHalt
 	}
 
