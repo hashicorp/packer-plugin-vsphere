@@ -398,7 +398,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	if config.PrimaryDiskSize > 0 {
 		deviceResizeSpec, err := vm.ResizeDisk(config.PrimaryDiskSize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to resize primary disk: %s", err.Error())
+			return nil, fmt.Errorf("failed to resize primary disk: %s", err)
 		}
 		configSpec.DeviceChange = append(configSpec.DeviceChange, deviceResizeSpec...)
 	}
@@ -413,7 +413,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 
 	storageConfigSpec, err := config.StorageConfig.AddStorageDevices(existingDevices)
 	if err != nil {
-		return nil, fmt.Errorf("failed to add storage devices: %s", err.Error())
+		return nil, fmt.Errorf("failed to add storage devices: %s", err)
 	}
 	configSpec.DeviceChange = append(configSpec.DeviceChange, storageConfigSpec...)
 
@@ -535,7 +535,7 @@ func (vm *VirtualMachineDriver) AddPublicKeys(ctx context.Context, publicKeys st
 	newProps := map[string]string{"public-keys": publicKeys}
 	config, err := vm.updateVAppConfig(ctx, newProps)
 	if err != nil {
-		return fmt.Errorf("not possible to save temporary public key: %s", err.Error())
+		return fmt.Errorf("not possible to save temporary public key: %s", err)
 	}
 
 	confSpec := types.VirtualMachineConfigSpec{VAppConfig: config}
@@ -1056,7 +1056,7 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 		if host != "" {
 			h, err := d.FindHost(host)
 			if err != nil {
-				return nil, &MultipleNetworkFoundError{network, fmt.Sprintf("unable to match a network to the host %s: %s", host, err.Error())}
+				return nil, &MultipleNetworkFoundError{network, fmt.Sprintf("unable to match a network to the host %s: %s", host, err)}
 			}
 			for _, n := range networks {
 				info, err := n.Info("host")
@@ -1407,7 +1407,7 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 	for _, storage := range l.library.Storage {
 		name, err := vm.driver.GetDatastoreName(storage.DatastoreID)
 		if err != nil {
-			log.Printf("Failed to get Content Library datastore name: %s", err.Error())
+			log.Printf("Failed to get Content Library datastore name: %s", err)
 			continue
 		}
 		datastores = append(datastores, name)
@@ -1420,7 +1420,7 @@ func (vm *VirtualMachineDriver) logout() {
 		return
 	}
 	if err := vm.driver.restClient.Logout(vm.driver.ctx); err != nil {
-		log.Printf("cannot logout: %s ", err.Error())
+		log.Printf("cannot logout: %s ", err)
 	}
 }
 
