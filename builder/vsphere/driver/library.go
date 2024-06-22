@@ -78,19 +78,19 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 	log.Printf("Finding the equivalent datastore path for the Content Library ISO file path")
 	libItem, err := d.FindContentLibraryItem(lib.library.ID, itemName)
 	if err != nil {
-		log.Printf("[WARN] Couldn't find item %s: %s", itemName, err.Error())
+		log.Printf("[WARN] Content library item %s not found: %s", itemName, err)
 		return isoPath, err
 	}
 	datastoreName, err := d.GetDatastoreName(lib.library.Storage[0].DatastoreID)
 	if err != nil {
-		log.Printf("[WARN] Couldn't find datastore name for library %s", libraryName)
+		log.Printf("[WARN] Datastore not found for content library %s", libraryName)
 		return isoPath, err
 	}
 	libItemDir := fmt.Sprintf("[%s] contentlib-%s/%s", datastoreName, lib.library.ID, libItem.ID)
 
 	isoFilePath, err := d.GetDatastoreFilePath(lib.library.Storage[0].DatastoreID, libItemDir, isoFile)
 	if err != nil {
-		log.Printf("[WARN] Couldn't find datastore ID path for %s", isoFile)
+		log.Printf("[WARN] Datastore path not found for %s", isoFile)
 		return isoPath, err
 	}
 
