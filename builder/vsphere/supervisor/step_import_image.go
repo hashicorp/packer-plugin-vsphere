@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,8 +35,6 @@ const (
 
 	importOVFFeatureNotEnabledMsg = "WCP_VMImageService_ImportOVF feature is not enabled"
 )
-
-var IsWatchingImageImport bool
 
 type ImportImageConfig struct {
 	// The remote URL where the to-be-imported image is hosted.
@@ -103,6 +102,10 @@ type StepImportImage struct {
 	ImportItemResourceName, Namespace string
 	TargetItemType                    imgregv1.ContentLibraryItemType
 	KubeWatchClient                   client.WithWatch
+
+	// The lock and bool are mainly used to help testing.
+	Mu                    sync.Mutex
+	IsWatchingImageImport bool
 }
 
 func (s *StepImportImage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -160,7 +163,7 @@ func (s *StepImportImage) validate(ctx context.Context, logger *PackerLogger) er
 }
 
 func (s *StepImportImage) Cleanup(state multistep.StateBag) {
-	if state.Get(StateKeyImageImportRequestCreated) == false {
+	if v, ok := state.GetOk(StateKeyImageImportRequestCreated); !ok || v.(bool) == false {
 		// Either the image import step was skipped or the object was not created successfully.
 		// Skip deleting the ContentLibraryItemImportRequest object.
 		return
@@ -330,14 +333,14 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 		itemImportReqWatch.Stop()
 		cancel()
 
-		Mu.Lock()
-		IsWatchingImageImport = false
-		Mu.Unlock()
+		s.Mu.Lock()
+		s.IsWatchingImageImport = false
+		s.Mu.Unlock()
 	}()
 
-	Mu.Lock()
-	IsWatchingImageImport = true
-	Mu.Unlock()
+	s.Mu.Lock()
+	s.IsWatchingImageImport = true
+	s.Mu.Unlock()
 
 	for {
 		select {
@@ -364,7 +367,7 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 			}
 			if importSuccess {
 				// Set VM image ref name if the import is successful.
-				state.Put(StateKeyImportedImageName, strings.ReplaceAll(s.ImportItemResourceName, "clitem-", "vmi-"))
+				state.Put(StateKeyImportedImageName, strings.Replace(s.ImportItemResourceName, "clitem-", "vmi-", 1))
 
 				logger.Info("Successfully imported the image as a content library item %q.", itemImportReqObj.Status.ItemRef)
 				return nil

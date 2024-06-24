@@ -311,12 +311,12 @@ func TestStepImportImage_Run(t *testing.T) {
 
 	// Wait for the watch to be established from Builder before updating the fake ContentLibraryItemImportRequest resource below.
 	for i := 0; i < step.ImportImageConfig.WatchImportTimeoutSec; i++ {
-		supervisor.Mu.Lock()
-		if supervisor.IsWatchingImageImport {
-			supervisor.Mu.Unlock()
+		step.Mu.Lock()
+		if step.IsWatchingImageImport {
+			step.Mu.Unlock()
 			break
 		}
-		supervisor.Mu.Unlock()
+		step.Mu.Unlock()
 		time.Sleep(time.Second)
 	}
 
@@ -425,6 +425,7 @@ func TestStepImportImage_Cleanup_Image(t *testing.T) {
 	state := newBasicTestState(testWriter)
 
 	// 1. Test when 'clean_imported_image' config is not set.
+	state.Put(supervisor.StateKeyImageImportRequestCreated, true)
 	step.ImportImageConfig.ImportRequestName = testImportReqName
 
 	step.Cleanup(state)
