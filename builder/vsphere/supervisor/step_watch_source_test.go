@@ -22,10 +22,10 @@ import (
 func TestWatchSource_Prepare(t *testing.T) {
 	config := &supervisor.WatchSourceConfig{}
 	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %v", errs)
+		t.Fatalf("unexpected failure: expected success, but failed: %v", errs[0])
 	}
 	if config.WatchSourceTimeoutSec != supervisor.DefaultWatchTimeoutSec {
-		t.Fatalf("Default timeout should be %d, but got %d", supervisor.DefaultWatchTimeoutSec, config.WatchSourceTimeoutSec)
+		t.Fatalf("Default timeout should be %d, but returned %d", supervisor.DefaultWatchTimeoutSec, config.WatchSourceTimeoutSec)
 	}
 }
 
@@ -62,20 +62,20 @@ func TestWatchSource_Run(t *testing.T) {
 		action := step.Run(context.TODO(), state)
 		if action == multistep.ActionHalt {
 			if rawErr, ok := state.GetOk("error"); ok {
-				t.Errorf("Error from running the step: %s", rawErr.(error))
+				t.Errorf("unexpected error: %s", rawErr.(error))
 			}
-			t.Error("Step should NOT halt")
+			t.Errorf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 			return
 		}
 
 		// Check if all the required states are set correctly after the step is run.
 		vmIP := state.Get(supervisor.StateKeyVMIP)
 		if vmIP != testVMIP {
-			t.Errorf("State %q should be %q, but got %q", supervisor.StateKeyCommunicateIP, testVMIP, vmIP)
+			t.Errorf("State %q should be %q, but returned %q", supervisor.StateKeyCommunicateIP, testVMIP, vmIP)
 		}
 		connectIP := state.Get(supervisor.StateKeyCommunicateIP)
 		if connectIP != testIngressIP {
-			t.Errorf("State %q should be %q, but got %q", supervisor.StateKeyCommunicateIP, testIngressIP, connectIP)
+			t.Errorf("State %q should be %q, but returned %q", supervisor.StateKeyCommunicateIP, testIngressIP, connectIP)
 		}
 
 		// Check the output lines from the step runs.

@@ -110,7 +110,7 @@ func (s *StepWaitForIp) Run(ctx context.Context, state multistep.StateBag) multi
 			}
 			err := fmt.Errorf("timeout waiting for IP address")
 			state.Put("error", err)
-			ui.Error(err.Error())
+			ui.Errorf("%s", err)
 			return multistep.ActionHalt
 		case <-ctx.Done():
 			cancel()

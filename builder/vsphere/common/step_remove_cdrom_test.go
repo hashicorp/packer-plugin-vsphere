@@ -92,22 +92,22 @@ func TestStepRemoveCDRom_Run(t *testing.T) {
 			state.Put("vm", c.vmMock)
 
 			if action := c.step.Run(context.TODO(), state); action != c.expectedAction {
-				t.Fatalf("unexpected action %v", action)
+				t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", c.expectedAction, action)
 			}
 			err, ok := state.Get("error").(error)
 			if ok {
 				if err.Error() != c.errMessage {
-					t.Fatalf("unexpected error %s", err.Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.errMessage, err)
 				}
 			} else {
 				if c.fail {
-					t.Fatalf("expected to fail but it didn't")
+					t.Fatal("unexpected success: expected failure")
 				}
 			}
 
 			if diff := cmp.Diff(c.vmMock, c.expectedVmMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected VirtualMachine calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "VirtualMachine", diff)
 			}
 		})
 	}

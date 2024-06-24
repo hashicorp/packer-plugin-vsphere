@@ -17,14 +17,14 @@ import (
 func TestArtifactHCPPackerMetadata(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
 	vm, vmSim := sim.ChooseSimulatorPreCreatedVM()
 	confSpec := types.VirtualMachineConfigSpec{Annotation: "simple vm description"}
 	if err := vm.Reconfigure(confSpec); err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	datastore := simulator.Map.Get(vmSim.Datastore[0]).(*simulator.Datastore)
 	host := simulator.Map.Get(*vmSim.Runtime.Host).(*simulator.HostSystem)
@@ -59,18 +59,18 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 
 	metadata, ok := artifact.State(registryimage.ArtifactStateURI).(*registryimage.Image)
 	if !ok {
-		t.Fatalf("expecting a metadata of time registryimage.Image")
+		t.Fatalf("unexpected result: expected '%t', but returned '%t'", true, ok)
 	}
 	if metadata.ImageID != vmSim.Name {
-		t.Fatalf("unexpected image id: %s", metadata.ImageID)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", vmSim.Name, metadata.ImageID)
 	}
 	if metadata.ProviderName != "vsphere" {
-		t.Fatalf("unexpected provider name: %s", metadata.ProviderName)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", "vsphere", metadata.ProviderName)
 	}
 	if metadata.ProviderRegion != vm.Datacenter().Name() {
-		t.Fatalf("unexpected provider region: %s", metadata.ProviderRegion)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", vm.Datacenter().Name(), metadata.ProviderRegion)
 	}
 	if diff := cmp.Diff(expectedLabels, metadata.Labels); diff != "" {
-		t.Fatalf("wrong labels: %s", diff)
+		t.Fatalf("unexpected result: '%s'", diff)
 	}
 }

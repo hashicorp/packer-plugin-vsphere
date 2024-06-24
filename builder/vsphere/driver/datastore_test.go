@@ -83,14 +83,14 @@ func TestDatastoreIsoPath(t *testing.T) {
 	for i, c := range tc {
 		dsIsoPath := &DatastoreIsoPath{path: c.isoPath}
 		if dsIsoPath.Validate() != c.valid {
-			t.Fatalf("%d Expecting %s to be %t but was %t", i, c.isoPath, c.valid, !c.valid)
+			t.Fatalf("%d expected '%s' to be '%t', but returned '%t'", i, c.isoPath, c.valid, !c.valid)
 		}
 		if !c.valid {
 			continue
 		}
 		filePath := dsIsoPath.GetFilePath()
 		if filePath != c.filePath {
-			t.Fatalf("%d Expecting %s but got %s", i, c.filePath, filePath)
+			t.Fatalf("%d expected '%s', but returned '%s'", i, c.filePath, filePath)
 		}
 	}
 }
@@ -98,7 +98,7 @@ func TestDatastoreIsoPath(t *testing.T) {
 func TestVCenterDriver_FindDatastore(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -139,17 +139,17 @@ func TestVCenterDriver_FindDatastore(t *testing.T) {
 			ds, err := sim.driver.FindDatastore(c.datastore, c.host)
 			if c.fail {
 				if err == nil {
-					t.Fatalf("expected to fail")
+					t.Fatal("unexpected success: expected failure")
 				}
 				if c.errMessage != "" && err.Error() != c.errMessage {
-					t.Fatalf("unexpected error message %s", err.Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.errMessage, err)
 				}
 			} else {
 				if err != nil {
-					t.Fatalf("should not fail: %s", err.Error())
+					t.Fatalf("unexpected error: '%s'", err)
 				}
 				if ds == nil {
-					t.Fatalf("expected to find datastore")
+					t.Fatalf("unexpected result: expected '%s', but returned '%s'", c.datastore, ds)
 				}
 			}
 		})
@@ -161,7 +161,7 @@ func TestVCenterDriver_MultipleDatastoreError(t *testing.T) {
 	model.Datastore = 2
 	sim, err := NewCustomVCenterSimulator(model)
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -169,9 +169,9 @@ func TestVCenterDriver_MultipleDatastoreError(t *testing.T) {
 
 	_, err = sim.driver.FindDatastore("", host.Name)
 	if err == nil {
-		t.Fatalf("expected to fail")
+		t.Fatal("unexpected success: expected failure")
 	}
 	if err.Error() != "Host has multiple datastores. Specify it explicitly" {
-		t.Fatalf("unexpected error message %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 }

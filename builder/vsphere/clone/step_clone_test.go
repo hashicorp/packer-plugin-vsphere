@@ -127,14 +127,14 @@ func TestCreateConfig_Prepare(t *testing.T) {
 			errs := c.config.Prepare()
 			if c.fail {
 				if len(errs) == 0 {
-					t.Fatalf("Config prepare should fail")
+					t.Fatal("unexpected success: expected failure")
 				}
 				if errs[0].Error() != c.expectedErrMsg {
-					t.Fatalf("Expected error message: %s but was '%s'", c.expectedErrMsg, errs[0].Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.expectedErrMsg, errs[0])
 				}
 			} else {
 				if len(errs) != 0 {
-					t.Fatalf("Config prepare should not fail: %s", errs[0])
+					t.Fatalf("unexpected failure: expected success, but failed: %s", errs[0])
 				}
 			}
 		})
@@ -156,36 +156,36 @@ func TestStepCreateVM_Run(t *testing.T) {
 	driverMock.VM = vmMock
 
 	if action := step.Run(context.TODO(), state); action == multistep.ActionHalt {
-		t.Fatalf("Should not halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	// Pre clean VM
 	if !driverMock.PreCleanVMCalled {
-		t.Fatalf("driver.PreCleanVM should be called.")
+		t.Fatalf("unexpected result: expected '%s' to be called", "PreCleanVM")
 	}
 	if driverMock.PreCleanForce != step.Force {
-		t.Fatalf("Force PreCleanVM should be %t but was %t.", step.Force, driverMock.PreCleanForce)
+		t.Fatalf("unexpected result: expected '%t', but returned '%t'", step.Force, driverMock.PreCleanForce)
 	}
 	if driverMock.PreCleanVMPath != vmPath {
-		t.Fatalf("VM path expected to be %s but was %s", vmPath, driverMock.PreCleanVMPath)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", vmPath, driverMock.PreCleanVMPath)
 	}
 
 	if !driverMock.FindVMCalled {
-		t.Fatalf("driver.FindVM should be called.")
+		t.Fatalf("unexpected result: expected '%s' to be called", "FindVM")
 	}
 	if !vmMock.CloneCalled {
-		t.Fatalf("vm.Clone should be called.")
+		t.Fatalf("unexpected result: expected '%s' to be called", "Clone")
 	}
 
 	if diff := cmp.Diff(vmMock.CloneConfig, driverCreateConfig(step.Config, step.Location)); diff != "" {
-		t.Fatalf("wrong driver.CreateConfig: %s", diff)
+		t.Fatalf("unexpected result: '%s'", diff)
 	}
 	vm, ok := state.GetOk("vm")
 	if !ok {
-		t.Fatal("state must contain the VM")
+		t.Fatalf("unexpected state: '%s' not found", "vm")
 	}
 	if vm != driverMock.VM {
-		t.Fatalf("state doesn't contain the created VM.")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", driverMock.VM, vm)
 	}
 }
 

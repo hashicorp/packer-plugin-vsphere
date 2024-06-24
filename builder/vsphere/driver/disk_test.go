@@ -29,24 +29,24 @@ func TestAddStorageDevices(t *testing.T) {
 	noExistingDevices := object.VirtualDeviceList{}
 	storageConfigSpec, err := config.AddStorageDevices(noExistingDevices)
 	if err != nil {
-		t.Fatalf("unexpected error: %q", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 	if len(storageConfigSpec) != 3 {
-		t.Fatalf("Expecting VirtualDeviceList to have 3 storage devices but had %d", len(storageConfigSpec))
+		t.Fatalf("unexpected result: expected '3', but returned '%d'", len(storageConfigSpec))
 	}
 
 	existingDevices := object.VirtualDeviceList{}
 	device, err := existingDevices.CreateNVMEController()
 	if err != nil {
-		t.Fatalf("unexpected error: %q", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 	existingDevices = append(existingDevices, device)
 
 	storageConfigSpec, err = config.AddStorageDevices(existingDevices)
 	if err != nil {
-		t.Fatalf("unexpected error: %q", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 	if len(storageConfigSpec) != 3 {
-		t.Fatalf("Expecting VirtualDeviceList to have 3 storage devices but had %d", len(storageConfigSpec))
+		t.Fatalf("unexpected result: expected '3', but returned '%d'", len(storageConfigSpec))
 	}
 }

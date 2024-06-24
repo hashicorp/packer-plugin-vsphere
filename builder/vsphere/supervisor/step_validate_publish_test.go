@@ -19,8 +19,8 @@ import (
 
 func TestValidatePublish_Prepare(t *testing.T) {
 	config := &supervisor.ValidatePublishConfig{}
-	if actualErr := config.Prepare(); len(actualErr) != 0 {
-		t.Fatalf("Prepare should not fail: %v", actualErr)
+	if errs := config.Prepare(); len(errs) != 0 {
+		t.Fatalf("unexpected failure: expected success, but failed: %v", errs[0])
 	}
 }
 
@@ -39,9 +39,9 @@ func TestValidatePublish_Run(t *testing.T) {
 	action := step.Run(ctx, state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running the step: %s", rawErr.(error))
+			t.Errorf("unexpected error: %s", rawErr.(error))
 		}
-		t.Fatal("Step should NOT halt")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	expectedOutput := []string{
@@ -60,13 +60,13 @@ func TestValidatePublish_Run(t *testing.T) {
 
 	action = step.Run(ctx, state)
 	if action != multistep.ActionHalt {
-		t.Fatal("Step should halt")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionHalt, action)
 	}
 
 	expectedError := fmt.Sprintf("%q not found", testPublishLocationName)
 	if rawErr, ok := state.GetOk("error"); ok {
 		if !strings.Contains(rawErr.(error).Error(), expectedError) {
-			t.Errorf("Expected error contains %v, but got %v", expectedError, rawErr.(error).Error())
+			t.Errorf("Expected error contains '%v', but returned '%v'", expectedError, rawErr.(error).Error())
 		}
 	}
 
@@ -90,13 +90,13 @@ func TestValidatePublish_Run(t *testing.T) {
 
 	action = step.Run(ctx, state)
 	if action != multistep.ActionHalt {
-		t.Fatal("Step should halt")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionHalt, action)
 	}
 
 	expectedError = fmt.Sprintf("publish location %q is not writable", testPublishLocationName)
 	if rawErr, ok := state.GetOk("error"); ok {
 		if rawErr.(error).Error() != expectedError {
-			t.Errorf("Expected error is %v, but got %v", expectedError, rawErr.(error).Error())
+			t.Errorf("unexpected error: expected '%s', but returned '%s'", expectedError, rawErr.(error).Error())
 		}
 	}
 
@@ -112,7 +112,7 @@ func TestValidatePublish_Run(t *testing.T) {
 
 	action = step.Run(ctx, state)
 	if action != multistep.ActionContinue {
-		t.Fatal("Step should continue")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	expectedOutput = []string{

@@ -45,21 +45,21 @@ func TestLibraryFilePath(t *testing.T) {
 		libraryFilePath := &LibraryFilePath{path: c.filePath}
 		if err := libraryFilePath.Validate(); err != nil {
 			if c.valid {
-				t.Fatalf("Expecting %s to be valid", c.filePath)
+				t.Fatalf("unexpected result: expected '%s' to be valid", c.filePath)
 			}
 			continue
 		}
 		libraryName := libraryFilePath.GetLibraryName()
 		if libraryName != c.libraryName {
-			t.Fatalf("Expecting %s but got %s", c.libraryName, libraryName)
+			t.Fatalf("unexpected result: expected '%s', but returned '%s'", c.libraryName, libraryName)
 		}
 		libraryItemName := libraryFilePath.GetLibraryItemName()
 		if libraryItemName != c.libraryItemName {
-			t.Fatalf("Expecting %s but got %s", c.libraryItemName, libraryItemName)
+			t.Fatalf("unexpected result: expected '%s', but returned '%s'", c.libraryItemName, libraryItemName)
 		}
 		fileName := libraryFilePath.GetFileName()
 		if fileName != c.fileName {
-			t.Fatalf("Expecting %s but got %s", c.fileName, fileName)
+			t.Fatalf("unexpected result: expected '%s', but returned '%s'", c.fileName, fileName)
 		}
 	}
 }

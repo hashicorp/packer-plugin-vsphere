@@ -118,14 +118,14 @@ func TestHardwareConfig_Prepare(t *testing.T) {
 			errs := c.config.Prepare()
 			if c.fail {
 				if len(errs) == 0 {
-					t.Fatalf("Config preprare should fail")
+					t.Fatal("unexpected success: expected failure")
 				}
 				if errs[0].Error() != c.expectedErrMsg {
-					t.Fatalf("Expected error message: %s but was '%s'", c.expectedErrMsg, errs[0].Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.expectedErrMsg, errs[0])
 				}
 			} else {
 				if len(errs) != 0 {
-					t.Fatalf("Config preprare should not fail")
+					t.Fatalf("unexpected failure: expected success, but failed: %s", errs[0])
 				}
 			}
 		})
@@ -174,23 +174,23 @@ func TestStepConfigureHardware_Run(t *testing.T) {
 
 			action := c.step.Run(context.TODO(), state)
 			if action != c.action {
-				t.Fatalf("expected action '%v' but actual action was '%v'", c.action, action)
+				t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", c.action, action)
 			}
 			if vmMock.ConfigureCalled != c.configureCalled {
-				t.Fatalf("expecting vm.Configure called to %t but was %t", c.configureCalled, vmMock.ConfigureCalled)
+				t.Fatalf("unexpected result: expected '%t', but returned '%t'", c.configureCalled, vmMock.ConfigureCalled)
 			}
 			if diff := cmp.Diff(vmMock.ConfigureHardwareConfig, c.hardwareConfig); diff != "" {
-				t.Fatalf("wrong driver.HardwareConfig: %s", diff)
+				t.Fatalf("unexpected result: '%s'", diff)
 			}
 
 			err, ok := state.GetOk("error")
 			containsError := c.configureError != nil
 			if containsError != ok {
-				t.Fatalf("Contain error - expecting %t but was %t", containsError, ok)
+				t.Fatalf("unexpected result: expected '%t', but returned '%t'", ok, containsError)
 			}
 			if containsError {
 				if !strings.Contains(err.(error).Error(), c.configureError.Error()) {
-					t.Fatalf("Destroy should fail with error message '%s' but failed with '%s'", c.configureError.Error(), err.(error).Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.configureError.Error(), err.(error).Error())
 				}
 			}
 		})

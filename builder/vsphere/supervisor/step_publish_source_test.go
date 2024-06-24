@@ -21,12 +21,12 @@ import (
 
 func TestPublishSource_Prepare(t *testing.T) {
 	config := &supervisor.PublishSourceConfig{}
-	if actualErrs := config.Prepare(); len(actualErrs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %v", actualErrs)
+	if errs := config.Prepare(); len(errs) != 0 {
+		t.Fatalf("unexpected failure: expected success, but failed: %v", errs[0])
 	}
 
 	if config.WatchPublishTimeoutSec != supervisor.DefaultWatchPublishTimeoutSec {
-		t.Fatalf("Default timeout should be %d, but got %d",
+		t.Fatalf("Default timeout should be %d, but returned %d",
 			supervisor.DefaultWatchPublishTimeoutSec, config.WatchPublishTimeoutSec)
 	}
 }
@@ -51,9 +51,9 @@ func TestStepPublishSource_Run_Skip(t *testing.T) {
 	action := step.Run(context.TODO(), state)
 	if action != multistep.ActionContinue {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running the step: %s", rawErr.(error))
+			t.Errorf("unexpected error: %s", rawErr.(error))
 		}
-		t.Fatal("Step should continue")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 }
 
@@ -92,9 +92,9 @@ func TestStepPublishSource_Run(t *testing.T) {
 		action := step.Run(ctx, state)
 		if action == multistep.ActionHalt {
 			if rawErr, ok := state.GetOk("error"); ok {
-				t.Errorf("Error from running the step: %s", rawErr.(error))
+				t.Errorf("unexpected error: %s", rawErr.(error))
 			}
-			t.Errorf("Step should NOT halt")
+			t.Errorf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 		}
 
 		// check if the VirtualMachinePublishRequest object is created with the expected spec.
@@ -103,7 +103,7 @@ func TestStepPublishSource_Run(t *testing.T) {
 			Namespace: testNamespace,
 		}
 		if err := testKubeClient.Get(ctx, objKey, VMPublishReqObj); err != nil {
-			t.Errorf("Failed to get the expected VirtualMachinePublishRequest object, err: %s", err.Error())
+			t.Errorf("Failed to get the expected VirtualMachinePublishRequest object, err: %s", err)
 		}
 		if VMPublishReqObj.Name != testPublishRequestName {
 			t.Errorf("Expected VirtualMachinePublishRequest name to be '%s', got '%s'",
@@ -142,13 +142,13 @@ func TestStepPublishSource_Run(t *testing.T) {
 
 	VMPublishReqObj.Status.Ready = false
 	if err := testKubeClient.Update(ctx, VMPublishReqObj); err != nil {
-		t.Errorf("Failed to update the VirtualMachinePublishRequest object status ready, err: %s", err.Error())
+		t.Errorf("Failed to update the VirtualMachinePublishRequest object status ready, err: %s", err)
 	}
 
 	VMPublishReqObj.Status.Ready = true
 	VMPublishReqObj.Status.ImageName = testImageName
 	if err := testKubeClient.Update(ctx, VMPublishReqObj); err != nil {
-		t.Errorf("Failed to update the VirtualMachinePublishRequest object status image name, err: %s", err.Error())
+		t.Errorf("Failed to update the VirtualMachinePublishRequest object status image name, err: %s", err)
 	}
 
 	wg.Wait()
@@ -189,7 +189,7 @@ func TestStepPublishSource_Cleanup(t *testing.T) {
 		Namespace: "test-namespace",
 	}
 	if err := fakeClient.Get(ctx, objKey, &vmopv1alpha1.VirtualMachinePublishRequest{}); !errors.IsNotFound(err) {
-		t.Fatal("Expected the VirtualMachinePublishRequest object to be deleted")
+		t.Fatal("expected VirtualMachinePublishRequest object to be deleted")
 	}
 
 	// Check the output lines from the step runs.

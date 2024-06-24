@@ -16,6 +16,6 @@ func TestArtifact_ImplementsArtifact(t *testing.T) {
 func TestArtifact_Id(t *testing.T) {
 	artifact := NewArtifact("datastore", "vmfolder", "vmname", nil)
 	if artifact.Id() != "datastore::vmfolder::vmname" {
-		t.Fatalf("must return datastore, vmfolder, and vmname split by :: as id")
+		t.Fatalf("unexpected result: must return datastore, vmfolder, and vmname split by :: as id")
 	}
 }

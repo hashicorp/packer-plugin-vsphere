@@ -32,7 +32,7 @@ func TestCloneConfig_Timeout(t *testing.T) {
 	warns, err := conf.Prepare(raw)
 	testConfigOk(t, warns, err)
 	if conf.ShutdownConfig.Timeout != 3*time.Minute {
-		t.Fatalf("shutdown_timeout should be equal 3 minutes, got %v", conf.ShutdownConfig.Timeout)
+		t.Fatalf("unexpected result: expected '3m', but returned '%v'", conf.ShutdownConfig.Timeout)
 	}
 }
 
@@ -47,31 +47,31 @@ func TestCloneConfig_RAMReservation(t *testing.T) {
 
 func minimalConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"vcenter_server": "vcenter.domain.local",
-		"username":       "root",
-		"password":       "vmware",
+		"vcenter_server": "vcenter.example.com",
+		"username":       "administrator@vsphere.local",
+		"password":       "VMw@re1!",
 		"template":       "ubuntu",
-		"vm_name":        "vm1",
-		"host":           "esxi1.domain.local",
+		"vm_name":        "vm-01",
+		"host":           "esxi-01.example.com",
 		"ssh_username":   "root",
-		"ssh_password":   "secret",
+		"ssh_password":   "VMw@re1!",
 	}
 }
 
 func testConfigOk(t *testing.T, warns []string, err error) {
 	if len(warns) > 0 {
-		t.Errorf("Should be no warnings: %#v", warns)
+		t.Errorf("unexpected warning: %#v", warns)
 	}
 	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
+		t.Errorf("unexpected error: %s", err)
 	}
 }
 
 func testConfigErr(t *testing.T, context string, warns []string, err error) {
 	if len(warns) > 0 {
-		t.Errorf("Should be no warnings: %#v", warns)
+		t.Errorf("unexpected warning: %#v", warns)
 	}
 	if err == nil {
-		t.Error("An error is not raised for", context)
+		t.Errorf("unexpected result: expected '%s', but returned 'nil'", context)
 	}
 }

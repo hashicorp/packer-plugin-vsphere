@@ -85,6 +85,6 @@ func (s *StepRun) Cleanup(state multistep.StateBag) {
 
 	err := vm.PowerOff()
 	if err != nil {
-		ui.Error(err.Error())
+		ui.Errorf("%s", err)
 	}
 }

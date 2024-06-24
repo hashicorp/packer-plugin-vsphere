@@ -256,39 +256,39 @@ func TestStepAddFloppy_Run(t *testing.T) {
 			}
 
 			if action := c.step.Run(context.TODO(), state); action != c.expectedAction {
-				t.Fatalf("unexpected action %v", action)
+				t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", c.expectedAction, action)
 			}
 			err, ok := state.Get("error").(error)
 			if ok {
 				if err.Error() != c.errMessage {
-					t.Fatalf("unexpected error %s", err.Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.errMessage, err)
 				}
 			} else {
 				if c.fail {
-					t.Fatalf("expected to fail but it didn't")
+					t.Fatal("unexpected success: expected failure")
 				}
 			}
 
 			if c.driverMock.DatastoreMock.UploadFileDst != "" {
 				pattern := regexp.MustCompile(`vm/dir/packer-(\d{10}|tmp-created-floppy)\.flp`)
 				if !pattern.MatchString(c.driverMock.DatastoreMock.UploadFileDst) {
-					t.Fatalf("unexpected UploadFileDst %v", c.driverMock.DatastoreMock.UploadFileDst)
+					t.Fatalf("unexpected result: expected '%s' to match pattern '%s'", c.driverMock.DatastoreMock.UploadFileDst, pattern)
 				}
 				c.driverMock.DatastoreMock.UploadFileDst = "vm/dir/packer-*.flp"
 			}
 
 			if diff := cmp.Diff(c.vmMock, c.expectedVmMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected VirtualMachine calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "VirtualMachine", diff)
 			}
 			c.expectedDriverMock.DatastoreMock = c.expectedDsMock
 			if diff := cmp.Diff(c.driverMock, c.expectedDriverMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Driver calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "Driver", diff)
 			}
 			if diff := cmp.Diff(c.dsMock, c.expectedDsMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Datastore calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "Datastore", diff)
 			}
 		})
 	}
@@ -438,22 +438,22 @@ func TestStepAddFloppy_Cleanup(t *testing.T) {
 			err, ok := state.Get("error").(error)
 			if ok {
 				if err.Error() != c.errMessage {
-					t.Fatalf("unexpected error %s", err.Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.errMessage, err)
 				}
 			} else {
 				if c.fail {
-					t.Fatalf("expected to fail but it didn't")
+					t.Fatal("unexpected success: expected failure")
 				}
 			}
 
 			c.expectedDriverMock.DatastoreMock = c.expectedDsMock
 			if diff := cmp.Diff(c.driverMock, c.expectedDriverMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Driver calls: %s", diff)
+				t.Fatalf("unexpected result: %s", diff)
 			}
 			if diff := cmp.Diff(c.dsMock, c.expectedDsMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Datastore calls: %s", diff)
+				t.Fatalf("unexpected result: %s", diff)
 			}
 		})
 	}

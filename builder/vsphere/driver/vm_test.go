@@ -13,7 +13,7 @@ import (
 func TestVirtualMachineDriver_Configure(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -35,14 +35,14 @@ func TestVirtualMachineDriver_Configure(t *testing.T) {
 		VirtualPrecisionClock: "ntp",
 	}
 	if err = vm.Configure(hardwareConfig); err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 }
 
 func TestVirtualMachineDriver_CreateVMWithMultipleDisks(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -77,12 +77,12 @@ func TestVirtualMachineDriver_CreateVMWithMultipleDisks(t *testing.T) {
 
 	vm, err := sim.driver.CreateVM(config)
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	devices, err := vm.Devices()
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	var disks []*types.VirtualDisk
@@ -94,14 +94,14 @@ func TestVirtualMachineDriver_CreateVMWithMultipleDisks(t *testing.T) {
 	}
 
 	if len(disks) != 2 {
-		t.Fatalf("unexpected number of devices")
+		t.Fatalf("unexpected result: expected '2', but returned %d", len(disks))
 	}
 }
 
 func TestVirtualMachineDriver_CloneWithPrimaryDiskResize(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -132,12 +132,12 @@ func TestVirtualMachineDriver_CloneWithPrimaryDiskResize(t *testing.T) {
 
 	clonedVM, err := vm.Clone(context.TODO(), config)
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	devices, err := clonedVM.Devices()
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	var disks []*types.VirtualDisk
@@ -149,24 +149,24 @@ func TestVirtualMachineDriver_CloneWithPrimaryDiskResize(t *testing.T) {
 	}
 
 	if len(disks) != 3 {
-		t.Fatalf("unexpected number of devices")
+		t.Fatalf("unexpected result: expected '3', but returned '%d'", len(disks))
 	}
 
 	if disks[0].CapacityInKB != config.PrimaryDiskSize*1024 {
-		t.Fatalf("unexpected disk size for primary disk: %d", disks[0].CapacityInKB)
+		t.Fatalf("unexpected result: expected '%d', but returned '%d'", config.PrimaryDiskSize*1024, disks[0].CapacityInKB)
 	}
 	if disks[1].CapacityInKB != config.StorageConfig.Storage[0].DiskSize*1024 {
-		t.Fatalf("unexpected disk size for primary disk: %d", disks[1].CapacityInKB)
+		t.Fatalf("unexpected result: expected '%d', but returned '%d'", config.StorageConfig.Storage[0].DiskSize*1024, disks[1].CapacityInKB)
 	}
 	if disks[2].CapacityInKB != config.StorageConfig.Storage[1].DiskSize*1024 {
-		t.Fatalf("unexpected disk size for primary disk: %d", disks[2].CapacityInKB)
+		t.Fatalf("unexpected result: expected '%d', but returned '%d'", config.StorageConfig.Storage[1].DiskSize*1024, disks[2].CapacityInKB)
 	}
 }
 
 func TestVirtualMachineDriver_CloneWithMacAddress(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -175,12 +175,12 @@ func TestVirtualMachineDriver_CloneWithMacAddress(t *testing.T) {
 
 	devices, err := vm.Devices()
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	adapter, err := findNetworkAdapter(devices)
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	network := adapter.GetVirtualEthernetCard()
@@ -198,26 +198,26 @@ func TestVirtualMachineDriver_CloneWithMacAddress(t *testing.T) {
 	ctx := context.TODO()
 	clonedVM, err := vm.Clone(ctx, config)
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	devices, err = clonedVM.Devices()
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 	adapter, err = findNetworkAdapter(devices)
 	if err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	network = adapter.GetVirtualEthernetCard()
 	if network.AddressType != string(types.VirtualEthernetCardMacTypeManual) {
-		t.Fatalf("unexpected address type")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", types.VirtualEthernetCardMacTypeManual, network.AddressType)
 	}
 	if network.MacAddress == oldMacAddress {
-		t.Fatalf("expected mac address to be different from old one")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", newMacAddress, network.MacAddress)
 	}
 	if network.MacAddress != newMacAddress {
-		t.Fatalf("unexpected mac address")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", newMacAddress, network.MacAddress)
 	}
 }

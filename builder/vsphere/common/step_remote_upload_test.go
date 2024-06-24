@@ -29,28 +29,28 @@ func TestStepRemoteUpload_Run(t *testing.T) {
 	}
 
 	if action := step.Run(context.TODO(), state); action == multistep.ActionHalt {
-		t.Fatalf("Should not halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	if !driverMock.FindDatastoreCalled {
-		t.Fatalf("driver.FindDatastore should be called.")
+		t.Fatalf("unexpected result: '%s' should be called", "FindDatastore")
 	}
 	if !driverMock.DatastoreMock.FileExistsCalled {
-		t.Fatalf("datastore.FindDatastore should be called.")
+		t.Fatalf("unexpected result: '%s' should be called", "FileExists")
 	}
 	if !driverMock.DatastoreMock.MakeDirectoryCalled {
-		t.Fatalf("datastore.MakeDirectory should be called.")
+		t.Fatalf("unexpected result: '%s' should be called", "MakeDirectory")
 	}
 	if !driverMock.DatastoreMock.UploadFileCalled {
-		t.Fatalf("datastore.UploadFile should be called.")
+		t.Fatalf("unexpected result: '%s' should be called", "UploadFile")
 	}
 	remotePath, ok := state.GetOk("iso_remote_path")
 	if !ok {
-		t.Fatalf("state should contain iso_remote_path")
+		t.Fatalf("unexpected state: '%s' not found", "iso_remote_path")
 	}
 	expectedRemovePath := fmt.Sprintf("[%s] packer_cache/path", driverMock.DatastoreMock.Name())
 	if remotePath != expectedRemovePath {
-		t.Fatalf("iso_remote_path expected to be %s but was %s", expectedRemovePath, remotePath)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s' for '%s'", expectedRemovePath, remotePath, "iso_remote_path")
 	}
 }
 
@@ -62,13 +62,13 @@ func TestStepRemoteUpload_SkipRun(t *testing.T) {
 	step := &StepRemoteUpload{}
 
 	if action := step.Run(context.TODO(), state); action == multistep.ActionHalt {
-		t.Fatalf("Should not halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	if driverMock.FindDatastoreCalled {
-		t.Fatalf("driver.FindDatastore should not be called.")
+		t.Fatalf("unexpected result: '%s' should not be called", "FindDatastore")
 	}
 	if _, ok := state.GetOk("iso_remote_path"); ok {
-		t.Fatalf("state should not contain iso_remote_path")
+		t.Fatalf("unexpected state: '%s' should not be found", "iso_remote_path")
 	}
 }
