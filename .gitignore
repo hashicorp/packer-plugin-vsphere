@@ -2,5 +2,6 @@ main
 dist/*
 .docs/*
 .vscode/*
+.idea/*
 packer-plugin-vsphere
 crash.log

@@ -1,5 +1,8 @@
 <!-- Code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; DO NOT EDIT MANUALLY -->
 
+- `image_name` (string) - Name of the source virtual machine (VM) image. If it is specified, the image with the name will be used for the
+  source VM, otherwise the image name from imported image will be used.
+
 - `source_name` (string) - Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
 
 - `network_type` (string) - Name of the network type to attach to the source VM's network interface. Defaults to empty.

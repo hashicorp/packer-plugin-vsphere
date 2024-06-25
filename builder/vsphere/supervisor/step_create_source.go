@@ -38,13 +38,14 @@ const (
 )
 
 type CreateSourceConfig struct {
-	// Name of the source virtual machine (VM) image.
-	ImageName string `mapstructure:"image_name" required:"true"`
 	// Name of the VM class that describes virtual hardware settings.
 	ClassName string `mapstructure:"class_name" required:"true"`
 	// Name of the storage class that configures storage-related attributes.
 	StorageClass string `mapstructure:"storage_class" required:"true"`
 
+	// Name of the source virtual machine (VM) image. If it is specified, the image with the name will be used for the
+	// source VM, otherwise the image name from imported image will be used.
+	ImageName string `mapstructure:"image_name"`
 	// Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
 	SourceName string `mapstructure:"source_name"`
 	// Name of the network type to attach to the source VM's network interface. Defaults to empty.
@@ -64,9 +65,6 @@ type CreateSourceConfig struct {
 func (c *CreateSourceConfig) Prepare() []error {
 	var errs []error
 
-	if c.ImageName == "" {
-		errs = append(errs, fmt.Errorf("'image_name' is required for creating the source VM"))
-	}
 	if c.ClassName == "" {
 		errs = append(errs, fmt.Errorf("'class_name' is required for creating the source VM"))
 	}
@@ -110,7 +108,7 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		}
 	}()
 
-	if err = s.initStep(state); err != nil {
+	if err = s.initStep(state, logger); err != nil {
 		return multistep.ActionHalt
 	}
 
@@ -192,7 +190,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	}
 }
 
-func (s *StepCreateSource) initStep(state multistep.StateBag) error {
+func (s *StepCreateSource) initStep(state multistep.StateBag, logger *PackerLogger) error {
 	if err := CheckRequiredStates(state,
 		StateKeyKubeClient,
 		StateKeySupervisorNamespace,
@@ -205,6 +203,19 @@ func (s *StepCreateSource) initStep(state multistep.StateBag) error {
 		namespace  string
 		kubeClient client.Client
 	)
+
+	importedImageName, _ := state.Get(StateKeyImportedImageName).(string)
+	if s.Config.ImageName == "" {
+		if importedImageName == "" {
+			return fmt.Errorf("the image name should be specified in config 'image_name' or generated from image import")
+		} else {
+			s.Config.ImageName = importedImageName
+		}
+	} else if importedImageName != "" {
+		// If both are set, the image name specified in the config will be used for the source image.
+		logger.Info(fmt.Sprintf("The configured image with name %s will be used to create the source VirtualMachine object instead of the imported image %s",
+			s.Config.ImageName, importedImageName))
+	}
 
 	if namespace, ok = state.Get(StateKeySupervisorNamespace).(string); !ok {
 		return fmt.Errorf("failed to cast %q from state bag as type 'string'", StateKeySupervisorNamespace)

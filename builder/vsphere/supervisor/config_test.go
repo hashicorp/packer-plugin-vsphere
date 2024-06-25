@@ -116,7 +116,6 @@ func TestConfig_Values(t *testing.T) {
 
 func getMinimalConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"image_name":    "test-image",
 		"class_name":    "test-class",
 		"storage_class": "test-storage",
 	}

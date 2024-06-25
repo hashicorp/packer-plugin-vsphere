@@ -32,7 +32,6 @@ func TestCreateSource_Prepare(t *testing.T) {
 	}
 
 	expectedErrs := []error{
-		fmt.Errorf("'image_name' is required for creating the source VM"),
 		fmt.Errorf("'class_name' is required for creating the source VM"),
 		fmt.Errorf("'storage_class' is required for creating the source VM"),
 	}
@@ -91,7 +90,6 @@ func TestCreateSource_Prepare(t *testing.T) {
 func TestCreateSource_RunDefault(t *testing.T) {
 	// Initialize the step with required configs.
 	config := &supervisor.CreateSourceConfig{
-		ImageName:         "test-image",
 		ClassName:         "test-class",
 		StorageClass:      "test-storage-class",
 		SourceName:        "test-source",
@@ -117,8 +115,29 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	state.Put(supervisor.StateKeyKubeClient, kubeClient)
 	state.Put(supervisor.StateKeySupervisorNamespace, testNamespace)
 
+	// Check error if image name is not specified.
 	ctx := context.TODO()
 	action := step.Run(ctx, state)
+	if action != multistep.ActionHalt {
+		t.Fatal("Step should halt")
+	}
+	expectedError := "the image name should be specified in config 'image_name' or generated from image import"
+	if rawErr, ok := state.GetOk("error"); ok {
+		if !strings.Contains(rawErr.(error).Error(), expectedError) {
+			t.Errorf("expected error contains %v, but got %v", expectedError, rawErr.(error).Error())
+		}
+	}
+	// Check the output lines from the step runs.
+	expectedOutput := []string{
+		"Creating required source objects in Supervisor cluster...",
+	}
+	checkOutputLines(t, testWriter, expectedOutput)
+
+	// Step should not halt after specifying image name and the imported image name.
+	importedImageName := "imported-image"
+	config.ImageName = "test-image"
+	state.Put(supervisor.StateKeyImportedImageName, importedImageName)
+	action = step.Run(ctx, state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
 			t.Errorf("Error from running the step: %s", rawErr.(error))
@@ -206,8 +225,9 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	}
 
 	// Check the output lines from the step runs.
-	expectedOutput := []string{
+	expectedOutput = []string{
 		"Creating required source objects in Supervisor cluster...",
+		fmt.Sprintf("The configured image with name %s will be used to create the source VirtualMachine object instead of the imported image %s", config.ImageName, importedImageName),
 		"Creating a K8s Secret object for providing source VM bootstrap data...",
 		"Using default cloud-init user data as the 'bootstrap_data_file' is not specified",
 		"Successfully created the K8s Secret object",
