@@ -119,6 +119,9 @@ EOF
 
   provisioner "shell" {
     inline = [
+      # Display the commands being executed.
+      "set -x",
+
       # Download Jenkins repository key and add it to the trusted keyrings.
       "curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.gpg",
       "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list",
@@ -129,7 +132,7 @@ EOF
 
       # Sometimes apt-get uses IPv6 and causes failure, force to use IPv4 address.
       "sudo apt-get -qq -o Acquire::ForceIPv4=true update",
-      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y ca-certificates openjdk-11-jre-headless",
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y ca-certificates openjdk-21-jre-headless",
       "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y jenkins",
       # Restart Jenkins service, in case it didn't initialize successfully.
       "sudo systemctl restart jenkins",
