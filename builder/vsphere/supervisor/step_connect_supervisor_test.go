@@ -22,7 +22,7 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 		KubeconfigPath: "non-existing-file",
 	}
 	if err := config.Prepare(); err == nil {
-		t.Fatalf("Prepare should fail by non-existing kubeconfig file")
+		t.Fatalf("config prepare should fail by non-existing kubeconfig file")
 	}
 
 	// Check when an invalid kubeconfig file is provided.
@@ -33,7 +33,7 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 	defer fakeFile.Close()
 	config.KubeconfigPath = fakeFile.Name()
 	if err := config.Prepare(); err == nil {
-		t.Fatalf("Prepare should fail by an invalid kubeconfig file")
+		t.Fatalf("config prepare should fail by an invalid kubeconfig file")
 	}
 
 	// Check kubeconfig path value when the KUBECONFIG env var is set.
@@ -41,20 +41,20 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 	validKubeconfigPath := getTestKubeconfigFile(t, "test-ns").Name()
 	t.Setenv(clientcmd.RecommendedConfigPathEnvVar, validKubeconfigPath)
 	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %v", errs)
+		t.Fatalf("config config prepare should not fail: %v", errs)
 	}
 	if config.KubeconfigPath != validKubeconfigPath {
-		t.Fatalf("config.KubeconfigPath should be %q, but got %q",
+		t.Fatalf("config.KubeconfigPath should be %q, but returned %q",
 			validKubeconfigPath, config.KubeconfigPath)
 	}
 
 	// Check if Supervisor namespace is set from the given kubeconfig file context.
 	config.SupervisorNamespace = ""
 	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %s", errs[0])
+		t.Fatalf("unexpected failure: expected success, but failed: %s", errs[0])
 	}
 	if config.SupervisorNamespace != "test-ns" {
-		t.Errorf("Supervisor namespace should be 'test-ns' but got %q", config.SupervisorNamespace)
+		t.Errorf("unexpected result: expected %q, but returned %q", "test-ns", config.SupervisorNamespace)
 	}
 }
 
@@ -83,9 +83,9 @@ func TestConnectSupervisor_Run(t *testing.T) {
 	action := step.Run(context.TODO(), state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running the step: %s", rawErr.(error))
+			t.Errorf("unexpected error: %s", rawErr.(error))
 		}
-		t.Fatalf("step should NOT halt")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	// Check if all the required states are set after the step is run.
@@ -93,13 +93,13 @@ func TestConnectSupervisor_Run(t *testing.T) {
 		supervisor.StateKeyKubeClient,
 		supervisor.StateKeySupervisorNamespace,
 	); err != nil {
-		t.Fatalf("Missing required states: %s", err)
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	// Check if the Supervisor namespace value is set correctly in the state.
 	namespace := state.Get(supervisor.StateKeySupervisorNamespace)
 	if namespace != "test-ns" {
-		t.Errorf("State %q should be 'test-ns', but got %q", supervisor.StateKeySupervisorNamespace, namespace)
+		t.Errorf(`Unexpected result: expected %q to be 'test-ns', but returned %q`, supervisor.StateKeySupervisorNamespace, namespace)
 	}
 
 	// Check the output lines from the step runs.

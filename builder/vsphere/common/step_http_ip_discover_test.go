@@ -17,14 +17,14 @@ func TestStepHTTPIPDiscover_Run(t *testing.T) {
 
 	// without setting HTTPIP
 	if action := step.Run(context.Background(), state); action != multistep.ActionContinue {
-		t.Fatalf("bad action: %#v", action)
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 	if _, ok := state.GetOk("error"); ok {
-		t.Fatal("should NOT have error")
+		t.Fatal("unexpected error: expected no error")
 	}
 	_, ok := state.GetOk("http_ip")
 	if !ok {
-		t.Fatal("should have http_ip")
+		t.Fatalf("unexpected state: '%s' not found", "http_ip")
 	}
 
 	// setting HTTPIP
@@ -33,36 +33,36 @@ func TestStepHTTPIPDiscover_Run(t *testing.T) {
 		HTTPIP: ip,
 	}
 	if action := step.Run(context.Background(), state); action != multistep.ActionContinue {
-		t.Fatalf("bad action: %#v", action)
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 	if _, ok := state.GetOk("error"); ok {
-		t.Fatal("should NOT have error")
+		t.Fatal("unexpected error: expected no error")
 	}
 	httpIp, ok := state.GetOk("http_ip")
 	if !ok {
-		t.Fatal("should have http_ip")
+		t.Fatalf("unexpected state: '%s' not found", "http_ip")
 	}
 	if httpIp != ip {
-		t.Fatalf("bad: Http ip is %s but was supposed to be %s", httpIp, ip)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", ip, httpIp)
 	}
 
 	_, ipNet, err := net.ParseCIDR("0.0.0.0/0")
 	if err != nil {
-		t.Fatal("error getting ipNet", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	step = new(StepHTTPIPDiscover)
 	step.Network = ipNet
 
 	// without setting HTTPIP with Network
 	if action := step.Run(context.Background(), state); action != multistep.ActionContinue {
-		t.Fatalf("bad action: %#v", action)
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 	if _, ok := state.GetOk("error"); ok {
-		t.Fatal("should NOT have error")
+		t.Fatal("unexpected error: expected no error")
 	}
 	_, ok = state.GetOk("http_ip")
 	if !ok {
-		t.Fatal("should have http_ip")
+		t.Fatalf("unexpected state: '%s' not found", "http_ip")
 	}
 
 	// setting HTTPIP with Network
@@ -71,16 +71,16 @@ func TestStepHTTPIPDiscover_Run(t *testing.T) {
 		Network: ipNet,
 	}
 	if action := step.Run(context.Background(), state); action != multistep.ActionContinue {
-		t.Fatalf("bad action: %#v", action)
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 	if _, ok := state.GetOk("error"); ok {
-		t.Fatal("should NOT have error")
+		t.Fatal("unexpected error: expected no error")
 	}
 	httpIp, ok = state.GetOk("http_ip")
 	if !ok {
-		t.Fatal("should have http_ip")
+		t.Fatalf("unexpected state: '%s' not found", "http_ip")
 	}
 	if httpIp != ip {
-		t.Fatalf("bad: Http ip is %s but was supposed to be %s", httpIp, ip)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", ip, httpIp)
 	}
 }

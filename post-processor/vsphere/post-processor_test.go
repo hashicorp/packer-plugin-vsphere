@@ -57,11 +57,11 @@ func TestGenerateURI_Basic(t *testing.T) {
 
 	uri, err := p.generateURI()
 	if err != nil {
-		t.Fatalf("had error: %s", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	expectedURI := "vi://me:notpassword@myhost/mydc/host/mycluster"
 	if uri.String() != expectedURI {
-		t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expectedURI)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", expectedURI, uri)
 	}
 }
 
@@ -95,12 +95,12 @@ func TestGenerateURI_PasswordEscapes(t *testing.T) {
 
 		uri, err := p.generateURI()
 		if err != nil {
-			t.Fatalf("had error: %s", err)
+			t.Fatalf("unexpected error: '%s'", err)
 		}
 		expectedURI := fmt.Sprintf("vi://me:%s@myhost/mydc/host/mycluster", escapeCase.Expected)
 
 		if uri.String() != expectedURI {
-			t.Fatalf("URI did not match. Received: %s. Expected: %s", uri, expectedURI)
+			t.Fatalf("unexpected result: expected '%s', but returned '%s'", expectedURI, uri)
 		}
 	}
 }
@@ -116,10 +116,10 @@ func TestGetEncodedPassword(t *testing.T) {
 	encoded, isSet := getEncodedPassword(u)
 	expected := "P%40ssW%3Ard"
 	if !isSet {
-		t.Fatalf("Password is set but test said it is not")
+		t.Fatalf("unexpected result: expected 'true', but returned '%t'", isSet)
 	}
 	if encoded != expected {
-		t.Fatalf("Should have successfully gotten encoded password. Expected: %s; received: %s", expected, encoded)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", expected, encoded)
 	}
 
 	// There is no password
@@ -127,7 +127,7 @@ func TestGetEncodedPassword(t *testing.T) {
 
 	_, isSet = getEncodedPassword(u)
 	if isSet {
-		t.Fatalf("Should have determined that password was not set")
+		t.Fatalf("unexpected result: expected 'false', but returned '%t'", isSet)
 	}
 
 }

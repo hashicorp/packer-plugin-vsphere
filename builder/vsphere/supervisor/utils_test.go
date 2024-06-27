@@ -27,19 +27,19 @@ func TestCheckRequiredStates(t *testing.T) {
 	state := newBasicTestState(nil)
 	err := supervisor.CheckRequiredStates(state, "logger")
 	if err != nil {
-		t.Errorf("Expected no error but got: %s", err.Error())
+		t.Errorf("Expected no error but got: %s", err)
 	}
 
 	state.Put("test-key-1", "test-val-1")
 	state.Put("test-key-2", "test-val-2")
 	err = supervisor.CheckRequiredStates(state, "test-key-1", "test-key-2")
 	if err != nil {
-		t.Errorf("Expected no error but got: %s", err.Error())
+		t.Errorf("unexpected error: %s", err)
 	}
 
 	expectErr := supervisor.CheckRequiredStates(state, "test-key-non-exist")
 	if expectErr == nil {
-		t.Errorf("Expected error but got nil")
+		t.Errorf("unexpected result: expected '%s', but returned nil", expectErr)
 	}
 }
 
@@ -58,7 +58,7 @@ func newBasicTestState(writer *bytes.Buffer) *multistep.BasicStateBag {
 func checkOutputLines(t *testing.T, writer *bytes.Buffer, expectedLines []string) {
 	for _, expected := range expectedLines {
 		if actual := readLine(t, writer); actual != expected {
-			t.Fatalf("Expected output %q but got %q", expected, actual)
+			t.Fatalf("unexpected result: expected '%s', but returned '%s'", expected, actual)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func checkOutputLines(t *testing.T, writer *bytes.Buffer, expectedLines []string
 func readLine(t *testing.T, writer *bytes.Buffer) string {
 	actual, err := writer.ReadString('\n')
 	if err != nil {
-		t.Fatalf("Failed to read line from writer, err: %s", err.Error())
+		t.Fatalf("Failed to read line from writer, err: %s", err)
 	}
 
 	// Skip "continue checking" line as it can be printed from the retry.

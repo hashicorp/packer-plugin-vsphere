@@ -28,12 +28,12 @@ func TestSysprepFieldsMutuallyExclusive(t *testing.T) {
 	// Make sure we only received on error
 	expectedErrorLength := 1
 	if len(errors) != expectedErrorLength {
-		t.Fatalf("expected errors of length %d but got %d", expectedErrorLength, len(errors))
+		t.Fatalf("unexpected result: expected '%d', but returned: '%d'", expectedErrorLength, len(errors))
 	}
 
 	// Validate the error messages are what we expect.
-	if errors[0].Error() != expectedError.Error() {
-		t.Fatalf("expected error message %s, but got error message %s", expectedError, errors[0].Error())
+	if errors[0] != expectedError {
+		t.Fatalf("unexpected error: expected '%s', but returned: '%s'", expectedError, errors[0])
 	}
 }
 
@@ -54,7 +54,7 @@ func TestWindowsSysprepFilePrintsWarning(t *testing.T) {
 
 	// Fail if there were errors
 	if len(errors) > 0 {
-		t.Fatalf("there were errors when running prepare")
+		t.Fatalf("unexpected error: %s", errors)
 	}
 
 	// Search warnings array for the warning message
@@ -68,7 +68,7 @@ func TestWindowsSysprepFilePrintsWarning(t *testing.T) {
 
 	// If we didn't find the expect warning message fail.
 	if found == false {
-		t.Fatalf("didn't find %s in warnings array", expectedWarning)
+		t.Fatalf("unexpected result: expected '%s' to be in warnings", expectedWarning)
 	}
 
 }
@@ -91,17 +91,17 @@ func TestWindowsSysprepTextSetsContent(t *testing.T) {
 	// Get the identity settings for the customize step
 	baseCustomizationSettings, err := stepCustomize.identitySettings()
 	if err != nil {
-		t.Fatalf("identity settings had unexpected errors. %v", err)
+		t.Fatalf("unexpected error: '%v'", err)
 	}
 
 	// Cast the result to the vsphere govmomi type
 	sysprepText, ok := baseCustomizationSettings.(*types.CustomizationSysprepText)
 	if !ok {
-		t.Fatalf("identity settings did not return CustomizationSysprepText type")
+		t.Fatalf("unexpected result: expected '%s', but returned %s", text, sysprepText)
 	}
 
 	// Make sure the sysprep text value is equal to what was passed in via the config.
 	if sysprepText.Value != text {
-		t.Fatalf("expected the customization spec to contain %s but was %s", text, sysprepText.Value)
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", text, sysprepText.Value)
 	}
 }

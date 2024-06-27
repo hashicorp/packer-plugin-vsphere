@@ -15,14 +15,14 @@ func TestDatastoreAcc(t *testing.T) {
 	d := newTestDriver(t)
 	ds, err := d.FindDatastore("datastore1", "")
 	if err != nil {
-		t.Fatalf("Cannot find the default datastore '%v': %v", "datastore1", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	info, err := ds.Info("name")
 	if err != nil {
-		t.Fatalf("Cannot read datastore properties: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	if info.Name != "datastore1" {
-		t.Errorf("Wrong datastore. expected: 'datastore1', got: '%v'", info.Name)
+		t.Errorf("unexpected result: expected '%s', but returned '%s'", "datastore1", info.Name)
 	}
 }
 
@@ -34,31 +34,31 @@ func TestFileUpload(t *testing.T) {
 	fileName := fmt.Sprintf("test-%v", time.Now().Unix())
 	tmpFile, err := os.CreateTemp("", fileName)
 	if err != nil {
-		t.Fatalf("Error creating temp file")
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	err = tmpFile.Close()
 	if err != nil {
-		t.Fatalf("Error creating temp file")
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	d := newTestDriver(t)
 	ds, err := d.FindDatastore(dsName, hostName)
 	if err != nil {
-		t.Fatalf("Cannot find datastore '%v': %v", dsName, err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	err = ds.UploadFile(tmpFile.Name(), fileName, hostName, true)
 	if err != nil {
-		t.Fatalf("Cannot upload file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	if ds.FileExists(fileName) != true {
-		t.Fatalf("Cannot find file")
+		t.Fatalf("unexpected result: expected 'true', but returned '%t'", ds.FileExists(fileName))
 	}
 
 	err = ds.Delete(fileName)
 	if err != nil {
-		t.Fatalf("Cannot delete file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 }
 
@@ -70,30 +70,30 @@ func TestFileUploadDRS(t *testing.T) {
 	fileName := fmt.Sprintf("test-%v", time.Now().Unix())
 	tmpFile, err := os.CreateTemp("", fileName)
 	if err != nil {
-		t.Fatalf("Error creating temp file")
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	err = tmpFile.Close()
 	if err != nil {
-		t.Fatalf("Error creating temp file")
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	d := newTestDriver(t)
 	ds, err := d.FindDatastore(dsName, hostName)
 	if err != nil {
-		t.Fatalf("Cannot find datastore '%v': %v", dsName, err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	err = ds.UploadFile(tmpFile.Name(), fileName, hostName, false)
 	if err != nil {
-		t.Fatalf("Cannot upload file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
-	if ds.FileExists(fileName) != true {
-		t.Fatalf("Cannot find file")
+	if ds.FileExists(fileName) != false {
+		t.Fatalf("unexpected error: expected 'true', but returned '%t'", ds.FileExists(fileName))
 	}
 
 	err = ds.Delete(fileName)
 	if err != nil {
-		t.Fatalf("Cannot delete file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 }

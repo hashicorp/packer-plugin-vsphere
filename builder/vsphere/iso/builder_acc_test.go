@@ -485,15 +485,15 @@ func checkNetworkCard(name string) error {
 func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "packer-vsphere-iso-test")
 	if err != nil {
-		t.Fatalf("Error creating temp file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	_, err = fmt.Fprint(tmpFile, "Hello, World!")
 	if err != nil {
-		t.Fatalf("Error creating temp file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	err = tmpFile.Close()
 	if err != nil {
-		t.Fatalf("Error creating temp file: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	config := defaultConfig()
 	config["floppy_files"] = []string{tmpFile.Name()}
@@ -503,7 +503,7 @@ func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("unexpected error: expected 'nil', but returned '%s'", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},

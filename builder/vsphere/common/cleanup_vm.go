@@ -32,6 +32,6 @@ func CleanupVM(state multistep.StateBag) {
 	ui.Say("Destroying VM...")
 	err := vm.Destroy()
 	if err != nil {
-		ui.Error(err.Error())
+		ui.Errorf("%s", err)
 	}
 }

@@ -28,7 +28,7 @@ func TestCreateSource_Prepare(t *testing.T) {
 	config := &supervisor.CreateSourceConfig{}
 	var actualErrs []error
 	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
-		t.Fatalf("Prepare should fail by missing required configs, got empty")
+		t.Fatal("unexpected success: expected failure")
 	}
 
 	expectedErrs := []error{
@@ -36,7 +36,7 @@ func TestCreateSource_Prepare(t *testing.T) {
 		fmt.Errorf("'storage_class' is required for creating the source VM"),
 	}
 	if !reflect.DeepEqual(actualErrs, expectedErrs) {
-		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
+		t.Fatalf("unexpected error: expected '%s', but returned '%s'", expectedErrs, actualErrs)
 	}
 
 	// Check error output when providing invalid bootstrap configs.
@@ -51,10 +51,10 @@ func TestCreateSource_Prepare(t *testing.T) {
 		BootstrapProvider: "fake-bootstrap-provider",
 	}
 	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
-		t.Fatalf("Prepare should fail with invalid bootstrap configs, got empty")
+		t.Fatalf("unexpected success: expected failure")
 	}
 	if !reflect.DeepEqual(actualErrs, expectedErrs) {
-		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
+		t.Fatalf("unexpected error: expected '%s', but returned '%s'", expectedErrs, actualErrs)
 	}
 
 	expectedErrs = []error{
@@ -62,10 +62,10 @@ func TestCreateSource_Prepare(t *testing.T) {
 	}
 	config.BootstrapProvider = "Sysprep"
 	if actualErrs = config.Prepare(); len(actualErrs) == 0 {
-		t.Fatalf("Prepare should fail with invalid bootstrap configs, got empty")
+		t.Fatalf("unexpected success: expected failure")
 	}
 	if !reflect.DeepEqual(actualErrs, expectedErrs) {
-		t.Fatalf("Expected errs %v, got %v", expectedErrs, actualErrs)
+		t.Fatalf("unexpected error: expected '%s', but returned '%s'", expectedErrs, actualErrs)
 	}
 
 	// Check default values for the optional configs.
@@ -75,14 +75,14 @@ func TestCreateSource_Prepare(t *testing.T) {
 		StorageClass: "fake-storage-class",
 	}
 	if actualErrs = config.Prepare(); len(actualErrs) != 0 {
-		t.Fatalf("Prepare should NOT fail: %v", actualErrs)
+		t.Fatalf("unexpected failure: expected success, but failed: %v", actualErrs)
 	}
 	if !strings.HasPrefix(config.SourceName, supervisor.DefaultSourceNamePrefix) {
-		t.Errorf("Expected default SourceName has prefix %s, got %s",
+		t.Errorf("expected default SourceName has prefix %s, got %s",
 			supervisor.DefaultSourceNamePrefix, config.SourceName)
 	}
 	if config.BootstrapProvider != supervisor.ProviderCloudInit {
-		t.Errorf("Expected default BootstrapProvider %s, got %s",
+		t.Errorf("expected default BootstrapProvider %s, got %s",
 			supervisor.ProviderCloudInit, config.BootstrapProvider)
 	}
 }
@@ -140,9 +140,9 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	action = step.Run(ctx, state)
 	if action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running the step: %s", rawErr.(error))
+			t.Errorf("unexpected error: %s", rawErr.(error))
 		}
-		t.Fatal("Step should NOT halt")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	// Check if the K8s Secret object is created with expected spec.
@@ -152,7 +152,7 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	}
 	secretObj := &corev1.Secret{}
 	if err := kubeClient.Get(ctx, objKey, secretObj); err != nil {
-		t.Fatalf("Failed to get the expected Secret object, err: %s", err.Error())
+		t.Fatalf("Failed to get the expected Secret object, err: %s", err)
 	}
 	if secretObj.StringData["user-data"] == "" {
 		t.Errorf("Expected the Secret object to be created with user-data, got: %v", secretObj)
@@ -161,7 +161,7 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	// Check if the source VM object is created with expected spec.
 	vmObj := &vmopv1alpha1.VirtualMachine{}
 	if err := kubeClient.Get(ctx, objKey, vmObj); err != nil {
-		t.Fatalf("Failed to get the expected VM object, err: %s", err.Error())
+		t.Fatalf("Failed to get the expected VM object, err: %s", err)
 	}
 	if vmObj.Name != "test-source" {
 		t.Errorf("Expected VM name to be 'test-vm', got %q", vmObj.Name)
@@ -189,7 +189,7 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	// Check if the source VMService object is created with expected spec.
 	vmServiceObj := &vmopv1alpha1.VirtualMachineService{}
 	if err := kubeClient.Get(ctx, objKey, vmServiceObj); err != nil {
-		t.Fatalf("Failed to get the expected VMService object, err: %s", err.Error())
+		t.Fatalf("Failed to get the expected VMService object, err: %s", err)
 	}
 	if vmServiceObj.Name != "test-source" {
 		t.Errorf("Expected VMService name to be 'test-source', got %q", vmServiceObj.Name)
@@ -212,7 +212,7 @@ func TestCreateSource_RunDefault(t *testing.T) {
 	// Check if all the required states are set correctly after the step is run.
 	sourceName := state.Get(supervisor.StateKeySourceName)
 	if sourceName != "test-source" {
-		t.Errorf("State %q should be 'test-source', but got %q", supervisor.StateKeySourceName, sourceName)
+		t.Errorf("State %q should be 'test-source', but returned %q", supervisor.StateKeySourceName, sourceName)
 	}
 	if state.Get(supervisor.StateKeyVMCreated) != true {
 		t.Errorf("State %q should be 'true'", supervisor.StateKeyVMCreated)
@@ -263,7 +263,7 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 
 	testDataFile, err := os.CreateTemp(t.TempDir(), "test-data-file")
 	if err != nil {
-		t.Fatalf("Failed to create temp test data file, err: %s", err.Error())
+		t.Fatalf("Failed to create temp test data file, err: %s", err)
 	}
 	defer os.Remove(testDataFile.Name())
 	defer testDataFile.Close()
@@ -284,9 +284,9 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 	ctx := context.TODO()
 	if action := step.Run(ctx, state); action == multistep.ActionHalt {
 		if rawErr, ok := state.GetOk("error"); ok {
-			t.Errorf("Error from running the step: %s", rawErr.(error))
+			t.Errorf("unexpected error: %s", rawErr.(error))
 		}
-		t.Fatal("Step should NOT halt")
+		t.Fatalf("unexpected result: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	// Check if the K8s Secret object is created with expected bootstrap data.
@@ -296,7 +296,7 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 	}
 	secretObj := &corev1.Secret{}
 	if err := kubeClient.Get(ctx, objKey, secretObj); err != nil {
-		t.Fatalf("Failed to get the expected Secret object, err: %s", err.Error())
+		t.Fatalf("Failed to get the expected Secret object, err: %s", err)
 	}
 	if secretObj.StringData["unattend"] != "test-unattend-config" {
 		t.Errorf("Expected the Secret object to contain bootstrap data, got: %q", secretObj.StringData)
@@ -305,7 +305,7 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 	// Check if the source VM object is created with expected bootstrap provider.
 	vmObj := &vmopv1alpha1.VirtualMachine{}
 	if err := kubeClient.Get(ctx, objKey, vmObj); err != nil {
-		t.Fatalf("Failed to get the expected VM object, err: %s", err.Error())
+		t.Fatalf("Failed to get the expected VM object, err: %s", err)
 	}
 	if vmObj.Spec.VmMetadata.Transport != vmopv1alpha1.VirtualMachineMetadataSysprepTransport {
 		t.Errorf("Expected default VM transport to be %q, got %q",
@@ -376,13 +376,13 @@ func TestCreateSource_Cleanup(t *testing.T) {
 		Namespace: "test-namespace",
 	}
 	if err := kubeClient.Get(ctx, objKey, &corev1.Secret{}); !errors.IsNotFound(err) {
-		t.Fatal("Expected the Secret object to be deleted")
+		t.Fatal("expected the Secret object to be deleted")
 	}
 	if err := kubeClient.Get(ctx, objKey, &vmopv1alpha1.VirtualMachine{}); !errors.IsNotFound(err) {
-		t.Fatal("Expected the VirtualMachine object to be deleted")
+		t.Fatal("expected the VirtualMachine object to be deleted")
 	}
 	if err := kubeClient.Get(ctx, objKey, &vmopv1alpha1.VirtualMachineService{}); !errors.IsNotFound(err) {
-		t.Fatal("Expected the VirtualMachineService object to be deleted")
+		t.Fatal("expected the VirtualMachineService object to be deleted")
 	}
 
 	// Check the output lines from the step runs.

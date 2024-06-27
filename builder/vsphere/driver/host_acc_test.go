@@ -12,14 +12,14 @@ func TestHostAcc(t *testing.T) {
 	d := newTestDriver(t)
 	host, err := d.FindHost(TestHostName)
 	if err != nil {
-		t.Fatalf("Cannot find the default host '%v': %v", "datastore1", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 
 	info, err := host.Info("name")
 	if err != nil {
-		t.Fatalf("Cannot read host properties: %v", err)
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	if info.Name != TestHostName {
-		t.Errorf("Wrong host name: expected '%v', got: '%v'", TestHostName, info.Name)
+		t.Errorf("unexpected result: expected '%s', but returned '%s'", TestHostName, info.Name)
 	}
 }

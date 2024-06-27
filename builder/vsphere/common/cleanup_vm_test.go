@@ -58,7 +58,7 @@ func Test_CleanupVM(t *testing.T) {
 		}
 		CleanupVM(state)
 		if mockVM.DestroyCalled != tc.ExpectDestroy {
-			t.Fatalf("Problem with cleanup: %s", tc.Reason)
+			t.Fatalf("unexpected result: expected '%s' to be called", "Destroy")
 		}
 	}
 

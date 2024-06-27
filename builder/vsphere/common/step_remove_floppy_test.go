@@ -179,37 +179,37 @@ func TestStepRemoveFloppy_Run(t *testing.T) {
 			}
 
 			if action := c.step.Run(context.TODO(), state); action != c.expectedAction {
-				t.Fatalf("unexpected action %v", action)
+				t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", c.expectedAction, action)
 			}
 			err, ok := state.Get("error").(error)
 			if ok {
 				if err.Error() != c.errMessage {
-					t.Fatalf("unexpected error %s", err.Error())
+					t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.errMessage, err)
 				}
 			} else {
 				if c.fail {
-					t.Fatalf("expected to fail but it didn't")
+					t.Fatal("unexpected success: expected failure")
 				}
 			}
 
 			if !c.fail {
 				if _, ok := state.GetOk("uploaded_floppy_path"); ok {
-					t.Fatalf("uploaded_floppy_path should not be in state")
+					t.Fatalf("unexpected state: '%s' should not be found", "uploaded_floppy_path")
 				}
 			}
 
 			if diff := cmp.Diff(c.vmMock, c.expectedVmMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected VirtualMachine calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "VirtualMachine", diff)
 			}
 			c.expectedDriverMock.DatastoreMock = c.expectedDsMock
 			if diff := cmp.Diff(c.driverMock, c.expectedDriverMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Driver calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "Driver", diff)
 			}
 			if diff := cmp.Diff(c.dsMock, c.expectedDsMock,
 				cmpopts.IgnoreInterfaces(struct{ error }{})); diff != "" {
-				t.Fatalf("unexpected Datastore calls: %s", diff)
+				t.Fatalf("unexpected '%s' calls: %s", "Datastore", diff)
 			}
 		})
 	}

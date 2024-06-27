@@ -31,13 +31,13 @@ func TestCreateConfig_Prepare(t *testing.T) {
 		},
 	}
 	if errs := config.Prepare(); len(errs) != 0 {
-		t.Fatalf("Config prepare should not fail: %s", errs[0])
+		t.Fatalf("unexpected failure: expected success, but failed: %s", errs[0])
 	}
 	if config.GuestOSType != "otherGuest" {
-		t.Fatalf("GuestOSType should default to 'otherGuest'")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", "otherGuest", config.GuestOSType)
 	}
 	if len(config.StorageConfig.DiskControllerType) != 1 {
-		t.Fatalf("DiskControllerType should have at least one element as default")
+		t.Fatalf("unexpected result: expected '%d', but returned '%d'", 1, len(config.StorageConfig.DiskControllerType))
 	}
 
 	// Data validation
@@ -185,14 +185,14 @@ func TestCreateConfig_Prepare(t *testing.T) {
 		errs := c.config.Prepare()
 		if c.fail {
 			if len(errs) == 0 {
-				t.Fatalf("Config prepare should fail")
+				t.Fatal("unexpected success: expected failure")
 			}
 			if errs[0].Error() != c.expectedErrMsg {
-				t.Fatalf("Expected error message: %s but was '%s'", c.expectedErrMsg, errs[0].Error())
+				t.Fatalf("unexpected error: expected '%s', but returned '%s'", c.expectedErrMsg, errs[0])
 			}
 		} else {
 			if len(errs) != 0 {
-				t.Fatalf("Config prepare should not fail: %s", errs[0])
+				t.Fatalf("unexpected failure: expected success, but failed: %s", errs[0])
 			}
 		}
 	}
@@ -207,32 +207,32 @@ func TestStepCreateVM_Run(t *testing.T) {
 	vmPath := path.Join(step.Location.Folder, step.Location.VMName)
 
 	if action := step.Run(context.TODO(), state); action == multistep.ActionHalt {
-		t.Fatalf("Should not halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
 	// Pre clean VM
 	if !driverMock.PreCleanVMCalled {
-		t.Fatalf("driver.PreCleanVM should be called.")
+		t.Fatalf("unexpected result: expected '%s' to be called", "PreCleanVM")
 	}
 	if driverMock.PreCleanForce != step.Force {
-		t.Fatalf("Force PreCleanVM should be %t but was %t.", step.Force, driverMock.PreCleanForce)
+		t.Fatalf("unexpected result: expected '%t', but returned '%t'.", step.Force, driverMock.PreCleanForce)
 	}
 	if driverMock.PreCleanVMPath != vmPath {
-		t.Fatalf("VM path expected to be %s but was %s", vmPath, driverMock.PreCleanVMPath)
+		t.Fatalf("unexpected result: expected %s, but returned %s", vmPath, driverMock.PreCleanVMPath)
 	}
 
 	if !driverMock.CreateVMCalled {
-		t.Fatalf("driver.CreateVM should be called.")
+		t.Fatalf("unexpected result: expected '%s' to be called", "CreateVM")
 	}
 	if diff := cmp.Diff(driverMock.CreateConfig, driverCreateConfig(step.Config, step.Location)); diff != "" {
-		t.Fatalf("wrong driver.CreateConfig: %s", diff)
+		t.Fatalf("unexpected result: %s", diff)
 	}
 	vm, ok := state.GetOk("vm")
 	if !ok {
-		t.Fatal("state must contain the VM")
+		t.Fatalf("unexpected result: expected '%s' to be in state", "vm")
 	}
 	if vm != driverMock.VM {
-		t.Fatalf("state doesn't contain the created VM.")
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", driverMock.VM, vm)
 	}
 }
 
@@ -245,10 +245,10 @@ func TestStepCreateVM_RunHalt(t *testing.T) {
 	driverMock.PreCleanShouldFail = true
 	state.Put("driver", driverMock)
 	if action := step.Run(context.TODO(), state); action != multistep.ActionHalt {
-		t.Fatalf("Step should halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionHalt, action)
 	}
 	if !driverMock.PreCleanVMCalled {
-		t.Fatalf("driver.PreCleanVM should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "PreCleanVM")
 	}
 
 	// CreateVM fails
@@ -256,16 +256,16 @@ func TestStepCreateVM_RunHalt(t *testing.T) {
 	driverMock.CreateVMShouldFail = true
 	state.Put("driver", driverMock)
 	if action := step.Run(context.TODO(), state); action != multistep.ActionHalt {
-		t.Fatalf("Step should halt.")
+		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionHalt, action)
 	}
 	if !driverMock.PreCleanVMCalled {
-		t.Fatalf("driver.PreCleanVM should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "PreCleanVM")
 	}
 	if !driverMock.CreateVMCalled {
-		t.Fatalf("driver.PreCleanVM should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "CreateVM")
 	}
 	if _, ok := state.GetOk("vm"); ok {
-		t.Fatal("state should not contain a VM")
+		t.Fatalf("unexpected result: expected '%s' not to be in state", "vm")
 	}
 }
 
@@ -279,7 +279,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	state.Put(multistep.StateCancelled, true)
 	step.Cleanup(state)
 	if !vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "Destroy")
 	}
 	vm.DestroyCalled = false
 	state.Remove(multistep.StateCancelled)
@@ -288,7 +288,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	state.Put(multistep.StateHalted, true)
 	step.Cleanup(state)
 	if !vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "Destroy")
 	}
 	vm.DestroyCalled = false
 	state.Remove(multistep.StateHalted)
@@ -297,7 +297,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	state.Put("destroy_vm", true)
 	step.Cleanup(state)
 	if !vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "Destroy")
 	}
 	vm.DestroyCalled = false
 	state.Remove("destroy_vm")
@@ -305,7 +305,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	// Don't clean up if state is not set with previous values
 	step.Cleanup(state)
 	if vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should not be called")
+		t.Fatalf("unexpected result: expected '%s' not to be called", "Destroy")
 	}
 
 	// Destroy fail
@@ -321,10 +321,10 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 
 	step.Cleanup(state)
 	if !vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should be called")
+		t.Fatalf("unexpected result: expected '%s' to be called", "Destroy")
 	}
 	if !strings.Contains(errorBuffer.String(), vm.DestroyError.Error()) {
-		t.Fatalf("Destroy should fail with error message '%s' but failed with '%s'", vm.DestroyError.Error(), errorBuffer.String())
+		t.Fatalf("unexpected result: expected '%s', but returned '%s'", vm.DestroyError.Error(), errorBuffer.String())
 	}
 	vm.DestroyCalled = false
 	state.Remove(multistep.StateCancelled)
@@ -334,7 +334,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	state.Put(multistep.StateCancelled, true)
 	step.Cleanup(state)
 	if vm.DestroyCalled {
-		t.Fatalf("vm.Destroy should not be called")
+		t.Fatalf("unexpected result: expected '%s' not to be called", "Destroy")
 	}
 }
 

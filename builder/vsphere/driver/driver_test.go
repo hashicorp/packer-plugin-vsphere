@@ -43,7 +43,7 @@ func newTestDriver(t *testing.T) Driver {
 		InsecureConnection: true,
 	})
 	if err != nil {
-		t.Fatalf("Cannot connect: %v", err)
+		t.Fatalf("unexpected error: %s", err)
 	}
 	return d
 }

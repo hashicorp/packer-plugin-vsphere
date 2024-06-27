@@ -75,13 +75,13 @@ func TestStepDownload_Run(t *testing.T) {
 		}
 		stepAction := step.Run(context.TODO(), state)
 		if stepAction != tc.expectedAction {
-			t.Fatalf("%s: Recieved wrong step action; step exists, should return early.", tc.name)
+			t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", tc.expectedAction, stepAction)
 		}
 		if tc.expectInternalStepCalled != internalStep.RunCalled {
 			if tc.expectInternalStepCalled {
-				t.Fatalf("%s: Expected internal download step to be called", tc.name)
+				t.Fatalf("unexpected result: expected '%s' to be called", tc.name)
 			} else {
-				t.Fatalf("%s: Expected internal download step not to be called", tc.name)
+				t.Fatalf("unexpected result: expected '%s' not to be called", tc.name)
 			}
 		}
 	}

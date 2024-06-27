@@ -17,7 +17,7 @@ import (
 func TestGetVMMetadata(t *testing.T) {
 	sim, err := NewVCenterSimulator()
 	if err != nil {
-		t.Fatalf("should not fail: %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	defer sim.Close()
 
@@ -27,7 +27,7 @@ func TestGetVMMetadata(t *testing.T) {
 	vm, vmSim := sim.ChooseSimulatorPreCreatedVM()
 	confSpec := types.VirtualMachineConfigSpec{Annotation: "simple vm description"}
 	if err := vm.Reconfigure(confSpec); err != nil {
-		t.Fatalf("unexpected error %s", err.Error())
+		t.Fatalf("unexpected error: '%s'", err)
 	}
 	datastore := simulator.Map.Get(vmSim.Datastore[0]).(*simulator.Datastore)
 
@@ -44,6 +44,6 @@ func TestGetVMMetadata(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(expectedLabels, metadata); diff != "" {
-		t.Fatalf("wrong labels: %s", diff)
+		t.Fatalf("unexpected result: '%s'", diff)
 	}
 }
