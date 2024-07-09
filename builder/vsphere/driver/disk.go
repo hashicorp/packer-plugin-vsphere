@@ -18,7 +18,7 @@ type Disk struct {
 }
 
 type StorageConfig struct {
-	DiskControllerType []string // Example: "scsi", "pvscsi", "nvme", "lsilogic"
+	DiskControllerType []string
 	Storage            []Disk
 }
 
@@ -30,9 +30,12 @@ func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceLi
 	for _, controllerType := range c.DiskControllerType {
 		var device types.BaseVirtualDevice
 		var err error
-		if controllerType == "nvme" {
+		switch controllerType {
+		case "nvme":
 			device, err = existingDevices.CreateNVMEController()
-		} else {
+		case "sata":
+			device, err = existingDevices.CreateSATAController()
+		default:
 			device, err = existingDevices.CreateSCSIController(controllerType)
 		}
 		if err != nil {
