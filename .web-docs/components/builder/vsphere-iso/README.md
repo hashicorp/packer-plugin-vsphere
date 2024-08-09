@@ -291,6 +291,8 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 - `destroy` (bool) - Destroy the virtual machine after the build completes.
   Defaults to `false`.
 
+- `reuse_vm` (bool) - If a VM with the name exists, reuse it instead of creating a new one
+
 <!-- End of code generated from the comments of the CreateConfig struct in builder/vsphere/iso/step_create.go; -->
 
 

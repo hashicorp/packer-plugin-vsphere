@@ -55,7 +55,8 @@ type CDRomConfig struct {
 }
 
 type StepAddCDRom struct {
-	Config *CDRomConfig
+	Config  *CDRomConfig
+	ReuseVM bool
 }
 
 func (c *CDRomConfig) Prepare(k *ReattachCDRomConfig) []error {
@@ -80,7 +81,8 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	if s.Config.CdromType == "sata" {
+	// when ReuseVM is set we are not supposed to add new hw
+	if !s.ReuseVM && s.Config.CdromType == "sata" {
 		if _, err := vm.FindSATAController(); err == driver.ErrNoSataController {
 			ui.Say("Adding SATA controller...")
 			if err := vm.AddSATAController(); err != nil {
@@ -104,14 +106,37 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	ui.Say("Mounting ISO images...")
 	// Limitation in govmomi: can't batch-create cdroms and then mount ISO
 	// files that results in wrong UnitNumber. So do that one-by-one.
-	for _, path := range s.Config.ISOPaths {
-		if path == "" {
-			state.Put("error", fmt.Errorf("invalid path: empty string"))
+	if s.ReuseVM {
+		cdroms, err := vm.GetCdroms(len(s.Config.ISOPaths))
+		if err != nil {
+			state.Put("error", fmt.Errorf("error fetching cdroms: %v", err))
 			return multistep.ActionHalt
 		}
-		if err := vm.AddCdrom(s.Config.CdromType, path); err != nil {
-			state.Put("error", fmt.Errorf("error mounting an image '%v': %v", path, err))
-			return multistep.ActionHalt
+		for i := 0; i < len(s.Config.ISOPaths); i++ {
+			path := s.Config.ISOPaths[i]
+			if path == "" {
+				state.Put("error", fmt.Errorf("invalid path: empty string"))
+				return multistep.ActionHalt
+			}
+			if err := vm.MountCdrom(path, cdroms[i]); err != nil {
+				state.Put("error", fmt.Errorf("error mounting an image '%v': %v", path, err))
+				return multistep.ActionHalt
+			}
+			if err := vm.EditDevice(cdroms[i]); err != nil {
+				state.Put("error", fmt.Errorf("error commiting mount to cdrom: %v", err))
+				return multistep.ActionHalt
+			}
+		}
+	} else {
+		for _, path := range s.Config.ISOPaths {
+			if path == "" {
+				state.Put("error", fmt.Errorf("invalid path: empty string"))
+				return multistep.ActionHalt
+			}
+			if err := vm.AddCdrom(s.Config.CdromType, path); err != nil {
+				state.Put("error", fmt.Errorf("error mounting an image '%v': %v", path, err))
+				return multistep.ActionHalt
+			}
 		}
 	}
 
