@@ -639,7 +639,11 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	if len(config.AllowedDevices) > 0 {
-		VirtualPCIPassthroughAllowedDevice := newVirtualPCIPassthroughAllowedDevice(config.AllowedDevices)
+		VirtualPCIPassthroughAllowedDevice, err := newVirtualPCIPassthroughAllowedDevice(config.AllowedDevices)
+		if err != nil {
+			log.Printf("Failed to create VirtualPCIPassthrough: %s", err)
+			return err
+		}
 		spec := &types.VirtualDeviceConfigSpec{
 			Device:    &VirtualPCIPassthroughAllowedDevice,
 			Operation: types.VirtualDeviceConfigSpecOperationAdd,
@@ -1096,29 +1100,24 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified")
 }
 
-func newVirtualPCIPassthroughAllowedDevice(devices []PCIPassthroughAllowedDevice) types.VirtualPCIPassthrough {
+func newVirtualPCIPassthroughAllowedDevice(devices []PCIPassthroughAllowedDevice) (types.VirtualPCIPassthrough, error) {
 	allowedDevices := make([]types.VirtualPCIPassthroughAllowedDevice, len(devices))
 	for i, device := range devices {
 		deviceId, err := strconv.ParseInt(device.DeviceId, 16, 32)
 		if err != nil {
-			// handle error, for example:
-			log.Printf("Error parsing DeviceId: %v\n", err)
-			continue
+			return types.VirtualPCIPassthrough{}, fmt.Errorf("error parsing DeviceId %s: %s", device.DeviceId, err)
 		}
-		vendorId, err := strconv.ParseUint(device.VendorId, 16, 32)
+		vendorId, err := strconv.ParseInt(device.VendorId, 16, 32)
 		if err != nil {
-			log.Printf("Error parsing VendorId: %v\n", err)
-			continue
+			return types.VirtualPCIPassthrough{}, fmt.Errorf("error parsing VendorId %s: %s", device.VendorId, err)
 		}
-		subVendorId, err := strconv.ParseUint(device.SubVendorId, 16, 32)
+		subVendorId, err := strconv.ParseInt(device.SubVendorId, 16, 32)
 		if err != nil {
-			log.Printf("Error parsing SubVendorId: %v\n", err)
-			continue
+			return types.VirtualPCIPassthrough{}, fmt.Errorf("error parsing SubVendorId %s: %s", device.SubVendorId, err)
 		}
-		subDeviceId, err := strconv.ParseUint(device.SubDeviceId, 16, 32)
+		subDeviceId, err := strconv.ParseInt(device.SubDeviceId, 16, 32)
 		if err != nil {
-			log.Printf("Error parsing SubDeviceId: %v\n", err)
-			continue
+			return types.VirtualPCIPassthrough{}, fmt.Errorf("error parsing SubDeviceId %s: %s", device.SubDeviceId, err)
 		}
 
 		allowedDevices[i] = types.VirtualPCIPassthroughAllowedDevice{
@@ -1145,7 +1144,7 @@ func newVirtualPCIPassthroughAllowedDevice(devices []PCIPassthroughAllowedDevice
 				AllowedDevice: allowedDevices,
 			},
 		},
-	}
+	}, nil
 }
 
 func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
