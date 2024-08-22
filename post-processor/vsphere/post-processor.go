@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"os/exec"
 	"regexp"
@@ -238,10 +237,8 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	}
 
 	ui.Message(fmt.Sprintf("Uploading %s to %s", source, p.config.Host))
-
-	log.Printf("Starting ovftool with parameters: %s", strings.Join(args, " "))
-
 	ui.Message("Validating username and password...")
+
 	err = p.ValidateOvfTool(args, ovftool, ui)
 	if err != nil {
 		return nil, false, false, err
@@ -263,7 +260,6 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		RetryDelay: (&retry.Backoff{InitialBackoff: 200 * time.Millisecond, MaxBackoff: 30 * time.Second, Multiplier: 2}).Linear,
 	}.Run(ctx, func(ctx context.Context) error {
 		cmd := &packersdk.RemoteCmd{Command: flattenedCmd}
-		log.Printf("Starting ovfttool command: %s", flattenedCmd)
 		err = cmd.RunWithUi(ctx, comm, ui)
 		if err != nil || cmd.ExitStatus() != 0 {
 			return fmt.Errorf("error uploading virtual machine")
