@@ -5,6 +5,7 @@ package vsphere
 
 import (
 	"fmt"
+	"os"
 )
 
 const BuilderId = "packer.post-processor.vsphere"
@@ -46,5 +47,16 @@ func (*Artifact) State(name string) interface{} {
 }
 
 func (a *Artifact) Destroy() error {
-	return nil
+    if len(a.files) == 0 {
+        return fmt.Errorf("no files to delete")
+    }
+
+    for _, file := range a.files {
+        if err := os.Remove(file); err != nil {
+            return fmt.Errorf("error deleting file %s: %v", file, err)
+        }
+        fmt.Printf("Successfully deleted file: %s\n", file)
+    }
+
+    return nil
 }
