@@ -9,6 +9,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/vmware/govmomi/vim25/types"
 
@@ -18,14 +19,39 @@ import (
 )
 
 type ConfigParamsConfig struct {
-	// configuration_parameters is a direct passthrough to the vSphere API's
-	// [VirtualMachineConfigSpec](https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/8.0.2.0/data-structures/VirtualMachineConfigSpec/)
+	// A map of key-value pairs to sent to the [`extraConfig`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html#extraConfig).
+	// in the vSphere API's `VirtualMachineConfigSpec`.
+	//
+	// HCL Example:
+	//
+	// ```hcl
+	//   configuration_parameters = {
+	//     "disk.EnableUUID" = "TRUE"
+	//     "svga.autodetect" = "TRUE"
+	//     "log.keepOld"     = "15"
+	//   }
+	// ```
+	//
+	// JSON Example:
+	//
+	// ```json
+	//   "configuration_parameters": {
+	//     "disk.EnableUUID": "TRUE",
+	//     "svga.autodetect": "TRUE",
+	//     "log.keepOld": "15"
+	//   }
+	// ```
+	//
+	// ~> **Note:** Configuration keys that would conflict with parameters that
+	// are explicitly configurable through other fields in the `ConfigSpec`` object
+	// are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
+	// in the vSphere API documentation.
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
 	// Enable time synchronization with the ESXi host where the virtual machine
 	// is running. Defaults to `false`.
 	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
-	// Automatically check for and upgrade VMware Tools after a virtual
-	// machine power cycle. Defaults to `false`.
+	// Automatically check for and upgrade VMware Tools after a virtual machine
+	// power cycle. Defaults to `false`.
 	ToolsUpgradePolicy bool `mapstructure:"tools_upgrade_policy"`
 }
 
@@ -56,6 +82,12 @@ func (s *StepConfigParams) Run(_ context.Context, state multistep.StateBag) mult
 	}
 
 	ui.Say("Adding configuration parameters...")
+
+	// Iterate over the map and log each key-value pair.
+	for key, value := range configParams {
+		log.Printf("[INFO] Adding: %s = %v", key, value)
+	}
+
 	if err := vm.AddConfigParams(configParams, info); err != nil {
 		state.Put("error", fmt.Errorf("error adding configuration parameters: %v", err))
 		return multistep.ActionHalt
