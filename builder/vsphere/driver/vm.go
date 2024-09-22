@@ -1285,11 +1285,11 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 
 	var ov []types.BaseOptionValue
 	for k, v := range params {
-		o := types.OptionValue{
+		o := &types.OptionValue{
 			Key:   k,
 			Value: v,
 		}
-		ov = append(ov, &o)
+		ov = append(ov, o)
 	}
 	confSpec.ExtraConfig = ov
 
@@ -1298,14 +1298,46 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 	if len(confSpec.ExtraConfig) > 0 || confSpec.Tools != nil {
 		task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to start reconfiguration task: %w", err)
 		}
 
 		_, err = task.WaitForResult(vm.driver.ctx, nil)
-		return err
+		if err != nil {
+			return fmt.Errorf("reconfiguration task failed: %w", err)
+		}
+
+		log.Println("[INFO] Reconfiguration task completed successfully.")
+
+		// Retrieve the current configuration.
+		var moVM mo.VirtualMachine
+		err = vm.vm.Properties(vm.driver.ctx, vm.vm.Reference(), []string{"config.extraConfig"}, &moVM)
+		if err != nil {
+			return fmt.Errorf("failed to retrieve current configuration: %w", err)
+		}
+
+		// Check for ignored parameters
+		ignoredParams := []string{}
+		for k, v := range params {
+			found := false
+			for _, option := range moVM.Config.ExtraConfig {
+				if optVal, ok := option.(*types.OptionValue); ok && optVal.Key == k && optVal.Value == v {
+					found = true
+					break
+				}
+			}
+			if !found {
+				ignoredParams = append(ignoredParams, fmt.Sprintf("%s = %v", k, v))
+			}
+		}
+
+		if len(ignoredParams) > 0 {
+			log.Printf("[INFO] Ignored the following parameters: [%s]", strings.Join(ignoredParams, " , "))
+			log.Printf("[INFO] Some configuration keys were ignored due to conflicts with other fields in the ConfigSpec. Refer to VirtualMachineConfigSpec in the vSphere API documentation.")
+		}
+		return nil
 	}
 
-	return nil
+	return fmt.Errorf("no changes to apply")
 }
 
 func (vm *VirtualMachineDriver) AddFlag(ctx context.Context, flagSpec *types.VirtualMachineFlagInfo) error {

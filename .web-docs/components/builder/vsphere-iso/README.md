@@ -1396,14 +1396,39 @@ JSON Example:
 
 <!-- Code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; DO NOT EDIT MANUALLY -->
 
-- `configuration_parameters` (map[string]string) - configuration_parameters is a direct passthrough to the vSphere API's
-  [VirtualMachineConfigSpec](https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/8.0.2.0/data-structures/VirtualMachineConfigSpec/)
+- `configuration_parameters` (map[string]string) - A map of key-value pairs to sent to the [`extraConfig`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html#extraConfig).
+  in the vSphere API's `VirtualMachineConfigSpec`.
+  
+  HCL Example:
+  
+  ```hcl
+    configuration_parameters = {
+      "disk.EnableUUID" = "TRUE"
+      "svga.autodetect" = "TRUE"
+      "log.keepOld"     = "15"
+    }
+  ```
+  
+  JSON Example:
+  
+  ```json
+    "configuration_parameters": {
+      "disk.EnableUUID": "TRUE",
+      "svga.autodetect": "TRUE",
+      "log.keepOld": "15"
+    }
+  ```
+  
+  ~> **Note:** Configuration keys that would conflict with parameters that
+  are explicitly configurable through other fields in the `ConfigSpec`` object
+  are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
+  in the vSphere API documentation.
 
 - `tools_sync_time` (bool) - Enable time synchronization with the ESXi host where the virtual machine
   is running. Defaults to `false`.
 
-- `tools_upgrade_policy` (bool) - Automatically check for and upgrade VMware Tools after a virtual
-  machine power cycle. Defaults to `false`.
+- `tools_upgrade_policy` (bool) - Automatically check for and upgrade VMware Tools after a virtual machine
+  power cycle. Defaults to `false`.
 
 <!-- End of code generated from the comments of the ConfigParamsConfig struct in builder/vsphere/common/step_config_params.go; -->
 
