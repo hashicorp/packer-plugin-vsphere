@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	DefaultSourceNamePrefix = "packer-vsphere-supervisor"
+	DefaultSourceNamePrefix = "source"
 	VMSelectorLabelKey      = DefaultSourceNamePrefix + "-selector"
 
 	StateKeySourceName              = "source_name"
@@ -42,11 +42,10 @@ type CreateSourceConfig struct {
 	ClassName string `mapstructure:"class_name" required:"true"`
 	// Name of the storage class that configures storage-related attributes.
 	StorageClass string `mapstructure:"storage_class" required:"true"`
-
 	// Name of the source virtual machine (VM) image. If it is specified, the image with the name will be used for the
 	// source VM, otherwise the image name from imported image will be used.
 	ImageName string `mapstructure:"image_name"`
-	// Name of the source VM. Defaults to `packer-vsphere-supervisor-<random-suffix>`.
+	// Name of the source VM. Limited to 15 characters. Defaults to `source-<random-5-digit-suffix>`.
 	SourceName string `mapstructure:"source_name"`
 	// Name of the network type to attach to the source VM's network interface. Defaults to empty.
 	NetworkType string `mapstructure:"network_type"`
@@ -84,6 +83,10 @@ func (c *CreateSourceConfig) Prepare() []error {
 
 	if c.SourceName == "" {
 		c.SourceName = fmt.Sprintf("%s-%s", DefaultSourceNamePrefix, rand.String(5))
+	}
+
+	if len(c.SourceName) > 15 {
+		errs = append(errs, fmt.Errorf("'source_name' must not exceed 15 characters (length: %d): %s", len(c.SourceName), c.SourceName))
 	}
 
 	return errs
