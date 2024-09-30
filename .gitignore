@@ -5,3 +5,7 @@ dist/*
 .idea/*
 packer-plugin-vsphere
 crash.log
+
+# macOS
+## Ignore desktop services store files.
+**/.DS_Store
