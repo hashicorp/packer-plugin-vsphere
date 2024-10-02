@@ -2,11 +2,15 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-
 set -ex
 
-apk add libressl
+# Enable the community repository
+sed -i 's/#http/http/' /etc/apk/repositories
+apk update
+
+apk add openssl
 apk add open-vm-tools
+apk add open-vm-tools-plugins-all
 rc-update add open-vm-tools
 /etc/init.d/open-vm-tools start
 

@@ -1,15 +1,17 @@
 KEYMAPOPTS="us us"
 HOSTNAMEOPTS="-n alpine"
+DEVDOPTS=mdev
 INTERFACESOPTS="auto lo
 iface lo inet loopback
 
 auto eth0
 iface eth0 inet dhcp
-    hostname alpine
+hostname alpine
 "
 TIMEZONEOPTS="-z UTC"
 PROXYOPTS="none"
-APKREPOSOPTS="http://mirror.yandex.ru/mirrors/alpine/v3.8/main"
-SSHDOPTS="-c openssh"
-NTPOPTS="-c none"
+APKREPOSOPTS="-1"
+USEROPTS="-a -u packer"
+SSHDOPTS="openssh"
+NTPOPTS="none"
 DISKOPTS="-m sys /dev/sda"
