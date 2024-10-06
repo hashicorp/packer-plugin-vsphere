@@ -10,15 +10,15 @@
         "mount -t vfat /dev/fd0 /media/floppy<enter><wait>",
         "setup-alpine -f /media/floppy/answerfile<enter>",
         "<wait5>",
-        "jetbrains<enter>",
-        "jetbrains<enter>",
+        "VMw@re1!<enter>",
+        "VMw@re1!<enter>",
         "<wait5>",
         "y<enter>",
-        "<wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "reboot<enter>",
         "<wait10><wait10>",
         "root<enter>",
-        "jetbrains<enter><wait>",
+        "VMw@re1!<enter><wait>",
         "mount -t vfat /dev/fd0 /media/floppy<enter><wait>",
         "/media/floppy/SETUP.SH<enter>"
       ],
@@ -32,16 +32,17 @@
       "host": "esxi-01.example.com",
       "insecure_connection": true,
       "iso_paths": [
-        "[datastore1] ISO/alpine-standard-3.8.2-x86_64.iso"
+        "[datastore1] ISO/alpine-standard-3.20.3-x86_64.iso"
       ],
       "network_adapters": [
         {
-          "network_card": "vmxnet3"
+          "network_card": "vmxnet3",
+          "network": "example-workload"
         }
       ],
       "password": "VMw@re1!",
       "ssh_password": "VMw@re1!",
-      "ssh_username": "packer",
+      "ssh_username": "root",
       "storage": [
         {
           "disk_size": 1024,
