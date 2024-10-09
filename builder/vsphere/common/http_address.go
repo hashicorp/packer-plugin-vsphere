@@ -5,6 +5,7 @@ package common
 
 import (
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -24,7 +25,7 @@ func ValidateHTTPAddress(httpAddress string) error {
 		return fmt.Errorf("invalid IP address format: %s", httpAddress)
 	}
 	if !IsIPInInterfaces(httpAddress) {
-		return fmt.Errorf("%s is not assigned to an interface", httpAddress)
+		log.Printf("[WARN] %s is not assigned to an interface", httpAddress)
 	}
 	return nil
 }
