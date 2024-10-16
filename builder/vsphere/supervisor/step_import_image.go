@@ -163,7 +163,7 @@ func (s *StepImportImage) validate(ctx context.Context, logger *PackerLogger) er
 }
 
 func (s *StepImportImage) Cleanup(state multistep.StateBag) {
-	if v, ok := state.GetOk(StateKeyImageImportRequestCreated); !ok || v.(bool) == false {
+	if v, ok := state.GetOk(StateKeyImageImportRequestCreated); !ok || !v.(bool) {
 		// Either the image import step was skipped or the object was not created successfully.
 		// Skip deleting the ContentLibraryItemImportRequest object.
 		return
