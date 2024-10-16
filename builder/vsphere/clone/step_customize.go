@@ -440,7 +440,7 @@ func (w *WindowsOptions) sysprep() *types.CustomizationSysprep {
 }
 
 func (w *WindowsOptions) guiRunOnce() *types.CustomizationGuiRunOnce {
-	if w.RunOnceCommandList == nil || len(w.RunOnceCommandList) == 0 {
+	if len(w.RunOnceCommandList) == 0 {
 		return &types.CustomizationGuiRunOnce{
 			CommandList: []string{""},
 		}
