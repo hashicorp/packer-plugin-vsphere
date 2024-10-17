@@ -176,8 +176,8 @@ func (s *StepImportImage) Cleanup(state multistep.StateBag) {
 	}
 
 	if !s.ImportImageConfig.KeepImportRequest {
-		logger.Info(fmt.Sprintf("Deleting the ContentLibraryItemImportRequest object %s in namespace %s.",
-			s.ImportImageConfig.ImportRequestName, s.Namespace))
+		logger.Info("Deleting the ContentLibraryItemImportRequest object %s in namespace %s.",
+			s.ImportImageConfig.ImportRequestName, s.Namespace)
 		ctx := context.Background()
 		itemImportReqObj := &imgregv1.ContentLibraryItemImportRequest{
 			ObjectMeta: metav1.ObjectMeta{
@@ -199,8 +199,8 @@ func (s *StepImportImage) Cleanup(state multistep.StateBag) {
 		}
 
 		// Clean imported image if the image is imported and clean image is set as true.
-		logger.Info(fmt.Sprintf("Deleting the imported ContentLibraryItem object %s in namespace %s.",
-			s.ImportItemResourceName, s.Namespace))
+		logger.Info("Deleting the imported ContentLibraryItem object %s in namespace %s.",
+			s.ImportItemResourceName, s.Namespace)
 		importedImage := &imgregv1.ContentLibraryItem{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      s.ImportItemResourceName,
