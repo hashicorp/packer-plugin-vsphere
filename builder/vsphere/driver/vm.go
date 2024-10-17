@@ -1334,10 +1334,9 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 			log.Printf("[INFO] Ignored the following parameters: [%s]", strings.Join(ignoredParams, " , "))
 			log.Printf("[INFO] Some configuration keys were ignored due to conflicts with other fields in the ConfigSpec. Refer to VirtualMachineConfigSpec in the vSphere API documentation.")
 		}
-		return nil
 	}
 
-	return fmt.Errorf("no changes to apply")
+	return nil
 }
 
 func (vm *VirtualMachineDriver) AddFlag(ctx context.Context, flagSpec *types.VirtualMachineFlagInfo) error {
