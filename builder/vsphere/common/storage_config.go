@@ -52,7 +52,7 @@ import (
 //
 //	 disk_controller_type = ["pvscsi", "pvscsi"]
 //		storage {
-//		   disk_size = 15000,
+//		   disk_size = 15000
 //		   disk_controller_index = 0
 //		}
 //		storage {
