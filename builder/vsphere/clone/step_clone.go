@@ -135,19 +135,20 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 	d := state.Get("driver").(driver.Driver)
 	vmPath := path.Join(s.Location.Folder, s.Location.VMName)
 
-	err := d.PreCleanVM(ui, vmPath, s.Force, s.Location.Cluster, s.Location.Host, s.Location.ResourcePool)
-	if err != nil {
-		state.Put("error", err)
-		return multistep.ActionHalt
-	}
-
-	ui.Say("Cloning virtual machine...")
+	ui.Say("Finding virtual machine to clone...")
 	template, err := d.FindVM(s.Config.Template)
 	if err != nil {
 		state.Put("error", fmt.Errorf("error finding virtual machine to clone: %s", err))
 		return multistep.ActionHalt
 	}
 
+	err = d.PreCleanVM(ui, vmPath, s.Force, s.Location.Cluster, s.Location.Host, s.Location.ResourcePool)
+	if err != nil {
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+
+	ui.Say("Cloning virtual machine...")
 	var disks []driver.Disk
 	for _, disk := range s.Config.StorageConfig.Storage {
 		disks = append(disks, driver.Disk{
