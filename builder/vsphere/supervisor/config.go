@@ -50,7 +50,7 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	}
 
 	// Set a default username as it's required for both SSH and WinRM communicators.
-	// This must call before the CommunicatorConfig.Prepare to avoid it erroring out.
+	// This must call before the CommunicatorConfig.Prepare to avoid an error.
 	commType := c.CommunicatorConfig.Type
 	if (commType == "" || commType == "ssh") && c.CommunicatorConfig.SSHUsername == "" {
 		c.CommunicatorConfig.SSHUsername = DefaultCommUsername

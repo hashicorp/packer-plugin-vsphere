@@ -125,10 +125,10 @@ type HardwareConfig struct {
 }
 
 type NIC struct {
-	Network     string // "" for default network
-	NetworkCard string // example: vmxnet3
-	MacAddress  string // set mac if want specific address
-	Passthrough *bool  // direct path i/o
+	Network     string
+	NetworkCard string
+	MacAddress  string
+	Passthrough *bool
 }
 
 type CreateConfig struct {
@@ -139,10 +139,10 @@ type CreateConfig struct {
 	Host          string
 	ResourcePool  string
 	Datastore     string
-	GuestOS       string // example: otherGuest
+	GuestOS       string
 	NICs          []NIC
 	USBController []string
-	Version       uint // example: 10
+	Version       uint
 	StorageConfig StorageConfig
 }
 
@@ -174,10 +174,10 @@ func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, v
 	if force && vm != nil {
 		ui.Sayf("Removing the existing virtual machine at %s based on use of the '-force' option...", vmPath)
 
-		// power off just in case it is still on
+		// Power off the virtual machine if still powered on.
 		_ = vm.PowerOff()
 
-		// covert to a vm if it is a template so it can be deleted
+		// If a template, covert to a virtual machine so it can be deleted.
 		isTemplate, err := vm.IsTemplate()
 		if err != nil {
 			return fmt.Errorf("error determining if the virtual machine is a template%s: %v", vmPath, err)
@@ -406,7 +406,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	virtualDisks := devices.SelectByType((*types.VirtualDisk)(nil))
 	virtualControllers := devices.SelectByType((*types.VirtualController)(nil))
 
-	// Use existing devices to avoid overlapping configuration
+	// Use existing devices to avoid overlapping configuration.
 	existingDevices := object.VirtualDeviceList{}
 	existingDevices = append(existingDevices, virtualDisks...)
 	existingDevices = append(existingDevices, virtualControllers...)
@@ -781,7 +781,7 @@ func (vm *VirtualMachineDriver) WaitForIP(ctx context.Context, ipNet *net.IPNet)
 		}
 	}
 
-	// unable to find an IP
+	// Unable to find an IP address.
 	return "", nil
 }
 
@@ -900,7 +900,7 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 
 	item, err := vm.driver.FindContentLibraryItem(l.library.ID, ovf.Spec.Name)
 	if err == nil {
-		// Updates existing library item
+		// Update the content library item, if it exists.
 		ovf.Target.LibraryItemID = item.ID
 		if item.Description != nil && ovf.Spec.Description != *item.Description {
 			err = vm.driver.UpdateContentLibraryItem(item, ovf.Spec.Name, ovf.Spec.Description)
@@ -1056,7 +1056,7 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 			return networks[0].network, nil
 		}
 
-		// If there are multiple networks then try to match the host
+		// If there are multiple networks then try to match the host.
 		if host != "" {
 			h, err := d.FindHost(host)
 			if err != nil {
@@ -1315,7 +1315,7 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 			return fmt.Errorf("failed to retrieve current configuration: %w", err)
 		}
 
-		// Check for ignored parameters
+		// Check for ignored parameters.
 		ignoredParams := []string{}
 		for k, v := range params {
 			found := false

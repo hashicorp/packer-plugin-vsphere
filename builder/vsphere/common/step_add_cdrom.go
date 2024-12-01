@@ -102,8 +102,9 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	}
 
 	ui.Say("Mounting ISO images...")
-	// Limitation in govmomi: can't batch-create cdroms and then mount ISO
-	// files that results in wrong UnitNumber. So do that one-by-one.
+	// Due to a limitation in govmomi, creating multiple CD-ROMs simultaneously
+	// and then mounting ISO files can lead to incorrect UnitNumbers.
+	// To avoid this issue, create and mount them individually.
 	for _, path := range s.Config.ISOPaths {
 		if path == "" {
 			state.Put("error", fmt.Errorf("invalid path: empty string"))

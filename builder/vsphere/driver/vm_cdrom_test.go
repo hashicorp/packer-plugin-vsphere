@@ -50,12 +50,12 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 
 	vm, _ := sim.ChooseSimulatorPreCreatedVM()
 
-	// Add SATA Controller
+	// Add the SATA controller.
 	if err := vm.AddSATAController(); err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
 
-	// Verify if controller was created
+	// Verify if the SATA controller was created.
 	sc, err := vm.FindSATAController()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
@@ -64,7 +64,7 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '%s', but returned '%v'", "sata controller", sc)
 	}
 
-	// Create CDROM
+	// Create a CD-ROM.
 	controller := sc.GetVirtualController()
 	cdrom, err := vm.CreateCdrom(controller)
 	if err != nil {
@@ -74,7 +74,7 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '%s', but returned '%v'", "cd-rom", cdrom)
 	}
 
-	// Verify if CDROM was created
+	// Verify if the CD-ROM was created.
 	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
@@ -83,12 +83,12 @@ func TestVirtualMachineDriver_CreateAndRemoveCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '1', but returned '%d'", len(cdroms))
 	}
 
-	// Remove CDROM
+	// Remove the CD-ROM.
 	err = vm.RemoveCdroms()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
-	// Verify if CDROM was removed
+	// Verify if the CD-ROM was removed.
 	cdroms, err = vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
@@ -107,12 +107,12 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 
 	vm, _ := sim.ChooseSimulatorPreCreatedVM()
 
-	// Add SATA Controller
+	// Add the SATA controller.
 	if err := vm.AddSATAController(); err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
 
-	// Verify if controller was created
+	// Verify if the SATA controller was created.
 	sc, err := vm.FindSATAController()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
@@ -121,7 +121,7 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '%s', but returned '%v'", "sata controller", sc)
 	}
 
-	// Create CDROM
+	// Create the CD-ROM.
 	controller := sc.GetVirtualController()
 	cdrom, err := vm.CreateCdrom(controller)
 	if err != nil {
@@ -131,7 +131,7 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '%s', but returned '%v'", "cd-rom", cdrom)
 	}
 
-	// Verify if CDROM was created
+	// Verify if the CD-ROM was created.
 	cdroms, err := vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
@@ -140,12 +140,12 @@ func TestVirtualMachineDriver_EjectCdrom(t *testing.T) {
 		t.Fatalf("unexpected result: expected '1', but returned '%d'", len(cdroms))
 	}
 
-	// Remove CDROM
+	// Remove the CD-ROM.
 	err = vm.EjectCdroms()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
-	// Verify if CDROM was removed
+	// Verify if the CD-ROM was removed.
 	cdroms, err = vm.CdromDevices()
 	if err != nil {
 		t.Fatalf("unexpected error: '%s'", err)

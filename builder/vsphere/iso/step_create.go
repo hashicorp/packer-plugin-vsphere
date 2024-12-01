@@ -186,7 +186,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 
 	ui.Say("Creating virtual machine...")
 
-	// Add network/network card an the first nic for backwards compatibility in
+	// Add network/network card on the first NIC for backwards compatibility in
 	// the type is defined.
 	var networkCards []driver.NIC
 	for _, nic := range s.Config.NICs {

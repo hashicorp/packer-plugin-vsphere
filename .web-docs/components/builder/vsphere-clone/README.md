@@ -434,7 +434,7 @@ The settings for guest customization include:
   for a `/24` subnet.
 
 - `ipv6_address` (string) - The IPv6 address assigned to the network adapter. If left blank or not
-  included, auto-configuration is used.
+  included, autoconfiguration is used.
 
 - `ipv6_netmask` (int) - The IPv6 subnet mask, in bits, for the network adapter. For example, `64`
   for a `/64` subnet.
@@ -1066,19 +1066,19 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 <!-- Code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; DO NOT EDIT MANUALLY -->
 
-- `shutdown_command` (string) - Specify a VM guest shutdown command. This command will be executed using
-  the `communicator`. Otherwise, the VMware Tools are used to gracefully shutdown
-  the VM.
+- `shutdown_command` (string) - Specify a virtual machine guest shutdown command. This command will be run using
+  the `communicator`. Otherwise, the VMware Tools are used to gracefully shut down
+  the virtual machine.
 
-- `shutdown_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for graceful VM shutdown.
-  Defaults to 5m or five minutes.
+- `shutdown_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for graceful shut down of the virtual machine.
+  Defaults to `5m` (5 minutes).
   This will likely need to be modified if the `communicator` is 'none'.
 
 - `disable_shutdown` (bool) - Packer normally halts the virtual machine after all provisioners have
   run when no `shutdown_command` is defined. If this is set to `true`, Packer
   *will not* halt the virtual machine but will assume that you will send the stop
-  signal yourself through a preseed.cfg, a script or the final provisioner.
-  Packer will wait for a default of five minutes until the virtual machine is shutdown.
+  signal yourself through a `preseed.cfg`, a script or the final provisioner.
+  Packer will wait for a default of 5 minutes until the virtual machine is shutdown.
   The timeout can be changed using `shutdown_timeout` option.
 
 <!-- End of code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; -->
@@ -1091,19 +1091,19 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- Code generated from the comments of the WaitIpConfig struct in builder/vsphere/common/step_wait_for_ip.go; DO NOT EDIT MANUALLY -->
 
 - `ip_wait_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for VM's IP, similar to 'ssh_timeout'.
-  Defaults to 30m (30 minutes). See the Golang
-  [ParseDuration](https://golang.org/pkg/time/#ParseDuration) documentation
-  for full details.
+  Defaults to `30m` (30 minutes). Refer to the Golang
+  [ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+  documentation for full details.
 
 - `ip_settle_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for VM's IP to settle down, sometimes VM may
-  report incorrect IP initially, then its recommended to set that
-  parameter to apx. 2 minutes. Examples 45s and 10m. Defaults to
-  5s(5 seconds). Refer to the Golang
-  [ParseDuration](https://golang.org/pkg/time/#ParseDuration) documentation
-   for full details.
+  report incorrect IP initially, then it is recommended to set that
+  parameter to apx. 2 minutes. Examples `45s` and `10m`.
+  Defaults to `5s` (5 seconds). Refer to the Golang
+  [ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+  documentation for full details.
 
 - `ip_wait_address` (\*string) - Set this to a CIDR address to cause the service to wait for an address that is contained in
-  this network range. Defaults to "0.0.0.0/0" for any ipv4 address. Examples include:
+  this network range. Defaults to `0.0.0.0/0` for any IPv4 address. Examples include:
   
   * empty string ("") - remove all filters
   * `0:0:0:0:0:0:0:0/0` - allow only ipv6 addresses
@@ -1546,9 +1546,8 @@ The above configuration would create the following files:
 - `force` (bool) - Forces the export to overwrite existing files. Defaults to `false`.
   If set to `false`, an error is returned if the file(s) already exists.
 
-- `image_files` (bool) - Include additional image files that are that are associated with the
-  virtual machine. Defaults to `false`. For example, `.nvram` and `.log`
-  files.
+- `image_files` (bool) - Include additional image files that are  associated with the virtual
+  machine. Defaults to `false`. For example, `.nvram` and `.log` files.
 
 - `manifest` (string) - The hash algorithm to use when generating a manifest file. Defaults to
   `sha256`.
@@ -1612,11 +1611,11 @@ The above configuration would create the following files:
   files and disks, will be output to. The path to the directory may be
   relative or absolute. If relative, the path is relative to the working
   directory Packer is run from. This directory must not exist or, if
-  created, must be empty prior to running the builder. By default this is
+  created, must be empty prior to running the builder. By default, this is
   "output-<buildName>" where "buildName" is the name of the build.
 
 - `directory_permission` (os.FileMode) - The permissions to apply to the "output_directory", and to any parent
-  directories that get created for output_directory.  By default this is
+  directories that get created for output_directory.  By default, this is
   "0750". You should express the permission as quoted string with a
   leading zero such as "0755" in JSON file, because JSON does not support
   octal value. In Unix-like OS, the actual permission may differ from
@@ -1633,7 +1632,7 @@ Create a content library item in a content library whose content is a VM
 template or an OVF template created from the virtual machine image after
 the build is complete.
 
-The template is stored in a existing or newly created library item.
+The template is stored in an existing or newly created library item.
 
 <!-- End of code generated from the comments of the ContentLibraryDestinationConfig struct in builder/vsphere/common/step_import_to_content_library.go; -->
 
@@ -1649,7 +1648,7 @@ The template is stored in a existing or newly created library item.
 - `name` (string) - The name of the content library item that will be created or updated.
   For VM templates, the name of the item should be different from
   [vm_name](#vm_name) and the default is [vm_name](#vm_name) + timestamp
-  when not set. VM templates will be always imported to a new library item.
+  when not set. VM templates will always be imported to a new library item.
   For OVF templates, the name defaults to [vm_name](#vm_name) when not set,
   and if an item with the same name already exists it will be then updated
   with the new OVF template, otherwise a new item will be created.
