@@ -171,7 +171,7 @@ func TestVCenterDriver_MultipleDatastoreError(t *testing.T) {
 	if err == nil {
 		t.Fatal("unexpected success: expected failure")
 	}
-	if err.Error() != "Host has multiple datastores. Specify it explicitly" {
+	if err.Error() != "host has multiple datastores; specify the datastore name" {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
 }
