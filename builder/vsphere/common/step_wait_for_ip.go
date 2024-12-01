@@ -21,19 +21,19 @@ import (
 
 type WaitIpConfig struct {
 	// Amount of time to wait for VM's IP, similar to 'ssh_timeout'.
-	// Defaults to 30m (30 minutes). See the Golang
-	// [ParseDuration](https://golang.org/pkg/time/#ParseDuration) documentation
-	// for full details.
+	// Defaults to `30m` (30 minutes). Refer to the Golang
+	// [ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+	// documentation for full details.
 	WaitTimeout time.Duration `mapstructure:"ip_wait_timeout"`
 	// Amount of time to wait for VM's IP to settle down, sometimes VM may
-	// report incorrect IP initially, then its recommended to set that
-	// parameter to apx. 2 minutes. Examples 45s and 10m. Defaults to
-	// 5s(5 seconds). Refer to the Golang
-	// [ParseDuration](https://golang.org/pkg/time/#ParseDuration) documentation
-	//  for full details.
+	// report incorrect IP initially, then it is recommended to set that
+	// parameter to apx. 2 minutes. Examples `45s` and `10m`.
+	// Defaults to `5s` (5 seconds). Refer to the Golang
+	// [ParseDuration](https://golang.org/pkg/time/#ParseDuration)
+	// documentation for full details.
 	SettleTimeout time.Duration `mapstructure:"ip_settle_timeout"`
 	// Set this to a CIDR address to cause the service to wait for an address that is contained in
-	// this network range. Defaults to "0.0.0.0/0" for any ipv4 address. Examples include:
+	// this network range. Defaults to `0.0.0.0/0` for any IPv4 address. Examples include:
 	//
 	// * empty string ("") - remove all filters
 	// * `0:0:0:0:0:0:0:0/0` - allow only ipv6 addresses
@@ -41,7 +41,8 @@ type WaitIpConfig struct {
 	WaitAddress *string `mapstructure:"ip_wait_address"`
 	ipnet       *net.IPNet
 
-	// WaitTimeout is a total timeout, so even if VM changes IP frequently and it doesn't settle down we will end waiting.
+	// WaitTimeout is a total timeout. If the virtual machine changes IP frequently, and does not settle down, wait
+	// until the timeout expires.
 }
 
 type StepWaitForIp struct {

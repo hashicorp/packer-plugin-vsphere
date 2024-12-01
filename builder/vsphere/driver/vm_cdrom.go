@@ -74,7 +74,7 @@ func (vm *VirtualMachineDriver) RemoveCdroms() error {
 }
 
 // RemoveNCdroms removes up to n CD-ROMs from the image.
-// An error will occur If n is larger then the attached CD-ROM count.
+// An error will occur if n is greater than the attached CD-ROM count.
 // n == 0 results in no CD-ROMs being removed.
 func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
 	if n == 0 {

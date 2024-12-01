@@ -20,7 +20,7 @@ import (
 // template or an OVF template created from the virtual machine image after
 // the build is complete.
 //
-// The template is stored in a existing or newly created library item.
+// The template is stored in an existing or newly created library item.
 type ContentLibraryDestinationConfig struct {
 	// The name of the content library in which the new content library item
 	// containing the template will be created or updated. The content library
@@ -29,7 +29,7 @@ type ContentLibraryDestinationConfig struct {
 	// The name of the content library item that will be created or updated.
 	// For VM templates, the name of the item should be different from
 	// [vm_name](#vm_name) and the default is [vm_name](#vm_name) + timestamp
-	// when not set. VM templates will be always imported to a new library item.
+	// when not set. VM templates will always be imported to a new library item.
 	// For OVF templates, the name defaults to [vm_name](#vm_name) when not set,
 	// and if an item with the same name already exists it will be then updated
 	// with the new OVF template, otherwise a new item will be created.

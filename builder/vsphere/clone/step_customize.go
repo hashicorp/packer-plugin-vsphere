@@ -160,7 +160,7 @@ type NetworkInterface struct {
 	// for a `/24` subnet.
 	Ipv4NetMask int `mapstructure:"ipv4_netmask"`
 	// The IPv6 address assigned to the network adapter. If left blank or not
-	// included, auto-configuration is used.
+	// included, autoconfiguration is used.
 	Ipv6Address string `mapstructure:"ipv6_address"`
 	// The IPv6 subnet mask, in bits, for the network adapter. For example, `64`
 	// for a `/64` subnet.

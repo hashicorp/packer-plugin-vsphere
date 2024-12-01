@@ -83,9 +83,8 @@ type ExportConfig struct {
 	// Forces the export to overwrite existing files. Defaults to `false`.
 	// If set to `false`, an error is returned if the file(s) already exists.
 	Force bool `mapstructure:"force"`
-	// Include additional image files that are that are associated with the
-	// virtual machine. Defaults to `false`. For example, `.nvram` and `.log`
-	// files.
+	// Include additional image files that are  associated with the virtual
+	// machine. Defaults to `false`. For example, `.nvram` and `.log` files.
 	ImageFiles bool `mapstructure:"image_files"`
 	// The hash algorithm to use when generating a manifest file. Defaults to
 	// `sha256`.
@@ -432,7 +431,7 @@ func (s *StepExport) Run(ctx context.Context, state multistep.StateBag) multiste
 			return multistep.ActionHalt
 		}
 
-		// Clean up the files used for the conversion.'
+		// Clean up the files used for the conversion.
 		ui.Say("Removing intermediate files...")
 
 		// Removes the .vmdk files.

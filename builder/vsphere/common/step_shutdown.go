@@ -20,19 +20,19 @@ import (
 )
 
 type ShutdownConfig struct {
-	// Specify a VM guest shutdown command. This command will be executed using
-	// the `communicator`. Otherwise, the VMware Tools are used to gracefully shutdown
-	// the VM.
+	// Specify a virtual machine guest shutdown command. This command will be run using
+	// the `communicator`. Otherwise, the VMware Tools are used to gracefully shut down
+	// the virtual machine.
 	Command string `mapstructure:"shutdown_command"`
-	// Amount of time to wait for graceful VM shutdown.
-	// Defaults to 5m or five minutes.
+	// Amount of time to wait for graceful shut down of the virtual machine.
+	// Defaults to `5m` (5 minutes).
 	// This will likely need to be modified if the `communicator` is 'none'.
 	Timeout time.Duration `mapstructure:"shutdown_timeout"`
 	// Packer normally halts the virtual machine after all provisioners have
 	// run when no `shutdown_command` is defined. If this is set to `true`, Packer
 	// *will not* halt the virtual machine but will assume that you will send the stop
-	// signal yourself through a preseed.cfg, a script or the final provisioner.
-	// Packer will wait for a default of five minutes until the virtual machine is shutdown.
+	// signal yourself through a `preseed.cfg`, a script or the final provisioner.
+	// Packer will wait for a default of 5 minutes until the virtual machine is shutdown.
 	// The timeout can be changed using `shutdown_timeout` option.
 	DisableShutdown bool `mapstructure:"disable_shutdown"`
 }

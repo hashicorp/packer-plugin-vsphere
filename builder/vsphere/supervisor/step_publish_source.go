@@ -63,7 +63,7 @@ func (s *StepPublishSource) Run(ctx context.Context, state multistep.StateBag) m
 		return multistep.ActionHalt
 	}
 
-	// Skip publishing if the publish location name is not specified.
+	// Skip if the location name is not specified.
 	if s.PublishLocationName == "" {
 		return multistep.ActionContinue
 	}
@@ -86,8 +86,7 @@ func (s *StepPublishSource) Run(ctx context.Context, state multistep.StateBag) m
 
 func (s *StepPublishSource) Cleanup(state multistep.StateBag) {
 	if state.Get(StateKeyVMPublishRequestCreated) == false {
-		// Either the publish step was skipped or the object was not created successfully.
-		// Skip deleting the VirtualMachinePublishRequest object.
+		// Either the step was skipped or the object was not created successfully.
 		return
 	}
 
