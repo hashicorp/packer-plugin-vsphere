@@ -37,6 +37,6 @@ func TestConfigure_ReRegisterVM(t *testing.T) {
 	}
 
 	if p.config.ReregisterVM.False() {
-		t.Errorf(("error: should be unset, not false"))
+		t.Errorf("error: should be unset, not false")
 	}
 }
