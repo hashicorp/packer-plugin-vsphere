@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/iso"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
 	"github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
-	vsphere_template "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere-template"
+	vsphereTemplate "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere-template"
 	"github.com/hashicorp/packer-plugin-vsphere/version"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	pps.RegisterBuilder("clone", new(clone.Builder))
 	pps.RegisterBuilder("supervisor", new(supervisor.Builder))
 	pps.RegisterPostProcessor(plugin.DEFAULT_NAME, new(vsphere.PostProcessor))
-	pps.RegisterPostProcessor("template", new(vsphere_template.PostProcessor))
+	pps.RegisterPostProcessor("template", new(vsphereTemplate.PostProcessor))
 	pps.SetVersion(version.PluginVersion)
 	err := pps.Run()
 	if err != nil {
