@@ -8,6 +8,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -81,10 +82,15 @@ func (s *StepAddCDRom) Run(_ context.Context, state multistep.StateBag) multiste
 	vm := state.Get("vm").(driver.VirtualMachine)
 
 	if s.Config.CdromType == "sata" {
-		if _, err := vm.FindSATAController(); err == driver.ErrNoSataController {
+		if _, err := vm.FindSATAController(); err != nil {
+			if !errors.Is(err, driver.ErrNoSataController) {
+				state.Put("error", fmt.Errorf("unexpected error finding SATA controller: %w", err))
+				return multistep.ActionHalt
+			}
+
 			ui.Say("Adding SATA controller...")
 			if err := vm.AddSATAController(); err != nil {
-				state.Put("error", fmt.Errorf("error adding SATA controller: %v", err))
+				state.Put("error", fmt.Errorf("error adding SATA controller: %w", err))
 				return multistep.ActionHalt
 			}
 		}
