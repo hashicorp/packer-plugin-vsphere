@@ -33,4 +33,9 @@ integration {
     name = "vSphere Template"
     slug = "vsphere-template"
   }
+  component {
+    type = "data-source"
+    name = "vSphere Virtual Machine"
+    slug = "vsphere-virtual_machine"
+  }
 }
