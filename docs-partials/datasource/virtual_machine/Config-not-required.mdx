@@ -1,0 +1,26 @@
+<!-- Code generated from the comments of the Config struct in datasource/virtual_machine/data.go; DO NOT EDIT MANUALLY -->
+
+- `name` (string) - Basic filter with glob support (e.g. `nginx_basic*`). Defaults to `*`.
+  Using strict globs will not reduce execution time because vSphere API returns the full inventory.
+  But can be used for better readability over regular expressions.
+
+- `name_regex` (string) - Extended name filter with regular expressions support (e.g. `nginx[-_]basic[0-9]*`). Default is empty.
+  The match of the regular expression is checked by substring. Use `^` and `$` to define a full string.
+  E.g. the `^[^_]+$` filter will search names without any underscores.
+  The expression must use [Go Regex Syntax](https://pkg.go.dev/regexp/syntax).
+
+- `template` (bool) - Filter to return only objects that are virtual machine templates.
+  Defaults to `false` and returns all VMs.
+
+- `node` (string) - Filter to search virtual machines only on the specified node.
+
+- `vm_tags` ([]Tag) - Filter to return only that virtual machines that have attached all specifies tags.
+  Specify one or more `vm_tags` blocks to define list of tags that will make up the filter.
+  Should work since vCenter 6.7. To avoid incompatibility, REST client is being
+  initialized only when at least one tag has been defined in the config.
+
+- `latest` (bool) - This filter determines how to handle multiple machines that were matched with all
+  previous filters. Machine creation time is being used to find latest.
+  By default, multiple matching machines results in an error.
+
+<!-- End of code generated from the comments of the Config struct in datasource/virtual_machine/data.go; -->
