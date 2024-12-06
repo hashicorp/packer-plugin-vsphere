@@ -23,14 +23,14 @@ func TestAccISOBuilderAcc_default(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkDefault(config["vm_name"].(string), config["host"].(string), "datastore1")
@@ -69,62 +69,62 @@ func defaultConfig() map[string]interface{} {
 func checkDefault(name string, host string, datastore string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 
 	vmInfo, err := vm.Info("name", "parent", "runtime.host", "resourcePool", "datastore", "layoutEx.disk", "config.firmware")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	if vmInfo.Name != name {
-		return fmt.Errorf("Invalid VM name: expected '%v', got '%v'", name, vmInfo.Name)
+		return fmt.Errorf("unexpected virtual machine name: expected '%v', but returned '%v'", name, vmInfo.Name)
 	}
 
 	f := d.NewFolder(vmInfo.Parent)
 	folderPath, err := f.Path()
 	if err != nil {
-		return fmt.Errorf("Cannot read folder name: %v", err)
+		return fmt.Errorf("cannot read folder name: %v", err)
 	}
 	if folderPath != "" {
-		return fmt.Errorf("Invalid folder: expected '/', got '%v'", folderPath)
+		return fmt.Errorf("unexpected folder: expected '/', but returned '%v'", folderPath)
 	}
 
 	h := d.NewHost(vmInfo.Runtime.Host)
 	hostInfo, err := h.Info("name")
 	if err != nil {
-		return fmt.Errorf("Cannot read host properties: %#v", err)
+		return fmt.Errorf("cannot read host properties: %#v", err)
 	}
 	if hostInfo.Name != host {
-		return fmt.Errorf("Invalid host name: expected '%v', got '%v'", host, hostInfo.Name)
+		return fmt.Errorf("unexpected host name: expected '%v', but returned '%v'", host, hostInfo.Name)
 	}
 
 	p := d.NewResourcePool(vmInfo.ResourcePool)
 	poolPath, err := p.Path()
 	if err != nil {
-		return fmt.Errorf("Cannot read resource pool name: %v", err)
+		return fmt.Errorf("cannot read resource pool name: %v", err)
 	}
 	if poolPath != "" {
-		return fmt.Errorf("Invalid resource pool: expected '/', got '%v'", poolPath)
+		return fmt.Errorf("unexpected resource pool: expected '/', but returned '%v'", poolPath)
 	}
 
 	dsr := vmInfo.Datastore[0].Reference()
 	ds := d.NewDatastore(&dsr)
 	dsInfo, err := ds.Info("name")
 	if err != nil {
-		return fmt.Errorf("Cannot read datastore properties: %#v", err)
+		return fmt.Errorf("cannot read datastore properties: %#v", err)
 	}
 	if dsInfo.Name != datastore {
-		return fmt.Errorf("Invalid datastore name: expected '%v', got '%v'", datastore, dsInfo.Name)
+		return fmt.Errorf("unexpected datastore name: expected '%v', but returned '%v'", datastore, dsInfo.Name)
 	}
 
 	fw := vmInfo.Config.Firmware
 	if fw != "bios" {
-		return fmt.Errorf("Invalid firmware: expected 'bios', got '%v'", fw)
+		return fmt.Errorf("unexpected firmware: expected 'bios', but returned '%v'", fw)
 	}
 	return nil
 }
@@ -139,14 +139,14 @@ func TestAccISOBuilderAcc_notes(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkNotes(config["vm_name"].(string))
@@ -158,15 +158,15 @@ func TestAccISOBuilderAcc_notes(t *testing.T) {
 func checkNotes(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 	vmInfo, err := vm.Info("config.annotation")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	notes := vmInfo.Config.Annotation
@@ -195,14 +195,14 @@ func TestAccISOBuilderAcc_hardware(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkHardware(config["vm_name"].(string))
@@ -214,60 +214,60 @@ func TestAccISOBuilderAcc_hardware(t *testing.T) {
 func checkHardware(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 	vmInfo, err := vm.Info("config")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	cpuSockets := vmInfo.Config.Hardware.NumCPU
 	if cpuSockets != 2 {
-		return fmt.Errorf("VM should have 2 CPU sockets, got %v", cpuSockets)
+		return fmt.Errorf("VM should have 2 CPU sockets, but returned %v", cpuSockets)
 	}
 
 	cpuCores := vmInfo.Config.Hardware.NumCoresPerSocket
 	if cpuCores != 2 {
-		return fmt.Errorf("VM should have 2 CPU cores per socket, got %v", cpuCores)
+		return fmt.Errorf("VM should have 2 CPU cores per socket, but returned %v", cpuCores)
 	}
 
 	cpuReservation := *vmInfo.Config.CpuAllocation.Reservation
 	if cpuReservation != 1000 {
-		return fmt.Errorf("VM should have CPU reservation for 1000 Mhz, got %v", cpuReservation)
+		return fmt.Errorf("VM should have CPU reservation for 1000 Mhz, but returned %v", cpuReservation)
 	}
 
 	cpuLimit := *vmInfo.Config.CpuAllocation.Limit
 	if cpuLimit != 1500 {
-		return fmt.Errorf("VM should have CPU reservation for 1500 Mhz, got %v", cpuLimit)
+		return fmt.Errorf("VM should have CPU reservation for 1500 Mhz, but returned %v", cpuLimit)
 	}
 
 	ram := vmInfo.Config.Hardware.MemoryMB
 	if ram != 2048 {
-		return fmt.Errorf("VM should have 2048 MB of RAM, got %v", ram)
+		return fmt.Errorf("VM should have 2048 MB of RAM, but returned %v", ram)
 	}
 
 	ramReservation := *vmInfo.Config.MemoryAllocation.Reservation
 	if ramReservation != 1024 {
-		return fmt.Errorf("VM should have RAM reservation for 1024 MB, got %v", ramReservation)
+		return fmt.Errorf("VM should have RAM reservation for 1024 MB, but returned %v", ramReservation)
 	}
 
 	nestedHV := vmInfo.Config.NestedHVEnabled
 	if !*nestedHV {
-		return fmt.Errorf("VM should have NestedHV enabled, got %v", nestedHV)
+		return fmt.Errorf("VM should have NestedHV enabled, but returned %v", nestedHV)
 	}
 
 	fw := vmInfo.Config.Firmware
 	if fw != "efi" {
-		return fmt.Errorf("Invalid firmware: expected 'efi', got '%v'", fw)
+		return fmt.Errorf("unexpected firmware: expected 'efi', but returned '%v'", fw)
 	}
 
 	l, err := vm.Devices()
 	if err != nil {
-		return fmt.Errorf("Cannot read VM devices: %v", err)
+		return fmt.Errorf("cannot read VM devices: %v", err)
 	}
 	c := l.PickController((*types.VirtualIDEController)(nil))
 	if c == nil {
@@ -280,10 +280,10 @@ func checkHardware(name string) error {
 
 	v := l.SelectByType((*types.VirtualMachineVideoCard)(nil))
 	if len(v) != 1 {
-		return fmt.Errorf("VM should have one video card")
+		return fmt.Errorf("virtual machine should have one video card")
 	}
 	if v[0].(*types.VirtualMachineVideoCard).VideoRamSizeInKB != 8192 {
-		return fmt.Errorf("Video RAM should be equal 8192")
+		return fmt.Errorf("video memory should be equal 8192")
 	}
 
 	return nil
@@ -299,14 +299,14 @@ func TestAccISOBuilderAcc_limit(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkLimit(config["vm_name"].(string))
@@ -318,20 +318,20 @@ func TestAccISOBuilderAcc_limit(t *testing.T) {
 func checkLimit(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 	vmInfo, err := vm.Info("config.cpuAllocation")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	limit := *vmInfo.Config.CpuAllocation.Limit
 	if limit != -1 { // must be unlimited
-		return fmt.Errorf("Invalid CPU limit: expected '%v', got '%v'", -1, limit)
+		return fmt.Errorf("unexpected CPU limit: expected '%v', but returned '%v'", -1, limit)
 	}
 
 	return nil
@@ -347,14 +347,14 @@ func TestAccISOBuilderAcc_sata(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkSata(config["vm_name"].(string))
@@ -366,21 +366,21 @@ func TestAccISOBuilderAcc_sata(t *testing.T) {
 func checkSata(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 
 	l, err := vm.Devices()
 	if err != nil {
-		return fmt.Errorf("Cannot read VM devices: %v", err)
+		return fmt.Errorf("cannot read VM devices: %v", err)
 	}
 
 	c := l.PickController((*types.VirtualAHCIController)(nil))
 	if c == nil {
-		return fmt.Errorf("VM has no SATA controllers")
+		return fmt.Errorf("vm has no SATA controllers")
 	}
 
 	return nil
@@ -398,14 +398,14 @@ func TestAccISOBuilderAcc_cdrom(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return nil
@@ -425,14 +425,14 @@ func TestAccISOBuilderAcc_networkCard(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkNetworkCard(config["vm_name"].(string))
@@ -444,26 +444,26 @@ func TestAccISOBuilderAcc_networkCard(t *testing.T) {
 func checkNetworkCard(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 	devices, err := vm.Devices()
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	netCards := devices.SelectByType((*types.VirtualEthernetCard)(nil))
 	if len(netCards) == 0 {
-		return fmt.Errorf("Cannot find the network card")
+		return fmt.Errorf("cannot find the network card")
 	}
 	if len(netCards) > 1 {
-		return fmt.Errorf("Found several network cards")
+		return fmt.Errorf("found more than one network card")
 	}
 	if _, ok := netCards[0].(*types.VirtualVmxnet3); !ok {
-		return fmt.Errorf("The network card type is not the expected one (vmxnet3)")
+		return fmt.Errorf("unexpected network card type: %s", netCards[0])
 	}
 
 	return nil
@@ -497,7 +497,7 @@ func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return nil
@@ -514,14 +514,14 @@ func TestAccISOBuilderAcc_full(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkFull(config["vm_name"].(string))
@@ -595,25 +595,25 @@ func fullConfig() map[string]interface{} {
 func checkFull(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 	vmInfo, err := vm.Info("config.bootOptions")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	order := vmInfo.Config.BootOptions.BootOrder
 	if order != nil {
-		return fmt.Errorf("Boot order must be empty")
+		return fmt.Errorf("boot order must be empty")
 	}
 
 	devices, err := vm.Devices()
 	if err != nil {
-		return fmt.Errorf("Cannot read devices: %v", err)
+		return fmt.Errorf("cannot read devices: %v", err)
 	}
 	cdroms := devices.SelectByType((*types.VirtualCdrom)(nil))
 	for _, cd := range cdroms {
@@ -636,14 +636,14 @@ func TestAccISOBuilderAcc_bootOrder(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return checkBootOrder(config["vm_name"].(string))
@@ -655,21 +655,21 @@ func TestAccISOBuilderAcc_bootOrder(t *testing.T) {
 func checkBootOrder(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
-		return fmt.Errorf("Cannot connect %v", err)
+		return fmt.Errorf("cannot connect %v", err)
 	}
 	vm, err := d.FindVM(name)
 	if err != nil {
-		return fmt.Errorf("Cannot find VM: %v", err)
+		return fmt.Errorf("cannot find VM: %v", err)
 	}
 
 	vmInfo, err := vm.Info("config.bootOptions")
 	if err != nil {
-		return fmt.Errorf("Cannot read VM properties: %v", err)
+		return fmt.Errorf("cannot read VM properties: %v", err)
 	}
 
 	order := vmInfo.Config.BootOptions.BootOrder
 	if order == nil {
-		return fmt.Errorf("Boot order must not be empty")
+		return fmt.Errorf("boot order must not be empty")
 	}
 
 	return nil
@@ -685,14 +685,14 @@ func TestISOBuilderAcc_cluster(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return nil
@@ -716,14 +716,14 @@ func TestISOBuilderAcc_clusterDRS(t *testing.T) {
 		Teardown: func() error {
 			d, err := commonT.TestConn()
 			if err != nil {
-				return fmt.Errorf("Cannot connect %v", err)
+				return fmt.Errorf("cannot connect %v", err)
 			}
 			return commonT.CleanupVM(d, config["vm_name"].(string))
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
 			if buildCommand.ProcessState != nil {
 				if buildCommand.ProcessState.ExitCode() != 0 {
-					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
+					return fmt.Errorf("bad exit code; logfile: %s", logfile)
 				}
 			}
 			return nil

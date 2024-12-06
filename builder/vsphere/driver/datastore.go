@@ -45,29 +45,29 @@ func (d *VCenterDriver) FindDatastore(name string, host string) (Datastore, erro
 	if name == "" {
 		h, err := d.FindHost(host)
 		if err != nil {
-			return nil, fmt.Errorf("Error finding host for to get datastore: %s", err)
+			return nil, fmt.Errorf("error finding host to return datastore: %s", err)
 		}
 
 		i, err := h.Info("datastore")
 		if err != nil {
-			return nil, fmt.Errorf("Error getting datastore info from host: %s", err)
+			return nil, fmt.Errorf("error returning datastore info from host: %s", err)
 		}
 
 		if len(i.Datastore) > 1 {
-			return nil, fmt.Errorf("Host has multiple datastores. Specify it explicitly")
+			return nil, fmt.Errorf("host has multiple datastores; specify the datastore name")
 		}
 
 		ds := d.NewDatastore(&i.Datastore[0])
 		inf, err := ds.Info("name")
 		if err != nil {
-			return nil, fmt.Errorf("Error getting datastore name: %s", err)
+			return nil, fmt.Errorf("error returning datastore name: %s", err)
 		}
 		name = inf.Name
 	}
 
 	ds, err := d.finder.Datastore(d.ctx, name)
 	if err != nil {
-		return nil, fmt.Errorf("Error finding datastore with name %s: %s", name, err)
+		return nil, fmt.Errorf("error finding datastore with name %s: %s", name, err)
 	}
 
 	return &DatastoreDriver{
