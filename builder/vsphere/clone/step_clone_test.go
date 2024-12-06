@@ -159,6 +159,11 @@ func TestStepCreateVM_Run(t *testing.T) {
 		t.Fatalf("unexpected action: expected '%#v', but returned '%#v'", multistep.ActionContinue, action)
 	}
 
+	// Find VM
+	if !driverMock.FindVMCalled {
+		t.Fatalf("unexpected result: expected '%s' to be called", "FindVM")
+	}
+
 	// Pre clean VM
 	if !driverMock.PreCleanVMCalled {
 		t.Fatalf("unexpected result: expected '%s' to be called", "PreCleanVM")
@@ -170,13 +175,10 @@ func TestStepCreateVM_Run(t *testing.T) {
 		t.Fatalf("unexpected result: expected '%s', but returned '%s'", vmPath, driverMock.PreCleanVMPath)
 	}
 
-	if !driverMock.FindVMCalled {
-		t.Fatalf("unexpected result: expected '%s' to be called", "FindVM")
-	}
+	// Clone VM
 	if !vmMock.CloneCalled {
 		t.Fatalf("unexpected result: expected '%s' to be called", "Clone")
 	}
-
 	if diff := cmp.Diff(vmMock.CloneConfig, driverCreateConfig(step.Config, step.Location)); diff != "" {
 		t.Fatalf("unexpected result: '%s'", diff)
 	}
