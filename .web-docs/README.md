@@ -51,9 +51,8 @@ packer plugins install github.com/hashicorp/vsphere
 
 #### Data Sources
 
-- [vsphere-virtual_machine](/packer/integrations/hashicorp/vsphere/latest/components/data-source/vsphere-virtual_machine) -
-  This datasource returns name of existing virtual machine that matches all defined filters to use
-  it as a builder source for `vsphere-clone`.
+- [vsphere-virtualmachine](/packer/integrations/hashicorp/vsphere/latest/components/data-source/vsphere-virtualmachine) -
+  This data source returns the name of a virtual machine that matches all defined filters.
 
 #### Post-Processors
 

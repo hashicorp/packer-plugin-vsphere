@@ -1,0 +1,89 @@
+---
+modeline: |
+  vim: set ft=pandoc:
+description: |
+  This data source retrieves information about existing virtual machines from vSphere
+  and return name of one virtual machine that matches all specified filters. This virtual
+  machine can be used in the vSphere Clone builder to select a template.
+page_title: vSphere Virtual Machine - Data Source
+sidebar_title: vSphere Virtual Machine
+---
+
+# Virtual Machine Data Source
+
+Type: `vsphere-virtualmachine`
+Artifact BuilderId: `vsphere.virtualmachine`
+
+This data source retrieves information about existing virtual machines from vSphere
+and return name of one virtual machine that matches all specified filters. This virtual
+machine can be used in the vSphere Clone builder to select a template.
+
+## Configuration Reference
+
+### Filters Configuration
+
+**Optional:**
+
+@include 'datasource/virtualmachine/Config-not-required.mdx'
+
+### Tags Filter Configuration
+
+@include 'datasource/virtualmachine/Tag.mdx'
+
+**Required:**
+
+@include 'datasource/virtualmachine/Tag-required.mdx'
+
+### Connection Configuration
+
+**Optional:**
+
+@include 'builder/vsphere/common/ConnectConfig-not-required.mdx'
+
+## Output
+
+@include 'datasource/virtualmachine/DatasourceOutput.mdx'
+
+## Example Usage
+
+This example demonstrates how to connect to vSphere cluster and search for the latest virtual machine
+that matches the filters. The name of the machine is then output to the console as an output variable.
+```hcl
+data "vsphere-virtualmachine" "default" {
+    vcenter_server = "vcenter.example.com"
+    insecure_connection = true
+    username = "administrator@vsphere.local"
+    password = "VMware1!"
+    datacenter = "dc-01"
+    latest = true
+    tags {
+	  category = "team"
+	  name = "operations"
+	}
+	tags {
+	  category = "sla"
+	  name = "gold"
+	}
+
+}
+
+locals {
+  vm_name = data.vsphere-virtualmachine.default.vm_name
+}
+
+source "null" "example" {
+    communicator = "none"
+}
+
+build {
+  sources = [
+    "source.null.example"
+  ]
+
+  provisioner "shell-local" {
+    inline = [
+      "echo vm_name: ${local.vm_name}",
+    ]
+  }
+}
+```
