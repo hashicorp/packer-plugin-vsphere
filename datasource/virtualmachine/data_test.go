@@ -1,20 +1,23 @@
-package virtual_machine
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
+package virtualmachine
 
 import (
 	"testing"
 	"time"
 
-	vsCommon "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/vmware/govmomi/simulator"
 
-	dsTesting "github.com/hashicorp/packer-plugin-vsphere/datasource/virtual_machine/testing"
+	commonT "github.com/hashicorp/packer-plugin-vsphere/datasource/common/testing"
 )
 
 func TestExecute(t *testing.T) {
-	machinesToPrepare := []dsTesting.SimulatedVMConfig{
+	machinesToPrepare := []commonT.SimulatedVMConfig{
 		{
 			Name: "first-vm",
-			Tags: []dsTesting.Tag{
+			Tags: []commonT.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -22,7 +25,7 @@ func TestExecute(t *testing.T) {
 			},
 		}, {
 			Name: "second-vm",
-			Tags: []dsTesting.Tag{
+			Tags: []commonT.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -39,7 +42,7 @@ func TestExecute(t *testing.T) {
 			Template: true,
 		}, {
 			Name: "machine-three",
-			Tags: []dsTesting.Tag{
+			Tags: []commonT.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -57,7 +60,7 @@ func TestExecute(t *testing.T) {
 	model.Datacenter = 2
 	model.Machine = 8
 
-	vcSim, err := dsTesting.NewVCenterSimulator(model)
+	vcSim, err := commonT.NewVCenterSimulator(model)
 	if err != nil {
 		t.Fatalf("error creating vCenter simulator: %s", err)
 	}
@@ -69,7 +72,7 @@ func TestExecute(t *testing.T) {
 	}
 
 	simulatorPassword, _ := vcSim.Server.URL.User.Password()
-	connectConfig := vsCommon.ConnectConfig{
+	connectConfig := common.ConnectConfig{
 		VCenterServer:      vcSim.Server.URL.Host,
 		Username:           vcSim.Server.URL.User.Username(),
 		Password:           simulatorPassword,
@@ -133,19 +136,19 @@ func TestExecute(t *testing.T) {
 			},
 		},
 		{
-			name:          "found multiple machines at the node, error",
+			name:          "found multiple machines at the host, error",
 			expectFailure: true,
 			expectVmName:  "",
 			config: Config{
-				Node: "DC0_H0",
+				Host: "DC0_H0",
 			},
 		},
 		{
-			name:          "cluster node not found, error",
+			name:          "cluster host not found, error",
 			expectFailure: true,
 			expectVmName:  "",
 			config: Config{
-				Node: "unexpected_node",
+				Host: "unexpected_host",
 			},
 		},
 		{
@@ -153,7 +156,7 @@ func TestExecute(t *testing.T) {
 			expectFailure: false,
 			expectVmName:  "second-vm",
 			config: Config{
-				VmTags: []Tag{
+				Tags: []Tag{
 					{
 						Category: "security-team",
 						Name:     "blue",
@@ -170,7 +173,7 @@ func TestExecute(t *testing.T) {
 			expectFailure: true,
 			expectVmName:  "",
 			config: Config{
-				VmTags: []Tag{
+				Tags: []Tag{
 					{
 						Category: "operating-system-class",
 						Name:     "Linux",

@@ -36,6 +36,6 @@ integration {
   component {
     type = "data-source"
     name = "vSphere Virtual Machine"
-    slug = "vsphere-virtual_machine"
+    slug = "vsphere-virtualmachine"
   }
 }

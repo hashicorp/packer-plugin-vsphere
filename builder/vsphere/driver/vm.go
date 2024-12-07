@@ -449,7 +449,6 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 			Device:    adapter.(types.BaseVirtualDevice),
 			Operation: types.VirtualDeviceConfigSpecOperationEdit,
 		}
-
 		configSpec.DeviceChange = append(configSpec.DeviceChange, config)
 	}
 
