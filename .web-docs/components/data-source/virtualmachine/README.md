@@ -1,9 +1,9 @@
-Type: `vsphere-virtual_machine`
-Artifact BuilderId: `vsphere.virtual_machine`
+Type: `vsphere-virtualmachine`
+Artifact BuilderId: `vsphere.virtualmachine`
 
-This datasource is able to get information about existing virtual machines from vSphere
+This data source retrieves information about existing virtual machines from vSphere
 and return name of one virtual machine that matches all specified filters. This virtual
-machine can later be used in the vSphere Clone builder to select template.
+machine can be used in the vSphere Clone builder to select a template.
 
 ## Configuration Reference
 
@@ -11,7 +11,7 @@ machine can later be used in the vSphere Clone builder to select template.
 
 **Optional:**
 
-<!-- Code generated from the comments of the Config struct in datasource/virtual_machine/data.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the Config struct in datasource/virtualmachine/data.go; DO NOT EDIT MANUALLY -->
 
 - `name` (string) - Basic filter with glob support (e.g. `nginx_basic*`). Defaults to `*`.
   Using strict globs will not reduce execution time because vSphere API returns the full inventory.
@@ -19,56 +19,53 @@ machine can later be used in the vSphere Clone builder to select template.
 
 - `name_regex` (string) - Extended name filter with regular expressions support (e.g. `nginx[-_]basic[0-9]*`). Default is empty.
   The match of the regular expression is checked by substring. Use `^` and `$` to define a full string.
-  E.g. the `^[^_]+$` filter will search names without any underscores.
+  For example, the `^[^_]+$` filter will search names without any underscores.
   The expression must use [Go Regex Syntax](https://pkg.go.dev/regexp/syntax).
 
 - `template` (bool) - Filter to return only objects that are virtual machine templates.
-  Defaults to `false` and returns all VMs.
+  Defaults to `false` and returns all virtual machines.
 
-- `node` (string) - Filter to search virtual machines only on the specified node.
+- `host` (string) - Filter to search virtual machines only on the specified ESX host.
 
-- `vm_tags` ([]Tag) - Filter to return only that virtual machines that have attached all specifies tags.
-  Specify one or more `vm_tags` blocks to define list of tags that will make up the filter.
-  Should work since vCenter 6.7. To avoid incompatibility, REST client is being
-  initialized only when at least one tag has been defined in the config.
+- `tags` ([]Tag) - Filter to return only that virtual machines that have attached all specifies tags.
+  Specify one or more `tags` blocks to define list of tags for the filter.
 
 - `latest` (bool) - This filter determines how to handle multiple machines that were matched with all
   previous filters. Machine creation time is being used to find latest.
   By default, multiple matching machines results in an error.
 
-<!-- End of code generated from the comments of the Config struct in datasource/virtual_machine/data.go; -->
+<!-- End of code generated from the comments of the Config struct in datasource/virtualmachine/data.go; -->
 
 
 ### Tags Filter Configuration
 
-<!-- Code generated from the comments of the Tag struct in datasource/virtual_machine/data.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; DO NOT EDIT MANUALLY -->
 
-Example of multiple vm_tags blocks in HCL format:
-```
+HCL Example:
 
+```hcl
 	vm_tags {
 	  category = "team"
 	  name = "operations"
 	}
 	vm_tags {
-	  category = "SLA"
+	  category = "sla"
 	  name = "gold"
 	}
-
 ```
 
-<!-- End of code generated from the comments of the Tag struct in datasource/virtual_machine/data.go; -->
+<!-- End of code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; -->
 
 
 **Required:**
 
-<!-- Code generated from the comments of the Tag struct in datasource/virtual_machine/data.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; DO NOT EDIT MANUALLY -->
 
 - `name` (string) - Tag with this name must be attached to virtual machine which should pass the Tags Filter.
 
 - `category` (string) - Name of the category that contains this tag. Both tag and category must be specified.
 
-<!-- End of code generated from the comments of the Tag struct in datasource/virtual_machine/data.go; -->
+<!-- End of code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; -->
 
 
 ### Connection Configuration
@@ -100,48 +97,47 @@ Example of multiple vm_tags blocks in HCL format:
 
 ## Output
 
-<!-- Code generated from the comments of the DatasourceOutput struct in datasource/virtual_machine/data.go; DO NOT EDIT MANUALLY -->
+<!-- Code generated from the comments of the DatasourceOutput struct in datasource/virtualmachine/data.go; DO NOT EDIT MANUALLY -->
 
 - `vm_name` (string) - Name of the found virtual machine.
 
-<!-- End of code generated from the comments of the DatasourceOutput struct in datasource/virtual_machine/data.go; -->
+<!-- End of code generated from the comments of the DatasourceOutput struct in datasource/virtualmachine/data.go; -->
 
 
 ## Example Usage
 
-This is a very basic example that connects to vSphere cluster and tries to search
-the latest virtual machine that matches all filters. The machine name is then printed
-to console as output variable.
+This example demonstrates how to connect to vSphere cluster and search for the latest virtual machine
+that matches the filters. The name of the machine is then output to the console as an output variable.
 ```hcl
-data "vsphere-virtual_machine" "default" {
-    vcenter_server = "vcenter.example.org"
+data "vsphere-virtualmachine" "default" {
+    vcenter_server = "vcenter.example.com"
     insecure_connection = true
-    username = "administrator@example.org"
-    password = "St4ongPa$$w0rd"
-    datacenter = "AZ1"
+    username = "administrator@vsphere.local"
+    password = "VMware1!"
+    datacenter = "dc-01"
     latest = true
     vm_tags {
 	  category = "team"
 	  name = "operations"
 	}
 	vm_tags {
-	  category = "SLA"
+	  category = "sla"
 	  name = "gold"
 	}
 
 }
 
 locals {
-  vm_name = data.vsphere-virtual_machine.default.vm_name
+  vm_name = data.vsphere-virtualmachine.default.vm_name
 }
 
-source "null" "basic-example" {
+source "null" "example" {
     communicator = "none"
 }
 
 build {
   sources = [
-    "source.null.basic-example"
+    "source.null.example"
   ]
 
   provisioner "shell-local" {
@@ -150,6 +146,4 @@ build {
     ]
   }
 }
-
-
 ```
