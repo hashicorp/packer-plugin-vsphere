@@ -1,12 +1,15 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package testing
 
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net/url"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
@@ -43,12 +46,12 @@ type VCenterSimulator struct {
 func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
 	ctx := context.Background()
 	if model == nil {
-		return nil, errors.New("model has not been initialized")
+		return nil, fmt.Errorf("model has not been initialized")
 	}
 
 	err := model.Create()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create simulator model")
+		return nil, fmt.Errorf("failed to create simulator model: %w", err)
 	}
 	model.Service.RegisterEndpoints = true
 	model.Service.TLS = new(tls.Config)
@@ -57,29 +60,29 @@ func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
 
 	u, err := url.Parse(server.URL.String())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse simulator URL")
+		return nil, fmt.Errorf("failed to parse simulator URL: %w", err)
 	}
 	password, _ := simulator.DefaultLogin.Password()
 	u.User = url.UserPassword(simulator.DefaultLogin.Username(), password)
 
 	client, err := govmomi.NewClient(ctx, u, true)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to SOAP simulator")
+		return nil, fmt.Errorf("failed to connect to SOAP simulator: %w", err)
 	}
 
 	restClient := rest.NewClient(client.Client)
 	err = restClient.Login(ctx, simulator.DefaultLogin)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to login to REST simulator")
+		return nil, fmt.Errorf("failed to login to REST simulator: %w", err)
 	}
 
 	finder := find.NewFinder(client.Client, false)
 	dcs, err := finder.DatacenterList(ctx, "*")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list datacenters")
+		return nil, fmt.Errorf("failed to list datacenters: %w", err)
 	}
 	if len(dcs) == 0 {
-		return nil, errors.Wrap(err, "datacenters were not found in the simulator")
+		return nil, fmt.Errorf("datacenters were not found in the simulator: %w", err)
 	}
 	finder.SetDatacenter(dcs[0])
 
@@ -110,7 +113,7 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 
 	vms, err := sim.Finder.VirtualMachineList(sim.Ctx, "*")
 	if err != nil {
-		return errors.Wrap(err, "failed to list VMs in cluster")
+		return fmt.Errorf("failed to list virtual machines in cluster: %w", err)
 	}
 
 	for i := 0; i < len(vmsConfig); i++ {
@@ -125,17 +128,17 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 		if vmsConfig[i].Name != "" {
 			task, err := vms[i].Reconfigure(sim.Ctx, vmConfig)
 			if err != nil {
-				return errors.Wrap(err, "failed to issue rename of VM command")
+				return fmt.Errorf("failed to issue rename of virtual machine command: %w", err)
 			}
 			if err = task.Wait(sim.Ctx); err != nil {
-				return errors.Wrap(err, "failed to rename VM")
+				return fmt.Errorf("failed to rename virtual machine: %w", err)
 			}
 		}
 
 		if vmsConfig[i].Template {
 			err = MarkSimulatedVmAsTemplate(sim.Ctx, vms[i])
 			if err != nil {
-				return errors.Wrap(err, "failed to convert VMs to templates")
+				return fmt.Errorf("failed to convert to templates: %w", err)
 			}
 		}
 
@@ -143,15 +146,15 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 			for _, tag := range vmsConfig[i].Tags {
 				catID, err := FindOrCreateCategory(sim.Ctx, tagMan, tag.Category)
 				if err != nil {
-					return errors.Wrap(err, "failed to find/create category")
+					return fmt.Errorf("failed to find/create category: %w", err)
 				}
 				tagID, err := FindOrCreateTag(sim.Ctx, tagMan, catID, tag.Name)
 				if err != nil {
-					return errors.Wrap(err, "failed to find/create tag")
+					return fmt.Errorf("failed to find/create tag: %w", err)
 				}
 				err = tagMan.AttachTag(sim.Ctx, tagID, vms[i].Reference())
 				if err != nil {
-					return errors.Wrap(err, "failed to attach tag to VM")
+					return fmt.Errorf("failed to attach tag to virtual machine: %w", err)
 				}
 			}
 		}
