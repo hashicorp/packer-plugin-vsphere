@@ -27,7 +27,7 @@ type FlatConfig struct {
 	NameRegex           *string           `mapstructure:"name_regex" cty:"name_regex" hcl:"name_regex"`
 	Template            *bool             `mapstructure:"template" cty:"template" hcl:"template"`
 	Host                *string           `mapstructure:"host" cty:"host" hcl:"host"`
-	Tags                []FlatTag         `mapstructure:"tags" cty:"tags" hcl:"tags"`
+	Tags                []FlatTag         `mapstructure:"tag" cty:"tag" hcl:"tag"`
 	Latest              *bool             `mapstructure:"latest" cty:"latest" hcl:"latest"`
 }
 
@@ -60,7 +60,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"name_regex":                 &hcldec.AttrSpec{Name: "name_regex", Type: cty.String, Required: false},
 		"template":                   &hcldec.AttrSpec{Name: "template", Type: cty.Bool, Required: false},
 		"host":                       &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
-		"tags":                       &hcldec.BlockListSpec{TypeName: "tags", Nested: hcldec.ObjectSpec((*FlatTag)(nil).HCL2Spec())},
+		"tag":                        &hcldec.BlockListSpec{TypeName: "tag", Nested: hcldec.ObjectSpec((*FlatTag)(nil).HCL2Spec())},
 		"latest":                     &hcldec.AttrSpec{Name: "latest", Type: cty.Bool, Required: false},
 	}
 	return s

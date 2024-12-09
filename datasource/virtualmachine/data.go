@@ -23,23 +23,23 @@ import (
 //
 // ```hcl
 //
-//	tags {
+//	tag {
 //	  category = "team"
 //	  name = "operations"
 //	}
-//	tags {
+//	tag {
 //	  category = "sla"
 //	  name = "gold"
 //	}
 //
 // ```
 type Tag struct {
-	// Name of the tag added to virtual machine which must pass the `tags`
+	// Name of the tag added to virtual machine which must pass the `tag`
 	// filter.
 	Name string `mapstructure:"name" required:"true"`
 	// Name of the tag category that contains the tag.
 	//
-	// -> **Note:** Both `name` and `category` must be specified in the `tags`
+	// -> **Note:** Both `name` and `category` must be specified in the `tag`
 	// filter.
 	Category string `mapstructure:"category" required:"true"`
 }
@@ -66,9 +66,9 @@ type Config struct {
 	// Filter to search virtual machines only on the specified ESX host.
 	Host string `mapstructure:"host"`
 	// Filter to return only that virtual machines that have attached all
-	// specifies tags. Specify one or more `tags` blocks to define list of tags
-	//  for the filter.
-	Tags []Tag `mapstructure:"tags"`
+	// specifies tags. Specify one or more `tag` blocks to define list of tags
+	//  for the filter. Multiple blocks can be created programmatically in HCL2 with the [`dynamic_block`](/packer/docs/templates/hcl_templates/expressions#dynamic-blocks).
+	Tags []Tag `mapstructure:"tag"`
 	// This filter determines how to handle multiple machines that were
 	// matched with all previous filters. Machine creation time is being used
 	// to find latest. By default, multiple matching machines results in an
