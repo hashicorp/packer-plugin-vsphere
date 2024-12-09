@@ -30,9 +30,9 @@ machine can be used in the vSphere Clone builder to select a template.
 
 - `host` (string) - Filter to search virtual machines only on the specified ESX host.
 
-- `tags` ([]Tag) - Filter to return only that virtual machines that have attached all
-  specifies tags. Specify one or more `tags` blocks to define list of tags
-   for the filter.
+- `tag` ([]Tag) - Filter to return only that virtual machines that have attached all
+  specifies tags. Specify one or more `tag` blocks to define list of tags
+   for the filter. Multiple blocks can be created programmatically in HCL2 with the [`dynamic_block`](/packer/docs/templates/hcl_templates/expressions#dynamic-blocks).
 
 - `latest` (bool) - This filter determines how to handle multiple machines that were
   matched with all previous filters. Machine creation time is being used
@@ -50,11 +50,11 @@ HCL Example:
 
 ```hcl
 
-	tags {
+	tag {
 	  category = "team"
 	  name = "operations"
 	}
-	tags {
+	tag {
 	  category = "sla"
 	  name = "gold"
 	}
@@ -68,12 +68,12 @@ HCL Example:
 
 <!-- Code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; DO NOT EDIT MANUALLY -->
 
-- `name` (string) - Name of the tag added to virtual machine which must pass the `tags`
+- `name` (string) - Name of the tag added to virtual machine which must pass the `tag`
   filter.
 
 - `category` (string) - Name of the tag category that contains the tag.
   
-  -> **Note:** Both `name` and `category` must be specified in the `tags`
+  -> **Note:** Both `name` and `category` must be specified in the `tag`
   filter.
 
 <!-- End of code generated from the comments of the Tag struct in datasource/virtualmachine/data.go; -->
