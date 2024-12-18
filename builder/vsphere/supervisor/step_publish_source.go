@@ -9,10 +9,11 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	vmopv1 "github.com/vmware-tanzu/vm-operator/api/v1alpha3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -24,7 +25,7 @@ const (
 	StateKeyVMPublishRequestCreated = "vm_pub_req_created"
 )
 
-var IsWatchingVMPublish bool
+var IsWatchingVMPublish atomic.Bool
 
 type PublishSourceConfig struct {
 	// The name of the published VM image. If not specified, the vm-operator API will set a default name.
@@ -98,7 +99,7 @@ func (s *StepPublishSource) Cleanup(state multistep.StateBag) {
 
 	logger.Info("Deleting the VirtualMachinePublishRequest object from Supervisor cluster")
 	ctx := context.Background()
-	vmPubReqObj := &vmopv1alpha1.VirtualMachinePublishRequest{
+	vmPubReqObj := &vmopv1.VirtualMachinePublishRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.SourceName,
 			Namespace: s.Namespace,
@@ -145,14 +146,14 @@ func (s *StepPublishSource) initStep(state multistep.StateBag) error {
 func (s *StepPublishSource) createVMPublishRequest(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Creating a VirtualMachinePublishRequest object")
 
-	vmPublishReq := &vmopv1alpha1.VirtualMachinePublishRequest{
+	vmPublishReq := &vmopv1.VirtualMachinePublishRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.SourceName,
 			Namespace: s.Namespace,
 		},
-		Spec: vmopv1alpha1.VirtualMachinePublishRequestSpec{
-			Target: vmopv1alpha1.VirtualMachinePublishRequestTarget{
-				Location: vmopv1alpha1.VirtualMachinePublishRequestTargetLocation{
+		Spec: vmopv1.VirtualMachinePublishRequestSpec{
+			Target: vmopv1.VirtualMachinePublishRequestTarget{
+				Location: vmopv1.VirtualMachinePublishRequestTargetLocation{
 					Name: s.PublishLocationName,
 				},
 			},
@@ -174,7 +175,7 @@ func (s *StepPublishSource) createVMPublishRequest(ctx context.Context, logger *
 }
 
 func (s *StepPublishSource) watchVMPublish(ctx context.Context, logger *PackerLogger) error {
-	vmPublishReqWatch, err := s.KubeWatchClient.Watch(ctx, &vmopv1alpha1.VirtualMachinePublishRequestList{}, &client.ListOptions{
+	vmPublishReqWatch, err := s.KubeWatchClient.Watch(ctx, &vmopv1.VirtualMachinePublishRequestList{}, &client.ListOptions{
 		FieldSelector: fields.OneTermEqualSelector("metadata.name", s.SourceName),
 		Namespace:     s.Namespace,
 	})
@@ -189,15 +190,12 @@ func (s *StepPublishSource) watchVMPublish(ctx context.Context, logger *PackerLo
 	defer func() {
 		vmPublishReqWatch.Stop()
 		cancel()
-
-		Mu.Lock()
-		IsWatchingVMPublish = false
-		Mu.Unlock()
+		IsWatchingVMPublish.Store(false)
 	}()
 
-	Mu.Lock()
-	IsWatchingVMPublish = true
-	Mu.Unlock()
+	IsWatchingVMPublish.Store(true)
+
+	logger.Info("Waiting for the VM publish request to complete...")
 
 	for {
 		select {
@@ -206,15 +204,13 @@ func (s *StepPublishSource) watchVMPublish(ctx context.Context, logger *PackerLo
 				return fmt.Errorf("watch VirtualMachinePublishRequest event object is nil")
 			}
 
-			vmPublishReqObj, ok := event.Object.(*vmopv1alpha1.VirtualMachinePublishRequest)
+			vmPublishReqObj, ok := event.Object.(*vmopv1.VirtualMachinePublishRequest)
 			if !ok {
 				return fmt.Errorf("failed to convert the watch VirtualMachinePublishRequest event object")
 			}
 
-			if !vmPublishReqObj.Status.Ready {
-				logger.Info("Waiting for the VM publish request to complete...")
-			} else {
-				logger.Info("Successfully published the VM to image %q", vmPublishReqObj.Status.ImageName)
+			if vmPublishReqObj.Status.Ready {
+				logger.Info("Successfully published the VM to an OVF image %q", vmPublishReqObj.Status.ImageName)
 				return nil
 			}
 

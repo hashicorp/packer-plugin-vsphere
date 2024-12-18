@@ -83,11 +83,11 @@ type FlatConfig struct {
 	StorageClass               *string           `mapstructure:"storage_class" required:"true" cty:"storage_class" hcl:"storage_class"`
 	ImageName                  *string           `mapstructure:"image_name" cty:"image_name" hcl:"image_name"`
 	SourceName                 *string           `mapstructure:"source_name" cty:"source_name" hcl:"source_name"`
-	NetworkType                *string           `mapstructure:"network_type" cty:"network_type" hcl:"network_type"`
-	NetworkName                *string           `mapstructure:"network_name" cty:"network_name" hcl:"network_name"`
 	KeepInputArtifact          *bool             `mapstructure:"keep_input_artifact" cty:"keep_input_artifact" hcl:"keep_input_artifact"`
 	BootstrapProvider          *string           `mapstructure:"bootstrap_provider" cty:"bootstrap_provider" hcl:"bootstrap_provider"`
 	BootstrapDataFile          *string           `mapstructure:"bootstrap_data_file" cty:"bootstrap_data_file" hcl:"bootstrap_data_file"`
+	GuestOSType                *string           `mapstructure:"guest_os_type" cty:"guest_os_type" hcl:"guest_os_type"`
+	IsoBootDiskSize            *string           `mapstructure:"iso_boot_disk_size" cty:"iso_boot_disk_size" hcl:"iso_boot_disk_size"`
 	WatchSourceTimeoutSec      *int              `mapstructure:"watch_source_timeout_sec" cty:"watch_source_timeout_sec" hcl:"watch_source_timeout_sec"`
 	PublishImageName           *string           `mapstructure:"publish_image_name" cty:"publish_image_name" hcl:"publish_image_name"`
 	WatchPublishTimeoutSec     *int              `mapstructure:"watch_publish_timeout_sec" cty:"watch_publish_timeout_sec" hcl:"watch_publish_timeout_sec"`
@@ -178,11 +178,11 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"storage_class":                 &hcldec.AttrSpec{Name: "storage_class", Type: cty.String, Required: false},
 		"image_name":                    &hcldec.AttrSpec{Name: "image_name", Type: cty.String, Required: false},
 		"source_name":                   &hcldec.AttrSpec{Name: "source_name", Type: cty.String, Required: false},
-		"network_type":                  &hcldec.AttrSpec{Name: "network_type", Type: cty.String, Required: false},
-		"network_name":                  &hcldec.AttrSpec{Name: "network_name", Type: cty.String, Required: false},
 		"keep_input_artifact":           &hcldec.AttrSpec{Name: "keep_input_artifact", Type: cty.Bool, Required: false},
 		"bootstrap_provider":            &hcldec.AttrSpec{Name: "bootstrap_provider", Type: cty.String, Required: false},
 		"bootstrap_data_file":           &hcldec.AttrSpec{Name: "bootstrap_data_file", Type: cty.String, Required: false},
+		"guest_os_type":                 &hcldec.AttrSpec{Name: "guest_os_type", Type: cty.String, Required: false},
+		"iso_boot_disk_size":            &hcldec.AttrSpec{Name: "iso_boot_disk_size", Type: cty.String, Required: false},
 		"watch_source_timeout_sec":      &hcldec.AttrSpec{Name: "watch_source_timeout_sec", Type: cty.Number, Required: false},
 		"publish_image_name":            &hcldec.AttrSpec{Name: "publish_image_name", Type: cty.String, Required: false},
 		"watch_publish_timeout_sec":     &hcldec.AttrSpec{Name: "watch_publish_timeout_sec", Type: cty.Number, Required: false},

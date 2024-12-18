@@ -10,7 +10,7 @@ for more information on the VM Service functionality in vSphere Supervisor.
 - It uses a `kubeconfig` file to connect to the vSphere Supervisor cluster.
 - It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy
   and configure the source virtual machine.
-- It cna use Packer provisioners to customize the virtual machine after establishing a successful
+- It can use Packer provisioners to customize the virtual machine after establishing a successful
   connection.
 - It publishes the customized virtual machine as a new virtual machine image to the designated
   content library in vSphere.
@@ -144,7 +144,7 @@ items are listed below as well as the _optional_ configurations.
 - `import_target_location_name` (string) - Name of a writable and import-allowed ContentLibrary resource in the namespace where the image will be imported.
 
 - `import_target_image_type` (string) - The type of imported image.
-  Defaults to `ovf`. Available options include `ovf`.
+  Defaults to suffix of the source URL. Available options include `ovf` and `iso`.
 
 - `import_target_image_name` (string) - Name of the imported image.
   Defaults to the file name of the image referenced in the source URL.
@@ -173,10 +173,6 @@ items are listed below as well as the _optional_ configurations.
 
 - `source_name` (string) - Name of the source VM. Limited to 15 characters. Defaults to `source-<random-5-digit-suffix>`.
 
-- `network_type` (string) - Name of the network type to attach to the source VM's network interface. Defaults to empty.
-
-- `network_name` (string) - Name of the network to attach to the source VM's network interface. Defaults to empty.
-
 - `keep_input_artifact` (bool) - Preserve all the created objects in Supervisor cluster after the build finishes. Defaults to `false`.
 
 - `bootstrap_provider` (string) - Name of the bootstrap provider to use for configuring the source VM.
@@ -184,6 +180,13 @@ items are listed below as well as the _optional_ configurations.
 
 - `bootstrap_data_file` (string) - Path to a file with bootstrap configuration data. Required if `bootstrap_provider` is not set to `CloudInit`.
   Defaults to a basic cloud config that sets up the user account from the SSH communicator config.
+
+- `guest_os_type` (string) - The guest operating system identifier for the VM.
+  Defaults to `otherGuest`.
+
+- `iso_boot_disk_size` (string) - Size of the PVC that will be used as the boot disk when deploying an ISO VM.
+  Supported units are `Gi`, `Mi`, `Ki`, `G`, `M`, `K`, etc.
+  Defaults to `20Gi`.
 
 <!-- End of code generated from the comments of the CreateSourceConfig struct in builder/vsphere/supervisor/step_create_source.go; -->
 
@@ -194,7 +197,7 @@ items are listed below as well as the _optional_ configurations.
 
 <!-- Code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; DO NOT EDIT MANUALLY -->
 
-- `watch_source_timeout_sec` (int) - The timeout in seconds to wait for the source VM to be ready. Defaults to `1800`.
+- `watch_source_timeout_sec` (int) - The timeout in seconds to wait for the source VM to be ready. Defaults to `3600`.
 
 <!-- End of code generated from the comments of the WatchSourceConfig struct in builder/vsphere/supervisor/step_watch_source.go; -->
 
