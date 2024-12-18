@@ -14,9 +14,12 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	vmopv1 "github.com/vmware-tanzu/vm-operator/api/v1alpha3"
+	vmopv1common "github.com/vmware-tanzu/vm-operator/api/v1alpha3/common"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -26,15 +29,18 @@ const (
 	DefaultSourceNamePrefix = "source"
 	VMSelectorLabelKey      = DefaultSourceNamePrefix + "-selector"
 
-	StateKeySourceName              = "source_name"
-	StateKeyVMCreated               = "vm_created"
-	StateKeyVMServiceCreated        = "vm_service_created"
-	StateKeyVMMetadataSecretCreated = "vm_metadata_secret_created"
-	StateKeyKeepInputArtifact       = "keep_input_artifact"
+	StateKeySourceName                = "source_name"
+	StateKeyKeepInputArtifact         = "keep_input_artifact"
+	StateKeyVMCreated                 = "vm_created"
+	StateKeyVMServiceCreated          = "vm_service_created"
+	StateKeyISOBootDiskPVCCreated     = "iso_boot_disk_pvc_created"
+	StateKeyOVFBootstrapSecretCreated = "ovf_bootstrap_secret_created"
+	StateKeyVMImageType               = "vm_image_type"
+	StateKeyVMImageKind               = "vm_image_kind"
 
-	ProviderCloudInit  = string(vmopv1alpha1.VirtualMachineMetadataCloudInitTransport)
-	ProviderSysprep    = string(vmopv1alpha1.VirtualMachineMetadataSysprepTransport)
-	ProviderVAppConfig = string(vmopv1alpha1.VirtualMachineMetadataVAppConfigTransport)
+	ProviderCloudInit  = "CloudInit"
+	ProviderSysprep    = "Sysprep"
+	ProviderVAppConfig = "vAppConfig"
 )
 
 type CreateSourceConfig struct {
@@ -47,10 +53,6 @@ type CreateSourceConfig struct {
 	ImageName string `mapstructure:"image_name"`
 	// Name of the source VM. Limited to 15 characters. Defaults to `source-<random-5-digit-suffix>`.
 	SourceName string `mapstructure:"source_name"`
-	// Name of the network type to attach to the source VM's network interface. Defaults to empty.
-	NetworkType string `mapstructure:"network_type"`
-	// Name of the network to attach to the source VM's network interface. Defaults to empty.
-	NetworkName string `mapstructure:"network_name"`
 	// Preserve all the created objects in Supervisor cluster after the build finishes. Defaults to `false`.
 	KeepInputArtifact bool `mapstructure:"keep_input_artifact"`
 	// Name of the bootstrap provider to use for configuring the source VM.
@@ -59,6 +61,13 @@ type CreateSourceConfig struct {
 	// Path to a file with bootstrap configuration data. Required if `bootstrap_provider` is not set to `CloudInit`.
 	// Defaults to a basic cloud config that sets up the user account from the SSH communicator config.
 	BootstrapDataFile string `mapstructure:"bootstrap_data_file"`
+	// The guest operating system identifier for the VM.
+	// Defaults to `otherGuest`.
+	GuestOSType string `mapstructure:"guest_os_type"`
+	// Size of the PVC that will be used as the boot disk when deploying an ISO VM.
+	// Supported units are `Gi`, `Mi`, `Ki`, `G`, `M`, `K`, etc.
+	// Defaults to `20Gi`.
+	IsoBootDiskSize string `mapstructure:"iso_boot_disk_size"`
 }
 
 func (c *CreateSourceConfig) Prepare() []error {
@@ -89,6 +98,19 @@ func (c *CreateSourceConfig) Prepare() []error {
 		errs = append(errs, fmt.Errorf("'source_name' must not exceed 15 characters (length: %d): %s", len(c.SourceName), c.SourceName))
 	}
 
+	if c.GuestOSType == "" {
+		c.GuestOSType = "otherGuest"
+	}
+
+	if c.IsoBootDiskSize == "" {
+		c.IsoBootDiskSize = "20Gi"
+	} else {
+		_, err := resource.ParseQuantity(c.IsoBootDiskSize)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("'iso_boot_disk_size' must be a valid quantity with units: %s", err))
+		}
+	}
+
 	return errs
 }
 
@@ -102,7 +124,6 @@ type StepCreateSource struct {
 
 func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	logger := state.Get("logger").(*PackerLogger)
-	logger.Info("Creating required source objects in Supervisor cluster...")
 
 	var err error
 	defer func() {
@@ -115,15 +136,32 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 		return multistep.ActionHalt
 	}
 
-	if err = s.createVMMetadataSecret(ctx, logger); err != nil {
-		return multistep.ActionHalt
-	}
-	state.Put(StateKeyVMMetadataSecretCreated, true)
+	logger.Info("Creating source objects with name %q in namespace %q", s.Config.SourceName, s.Namespace)
 
-	if err = s.createVM(ctx, logger); err != nil {
+	// Check VM image (OVF or ISO) first to create required source objects accordingly.
+	logger.Info("Checking source VM image %q", s.Config.ImageName)
+	var imgKind, imgType string
+	imgKind, imgType, err = s.getImageInfo(ctx, logger)
+	if err != nil {
 		return multistep.ActionHalt
 	}
-	state.Put(StateKeyVMCreated, true)
+	state.Put(StateKeyVMImageType, imgType)
+
+	switch imgType {
+	case "ISO":
+		logger.Info("Deploying VM from ISO image")
+		if err = s.createISO(ctx, logger, state, imgKind); err != nil {
+			return multistep.ActionHalt
+		}
+	case "OVF":
+		logger.Info("Deploying VM from OVF image")
+		if err = s.createOVF(ctx, logger, state); err != nil {
+			return multistep.ActionHalt
+		}
+	default:
+		logger.Error("Unsupported image type: %s", imgType)
+		return multistep.ActionHalt
+	}
 
 	if s.CommunicatorConfig.Type == "none" {
 		logger.Info("Skip creating VirtualMachineService as communicator type is 'none'")
@@ -138,7 +176,7 @@ func (s *StepCreateSource) Run(ctx context.Context, state multistep.StateBag) mu
 	state.Put(StateKeySourceName, s.Config.SourceName)
 	state.Put(StateKeyKeepInputArtifact, s.Config.KeepInputArtifact)
 
-	logger.Info("Finished creating all required source objects in Supervisor cluster")
+	logger.Info("Finished creating all required source objects")
 	return multistep.ActionContinue
 }
 
@@ -157,7 +195,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 	}
 	if state.Get(StateKeyVMServiceCreated) == true {
 		logger.Info("Deleting the VirtualMachineService object from Supervisor cluster")
-		vmServiceObj := &vmopv1alpha1.VirtualMachineService{
+		vmServiceObj := &vmopv1.VirtualMachineService{
 			ObjectMeta: objMeta,
 		}
 		if err := s.KubeClient.Delete(ctx, vmServiceObj); err != nil {
@@ -169,7 +207,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 
 	if state.Get(StateKeyVMCreated) == true {
 		logger.Info("Deleting the VirtualMachine object from Supervisor cluster")
-		vmObj := &vmopv1alpha1.VirtualMachine{
+		vmObj := &vmopv1.VirtualMachine{
 			ObjectMeta: objMeta,
 		}
 		if err := s.KubeClient.Delete(ctx, vmObj); err != nil {
@@ -179,7 +217,7 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 		}
 	}
 
-	if state.Get(StateKeyVMMetadataSecretCreated) == true {
+	if state.Get(StateKeyOVFBootstrapSecretCreated) == true {
 		logger.Info("Deleting the K8s Secret object from Supervisor cluster")
 		secretObj := &corev1.Secret{
 			ObjectMeta: objMeta,
@@ -189,6 +227,18 @@ func (s *StepCreateSource) Cleanup(state multistep.StateBag) {
 			logger.Error("Failed to delete the K8s Secret object: %s", err)
 		} else {
 			logger.Info("Successfully deleted the K8s Secret object")
+		}
+	}
+
+	if state.Get(StateKeyISOBootDiskPVCCreated) == true {
+		logger.Info("Deleting the PVC object from Supervisor cluster")
+		pvcObj := &corev1.PersistentVolumeClaim{
+			ObjectMeta: objMeta,
+		}
+		if err := s.KubeClient.Delete(ctx, pvcObj); err != nil {
+			logger.Error("Failed to delete the PVC object")
+		} else {
+			logger.Info("Successfully deleted the PVC object")
 		}
 	}
 }
@@ -232,15 +282,119 @@ func (s *StepCreateSource) initStep(state multistep.StateBag, logger *PackerLogg
 	return nil
 }
 
-func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *PackerLogger) error {
-	logger.Info("Creating a K8s Secret object for providing source VM bootstrap data...")
+func (s *StepCreateSource) getImageInfo(ctx context.Context, logger *PackerLogger) (imgKind, imgType string, err error) {
+	// First try to get VMI (namespaced scope).
+	vmi := vmopv1.VirtualMachineImage{}
+	if err = s.KubeClient.Get(ctx, client.ObjectKey{
+		Namespace: s.Namespace,
+		Name:      s.Config.ImageName,
+	}, &vmi); err == nil {
+		logger.Info("Found namespace scoped VM image of type %q", vmi.Status.Type)
+		imgKind = vmi.Kind
+		imgType = vmi.Status.Type
+		return
+	}
 
+	if !apierrors.IsNotFound(err) {
+		return
+	}
+
+	// VMI not found, try CVMI (cluster scope).
+	cvmi := vmopv1.ClusterVirtualMachineImage{}
+	if err = s.KubeClient.Get(ctx, client.ObjectKey{
+		Name: s.Config.ImageName,
+	}, &cvmi); err == nil {
+		logger.Info("Found cluster scoped VM image of type %q", cvmi.Status.Type)
+		imgKind = cvmi.Kind
+		imgType = cvmi.Status.Type
+		return
+	}
+
+	if !apierrors.IsNotFound(err) {
+		return
+	}
+
+	// Neither VMI nor CVMI found.
+	err = fmt.Errorf("source image %q not found", s.Config.ImageName)
+	return
+}
+
+func (s *StepCreateSource) createISO(ctx context.Context, logger *PackerLogger, state multistep.StateBag, imgKind string) error {
+	logger.Info("Creating a PVC object for ISO VM boot disk")
+	pvc := &corev1.PersistentVolumeClaim{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      s.Config.SourceName,
+			Namespace: s.Namespace,
+		},
+		Spec: corev1.PersistentVolumeClaimSpec{
+			AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+			Resources: corev1.VolumeResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceStorage: resource.MustParse(s.Config.IsoBootDiskSize),
+				},
+			},
+			StorageClassName: &s.Config.StorageClass,
+		},
+	}
+	if err := s.KubeClient.Create(ctx, pvc); err != nil {
+		return err
+	}
+	state.Put(StateKeyISOBootDiskPVCCreated, true)
+
+	logger.Info("Creating a VM object with PVC and CD-ROM attached")
+	vm := &vmopv1.VirtualMachine{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      s.Config.SourceName,
+			Namespace: s.Namespace,
+			Labels: map[string]string{
+				VMSelectorLabelKey: s.Config.SourceName,
+			},
+		},
+		Spec: vmopv1.VirtualMachineSpec{
+			ClassName:    s.Config.ClassName,
+			StorageClass: s.Config.StorageClass,
+			Cdrom: []vmopv1.VirtualMachineCdromSpec{
+				{
+					Name: "cdrom",
+					Image: vmopv1.VirtualMachineImageRef{
+						Kind: imgKind,
+						Name: s.Config.ImageName,
+					},
+					Connected:         &[]bool{true}[0],
+					AllowGuestControl: &[]bool{true}[0],
+				},
+			},
+			GuestID: s.Config.GuestOSType,
+			Volumes: []vmopv1.VirtualMachineVolume{
+				{
+					Name: "vm-boot-disk",
+					VirtualMachineVolumeSource: vmopv1.VirtualMachineVolumeSource{
+						PersistentVolumeClaim: &vmopv1.PersistentVolumeClaimVolumeSource{
+							PersistentVolumeClaimVolumeSource: corev1.PersistentVolumeClaimVolumeSource{
+								ClaimName: s.Config.SourceName,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := s.KubeClient.Create(ctx, vm); err != nil {
+		return err
+	}
+	state.Put(StateKeyVMCreated, true)
+
+	return nil
+}
+
+func (s *StepCreateSource) createOVF(ctx context.Context, logger *PackerLogger, state multistep.StateBag) error {
 	stringData, err := s.getBootstrapStringData(ctx, logger)
 	if err != nil {
-		logger.Error("Failed to get the bootstrap data")
+		logger.Error("Failed to get the bootstrap data from file %q", s.Config.BootstrapDataFile)
 		return err
 	}
 
+	logger.Info("Creating a Secret object for OVF VM bootstrap")
 	kubeSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
@@ -250,11 +404,54 @@ func (s *StepCreateSource) createVMMetadataSecret(ctx context.Context, logger *P
 	}
 
 	if err := s.KubeClient.Create(ctx, kubeSecret); err != nil {
-		logger.Error("Failed to create the K8s Secret object")
 		return err
 	}
+	state.Put(StateKeyOVFBootstrapSecretCreated, true)
 
-	logger.Info("Successfully created the K8s Secret object")
+	logger.Info("Creating a VM object with bootstrap provider %q", s.Config.BootstrapProvider)
+	vm := &vmopv1.VirtualMachine{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      s.Config.SourceName,
+			Namespace: s.Namespace,
+			Labels: map[string]string{
+				VMSelectorLabelKey: s.Config.SourceName,
+			},
+		},
+		Spec: vmopv1.VirtualMachineSpec{
+			ImageName:    s.Config.ImageName,
+			ClassName:    s.Config.ClassName,
+			StorageClass: s.Config.StorageClass,
+		},
+	}
+
+	bootstrap := &vmopv1.VirtualMachineBootstrapSpec{}
+	switch s.Config.BootstrapProvider {
+	case ProviderCloudInit:
+		bootstrap.CloudInit = &vmopv1.VirtualMachineBootstrapCloudInitSpec{
+			RawCloudConfig: &vmopv1common.SecretKeySelector{
+				Key:  "user-data",
+				Name: s.Config.SourceName,
+			},
+		}
+	case ProviderSysprep:
+		bootstrap.Sysprep = &vmopv1.VirtualMachineBootstrapSysprepSpec{
+			RawSysprep: &vmopv1common.SecretKeySelector{
+				Key:  "unattend",
+				Name: s.Config.SourceName,
+			},
+		}
+	case ProviderVAppConfig:
+		bootstrap.VAppConfig = &vmopv1.VirtualMachineBootstrapVAppConfigSpec{
+			RawProperties: s.Config.SourceName,
+		}
+	}
+	vm.Spec.Bootstrap = bootstrap
+
+	if err := s.KubeClient.Create(ctx, vm); err != nil {
+		return err
+	}
+	state.Put(StateKeyVMCreated, true)
+
 	return nil
 }
 
@@ -295,48 +492,6 @@ users:
 	return defaultData, nil
 }
 
-func (s *StepCreateSource) createVM(ctx context.Context, logger *PackerLogger) error {
-	logger.Info("Creating a source VirtualMachine object")
-
-	vm := &vmopv1alpha1.VirtualMachine{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.Config.SourceName,
-			Namespace: s.Namespace,
-			Labels: map[string]string{
-				VMSelectorLabelKey: s.Config.SourceName,
-			},
-		},
-		Spec: vmopv1alpha1.VirtualMachineSpec{
-			ImageName:    s.Config.ImageName,
-			ClassName:    s.Config.ClassName,
-			StorageClass: s.Config.StorageClass,
-			PowerState:   vmopv1alpha1.VirtualMachinePoweredOn,
-			VmMetadata: &vmopv1alpha1.VirtualMachineMetadata{
-				SecretName: s.Config.SourceName,
-				Transport:  vmopv1alpha1.VirtualMachineMetadataTransport(s.Config.BootstrapProvider),
-			},
-		},
-	}
-
-	// Set up network interface configs if provided in configs.
-	if s.Config.NetworkType != "" || s.Config.NetworkName != "" {
-		vm.Spec.NetworkInterfaces = []vmopv1alpha1.VirtualMachineNetworkInterface{
-			{
-				NetworkType: s.Config.NetworkType,
-				NetworkName: s.Config.NetworkName,
-			},
-		}
-	}
-
-	if err := s.KubeClient.Create(ctx, vm); err != nil {
-		logger.Error("Failed to create the VirtualMachine object")
-		return err
-	}
-
-	logger.Info("Successfully created the VirtualMachine object")
-	return nil
-}
-
 func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLogger) error {
 	logger.Info("Creating a VirtualMachineService object for network connection")
 
@@ -350,14 +505,14 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 		return fmt.Errorf("unsupported communicator type: %q", s.CommunicatorConfig.Type)
 	}
 
-	vmServiceObj := &vmopv1alpha1.VirtualMachineService{
+	vmServiceObj := &vmopv1.VirtualMachineService{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s.Config.SourceName,
 			Namespace: s.Namespace,
 		},
-		Spec: vmopv1alpha1.VirtualMachineServiceSpec{
-			Type: vmopv1alpha1.VirtualMachineServiceTypeLoadBalancer,
-			Ports: []vmopv1alpha1.VirtualMachineServicePort{
+		Spec: vmopv1.VirtualMachineServiceSpec{
+			Type: vmopv1.VirtualMachineServiceTypeLoadBalancer,
+			Ports: []vmopv1.VirtualMachineServicePort{
 				{
 					Name:       s.CommunicatorConfig.Type,
 					Protocol:   "TCP",
@@ -372,10 +527,8 @@ func (s *StepCreateSource) createVMService(ctx context.Context, logger *PackerLo
 	}
 
 	if err := s.KubeClient.Create(ctx, vmServiceObj); err != nil {
-		logger.Error("Failed to create the VirtualMachineService object")
 		return err
 	}
 
-	logger.Info("Successfully created the VirtualMachineService object")
 	return nil
 }

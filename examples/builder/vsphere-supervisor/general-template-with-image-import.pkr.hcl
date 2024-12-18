@@ -12,10 +12,11 @@ variable "import_target_location_name" {
 }
 variable "import_target_image_type" {
     type = string
-    default = "ovf"
+    default = null
 }
 variable "import_target_image_name" {
     type = string
+    default = null
 }
 variable "clean_imported_image" {
     type = bool
@@ -29,6 +30,7 @@ variable "keep_import_request" {
 # VM-Service source VM configs.
 variable "image_name" {
   type = string
+  default = null
 }
 variable "class_name" {
   type = string

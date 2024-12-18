@@ -44,7 +44,7 @@ type ImportImageConfig struct {
 	// Name of a writable and import-allowed ContentLibrary resource in the namespace where the image will be imported.
 	ImportTargetLocationName string `mapstructure:"import_target_location_name"`
 	// The type of imported image.
-	// Defaults to `ovf`. Available options include `ovf`.
+	// Defaults to suffix of the source URL. Available options include `ovf` and `iso`.
 	ImportTargetImageType string `mapstructure:"import_target_image_type"`
 	// Name of the imported image.
 	// Defaults to the file name of the image referenced in the source URL.
@@ -79,9 +79,15 @@ func (c *ImportImageConfig) Prepare() []error {
 
 	switch c.ImportTargetImageType {
 	case "":
-		c.ImportTargetImageType = "ovf"
-	case "ovf":
-		// If it's already "ovf", do nothing.
+		if strings.HasSuffix(c.ImportSourceURL, ".iso") {
+			c.ImportTargetImageType = "iso"
+		} else if strings.HasSuffix(c.ImportSourceURL, ".ovf") || strings.HasSuffix(c.ImportSourceURL, ".ova") {
+			c.ImportTargetImageType = "ovf"
+		} else {
+			errs = append(errs, fmt.Errorf("cannot infer supported image type from source url %s", c.ImportSourceURL))
+		}
+	case "ovf", "iso":
+		// If it's already "ovf" or "iso", do nothing.
 	default:
 		errs = append(errs, fmt.Errorf("unsupported ImportTargetImageType: %s", c.ImportTargetImageType))
 	}
@@ -272,8 +278,7 @@ func (s *StepImportImage) checkImportTarget(ctx context.Context, logger *PackerL
 			s.ImportImageConfig.ImportTargetLocationName)
 	}
 
-	// Only supports OVF type for now, this check needs to be updated when supporting other types.
-	if s.TargetItemType != imgregv1.ContentLibraryItemTypeOvf {
+	if s.TargetItemType != imgregv1.ContentLibraryItemTypeOvf && s.TargetItemType != imgregv1.ContentLibraryItemTypeIso {
 		return fmt.Errorf("image type %s is not supported", s.ImportImageConfig.ImportTargetImageType)
 	}
 
@@ -342,6 +347,8 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 	s.IsWatchingImageImport = true
 	s.Mu.Unlock()
 
+	logger.Info("Waiting for the image import request to complete...")
+
 	for {
 		select {
 		case event := <-itemImportReqWatch.ResultChan():
@@ -371,8 +378,6 @@ func (s *StepImportImage) watchItemImport(ctx context.Context, state multistep.S
 
 				logger.Info("Successfully imported the image as a content library item %q.", itemImportReqObj.Status.ItemRef)
 				return nil
-			} else {
-				logger.Info("Waiting for the image import request to complete...")
 			}
 
 		case <-timedCtx.Done():
