@@ -113,7 +113,7 @@ type StorageConfig struct {
 	// The disk controller type. One of `lsilogic`, `lsilogic-sas`, `pvscsi`,
 	// `nvme`, `scsi`, or `sata`. Defaults to `lsilogic`. Use a list to define
 	// additional controllers. Refer to [SCSI, SATA, and NVMe Storage Controller
-	// Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
+	// Conditions, Limitations, and Compatibility](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/scsi-controller-configurationvsphere-vm-admin.html)
 	// for additional information.
 	DiskControllerType []string `mapstructure:"disk_controller_type"`
 	// A collection of one or more disks to be provisioned.

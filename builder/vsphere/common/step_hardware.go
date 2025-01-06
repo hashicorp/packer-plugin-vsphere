@@ -82,16 +82,16 @@ type HardwareConfig struct {
 	MemoryHotAddEnabled bool `mapstructure:"RAM_hot_plug"`
 	// The amount of video memory in KB. Defaults to 4096 KB.
 	//
-	// -> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+	// -> **Note:** Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/virtual-machine-compatibilityvsphere-vm-admin/hardware-features-available-with-virtual-machine-compatibility-levelsvsphere-vm-admin.html)
 	// for supported maximums.
 	VideoRAM int64 `mapstructure:"video_ram"`
 	// The number of video displays. Defaults to `1`.
 	//
-	//`-> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+	//`-> **Note:** Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/virtual-machine-compatibilityvsphere-vm-admin/hardware-features-available-with-virtual-machine-compatibility-levelsvsphere-vm-admin.html)
 	// for supported maximums.
 	Displays int32 `mapstructure:"displays"`
 	// Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
-	// virtual machine. Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+	// virtual machine. Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/other-virtual-machine-device-configurationvsphere-vm-admin/add-a-pci-device-to-a-virutal-machinevsphere-vm-admin.html)
 	AllowedDevices []PCIPassthroughAllowedDevice `mapstructure:"pci_passthrough_allowed_device"`
 	// vGPU profile for accelerated graphics. Refer to the [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
 	// for examples of profile names. Defaults to none.

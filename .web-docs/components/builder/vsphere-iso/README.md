@@ -230,16 +230,16 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 - `video_ram` (int64) - The amount of video memory in KB. Defaults to 4096 KB.
   
-  -> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+  -> **Note:** Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/virtual-machine-compatibilityvsphere-vm-admin/hardware-features-available-with-virtual-machine-compatibility-levelsvsphere-vm-admin.html)
   for supported maximums.
 
 - `displays` (int32) - The number of video displays. Defaults to `1`.
   
-  `-> **Note:** Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-789C3913-1053-4850-A0F0-E29C3D32B6DA.html)
+  `-> **Note:** Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/virtual-machine-compatibilityvsphere-vm-admin/hardware-features-available-with-virtual-machine-compatibility-levelsvsphere-vm-admin.html)
   for supported maximums.
 
 - `pci_passthrough_allowed_device` ([]PCIPassthroughAllowedDevice) - Configure Dynamic DirectPath I/O [PCI Passthrough](#pci-passthrough-configuration) for
-  virtual machine. Refer to the [vSphere documentation](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5B3CAB26-5D06-4A99-92A0-3A04C69CE64B.html)
+  virtual machine. Refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/other-virtual-machine-device-configurationvsphere-vm-admin/add-a-pci-device-to-a-virutal-machinevsphere-vm-admin.html)
 
 - `vgpu_profile` (string) - vGPU profile for accelerated graphics. Refer to the [NVIDIA GRID vGPU documentation](https://docs.nvidia.com/grid/latest/grid-vgpu-user-guide/index.html#configure-vmware-vsphere-vm-with-vgpu)
   for examples of profile names. Defaults to none.
@@ -876,7 +876,7 @@ JSON Example:
 - `disk_controller_type` ([]string) - The disk controller type. One of `lsilogic`, `lsilogic-sas`, `pvscsi`,
   `nvme`, `scsi`, or `sata`. Defaults to `lsilogic`. Use a list to define
   additional controllers. Refer to [SCSI, SATA, and NVMe Storage Controller
-  Conditions, Limitations, and Compatibility](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-vm-administration/GUID-5872D173-A076-42FE-8D0B-9DB0EB0E7362.html)
+  Conditions, Limitations, and Compatibility](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-virtual-machine-administration-guide-8-0/configuring-virtual-machine-hardwarevsphere-vm-admin/scsi-controller-configurationvsphere-vm-admin.html)
   for additional information.
 
 - `storage` ([]DiskConfig) - A collection of one or more disks to be provisioned.
@@ -1719,7 +1719,7 @@ the capabilities of the `vsphere-iso` plugin:
 | ...             | Provisioning > Mark as virtual machine              | `VirtualMachine.Provisioning.MarkAsVM`             |
 | ...             | State > Create snapshot                             | `VirtualMachine.State.CreateSnapshot`              |
 
-Global permissions **[are required](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-security/GUID-74F53189-EF41-4AC1-A78E-D25621855800.html#how-do-permissions-work-in-vsphere-0)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
+Global permissions **[are required](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security-8-0/vsphere-permissions-and-user-management-tasks/understanding-authorization-in-vsphere.html)** for the content library based on the hierarchical inheritance of permissions. Once the custom vSphere role is created, assign **Global Permissions** in vSphere to the accounts or groups used for the Packer to vSphere integration, if using the content library.
 
 For example:
 

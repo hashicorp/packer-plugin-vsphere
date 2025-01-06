@@ -4,8 +4,8 @@ Artifact BuilderId: `vsphere.supervisor`
 
 This builder creates a virtual machine on a vSphere Supervisor cluster using the VM-Operator API.
 
-Refer to [Deploying and Managing Virtual Machines in vSphere with Tanzu](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-with-tanzu-services-workloads/GUID-F81E3535-C275-4DDE-B35F-CE759EA3B4A0.html)
-for more information on the VM Service functionality in vSphere with Tanzu.
+Refer to [Deploying and Managing Virtual Machines in vSphere Supervisor](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/8-0/vsphere-supervisor-services-and-workloads-8-0/deploying-and-managing-virtual-machines-in-vsphere-iaas-control-plane.html)
+for more information on the VM Service functionality in vSphere Supervisor.
 
 - It uses a `kubeconfig` file to connect to the vSphere Supervisor cluster.
 - It uses the [VM-Operator API](https://vm-operator.readthedocs.io/en/latest/concepts/) to deploy

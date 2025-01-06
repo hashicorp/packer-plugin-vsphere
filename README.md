@@ -122,7 +122,7 @@ For more information on how to configure the plugin, please see the [plugin docu
 
 [docs-packer-init]: https://developer.hashicorp.com/packer/docs/commands/init
 [docs-packer-plugin-install]: https://developer.hashicorp.com/packer/docs/plugins/install-plugins
-[docs-vsphere]: https://docs.vmware.com/en/VMware-vSphere/
+[docs-vsphere]: https://techdocs.broadcom.com/us/en/vmware-cis/vsphere.html
 [docs-vsphere-clone]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-clone
 [docs-vsphere-iso]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso
 [docs-vsphere-supervisor]: https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-supervisor
