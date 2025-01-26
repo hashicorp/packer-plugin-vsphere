@@ -33,6 +33,7 @@ type DatastoreDriver struct {
 	driver *VCenterDriver
 }
 
+// NewDatastore creates a new Datastore object.
 func (d *VCenterDriver) NewDatastore(ref *types.ManagedObjectReference) Datastore {
 	return &DatastoreDriver{
 		ds:     object.NewDatastore(d.client.Client, *ref),
@@ -40,7 +41,8 @@ func (d *VCenterDriver) NewDatastore(ref *types.ManagedObjectReference) Datastor
 	}
 }
 
-// If name is an empty string, then resolve host's one
+// FindDatastore locates a datastore by its name and an optional host.
+// Returns a Datastore object or an error if the datastore is not found.
 func (d *VCenterDriver) FindDatastore(name string, host string) (Datastore, error) {
 	if name == "" {
 		h, err := d.FindHost(host)
@@ -76,6 +78,9 @@ func (d *VCenterDriver) FindDatastore(name string, host string) (Datastore, erro
 	}, nil
 }
 
+// GetDatastoreName retrieves the name of a datastore by its ID.
+// Returns the name of the datastore or an error if the retrieval process
+// fails.
 func (d *VCenterDriver) GetDatastoreName(id string) (string, error) {
 	obj := types.ManagedObjectReference{
 		Type:  "Datastore",
@@ -91,6 +96,9 @@ func (d *VCenterDriver) GetDatastoreName(id string) (string, error) {
 	return me.Name, nil
 }
 
+// Info retrieves properties of the datastore object with optional filters
+// specified as parameters. If no parameters are provided, all properties are
+// returned.
 func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 	var p []string
 	if len(params) == 0 {
@@ -106,6 +114,7 @@ func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 	return &info, nil
 }
 
+// DirExists checks if a directory exists in a datastore.
 func (ds *DatastoreDriver) DirExists(filepath string) bool {
 	_, err := ds.ds.Stat(ds.driver.ctx, filepath)
 	if _, ok := err.(object.DatastoreNoSuchDirectoryError); ok {
@@ -114,24 +123,28 @@ func (ds *DatastoreDriver) DirExists(filepath string) bool {
 	return true
 }
 
+// FileExists checks if a file exists in a datastore.
 func (ds *DatastoreDriver) FileExists(path string) bool {
 	_, err := ds.ds.Stat(ds.driver.ctx, path)
 	return err == nil
 }
 
+// Name retrieves the name of a datastore.
 func (ds *DatastoreDriver) Name() string {
 	return ds.ds.Name()
 }
 
+// Reference retrieves the reference of a datastore.
 func (ds *DatastoreDriver) Reference() types.ManagedObjectReference {
 	return ds.ds.Reference()
 }
 
+// ResolvePath resolves a path in a datastore.
 func (ds *DatastoreDriver) ResolvePath(path string) string {
 	return ds.ds.Path(path)
 }
 
-// The file ID isn't available via the API, so we use DatastoreBrowser to search
+// GetDatastoreFilePath retrieves the full path of a file in a specified datastore directory by its datastore ID and name.
 func (d *VCenterDriver) GetDatastoreFilePath(datastoreID, dir, filename string) (string, error) {
 	ref := types.ManagedObjectReference{Type: "Datastore", Value: datastoreID}
 	ds := object.NewDatastore(d.vimClient, ref)
@@ -167,6 +180,8 @@ func (d *VCenterDriver) GetDatastoreFilePath(datastoreID, dir, filename string) 
 	return res.File[0].GetFileInfo().Path, nil
 }
 
+// UploadFile uploads a file from the local source path to the destination path
+// in the datastore, with optional host context.
 func (ds *DatastoreDriver) UploadFile(src, dst, host string, setHost bool) error {
 	p := soap.DefaultUpload
 	ctx := ds.driver.ctx
@@ -182,6 +197,7 @@ func (ds *DatastoreDriver) UploadFile(src, dst, host string, setHost bool) error
 	return ds.ds.UploadFile(ctx, src, dst, &p)
 }
 
+// Delete deletes a file from a datastore by a path.
 func (ds *DatastoreDriver) Delete(path string) error {
 	dc, err := ds.driver.finder.Datacenter(ds.driver.ctx, ds.ds.DatacenterPath)
 	if err != nil {
@@ -191,6 +207,7 @@ func (ds *DatastoreDriver) Delete(path string) error {
 	return fm.Delete(ds.driver.ctx, path)
 }
 
+// MakeDirectory creates a directory in a datastore by a path.
 func (ds *DatastoreDriver) MakeDirectory(path string) error {
 	dc, err := ds.driver.finder.Datacenter(ds.driver.ctx, ds.ds.DatacenterPath)
 	if err != nil {
@@ -200,8 +217,7 @@ func (ds *DatastoreDriver) MakeDirectory(path string) error {
 	return fm.FileManager.MakeDirectory(ds.driver.ctx, path, dc, true)
 }
 
-// Cuts out the datastore prefix
-// Example: "[datastore1] file.ext" --> "file.ext"
+// RemoveDatastorePrefix removes the datastore prefix from a path.
 func RemoveDatastorePrefix(path string) string {
 	res := object.DatastorePath{}
 	if hadPrefix := res.FromString(path); hadPrefix {
@@ -215,6 +231,8 @@ type DatastoreIsoPath struct {
 	path string
 }
 
+// Validate checks if the path matches the expected datastore ISO path format.
+// Returns true if valid, otherwise false.
 func (d *DatastoreIsoPath) Validate() bool {
 	// Matches:
 	// [datastore] /dir/subdir/file
@@ -226,11 +244,12 @@ func (d *DatastoreIsoPath) Validate() bool {
 	return matched
 }
 
+// GetFilePath removes the datastore name from the path and returns the trimmed
+// file path portion of the datastore ISO path.
 func (d *DatastoreIsoPath) GetFilePath() string {
 	filePath := d.path
 	parts := strings.Split(d.path, "]")
 	if len(parts) > 1 {
-		// removes datastore name from path
 		filePath = parts[1]
 		filePath = strings.TrimSpace(filePath)
 	}

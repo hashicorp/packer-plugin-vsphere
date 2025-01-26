@@ -17,6 +17,8 @@ type Library struct {
 	library *library.Library
 }
 
+// FindContentLibraryByName retrieves a content library by its name. Returns a
+// Library object or an error if the library is not found.
 func (d *VCenterDriver) FindContentLibraryByName(name string) (*Library, error) {
 	lm := library.NewManager(d.restClient.client)
 	l, err := lm.GetLibraryByName(d.ctx, name)
@@ -29,6 +31,9 @@ func (d *VCenterDriver) FindContentLibraryByName(name string) (*Library, error) 
 	}, nil
 }
 
+// FindContentLibraryItem retrieves a content library item by its name within
+// the specified library ID.  Returns the library item if found or an error if
+// the item is not found or the retrieval process fails.
 func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*library.Item, error) {
 	lm := library.NewManager(d.restClient.client)
 	items, err := lm.GetLibraryItems(d.ctx, libraryId)
@@ -43,6 +48,10 @@ func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*
 	return nil, fmt.Errorf("content library item %s not found", name)
 }
 
+// FindContentLibraryItemUUID retrieves the UUID of a content library item
+//
+//	based on the given library ID and item name. Returns the UUID if found or
+//	an error if the item is not found or the retrieval process fails.
 func (d *VCenterDriver) FindContentLibraryItemUUID(libraryId string, name string) (string, error) {
 	item, err := d.FindContentLibraryItem(libraryId, name)
 	if err != nil {
@@ -51,6 +60,10 @@ func (d *VCenterDriver) FindContentLibraryItemUUID(libraryId string, name string
 	return item.ID, nil
 }
 
+// FindContentLibraryFileDatastorePath checks if the provided ISO path belongs
+// to a content library and retrieves its datastore path. Returns the datastore
+// path if the ISO path is a content library path or an error if the path is
+// not identified as a content library path or if the retrieval process fails.
 func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
 	log.Printf("Check if ISO path is a Content Library path")
 	err := d.restClient.Login(d.ctx)
@@ -98,6 +111,8 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 	return path.Join(libItemDir, isoFilePath), nil
 }
 
+// UpdateContentLibraryItem updates the metadata of a content library item,
+// such as its name and description. Returns an error if the update fails.
 func (d *VCenterDriver) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
 	lm := library.NewManager(d.restClient.client)
 	item.Patch(&library.Item{
@@ -112,6 +127,8 @@ type LibraryFilePath struct {
 	path string
 }
 
+// Validate checks the format of the LibraryFilePath and returns an error if
+// the path is not in the expected format.
 func (l *LibraryFilePath) Validate() error {
 	l.path = strings.TrimLeft(l.path, "/")
 	parts := strings.Split(l.path, "/")
@@ -121,14 +138,17 @@ func (l *LibraryFilePath) Validate() error {
 	return nil
 }
 
+// GetLibraryName retrieves the library name from the content library file path.
 func (l *LibraryFilePath) GetLibraryName() string {
 	return strings.Split(l.path, "/")[0]
 }
 
+// GetLibraryItemName retrieves the library item name from the content library file path.
 func (l *LibraryFilePath) GetLibraryItemName() string {
 	return strings.Split(l.path, "/")[1]
 }
 
+// GetFileName retrieves the file name from the content library file path.
 func (l *LibraryFilePath) GetFileName() string {
 	return strings.Split(l.path, "/")[2]
 }

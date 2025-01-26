@@ -10,6 +10,9 @@ type Cluster struct {
 	cluster *object.ClusterComputeResource
 }
 
+// FindCluster locates a cluster within the vCenter environment by its name.
+// Returns a Cluster object or an error if not found or if the retrieval
+// process fails.
 func (d *VCenterDriver) FindCluster(name string) (*Cluster, error) {
 	c, err := d.finder.ClusterComputeResource(d.ctx, name)
 	if err != nil {

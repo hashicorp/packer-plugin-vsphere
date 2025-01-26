@@ -16,6 +16,8 @@ type Network struct {
 	network object.NetworkReference
 }
 
+// NewNetwork creates and initializes a new Network object using the provided
+// ManagedObjectReference.
 func (d *VCenterDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
 	return &Network{
 		network: object.NewNetwork(d.client.Client, *ref),
@@ -23,6 +25,8 @@ func (d *VCenterDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
 	}
 }
 
+// FindNetwork locates a network by its name within the vCenter context.
+// Returns a Network object or an error if the network is not found.
 func (d *VCenterDriver) FindNetwork(name string) (*Network, error) {
 	n, err := d.finder.Network(d.ctx, name)
 	if err != nil {
@@ -34,6 +38,8 @@ func (d *VCenterDriver) FindNetwork(name string) (*Network, error) {
 	}, nil
 }
 
+// FindNetworks retrieves a list of networks in the vCenter matching the
+// provided name and returns them as Network objects.
 func (d *VCenterDriver) FindNetworks(name string) ([]*Network, error) {
 	ns, err := d.finder.NetworkList(d.ctx, name)
 	if err != nil {
@@ -49,6 +55,9 @@ func (d *VCenterDriver) FindNetworks(name string) ([]*Network, error) {
 	return networks, nil
 }
 
+// Info retrieves the properties of the network object with optional filters
+// specified as parameters. If no parameters are provided, all properties are
+// returned.
 func (n *Network) Info(params ...string) (*mo.Network, error) {
 	var p []string
 	if len(params) == 0 {
@@ -75,6 +84,7 @@ type MultipleNetworkFoundError struct {
 	append string
 }
 
+// Error returns a formatted error message for the MultipleNetworkFoundError.
 func (e *MultipleNetworkFoundError) Error() string {
 	return fmt.Sprintf("'%s' resolves to more than one network name; %s", e.path, e.append)
 }

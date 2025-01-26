@@ -16,6 +16,9 @@ type KeyInput struct {
 	Shift    bool
 }
 
+// TypeOnKeyboard sends a sequence of USB scan code events to simulate keyboard
+// typing on a virtual machine. The input parameter specifies the USB HID
+// scancode and key modifiers like Ctrl, Alt, and Shift.
 func (vm *VirtualMachineDriver) TypeOnKeyboard(input KeyInput) (int32, error) {
 	var spec types.UsbScanCodeSpec
 

@@ -26,9 +26,12 @@ func (d *VCenterDriver) NewFolder(ref *types.ManagedObjectReference) *Folder {
 	}
 }
 
+// FindFolder locates or creates a folder structure within a datastore based
+// on the provided folder name. Returns a pointer to the Folder object or an
+// error if the operation fails.
 func (d *VCenterDriver) FindFolder(name string) (*Folder, error) {
 	if name != "" {
-		// create folders if they don't exist
+		// If the folder does not exist, create it.
 		parent := ""
 		parentFolder, err := d.finder.Folder(d.ctx, path.Join(d.datacenter.InventoryPath, "vm"))
 		if err != nil {
@@ -59,6 +62,8 @@ func (d *VCenterDriver) FindFolder(name string) (*Folder, error) {
 	}, nil
 }
 
+// Info retrieves properties of the folder object with optional filters specified
+// as parameters. If no parameters are provided, all properties are returned.
 func (f *Folder) Info(params ...string) (*mo.Folder, error) {
 	var p []string
 	if len(params) == 0 {
@@ -74,6 +79,8 @@ func (f *Folder) Info(params ...string) (*mo.Folder, error) {
 	return &info, nil
 }
 
+// Path constructs and returns the full hierarchical path of the folder,
+// starting from the datacenter level or an error.
 func (f *Folder) Path() (string, error) {
 	info, err := f.Info("name", "parent")
 	if err != nil {
