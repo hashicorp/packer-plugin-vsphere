@@ -22,10 +22,12 @@ type StorageConfig struct {
 	Storage            []Disk
 }
 
+// AddStorageDevices adds virtual storage devices to an existing device list
+// based on the configuration. Adds a new controller for each controller type
+// specified in the configuration and adds virtual disks to the controller.
 func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	newDevices := object.VirtualDeviceList{}
 
-	// Create new controller based on existing devices list and add it to the new devices list.
 	var controllers []types.BaseVirtualController
 	for _, controllerType := range c.DiskControllerType {
 		var device types.BaseVirtualDevice
@@ -71,7 +73,8 @@ func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceLi
 	return newDevices.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
 }
 
-// Returns the first virtual disk found in the devices list.
+// findDisk scans a list of virtual devices and retrieves a single virtual disk
+// if exactly one is found.  Returns an error if no disk or multiple disks are found.
 // TODO: Add support for multiple disks.
 func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 	var disks []*types.VirtualDisk
@@ -90,6 +93,6 @@ func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 		// Single disk found.
 		return disks[0], nil
 	}
-	// More than one disk found.
+	// Multiple disks found.
 	return nil, errors.New("more than one virtual disk found, only a single disk is allowed")
 }

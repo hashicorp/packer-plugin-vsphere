@@ -18,6 +18,8 @@ type ResourcePool struct {
 	driver *VCenterDriver
 }
 
+// NewResourcePool creates and returns a new ResourcePool object using the
+// provided ManagedObjectReference.
 func (d *VCenterDriver) NewResourcePool(ref *types.ManagedObjectReference) *ResourcePool {
 	return &ResourcePool{
 		pool:   object.NewResourcePool(d.client.Client, *ref),
@@ -25,6 +27,10 @@ func (d *VCenterDriver) NewResourcePool(ref *types.ManagedObjectReference) *Reso
 	}
 }
 
+// FindResourcePool locates a resource pool by its name within a specified
+// cluster or host context in vCenter. It falls back to the default resource
+// pool or a vApp if the specified pool is not found. Returns a ResourcePool
+// object or an error if neither the specified nor default pool is accessible.
 func (d *VCenterDriver) FindResourcePool(cluster string, host string, name string) (*ResourcePool, error) {
 	var res string
 	if cluster != "" {
@@ -39,7 +45,6 @@ func (d *VCenterDriver) FindResourcePool(cluster string, host string, name strin
 		log.Printf("[WARN] %s not found. Looking for default resource pool.", resourcePath)
 		dp, dperr := d.finder.DefaultResourcePool(d.ctx)
 		if _, ok := dperr.(*find.NotFoundError); ok {
-			// VirtualApp extends ResourcePool, so it should support VirtualApp types.
 			vapp, verr := d.finder.VirtualApp(d.ctx, name)
 			if verr != nil {
 				return nil, err
@@ -57,6 +62,9 @@ func (d *VCenterDriver) FindResourcePool(cluster string, host string, name strin
 	}, nil
 }
 
+// Info retrieves the properties of the ResourcePool object with optional
+// filters specified as parameters. If no parameters are provided, all
+// properties are returned.
 func (p *ResourcePool) Info(params ...string) (*mo.ResourcePool, error) {
 	var params2 []string
 	if len(params) == 0 {
@@ -72,6 +80,9 @@ func (p *ResourcePool) Info(params ...string) (*mo.ResourcePool, error) {
 	return &info, nil
 }
 
+// Path returns the full hierarchical path of the ResourcePool or an empty
+// string if it's a top-level entity. It recursively resolves the parent's
+// path until reaching the root or a top-level parent.
 func (p *ResourcePool) Path() (string, error) {
 	poolInfo, err := p.Info("name", "parent")
 	if err != nil {

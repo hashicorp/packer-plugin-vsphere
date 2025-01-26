@@ -134,10 +134,7 @@ func (d *VCenterDriver) Cleanup() (error, error) {
 	return d.restClient.client.Logout(d.ctx), d.client.SessionManager.Logout(d.ctx)
 }
 
-// The rest.Client requires vCenter.
-// RestClient is to modularize the rest.Client session and use it only when is necessary.
-// This will allow users without vCenter Server to use the other features that do not use the rest.Client.
-// To use the client login/logout must be done to create an authenticated session.
+// RestClient manages RESTful interactions with vCenter, handling client initialization and credential storage.
 type RestClient struct {
 	client      *rest.Client
 	credentials *url.Userinfo

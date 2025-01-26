@@ -14,6 +14,8 @@ type Host struct {
 	host   *object.HostSystem
 }
 
+// NewHost creates and initializes a new Host object using a
+// ManagedObjectReference and the VCenterDriver instance.
 func (d *VCenterDriver) NewHost(ref *types.ManagedObjectReference) *Host {
 	return &Host{
 		host:   object.NewHostSystem(d.client.Client, *ref),
@@ -21,6 +23,8 @@ func (d *VCenterDriver) NewHost(ref *types.ManagedObjectReference) *Host {
 	}
 }
 
+// FindHost locates a host within the vCenter environment by its name. Returns
+// a Host object or an error if not found or if the retrieval process fails.
 func (d *VCenterDriver) FindHost(name string) (*Host, error) {
 	h, err := d.finder.HostSystem(d.ctx, name)
 	if err != nil {
@@ -32,6 +36,8 @@ func (d *VCenterDriver) FindHost(name string) (*Host, error) {
 	}, nil
 }
 
+// Info retrieves properties of the host object with optional filters specified
+// as parameters. If no parameters are provided, all properties are returned.
 func (h *Host) Info(params ...string) (*mo.HostSystem, error) {
 	var p []string
 	if len(params) == 0 {

@@ -14,11 +14,16 @@ var (
 	ErrNoSataController = errors.New("no available SATA controller")
 )
 
+// AddSATAController adds a new SATA controller to the virtual machine configuration.
+// Returns an error if the operation fails.
 func (vm *VirtualMachineDriver) AddSATAController() error {
 	sata := &types.VirtualAHCIController{}
 	return vm.addDevice(sata)
 }
 
+// FindSATAController searches and returns the first available SATA controller
+// for the virtual machine. Returns an error if no SATA controller is found or
+// if there is an issue obtaining the devices.
 func (vm *VirtualMachineDriver) FindSATAController() (*types.VirtualAHCIController, error) {
 	l, err := vm.Devices()
 	if err != nil {
@@ -33,6 +38,11 @@ func (vm *VirtualMachineDriver) FindSATAController() (*types.VirtualAHCIControll
 	return c.(*types.VirtualAHCIController), nil
 }
 
+// CreateCdrom creates a new virtual CD-ROM device and attaches it to the
+// specified virtual controller. It initializes the CD-ROM with default
+// connectable settings, allowing guest control and automatic connection.
+// Returns the created VirtualCdrom object or an error if the devices cannot
+// be retrieved or assigned.
 func (vm *VirtualMachineDriver) CreateCdrom(c *types.VirtualController) (*types.VirtualCdrom, error) {
 	l, err := vm.Devices()
 	if err != nil {
@@ -56,6 +66,8 @@ func (vm *VirtualMachineDriver) CreateCdrom(c *types.VirtualController) (*types.
 	return device, nil
 }
 
+// RemoveCdroms removes all virtual CD-ROM drives and associated SATA
+// controllers from the virtual machine configuration.
 func (vm *VirtualMachineDriver) RemoveCdroms() error {
 	devices, err := vm.Devices()
 	if err != nil {
@@ -96,6 +108,8 @@ func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
 	return nil
 }
 
+// EjectCdroms removes all attached CD-ROM devices from the virtual machine by
+// resetting their backing and connection information.
 func (vm *VirtualMachineDriver) EjectCdroms() error {
 	cdroms, err := vm.CdromDevices()
 	if err != nil {
