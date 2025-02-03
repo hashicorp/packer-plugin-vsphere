@@ -1,28 +1,78 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-# "timestamp" template function replacement
-locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
-
-# source blocks are analogous to the "builders" in json templates. They are used
-# in build blocks. A build block runs provisioners and post-processors on a
-# source. Read the documentation for source blocks here:
-# https://www.packer.io/docs/templates/hcl_templates/blocks/source
-source "vsphere-clone" "example_clone" {
-  communicator        = "none"
-  host                = "esxi-01.example.com"
-  insecure_connection = "true"
-  password            = "VMw@re1!"
-  template            = "alpine"
-  username            = "administrator@vsphere.local"
-  vcenter_server      = "vcenter.example.com"
-  vm_name             = "alpine-clone-${local.timestamp}"
+packer {
+  required_plugins {
+    vsphere = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/vsphere"
+    }
+  }
 }
 
-# a build block invokes sources and runs provisioning steps on them. The
-# documentation for build blocks can be found here:
-# https://www.packer.io/docs/templates/hcl_templates/blocks/build
+variable "vm_name_prefix" {
+  type        = string
+  default     = "alpine"
+  description = "Prefix for naming the virtual machine."
+}
+
+variable "guest_os_type" {
+  type        = string
+  default     = "other5xLinux64Guest"
+  description = "The type of guest OS to configure for the virtual machine."
+}
+
+variable "username" {
+  type        = string
+  default     = "administrator@vsphere.local"
+  sensitive   = true
+  description = "The username for authenticating with the vCenter instance."
+}
+
+variable "password" {
+  type        = string
+  default     = "VMw@re1!"
+  sensitive   = true
+  description = "The password for authenticating with the vCenter instance."
+}
+
+variable "vcenter_server" {
+  type        = string
+  default     = "vcenter.example.com"
+  description = "The vCenter instance used for managing the ESX host."
+}
+
+variable "host" {
+  type        = string
+  default     = "esx-01.example.com"
+  description = "The ESX host where the virtual machine will be built."
+}
+
+variable "insecure_connection" {
+  type        = bool
+  default     = true
+  description = "Set to true to allow insecure connections to the vCenter instance."
+}
+
+variable "communicator"
+  type        = string
+  default     = "none"
+}
+
+locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
+
+source "vsphere-clone" "example" {
+  communicator        = var.communicator
+  username            = var.username
+  password            = var.password
+  vcenter_server      = var.vcenter_server
+  host                = var.host
+  insecure_connection = var.insecure_connection
+  vm_name             = "${var.vm_name_prefix}-${local.timestamp}"
+  template            = var.vm_name_prefix
+}
+
 build {
-  sources = ["source.vsphere-clone.example_clone"]
+  sources = ["source.vsphere-clone.example"]
 
 }
