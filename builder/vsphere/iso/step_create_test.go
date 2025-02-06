@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
+// TestCreateConfig_Prepare tests the Prepare method of CreateConfig for various configurations and ensures validations.
 func TestCreateConfig_Prepare(t *testing.T) {
 	// Empty config - check defaults
 	config := &CreateConfig{
@@ -198,6 +199,8 @@ func TestCreateConfig_Prepare(t *testing.T) {
 	}
 }
 
+// TestStepCreateVM_Run tests the Run method in the StepCreateVM structure, verifying correct state updates, method call
+// sequences, and configuration integrity for virtual machine creation.
 func TestStepCreateVM_Run(t *testing.T) {
 	state := basicStateBag()
 	driverMock := driver.NewDriverMock()
@@ -236,6 +239,7 @@ func TestStepCreateVM_Run(t *testing.T) {
 	}
 }
 
+// TestStepCreateVM_RunHalt tests the Run method of StepCreateVM to verify it halts execution when prerequisites fail.
 func TestStepCreateVM_RunHalt(t *testing.T) {
 	state := basicStateBag()
 	step := basicStepCreateVM()
@@ -269,6 +273,7 @@ func TestStepCreateVM_RunHalt(t *testing.T) {
 	}
 }
 
+// TestStepCreateVM_Cleanup tests the Cleanup method of the StepCreateVM to ensure resources are destroyed.
 func TestStepCreateVM_Cleanup(t *testing.T) {
 	state := basicStateBag()
 	step := basicStepCreateVM()
@@ -338,6 +343,7 @@ func TestStepCreateVM_Cleanup(t *testing.T) {
 	}
 }
 
+// basicStepCreateVM initializes and returns a new StepCreateVM with a default configuration and location setup.
 func basicStepCreateVM() *StepCreateVM {
 	step := &StepCreateVM{
 		Config:   createConfig(),
@@ -346,6 +352,7 @@ func basicStepCreateVM() *StepCreateVM {
 	return step
 }
 
+// basicLocationConfig initializes and returns a default LocationConfig with predefined test values for virtual machine.
 func basicLocationConfig() *common.LocationConfig {
 	return &common.LocationConfig{
 		VMName:       "test-vm",
@@ -357,6 +364,7 @@ func basicLocationConfig() *common.LocationConfig {
 	}
 }
 
+// createConfig initializes and returns a configured instance of CreateConfig with predefined default values.
 func createConfig() *CreateConfig {
 	return &CreateConfig{
 		Version:     1,
@@ -379,6 +387,8 @@ func createConfig() *CreateConfig {
 	}
 }
 
+// driverCreateConfig converts CreateConfig and LocationConfig into driver.CreateConfig for virtual machine creation.
+// It maps network interfaces, disks, and other configuration details to the required driver.CreateConfig structure.
 func driverCreateConfig(config *CreateConfig, location *common.LocationConfig) *driver.CreateConfig {
 	var networkCards []driver.NIC
 	for _, nic := range config.NICs {

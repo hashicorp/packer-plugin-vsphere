@@ -15,6 +15,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+// TestAccISOBuilderAcc_default acceptance test validates a default configuration.
 func TestAccISOBuilderAcc_default(t *testing.T) {
 	config := defaultConfig()
 	testCase := &acctest.PluginTestCase{
@@ -39,6 +40,7 @@ func TestAccISOBuilderAcc_default(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// defaultConfig initializes and returns a default configuration map for a vSphere environment.
 func defaultConfig() map[string]interface{} {
 	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
 	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
@@ -66,6 +68,7 @@ func defaultConfig() map[string]interface{} {
 	return config
 }
 
+// checkDefault verifies the configuration of a virtual machine by comparing its properties against expected values.
 func checkDefault(name string, host string, datastore string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -129,6 +132,7 @@ func checkDefault(name string, host string, datastore string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_notes acceptance test validates a note configuration.
 func TestAccISOBuilderAcc_notes(t *testing.T) {
 	config := defaultConfig()
 	config["notes"] = "test"
@@ -155,6 +159,7 @@ func TestAccISOBuilderAcc_notes(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkNotes verifies a virtual machine has the "config.annotation" field set.
 func checkNotes(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -177,6 +182,7 @@ func checkNotes(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_hardware acceptance test validates a hardware configuration.
 func TestAccISOBuilderAcc_hardware(t *testing.T) {
 	config := defaultConfig()
 	config["CPUs"] = 2
@@ -211,6 +217,7 @@ func TestAccISOBuilderAcc_hardware(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkHardware verifies a virtual machine hardware configuration.
 func checkHardware(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -289,6 +296,7 @@ func checkHardware(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_limit acceptance test validates an unlimited CPU allocation.
 func TestAccISOBuilderAcc_limit(t *testing.T) {
 	config := defaultConfig()
 	config["CPUs"] = 1 // hardware is customized, but CPU limit is not specified explicitly
@@ -315,6 +323,7 @@ func TestAccISOBuilderAcc_limit(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkLimit verifies a virtual machine unlimited CPU allocation limit.
 func checkLimit(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -337,6 +346,7 @@ func checkLimit(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_sata acceptance test validates a SATA CD-ROM type.
 func TestAccISOBuilderAcc_sata(t *testing.T) {
 	config := defaultConfig()
 	config["cdrom_type"] = "sata"
@@ -363,6 +373,7 @@ func TestAccISOBuilderAcc_sata(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkSata verifies a virtual machine SATA controller configuration.
 func checkSata(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -386,6 +397,7 @@ func checkSata(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_cdrom acceptance test validates a CD-ROM boot media.
 func TestAccISOBuilderAcc_cdrom(t *testing.T) {
 	config := defaultConfig()
 	config["iso_paths"] = []string{
@@ -414,6 +426,7 @@ func TestAccISOBuilderAcc_cdrom(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// TestAccISOBuilderAcc_networkCard acceptance test validates a network card configuration.
 func TestAccISOBuilderAcc_networkCard(t *testing.T) {
 	config := defaultConfig()
 	config["network_adapters"] = map[string]interface{}{
@@ -441,6 +454,7 @@ func TestAccISOBuilderAcc_networkCard(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkNetworkCard verifies a virtual machine network card configuration.
 func checkNetworkCard(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -469,6 +483,7 @@ func checkNetworkCard(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_createFloppy acceptance test validates a floppy file creation.
 func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
 	tmpFile, err := os.CreateTemp("", "packer-vsphere-iso-test")
 	if err != nil {
@@ -506,6 +521,7 @@ func TestAccISOBuilderAcc_createFloppy(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// TestAccISOBuilderAcc_full acceptance test validates the end-to-end functionality of builder.
 func TestAccISOBuilderAcc_full(t *testing.T) {
 	config := fullConfig()
 	testCase := &acctest.PluginTestCase{
@@ -530,6 +546,7 @@ func TestAccISOBuilderAcc_full(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// fullConfig constructs and returns a full configuration map for setting up a virtual machine with default settings.
 func fullConfig() map[string]interface{} {
 	vcenter := utils.GetenvOrDefault(utils.EnvVcenterServer, utils.DefaultVcenterServer)
 	username := utils.GetenvOrDefault(utils.EnvVsphereUsername, utils.DefaultVsphereUsername)
@@ -592,6 +609,7 @@ func fullConfig() map[string]interface{} {
 	return config
 }
 
+// checkFull verifies a virtual machine full configuration.
 func checkFull(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -626,6 +644,7 @@ func checkFull(name string) error {
 	return nil
 }
 
+// TestAccISOBuilderAcc_bootOrder acceptance test validates a boot order configuration.
 func TestAccISOBuilderAcc_bootOrder(t *testing.T) {
 	config := fullConfig()
 	config["boot_order"] = "disk,cdrom,floppy"
@@ -652,6 +671,7 @@ func TestAccISOBuilderAcc_bootOrder(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// checkBootOrder verifies a virtual machine boot order configuration.
 func checkBootOrder(name string) error {
 	d, err := commonT.TestConn()
 	if err != nil {
@@ -675,6 +695,7 @@ func checkBootOrder(name string) error {
 	return nil
 }
 
+// TestISOBuilderAcc_cluster acceptance test validates using a vSphere cluster and host configuration.
 func TestISOBuilderAcc_cluster(t *testing.T) {
 	config := defaultConfig()
 	config["cluster"] = "cluster1"
@@ -701,6 +722,7 @@ func TestISOBuilderAcc_cluster(t *testing.T) {
 	acctest.TestPlugin(t, testCase)
 }
 
+// TestISOBuilderAcc_clusterDRS acceptance test validates using a vSphere cluster with DRS enabled.
 func TestISOBuilderAcc_clusterDRS(t *testing.T) {
 	config := defaultConfig()
 	config["cluster"] = "cluster2"
