@@ -80,6 +80,8 @@ type Config struct {
 	ctx interpolate.Context
 }
 
+// Prepare processes and validates the configuration for building and exporting.
+// It returns a list of warnings and an error if validation fails.
 func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	err := config.Decode(c, &config.DecodeOpts{
 		PluginType:         common.BuilderId,
