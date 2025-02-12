@@ -10,6 +10,7 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 )
 
+// basicStateBag initializes and returns a new instance of multistep.BasicStateBag with default UI configuration.
 func basicStateBag() *multistep.BasicStateBag {
 	state := new(multistep.BasicStateBag)
 	state.Put("ui", &packersdk.BasicUi{

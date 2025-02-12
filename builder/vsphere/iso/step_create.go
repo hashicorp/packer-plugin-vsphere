@@ -173,6 +173,8 @@ type StepCreateVM struct {
 	GeneratedData *packerbuilderdata.GeneratedData
 }
 
+// Run executes the step to create a virtual machine using the provided configuration and updates the state with the
+// result.
 func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	d := state.Get("driver").(driver.Driver)
@@ -239,6 +241,8 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 	return multistep.ActionContinue
 }
 
+// Cleanup removes resources associated with the virtual machine based on the current state, including handling
+// cancellations and errors.
 func (s *StepCreateVM) Cleanup(state multistep.StateBag) {
 	common.CleanupVM(state)
 }
