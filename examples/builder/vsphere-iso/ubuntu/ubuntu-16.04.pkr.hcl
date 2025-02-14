@@ -6,22 +6,22 @@
 # source. Read the documentation for source blocks here:
 # https://www.packer.io/docs/templates/hcl_templates/blocks/source
 source "vsphere-iso" "example" {
-  CPUs                 = 1
-  RAM                  = 1024
-  RAM_reserve_all      = true
-  boot_command         = ["<enter><wait><f6><wait><esc><wait>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-                          "<bs><bs><bs>", "/install/vmlinuz",
-                          " initrd=/install/initrd.gz", " priority=critical",
-                          " locale=en_US", " file=/media/preseed.cfg",
-                          "<enter>"]
+  CPUs            = 1
+  RAM             = 1024
+  RAM_reserve_all = true
+  boot_command = ["<enter><wait><f6><wait><esc><wait>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+    "<bs><bs><bs>", "/install/vmlinuz",
+    " initrd=/install/initrd.gz", " priority=critical",
+    " locale=en_US", " file=/media/preseed.cfg",
+  "<enter>"]
   disk_controller_type = ["pvscsi"]
   floppy_files         = ["${path.root}/preseed.cfg"]
   guest_os_type        = "ubuntu64Guest"
