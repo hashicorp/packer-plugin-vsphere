@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	vmopv1alpha1 "github.com/vmware-tanzu/vm-operator/api/v1alpha1"
+	vmopv1 "github.com/vmware-tanzu/vm-operator/api/v1alpha3"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -123,7 +123,7 @@ func TestStepPublishSource_Run(t *testing.T) {
 			"Creating a VirtualMachinePublishRequest object",
 			"Successfully created the VirtualMachinePublishRequest object",
 			"Waiting for the VM publish request to complete...",
-			"Successfully published the VM to image \"test-image-name\"",
+			"Successfully published the VM to an OVF image \"test-image-name\"",
 			"Finished publishing the source VM",
 		}
 		checkOutputLines(t, testWriter, expectedOutput)
@@ -131,12 +131,9 @@ func TestStepPublishSource_Run(t *testing.T) {
 
 	// Wait for the watch to be established from Builder before updating the fake VirtualMachinePublishRequest resource below.
 	for i := 0; i < step.Config.WatchPublishTimeoutSec; i++ {
-		supervisor.Mu.Lock()
-		if supervisor.IsWatchingVMPublish {
-			supervisor.Mu.Unlock()
+		if supervisor.IsWatchingVMPublish.Load() {
 			break
 		}
-		supervisor.Mu.Unlock()
 		time.Sleep(time.Second)
 	}
 
@@ -170,7 +167,7 @@ func TestStepPublishSource_Cleanup(t *testing.T) {
 	step.KeepInputArtifact = false
 	step.SourceName = "test-source"
 	step.Namespace = "test-namespace"
-	vmPubReq := &vmopv1alpha1.VirtualMachinePublishRequest{
+	vmPubReq := &vmopv1.VirtualMachinePublishRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-source",
 			Namespace: "test-namespace",
@@ -188,7 +185,7 @@ func TestStepPublishSource_Cleanup(t *testing.T) {
 		Name:      "test-source",
 		Namespace: "test-namespace",
 	}
-	if err := fakeClient.Get(ctx, objKey, &vmopv1alpha1.VirtualMachinePublishRequest{}); !errors.IsNotFound(err) {
+	if err := fakeClient.Get(ctx, objKey, &vmopv1.VirtualMachinePublishRequest{}); !errors.IsNotFound(err) {
 		t.Fatal("expected VirtualMachinePublishRequest object to be deleted")
 	}
 
@@ -200,15 +197,15 @@ func TestStepPublishSource_Cleanup(t *testing.T) {
 	checkOutputLines(t, testWriter, expectedOutput)
 }
 
-func newFakeVMPubReqObj(ns, name, publishLocation string) *vmopv1alpha1.VirtualMachinePublishRequest {
-	return &vmopv1alpha1.VirtualMachinePublishRequest{
+func newFakeVMPubReqObj(ns, name, publishLocation string) *vmopv1.VirtualMachinePublishRequest {
+	return &vmopv1.VirtualMachinePublishRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: ns,
 			Name:      name,
 		},
-		Spec: vmopv1alpha1.VirtualMachinePublishRequestSpec{
-			Target: vmopv1alpha1.VirtualMachinePublishRequestTarget{
-				Location: vmopv1alpha1.VirtualMachinePublishRequestTargetLocation{
+		Spec: vmopv1.VirtualMachinePublishRequestSpec{
+			Target: vmopv1.VirtualMachinePublishRequestTarget{
+				Location: vmopv1.VirtualMachinePublishRequestTargetLocation{
 					Name: publishLocation,
 				},
 			},
