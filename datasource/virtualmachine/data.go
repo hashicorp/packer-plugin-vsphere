@@ -135,36 +135,15 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	// This is the first level of filters
 	// (the finder with glob will return filtered list or drop an error if found nothing).
-	filteredVms, err := dr.Finder.VirtualMachineList(dr.Ctx, d.config.Name)
+	vmList, err := dr.Finder.VirtualMachineList(dr.Ctx, d.config.Name)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to retrieve virtual machines list: %w", err)
 	}
 
-	// Chain of other filters that will be executed only when defined
-	// and previous filter in chain left some virtual machines in the list.
-	if d.config.NameRegex != "" {
-		filteredVms = filterByNameRegex(filteredVms, d.config.NameRegex)
-	}
-
-	if len(filteredVms) > 0 && d.config.Template {
-		filteredVms, err = filterByTemplate(dr, filteredVms)
-		if err != nil {
-			return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to filter by template attribute: %w", err)
-		}
-	}
-
-	if len(filteredVms) > 0 && d.config.Host != "" {
-		filteredVms, err = filterByHost(dr, d.config, filteredVms)
-		if err != nil {
-			return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to filter by host attribute: %w", err)
-		}
-	}
-
-	if len(filteredVms) > 0 && d.config.Tags != nil {
-		filteredVms, err = filterByTags(dr, d.config.Tags, filteredVms)
-		if err != nil {
-			return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to filter by tags: %w", err)
-		}
+	// Chain of other filters that will be executed only when defined.
+	filteredVms, err := filterVms(vmList, d.config, dr)
+	if err != nil {
+		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to filter virtual machines: %w", err)
 	}
 
 	// No VMs passed the filter chain. Nothing to return.
@@ -174,7 +153,7 @@ func (d *Datasource) Execute() (cty.Value, error) {
 
 	if len(filteredVms) > 1 {
 		if d.config.Latest {
-			filteredVms, err = filterByLatest(dr, filteredVms)
+			filteredVms, err = findLatestVM(dr, filteredVms)
 			if err != nil {
 				return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to find the latest virtual machine: %w", err)
 			}
