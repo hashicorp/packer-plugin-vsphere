@@ -26,8 +26,8 @@ func TestArtifactHCPPackerMetadata(t *testing.T) {
 	if err := vm.Reconfigure(confSpec); err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
-	datastore := simulator.Map.Get(vmSim.Datastore[0]).(*simulator.Datastore)
-	host := simulator.Map.Get(*vmSim.Runtime.Host).(*simulator.HostSystem)
+	datastore := sim.model.Service.Context.Map.Any("Datastore").(*simulator.Datastore)
+	host := sim.model.Service.Context.Map.Get(*vmSim.Runtime.Host).(*simulator.HostSystem)
 
 	expectedLabels := map[string]string{
 		"annotation":                  vmSim.Config.Annotation,

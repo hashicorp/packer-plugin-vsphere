@@ -63,7 +63,7 @@ func (s *VCenterSimulator) Close() {
 
 // ChooseSimulatorPreCreatedVM is a shortcut to choose any pre created VM.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (driver.VirtualMachine, *simulator.VirtualMachine) {
-	machine := simulator.Map.Any("VirtualMachine").(*simulator.VirtualMachine)
+	machine := s.model.Map().Any("VirtualMachine").(*simulator.VirtualMachine)
 	ref := machine.Reference()
 	vm := s.driver.NewVM(&ref)
 	return vm, machine
