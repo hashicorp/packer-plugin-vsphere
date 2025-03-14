@@ -29,7 +29,7 @@ func TestGetVMMetadata(t *testing.T) {
 	if err := vm.Reconfigure(confSpec); err != nil {
 		t.Fatalf("unexpected error: '%s'", err)
 	}
-	datastore := simulator.Map.Get(vmSim.Datastore[0]).(*simulator.Datastore)
+	datastore := sim.model.Service.Context.Map.Any("Datastore").(*simulator.Datastore)
 
 	metadata := GetVMMetadata(vm.(*driver.VirtualMachineDriver), state)
 	// Validate Labels

@@ -2,8 +2,6 @@ module github.com/hashicorp/packer-plugin-vsphere
 
 go 1.23.0
 
-toolchain go1.24.1
-
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0

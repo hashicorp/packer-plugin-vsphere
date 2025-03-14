@@ -88,7 +88,7 @@ func (s *VCenterSimulator) Close() {
 
 // Simulator shortcut to choose any pre-created virtual machine.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simulator.VirtualMachine) {
-	machine := simulator.Map.Any("VirtualMachine").(*simulator.VirtualMachine)
+	machine := s.model.Map().Any("VirtualMachine").(*simulator.VirtualMachine)
 	ref := machine.Reference()
 	vm := s.driver.NewVM(&ref)
 	return vm, machine
@@ -96,7 +96,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedVM() (VirtualMachine, *simul
 
 // Simulator shortcut to choose any pre-created datastore.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *simulator.Datastore) {
-	ds := simulator.Map.Any("Datastore").(*simulator.Datastore)
+	ds := s.model.Map().Any("Datastore").(*simulator.Datastore)
 	ref := ds.Reference()
 	datastore := s.driver.NewDatastore(&ref)
 	return datastore, ds
@@ -104,7 +104,7 @@ func (s *VCenterSimulator) ChooseSimulatorPreCreatedDatastore() (Datastore, *sim
 
 // Simulator shortcut to choose any pre-created EXSi host.
 func (s *VCenterSimulator) ChooseSimulatorPreCreatedHost() (*Host, *simulator.HostSystem) {
-	h := simulator.Map.Any("HostSystem").(*simulator.HostSystem)
+	h := s.model.Map().Any("HostSystem").(*simulator.HostSystem)
 	ref := h.Reference()
 	host := s.driver.NewHost(&ref)
 	return host, h
