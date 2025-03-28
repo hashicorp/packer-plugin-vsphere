@@ -1,16 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-#
-# This GitHub action runs basic linting checks for Packer.
-#
-
-name: "Go Validate"
+name: Go Validate
 
 on:
   push:
     branches:
-      - 'main'
+      - main
   pull_request:
 
 permissions:
@@ -18,52 +14,67 @@ permissions:
 
 jobs:
   get-go-version:
+    name: Check Go Version
     runs-on: ubuntu-latest
     outputs:
       go-version: ${{ steps.get-go-version.outputs.go-version }}
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      - name: 'Determine Go version'
+      - name: Checkout Repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Check Go Version
         id: get-go-version
         run: |
-          echo "Found Go $(cat .go-version)"
+          echo "Go $(cat .go-version)"
           echo "go-version=$(cat .go-version)" >> $GITHUB_OUTPUT
   check-mod-tidy:
+    name: Check Module Packages
     needs:
       - get-go-version
     runs-on: ubuntu-latest
-    name: Go Mod Tidy
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      - name: Checkout Repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Setup Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: ${{ needs.get-go-version.outputs.go-version }}
-      - run: go mod tidy
+      - name: Check Module Packages
+        run: go mod tidy
   check-lint:
+    name: Run Linters
     needs:
       - get-go-version
     runs-on: ubuntu-latest
-    name: Lint check
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      - name: Checkout Repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Setup Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: ${{ needs.get-go-version.outputs.go-version }}
-      - uses: golangci/golangci-lint-action@82d40c283aeb1f2b6595839195e95c2d6a49081b # v5.0.0
+      - name: Run Linters
+        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
+        # Important: Do not update to v7 until the configuration is updated to v2.
+        # To Do: Update to v7 along with v2 of the .golangci.yml configuration.
         with:
-          version: v1.54.2
+          version: v1.64.8
+          # Important: Do not update to v2 until the configuration is updated.
+          # To Do: Update to v2 along with v7 of golangci-lint-action.
           only-new-issues: true
   check-fmt:
+    name: Check Formatting
     needs:
       - get-go-version
     runs-on: ubuntu-latest
-    name: Gofmt check
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      - name: Checkout Repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Setup Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: ${{ needs.get-go-version.outputs.go-version }}
-      - run: |
+      - name: Check Formatting
+        run: |
           go fmt ./...
           echo "==> Checking that code complies with go fmt requirements..."
           git diff --exit-code; if [ $$? -eq 1 ]; then \
@@ -75,13 +86,16 @@ jobs:
     needs:
       - get-go-version
     runs-on: ubuntu-latest
-    name: Generate check
+    name: Check Generated Files
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      - name: Checkout Repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Setup Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: ${{ needs.get-go-version.outputs.go-version }}
-      - run: |
+      - name: Check Generated Files
+        run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           make generate
           uncommitted="$(git status -s)"

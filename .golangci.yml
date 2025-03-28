@@ -12,6 +12,8 @@ issues:
     # Exclude line length linter for generated files.
     - linters: [lll]
       source: "^//go:generate "
+  exclude-files:
+    - ".*\\.hcl2spec\\.go$"
 
 linters:
   disable-all: true
@@ -28,8 +30,6 @@ linters:
 run:
   concurrency: 4
   timeout: 10m
-  exclude-files:
-    - ".*\\.hcl2spec\\.go$"
 
 output:
   formats:
