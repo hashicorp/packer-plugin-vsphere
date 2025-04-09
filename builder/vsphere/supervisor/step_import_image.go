@@ -211,8 +211,8 @@ func (s *StepImportImage) Cleanup(state multistep.StateBag) {
 		if err := s.KubeWatchClient.Delete(ctx, importedImage); err != nil {
 			logger.Error("error deleting the ContentLibraryItem object %s: %s", s.ImportItemResourceName, err)
 		} else {
-			logger.Info(fmt.Sprintf("Successfully deleted the ContentLibraryItem object %s in namespace %s.",
-				s.ImportItemResourceName, s.Namespace))
+			logger.Info("Successfully deleted the ContentLibraryItem object %s in namespace %s.",
+				s.ImportItemResourceName, s.Namespace)
 		}
 	}
 }
