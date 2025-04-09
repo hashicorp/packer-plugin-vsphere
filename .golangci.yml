@@ -12,6 +12,9 @@ issues:
     # Exclude line length linter for generated files.
     - linters: [lll]
       source: "^//go:generate "
+    - linters:
+        - errcheck
+      path: ".*_test.go"
 
 linters:
   disable-all: true
