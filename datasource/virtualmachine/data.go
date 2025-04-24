@@ -98,7 +98,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		d.config.Name = "*"
 	}
 
-	var errs *packersdk.MultiError
+	var errs error
 	if d.config.VCenterServer == "" {
 		errs = packersdk.MultiErrorAppend(errs, errors.New("'vcenter_server' is required"))
 	}
@@ -116,11 +116,7 @@ func (d *Datasource) Configure(raws ...interface{}) error {
 		}
 	}
 
-	if errs != nil && len(errs.Errors) > 0 {
-		return errs
-	}
-
-	return nil
+	return errs
 }
 
 func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
