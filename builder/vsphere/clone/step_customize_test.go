@@ -17,7 +17,7 @@ func TestSysprepFieldsMutuallyExclusive(t *testing.T) {
 		WindowsSysPrepFile: "path-to-file",
 		WindowsSysPrepText: "text",
 		NetworkInterfaces: []NetworkInterface{
-			NetworkInterface{},
+			{},
 		},
 	}
 
@@ -44,7 +44,7 @@ func TestWindowsSysprepFilePrintsWarning(t *testing.T) {
 	config := &CustomizeConfig{
 		WindowsSysPrepFile: "path-to-file",
 		NetworkInterfaces: []NetworkInterface{
-			NetworkInterface{},
+			{},
 		},
 	}
 
@@ -81,7 +81,7 @@ func TestWindowsSysprepTextSetsContent(t *testing.T) {
 	config := &CustomizeConfig{
 		WindowsSysPrepText: text,
 		NetworkInterfaces: []NetworkInterface{
-			NetworkInterface{},
+			{},
 		},
 	}
 

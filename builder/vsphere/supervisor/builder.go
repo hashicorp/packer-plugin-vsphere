@@ -60,7 +60,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	)
 
 	// conditionally add steps to validate import spec and import images from source URL as VM image.
-	if b.config.ImportImageConfig.ImportSourceURL != "" {
+	if b.config.ImportSourceURL != "" {
 		steps = append(steps,
 			&StepImportImage{
 				ImportImageConfig: &b.config.ImportImageConfig,

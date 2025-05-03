@@ -31,8 +31,8 @@ func TestCloneConfig_Timeout(t *testing.T) {
 	conf := new(Config)
 	warns, err := conf.Prepare(raw)
 	testConfigOk(t, warns, err)
-	if conf.ShutdownConfig.Timeout != 3*time.Minute {
-		t.Fatalf("unexpected result: expected '3m', but returned '%v'", conf.ShutdownConfig.Timeout)
+	if conf.Timeout != 3*time.Minute {
+		t.Fatalf("unexpected result: expected '3m', but returned '%v'", conf.Timeout)
 	}
 }
 
