@@ -492,7 +492,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	vmRef, ok := info.Result.(types.ManagedObjectReference)
 	if !ok {
 		log.Printf("[ERROR] unexpected result during cloning operation: %s", info.Result)
-		return nil, fmt.Errorf("error occured while cloning the virtual machine")
+		return nil, fmt.Errorf("error occurred while cloning the virtual machine")
 	}
 
 	created := vm.driver.NewVM(&vmRef)
