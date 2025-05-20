@@ -4,6 +4,7 @@
 package driver
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -44,14 +45,13 @@ func (d *VCenterDriver) FindResourcePool(cluster string, host string, name strin
 	if err != nil {
 		log.Printf("[WARN] %s not found. Looking for default resource pool.", resourcePath)
 		dp, dperr := d.finder.DefaultResourcePool(d.ctx)
-		if _, ok := dperr.(*find.NotFoundError); ok {
+		var notFoundError *find.NotFoundError
+		if errors.As(dperr, &notFoundError) {
 			vapp, verr := d.finder.VirtualApp(d.ctx, name)
 			if verr != nil {
 				return nil, err
 			}
 			dp = vapp.ResourcePool
-		} else if dperr != nil {
-			return nil, err
 		}
 		p = dp
 	}

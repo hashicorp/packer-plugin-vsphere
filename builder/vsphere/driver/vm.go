@@ -170,7 +170,8 @@ func (d *VCenterDriver) FindVM(name string) (VirtualMachine, error) {
 func (d *VCenterDriver) PreCleanVM(ui packersdk.Ui, vmPath string, force bool, vsphereCluster string, vsphereHost string, vsphereResourcePool string) error {
 	vm, err := d.FindVM(vmPath)
 	if err != nil {
-		if _, ok := err.(*find.NotFoundError); !ok {
+		var notFoundError *find.NotFoundError
+		if !errors.As(err, &notFoundError) {
 			return fmt.Errorf("error looking up existing virtual machine: %v", err)
 		}
 	}
