@@ -13,7 +13,7 @@ import (
 	"github.com/vmware/govmomi"
 )
 
-type stepCreateSnapshot struct {
+type StepCreateSnapshot struct {
 	VMName              string
 	RemoteFolder        string
 	SnapshotName        string
@@ -21,7 +21,7 @@ type stepCreateSnapshot struct {
 	SnapshotEnable      bool
 }
 
-func NewStepCreateSnapshot(artifact packersdk.Artifact, p *PostProcessor) *stepCreateSnapshot {
+func NewStepCreateSnapshot(artifact packersdk.Artifact, p *PostProcessor) *StepCreateSnapshot {
 	// Set the default folder.
 	remoteFolder := "Discovered virtual machine"
 	vmname := artifact.Id()
@@ -32,7 +32,7 @@ func NewStepCreateSnapshot(artifact packersdk.Artifact, p *PostProcessor) *stepC
 		vmname = id[2]
 	}
 
-	return &stepCreateSnapshot{
+	return &StepCreateSnapshot{
 		VMName:              vmname,
 		RemoteFolder:        remoteFolder,
 		SnapshotEnable:      p.config.SnapshotEnable,
@@ -41,7 +41,7 @@ func NewStepCreateSnapshot(artifact packersdk.Artifact, p *PostProcessor) *stepC
 	}
 }
 
-func (s *stepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	cli := state.Get("client").(*govmomi.Client)
 	dcPath := state.Get("dcPath").(string)
@@ -75,4 +75,4 @@ func (s *stepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) 
 	return multistep.ActionContinue
 }
 
-func (s *stepCreateSnapshot) Cleanup(multistep.StateBag) {}
+func (s *StepCreateSnapshot) Cleanup(multistep.StateBag) {}
