@@ -5,6 +5,7 @@ package common
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
@@ -107,7 +108,9 @@ func (a *Artifact) stateHCPPackerRegistryMetadata() interface{} {
 
 func (a *Artifact) Destroy() error {
 	if a.Outconfig != nil {
-		os.RemoveAll(a.Outconfig.OutputDir)
+		if err := os.RemoveAll(a.Outconfig.OutputDir); err != nil {
+			log.Printf("[WARN] Failed to remove output directory: %v", err)
+		}
 	}
 	return a.VM.Destroy()
 }

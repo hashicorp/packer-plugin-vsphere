@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strings"
@@ -265,8 +266,15 @@ func TestCreateSource_RunCustomBootstrap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp test data file, err: %s", err)
 	}
-	defer os.Remove(testDataFile.Name())
-	defer testDataFile.Close()
+	defer func() {
+		if err := os.Remove(testDataFile.Name()); err != nil {
+			log.Printf("[WARN] Failed to remove test data file: %v", err)
+		}
+		if err := testDataFile.Close(); err != nil {
+			log.Printf("[WARN] Failed to close test data file: %v", err)
+		}
+	}()
+
 	testBootstrapData := []byte("unattend: test-unattend-config")
 	if err := os.WriteFile(testDataFile.Name(), testBootstrapData, 0666); err != nil {
 		t.Fatalf("Failed to write content to temp file: %v", err)
