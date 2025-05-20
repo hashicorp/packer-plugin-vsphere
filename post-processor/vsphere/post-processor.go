@@ -30,7 +30,7 @@ const DefaultMaxRetries = 5
 const DefaultDiskMode = "thick"
 const OvftoolWindows = "ovftool.exe"
 
-var ovftool string = "ovftool"
+var ovftool = "ovftool"
 
 var (
 	// Regular expression to validate RFC1035 hostnames from full fqdn or simple hostname.
