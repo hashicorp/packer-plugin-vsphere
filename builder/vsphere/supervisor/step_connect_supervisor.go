@@ -91,7 +91,7 @@ func (s *StepConnectSupervisor) Run(ctx context.Context, state multistep.StateBa
 
 func (s *StepConnectSupervisor) Cleanup(multistep.StateBag) {}
 
-// Setting this function as a variable so that it can be mocked in test.
+// InitKubeClientFunc initializes a Kubernetes client with the provided configuration.
 var InitKubeClientFunc = func(s *StepConnectSupervisor) (client.WithWatch, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", s.Config.KubeconfigPath)
 	if err != nil {
