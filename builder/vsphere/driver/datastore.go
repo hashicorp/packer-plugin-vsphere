@@ -4,6 +4,7 @@
 package driver
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"regexp"
@@ -117,7 +118,8 @@ func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 // DirExists checks if a directory exists in a datastore.
 func (ds *DatastoreDriver) DirExists(filepath string) bool {
 	_, err := ds.ds.Stat(ds.driver.ctx, filepath)
-	if _, ok := err.(object.DatastoreNoSuchDirectoryError); ok {
+	var datastoreNoSuchDirectoryError object.DatastoreNoSuchDirectoryError
+	if errors.As(err, &datastoreNoSuchDirectoryError) {
 		return false
 	}
 	return true

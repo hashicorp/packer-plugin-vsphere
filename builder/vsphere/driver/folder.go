@@ -4,6 +4,7 @@
 package driver
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"strings"
@@ -41,7 +42,8 @@ func (d *VCenterDriver) FindFolder(name string) (*Folder, error) {
 		for _, folder := range folders {
 			parent = path.Join(parent, folder)
 			f, err := d.finder.Folder(d.ctx, path.Join(d.datacenter.InventoryPath, "vm", parent))
-			if _, ok := err.(*find.NotFoundError); ok {
+			var notFoundError *find.NotFoundError
+			if errors.As(err, &notFoundError) {
 				f, err = parentFolder.CreateFolder(d.ctx, folder)
 			}
 			if err != nil {
