@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"os/exec"
 	"regexp"
@@ -291,7 +292,11 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packer
 	if err != nil {
 		return err
 	}
-	defer stdin.Close()
+	defer func() {
+		if err := stdin.Close(); err != nil {
+			log.Printf("[WARN] Failed to close stdin: %v", err)
+		}
+	}()
 
 	if err := cmd.Run(); err != nil {
 		outString := out.String()

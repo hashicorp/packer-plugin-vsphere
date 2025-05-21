@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -97,11 +98,16 @@ kind: Config
 	if err != nil {
 		t.Fatalf("Failed to create a fake kubeconfig file: %s", err)
 	}
-	defer fakeFile.Close()
+	defer func() {
+		err := fakeFile.Close()
+		if err != nil {
+			log.Printf("[WARN] Failed to close file: %v", err)
+		}
+	}()
 
 	_, err = io.WriteString(fakeFile, fmt.Sprintf(fakeKubeconfigDataFmt, namespace))
 	if err != nil {
-		t.Fatalf("Failed to write to the fake kubeconfig file: %s", err)
+		t.Fatalf("[ERROR] Failed to write file: %s", err)
 	}
 
 	return fakeFile

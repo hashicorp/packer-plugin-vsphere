@@ -6,6 +6,7 @@ package supervisor_test
 import (
 	"bytes"
 	"context"
+	"log"
 	"os"
 	"testing"
 
@@ -30,7 +31,12 @@ func TestConnectSupervisor_Prepare(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create an invalid kubeconfig file: %v", err)
 	}
-	defer fakeFile.Close()
+	defer func() {
+		if err := fakeFile.Close(); err != nil {
+			log.Printf("[WARN] Failed to close file: %v", err)
+		}
+	}()
+
 	config.KubeconfigPath = fakeFile.Name()
 	if err := config.Prepare(); err == nil {
 		t.Fatalf("config prepare should fail by an invalid kubeconfig file")
