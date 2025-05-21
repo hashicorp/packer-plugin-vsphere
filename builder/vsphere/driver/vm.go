@@ -1371,7 +1371,7 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 		}
 
 		// Check for ignored parameters.
-		ignoredParams := []string{}
+		var ignoredParams []string
 		for k, v := range params {
 			found := false
 			for _, option := range moVM.Config.ExtraConfig {
@@ -1500,7 +1500,7 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 		vm.logout()
 		return nil, err
 	}
-	datastores := []string{}
+	var datastores []string
 	for _, storage := range l.library.Storage {
 		name, err := vm.driver.GetDatastoreName(storage.DatastoreID)
 		if err != nil {
