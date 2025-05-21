@@ -19,14 +19,14 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-type stepMarkAsTemplate struct {
+type StepMarkAsTemplate struct {
 	VMName       string
 	TemplateName string
 	RemoteFolder string
 	ReregisterVM config.Trilean
 }
 
-func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepMarkAsTemplate {
+func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *StepMarkAsTemplate {
 	// Set the default folder.
 	remoteFolder := "Discovered virtual machine"
 
@@ -43,7 +43,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepM
 		vmname = id[2]
 	}
 
-	return &stepMarkAsTemplate{
+	return &StepMarkAsTemplate{
 		VMName:       vmname,
 		TemplateName: p.config.TemplateName,
 		RemoteFolder: remoteFolder,
@@ -51,7 +51,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *stepM
 	}
 }
 
-func (s *stepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	ui := state.Get("ui").(packersdk.Ui)
 	cli := state.Get("client").(*govmomi.Client)
 	folder := state.Get("folder").(*object.Folder)
@@ -193,4 +193,4 @@ func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name strin
 	return nil
 }
 
-func (s *stepMarkAsTemplate) Cleanup(multistep.StateBag) {}
+func (s *StepMarkAsTemplate) Cleanup(multistep.StateBag) {}
