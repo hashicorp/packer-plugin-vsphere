@@ -67,9 +67,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			RemoteCachePath:      b.config.RemoteCachePath,
 		},
 		&commonsteps.StepCreateCD{
-			Files:   b.config.CDConfig.CDFiles,
-			Content: b.config.CDConfig.CDContent,
-			Label:   b.config.CDConfig.CDLabel,
+			Files:   b.config.CDFiles,
+			Content: b.config.CDContent,
+			Label:   b.config.CDLabel,
 		},
 		&common.StepRemoteUpload{
 			Datastore:                  b.config.Datastore,
@@ -83,7 +83,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepCreateVM{
 			Config:   &b.config.CreateConfig,
 			Location: &b.config.LocationConfig,
-			Force:    b.config.PackerConfig.PackerForce,
+			Force:    b.config.PackerForce,
 		},
 		&common.StepConfigureHardware{
 			Config: &b.config.HardwareConfig,
@@ -113,7 +113,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 
 	// Set the address for the HTTP server based on the configuration
 	// provided by the user.
-	if addrs := b.config.HTTPConfig.HTTPAddress; addrs != "" && addrs != common.DefaultHttpBindAddress {
+	if addrs := b.config.HTTPAddress; addrs != "" && addrs != common.DefaultHttpBindAddress {
 		// Validate and use the specified HTTPAddress.
 		err := common.ValidateHTTPAddress(addrs)
 		if err != nil {
@@ -121,15 +121,15 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			return nil, err
 		}
 		state.Put("http_bind_address", addrs)
-	} else if intf := b.config.HTTPConfig.HTTPInterface; intf != "" {
+	} else if intf := b.config.HTTPInterface; intf != "" {
 		// Use the specified HTTPInterface.
 		state.Put("http_interface", intf)
 	} else {
 		// Use IP discovery if neither HTTPAddress nor HTTPInterface
 		// is specified.
 		steps = append(steps, &common.StepHTTPIPDiscover{
-			HTTPIP:  b.config.BootConfig.HTTPIP,
-			Network: b.config.WaitIpConfig.GetIPNet(),
+			HTTPIP:  b.config.HTTPIP,
+			Network: b.config.GetIPNet(),
 		})
 	}
 
