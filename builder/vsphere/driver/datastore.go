@@ -117,8 +117,8 @@ func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 
 func (ds *DatastoreDriver) DirExists(filepath string) bool {
 	_, err := ds.ds.Stat(ds.driver.ctx, filepath)
-	var datastoreNoSuchDirectoryError object.DatastoreNoSuchDirectoryError
-	return !errors.As(err, &datastoreNoSuchDirectoryError)
+	var notFoundError *object.DatastoreNoSuchDirectoryError
+	return !errors.As(err, &notFoundError)
 }
 
 // FileExists checks if a file exists in a datastore.
