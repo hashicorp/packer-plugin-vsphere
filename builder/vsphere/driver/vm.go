@@ -1210,7 +1210,7 @@ func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
 	}
 }
 
-// mountCdrom mounts a CD-ROM to the virtual machine.
+// MountCdrom mounts a CD-ROM to the virtual machine.
 func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPath string, _cdrom types.BaseVirtualDevice) error {
 	cdrom := _cdrom.(*types.VirtualCdrom)
 	devices, err := vm.vm.Device(vm.driver.ctx)

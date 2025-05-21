@@ -45,7 +45,7 @@ func (c *OutputConfig) Prepare(ctx *interpolate.Context, pc *common.PackerConfig
 	return nil
 }
 
-// Stolen from output_dir_local.go in vmware builder.
+// ListFiles retrieves a list of all non-directory file paths within the configured output directory.
 func (c *OutputConfig) ListFiles() ([]string, error) {
 	files := make([]string, 0, 10)
 
