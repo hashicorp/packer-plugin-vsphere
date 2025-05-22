@@ -1063,30 +1063,6 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 <!-- End of code generated from the comments of the RunConfig struct in builder/vsphere/common/step_run.go; -->
 
 
-### Shutdown Configuration
-
-**Optional:**
-
-<!-- Code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; DO NOT EDIT MANUALLY -->
-
-- `shutdown_command` (string) - Specify a virtual machine guest shutdown command. This command will be run using
-  the `communicator`. Otherwise, the VMware Tools are used to gracefully shut down
-  the virtual machine.
-
-- `shutdown_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for graceful shut down of the virtual machine.
-  Defaults to `5m` (5 minutes).
-  This will likely need to be modified if the `communicator` is 'none'.
-
-- `disable_shutdown` (bool) - Packer normally halts the virtual machine after all provisioners have
-  run when no `shutdown_command` is defined. If this is set to `true`, Packer
-  *will not* halt the virtual machine but will assume that you will send the stop
-  signal yourself through a `preseed.cfg`, a script or the final provisioner.
-  Packer will wait for a default of 5 minutes until the virtual machine is shutdown.
-  The timeout can be changed using `shutdown_timeout` option.
-
-<!-- End of code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; -->
-
-
 ### Wait Configuration
 
 **Optional:**
@@ -1487,6 +1463,30 @@ Refer to the [VMware](https://docs.cloud-init.io/en/latest/reference/data-source
   [here](https://msdn.microsoft.com/en-us/library/aa384295(v=vs.85).aspx).
 
 <!-- End of code generated from the comments of the WinRM struct in communicator/config.go; -->
+
+
+### Shutdown Configuration
+
+**Optional:**
+
+<!-- Code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; DO NOT EDIT MANUALLY -->
+
+- `shutdown_command` (string) - Specify a virtual machine guest shutdown command. This command will be run using
+  the `communicator`. Otherwise, the VMware Tools are used to gracefully shut down
+  the virtual machine.
+
+- `shutdown_timeout` (duration string | ex: "1h5m2s") - Amount of time to wait for graceful shut down of the virtual machine.
+  Defaults to `5m` (5 minutes).
+  This will likely need to be modified if the `communicator` is 'none'.
+
+- `disable_shutdown` (bool) - Packer normally halts the virtual machine after all provisioners have
+  run when no `shutdown_command` is defined. If this is set to `true`, Packer
+  *will not* halt the virtual machine but will assume that you will send the stop
+  signal yourself through a `preseed.cfg`, a script or the final provisioner.
+  Packer will wait for a default of 5 minutes until the virtual machine is shutdown.
+  The timeout can be changed using `shutdown_timeout` option.
+
+<!-- End of code generated from the comments of the ShutdownConfig struct in builder/vsphere/common/step_shutdown.go; -->
 
 
 ### Export Configuration
