@@ -220,6 +220,30 @@ JSON Example:
 
 @include 'builder/vsphere/common/WaitIpConfig-not-required.mdx'
 
+### Communicator Configuration
+
+**Optional**:
+
+##### Common
+
+@include 'packer-plugin-sdk/communicator/Config-not-required.mdx'
+
+##### SSH
+
+@include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
+
+@include 'packer-plugin-sdk/communicator/SSH-Private-Key-File-not-required.mdx'
+
+##### Windows Remote Management (WinRM)
+
+@include 'packer-plugin-sdk/communicator/WinRM-not-required.mdx'
+
+### Shutdown Configuration
+
+**Optional:**
+
+@include 'builder/vsphere/common/ShutdownConfig-not-required.mdx'
+
 ## Export Configuration
 
 @include 'builder/vsphere/common/ExportConfig.mdx'
@@ -285,24 +309,6 @@ JSON Example:
 **Optional**:
 
 @include 'builder/vsphere/common/ConfigParamsConfig-not-required.mdx'
-
-### Communicator Configuration
-
-**Optional**:
-
-##### Common
-
-@include 'packer-plugin-sdk/communicator/Config-not-required.mdx'
-
-##### SSH
-
-@include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
-
-@include 'packer-plugin-sdk/communicator/SSH-Private-Key-File-not-required.mdx'
-
-##### Windows Remote Management (WinRM)
-
-@include 'packer-plugin-sdk/communicator/WinRM-not-required.mdx'
 
 ## Working with Clusters and Hosts
 
