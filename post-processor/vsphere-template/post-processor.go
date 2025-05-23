@@ -140,7 +140,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	// If the virtual machine is still powered on and immediately marked as a template it will fail.
 	// Pause for a few seconds to allow the virtual machine to prepare for the next step.
 
-	ui.Message("Pausing momentarily to prepare for the next step...")
+	ui.Say("Pausing momentarily to prepare for the next step...")
 	time.Sleep(10 * time.Second)
 	c, err := govmomi.NewClient(context.Background(), p.url, p.config.Insecure)
 	if err != nil {
