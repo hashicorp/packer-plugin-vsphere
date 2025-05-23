@@ -22,7 +22,7 @@ func (s *stepChooseDatacenter) Run(ctx context.Context, state multistep.StateBag
 	cli := state.Get("client").(*govmomi.Client)
 	finder := find.NewFinder(cli.Client, false)
 
-	ui.Message("Choosing datacenter...")
+	ui.Say("Choosing datacenter...")
 
 	// Find the datacenter or use the default one if not specified.
 	dc, err := finder.DatacenterOrDefault(context.Background(), s.Datacenter)

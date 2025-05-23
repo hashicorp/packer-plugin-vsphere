@@ -50,7 +50,7 @@ func (s *StepCreateSnapshot) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionContinue
 	}
 
-	ui.Message("Creating virtual machine snapshot...")
+	ui.Say("Creating virtual machine snapshot...")
 
 	vm, err := findRuntimeVM(cli, dcPath, s.VMName, s.RemoteFolder)
 	if err != nil {

@@ -39,7 +39,7 @@ var (
 	hostnameRegex = regexp.MustCompile(`^[[:alnum:]][[:alnum:]\-]{0,61}[[:alnum:]]|[[:alpha:]]$`)
 
 	// Simple regular expression to validate IPv4 values.
-	// For example "192.168.1.1".
+	// For example "192.168.168.1".
 	ipv4Regex = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
 )
 
@@ -237,8 +237,8 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil, false, false, fmt.Errorf("error building ovftool arguments: %s", err)
 	}
 
-	ui.Message(fmt.Sprintf("Uploading %s to %s", source, p.config.Host))
-	ui.Message("Validating username and password...")
+	ui.Sayf("Uploading %s to %s", source, p.config.Host)
+	ui.Say("Validating username and password...")
 
 	err = p.ValidateOvfTool(args, ovftool, ui)
 	if err != nil {
@@ -246,7 +246,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	}
 
 	// Validation has passed, so run for real.
-	ui.Message("Uploading virtual machine...")
+	ui.Say("Uploading virtual machine...")
 	commandAndArgs := []string{ovftool}
 	commandAndArgs = append(commandAndArgs, args...)
 	comm := &shelllocal.Communicator{
@@ -277,7 +277,7 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packer
 	args = append([]string{"--verifyOnly"}, args...)
 	if p.config.Insecure {
 		args = append(args, "--noSSLVerify")
-		ui.Message("Skipping SSL thumbprint verification; insecure flag set to true...")
+		ui.Say("Skipping SSL thumbprint verification; insecure flag set to true...")
 	}
 	var out bytes.Buffer
 	cmdCtx, cancel := context.WithTimeout(context.Background(), 20*time.Second)

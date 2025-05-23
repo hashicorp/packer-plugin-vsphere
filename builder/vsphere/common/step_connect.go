@@ -89,7 +89,7 @@ func (s *StepConnect) Cleanup(state multistep.StateBag) {
 		return
 	}
 
-	ui.Message("Closing sessions ....")
+	ui.Say("Closing sessions...")
 
 	errorRestClient, errorSoapClient := driver.Cleanup()
 	if errorRestClient != nil {
