@@ -303,6 +303,7 @@ func TestStepImportImage_Run(t *testing.T) {
 			fmt.Sprintf("Importing the source image from %s to %s.", testSourceURL, testTargetLibrary),
 			fmt.Sprintf("Creating ContentLibraryItemImportRequest object %s in namespace %s.", testImportReqName, testNamespace),
 			fmt.Sprintf("Successfully created the ContentLibraryItemImportRequest object %s.", testImportReqName),
+			"Waiting for the image import request to complete...",
 			fmt.Sprintf("Successfully imported the image as a content library item &{\"imageregistry.vmware.com/v1alpha1\" \"ContentLibraryItem\" \"%s\"}.", testCLItemName),
 			fmt.Sprintf("Finished importing the image from %s to %s.", testSourceURL, testTargetLibrary),
 		}

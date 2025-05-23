@@ -93,14 +93,6 @@ func TestConfig_Values(t *testing.T) {
 		t.Errorf("unexpected result: expected '%s' for 'source_name', but returned '%s'",
 			providedConfigs["source_name"], c.SourceName)
 	}
-	if c.NetworkType != providedConfigs["network_type"] {
-		t.Errorf("unexpected result: expected '%s' for 'network_name', but returned '%s'",
-			providedConfigs["network_type"], c.NetworkType)
-	}
-	if c.NetworkName != providedConfigs["network_name"] {
-		t.Errorf("unexpected result: expected '%s' for 'network_name', but returned '%s'",
-			providedConfigs["network_name"], c.NetworkName)
-	}
 	if c.WatchSourceTimeoutSec != providedConfigs["watch_source_timeout_sec"] {
 		t.Errorf("unexpected result: expected '%d' for 'watch_publish_timeout_sec', but returned '%d'",
 			providedConfigs["watch_source_timeout_sec"], c.WatchSourceTimeoutSec)
@@ -131,8 +123,6 @@ func getCompleteConfig(t *testing.T) map[string]interface{} {
 		"storage_class":             "test-storage",
 		"supervisor_namespace":      "test-namespace",
 		"source_name":               "test-source",
-		"network_type":              "test-networkType",
-		"network_name":              "test-networkName",
 		"publish_location_name":     "test-publish-location",
 		"publish_image_name":        "test-publish-image",
 		"watch_source_timeout_sec":  60,
