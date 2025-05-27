@@ -49,6 +49,11 @@ packer plugins install github.com/hashicorp/vsphere
   This builder deploys and publishes new virtual machine to a vSphere Supervisor cluster using VM
   Service.
 
+#### Data Sources
+
+- [vsphere-virtualmachine](/packer/integrations/hashicorp/vsphere/latest/components/data-source/vsphere-virtualmachine) -
+  This data source returns the name of a virtual machine that matches all defined filters.
+
 #### Post-Processors
 
 - [vsphere](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere) -
