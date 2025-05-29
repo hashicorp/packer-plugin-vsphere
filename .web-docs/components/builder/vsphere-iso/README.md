@@ -1715,7 +1715,7 @@ Clone the default **Read-Only** vSphere role and add the following privileges, w
 the capabilities of the `vsphere-iso` plugin:
 
 | Category        | Privilege                                           | Reference                                          |
-| --------------- | --------------------------------------------------- | -------------------------------------------------- |
+|-----------------|-----------------------------------------------------|----------------------------------------------------|
 | Content Library | Add library item                                    | `ContentLibrary.AddLibraryItem`                    |
 | ...             | Update Library Item                                 | `ContentLibrary.UpdateLibraryItem`                 |
 | Datastore       | Allocate space                                      | `Datastore.AllocateSpace`                          |
