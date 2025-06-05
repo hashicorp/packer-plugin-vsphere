@@ -319,8 +319,19 @@ JSON Example:
   are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
   in the vSphere API documentation.
 
-- `tools_sync_time` (bool) - Enable time synchronization with the ESXi host where the virtual machine
-  is running. Defaults to `false`.
+- `tools_sync_time` (bool) - Enable the guest operating system to synchronize its clock with the host.
+  Requires VMware Tools to be installed. Defaults to `true`.
+  
+  ~> **Note:** In vSphere 7.0.0, this also enables periodic synchronization.
+   For vSphere 7.0 Update 1 and later, use `tools_sync_time_with_host_periodically`
+  for periodic synchronization.
+
+- `tools_sync_time_with_host_periodically` (bool) - Enable the guest operating system to periodically synchronize its clock
+  with the host. Requires VMware Tools to be installed. Defaults to `false`.
+  
+  ~> **Note:** Only available in vSphere 7.0 Update 1 and later. This
+  option is ignored in vSphere 7.0.0 where `tools_sync_time` controls
+  both initial and periodic synchronization.
 
 - `tools_upgrade_policy` (bool) - Automatically check for and upgrade VMware Tools after a virtual machine
   power cycle. Defaults to `false`.
