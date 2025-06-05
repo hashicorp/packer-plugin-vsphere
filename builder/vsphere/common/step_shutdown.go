@@ -59,25 +59,19 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 	vm := state.Get("vm").(*driver.VirtualMachineDriver)
 
 	if off, _ := vm.IsPoweredOff(); off {
-		// Probably power off initiated by last provisioner, though disable_shutdown is not set
 		ui.Say("Virtual machine is already powered off.")
 		return multistep.ActionContinue
 	}
 
 	comm, _ := state.Get("communicator").(packersdk.Communicator)
 	if comm == nil {
-
-		msg := fmt.Sprintf("Please shutdown virtual machine within %s.", s.Config.Timeout)
-		ui.Message(msg)
-
+		ui.Sayf("Please shutdown virtual machine within %s.", s.Config.Timeout)
 	} else if s.Config.DisableShutdown {
 		ui.Say("Automatic shutdown disabled. Please shutdown virtual machine.")
 	} else if s.Config.Command != "" {
 		// Communicator is not needed unless shutdown_command is populated
-
 		ui.Say("Running shutdown command...")
-		log.Printf("Shutdown command: %s", s.Config.Command)
-
+		log.Printf("[INFO] Shutdown command: %s", s.Config.Command)
 		var stdout, stderr bytes.Buffer
 		cmd := &packersdk.RemoteCmd{
 			Command: s.Config.Command,
@@ -90,8 +84,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 			return multistep.ActionHalt
 		}
 	} else {
-		ui.Say("Shutting down virtual machine...")
-
+		ui.Sayf("Please shutdown virtual machine within %s.", s.Config.Timeout)
 		err := vm.StartShutdown()
 		if err != nil {
 			state.Put("error", fmt.Errorf("error shutting down virtual machine: %v", err))
@@ -99,7 +92,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 		}
 	}
 
-	log.Printf("Waiting max %s for shutdown to complete", s.Config.Timeout)
+	log.Printf("[INFO] Waiting a maximum of %s for shutdown to complete.", s.Config.Timeout)
 	err := vm.WaitForShutdown(ctx, s.Config.Timeout)
 	if err != nil {
 		state.Put("error", err)

@@ -66,7 +66,7 @@ func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 	// Use the MarkAsTemplate method unless the `reregister_vm` is set to `true`.
 	if s.ReregisterVM.False() {
-		ui.Message("Marking as a template...")
+		ui.Say("Marking as a template...")
 
 		if err := vm.MarkAsTemplate(context.Background()); err != nil {
 			state.Put("error", err)
@@ -106,7 +106,8 @@ func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	if s.TemplateName != "" {
 		artifactName = s.TemplateName
 	}
-	ui.Message("Registering virtual machine as a template: " + artifactName)
+
+	ui.Say("Registering virtual machine as a template: " + artifactName)
 
 	task, err := folder.RegisterVM(context.Background(), dsPath.String(), artifactName, true, nil, host)
 	if err != nil {

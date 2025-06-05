@@ -23,7 +23,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 	cli := state.Get("client").(*govmomi.Client)
 	dcPath := state.Get("dcPath").(string)
 
-	ui.Message("Creating or checking destination folder...")
+	ui.Say("Creating or checking destination folder...")
 
 	base := path.Join(dcPath, "vm")
 	fullPath := path.Join(base, s.Folder)
@@ -62,8 +62,7 @@ func (s *stepCreateFolder) Run(ctx context.Context, state multistep.StateBag) mu
 
 	if root, ok := ref.(*object.Folder); ok {
 		for i := len(folders) - 1; i >= 0; i-- {
-			ui.Message(fmt.Sprintf("Creating virtual machine folder %v...", folders[i]))
-
+			ui.Sayf("Creating virtual machine folder %s...", folders[i])
 			root, err = root.CreateFolder(context.Background(), folders[i])
 			if err != nil {
 				state.Put("error", err)
