@@ -47,9 +47,20 @@ type ConfigParamsConfig struct {
 	// are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
 	// in the vSphere API documentation.
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
-	// Enable time synchronization with the ESXi host where the virtual machine
-	// is running. Defaults to `false`.
+	// Enable the guest operating system to synchronize its clock with the host.
+	// Requires VMware Tools to be installed. Defaults to `true`.
+	//
+	// ~> **Note:** In vSphere 7.0.0, this also enables periodic synchronization.
+	//  For vSphere 7.0 Update 1 and later, use `tools_sync_time_with_host_periodically`
+	// for periodic synchronization.
 	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
+	// Enable the guest operating system to periodically synchronize its clock
+	// with the host. Requires VMware Tools to be installed. Defaults to `false`.
+	//
+	// ~> **Note:** Only available in vSphere 7.0 Update 1 and later. This
+	// option is ignored in vSphere 7.0.0 where `tools_sync_time` controls
+	// both initial and periodic synchronization.
+	ToolsSyncTimeWithHostPeriodically bool `mapstructure:"tools_sync_time_with_host_periodically"`
 	// Automatically check for and upgrade VMware Tools after a virtual machine
 	// power cycle. Defaults to `false`.
 	ToolsUpgradePolicy bool `mapstructure:"tools_upgrade_policy"`
@@ -69,11 +80,35 @@ func (s *StepConfigParams) Run(_ context.Context, state multistep.StateBag) mult
 	}
 
 	var info *types.ToolsConfigInfo
-	if s.Config.ToolsSyncTime || s.Config.ToolsUpgradePolicy {
-		info = &types.ToolsConfigInfo{}
+	toolsSyncTime := s.Config.ToolsSyncTime
+	needsToolsConfig := toolsSyncTime || s.Config.ToolsSyncTimeWithHostPeriodically || s.Config.ToolsUpgradePolicy
 
-		if s.Config.ToolsSyncTime {
-			info.SyncTimeWithHost = &s.Config.ToolsSyncTime
+	if needsToolsConfig {
+		info = &types.ToolsConfigInfo{}
+		version := parseVersionFromAboutInfo(vm.GetVSphereVersion())
+		minVersion := VSphereVersion{
+			Product: version.Product,
+			Major:   7,
+			Minor:   0,
+			Patch:   1,
+			Build:   0,
+		}
+
+		if version.AtLeast(minVersion) {
+			// vSphere 7.0.1+:
+			// use SyncTimeWithHostAllowed for basic sync and SyncTimeWithHost for periodic sync.
+			info.SyncTimeWithHostAllowed = &toolsSyncTime
+			info.SyncTimeWithHost = &s.Config.ToolsSyncTimeWithHostPeriodically
+			if s.Config.ToolsSyncTimeWithHostPeriodically {
+				ui.Say("Configuring periodic time synchronization...")
+			}
+		} else {
+			// vSphere 7.0.0 and earlier:
+			// use SyncTimeWithHost for basic sync; also controls periodic sync automatically.
+			info.SyncTimeWithHost = &toolsSyncTime
+			if s.Config.ToolsSyncTimeWithHostPeriodically {
+				ui.Say("Configuring periodic time synchronization...")
+			}
 		}
 
 		if s.Config.ToolsUpgradePolicy {

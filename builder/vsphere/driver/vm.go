@@ -80,6 +80,11 @@ type VirtualMachineDriver struct {
 	driver *VCenterDriver
 }
 
+// GetVSphereVersion returns the vSphere version information.
+func (vm *VirtualMachineDriver) GetVSphereVersion() types.AboutInfo {
+	return vm.driver.vimClient.ServiceContent.About
+}
+
 type CloneConfig struct {
 	Name            string
 	Folder          string
