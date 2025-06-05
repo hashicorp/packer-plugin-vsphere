@@ -4,10 +4,8 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/hashicorp/packer-plugin-sdk/plugin"
+	"log"
 
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/clone"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/iso"
@@ -27,7 +25,6 @@ func main() {
 	pps.SetVersion(version.PluginVersion)
 	err := pps.Run()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
