@@ -608,7 +608,9 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	confSpec.MemoryAllocation = &ramSpec
 
 	confSpec.MemoryReservationLockedToMax = &config.RAMReserveAll
-	confSpec.NestedHVEnabled = &config.NestedHV
+	if config.NestedHV {
+		confSpec.NestedHVEnabled = &config.NestedHV
+	}
 
 	confSpec.CpuHotAddEnabled = &config.CpuHotAddEnabled
 	confSpec.MemoryHotAddEnabled = &config.MemoryHotAddEnabled
