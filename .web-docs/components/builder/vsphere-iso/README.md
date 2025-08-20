@@ -248,7 +248,6 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   for examples of profile names. Defaults to none.
 
 - `NestedHV` (bool) - Enable nested hardware virtualization for the virtual machine.
-  Defaults to `false`.
 
 - `firmware` (string) - The firmware for the virtual machine.
   
