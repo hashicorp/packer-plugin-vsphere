@@ -1,67 +1,67 @@
----
+# SPDX-License-Identifier: MPL-2.0
+
+version: 2
+
 env:
   - CGO_ENABLED=0
+
 before:
   hooks:
-    # We strongly recommend running tests to catch any regression before release.
-    # Even though, this an optional step.
+    # Clean up any cached test data.
+    - go clean -testcache
+    # Run tests to ensure that the plugin is compatible with the current version of Packer.
     - go test ./...
-    # Check plugin compatibility with required version of the Packer SDK
+    # Check plugin compatibility with required version of the Packer SDK.
     - make plugin-check
-    # Copy LICENSE file for inclusion in zip archive
+    # Copy LICENSE file for inclusion in zip archive.
     - cp LICENSE LICENSE.txt
+
 builds:
-  # A separated build to run the packer-plugins-check only once for a linux_amd64 binary
-  -
-    id: plugin-check
-    mod_timestamp: '{{ .CommitTimestamp }}'
+  - id: plugin-check
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath #removes all file system paths from the compiled executable
+      - -trimpath
     ldflags:
-      - '-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= '
+      - "-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= "
     goos:
       - linux
     goarch:
       - amd64
-    binary: '{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}'
-  -
-    id: linux-builds
-    mod_timestamp: '{{ .CommitTimestamp }}'
+    binary: "{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}"
+  - id: linux-builds
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath #removes all file system paths from the compiled executable
+      - -trimpath
     ldflags:
-      - '-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= '
+      - "-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= "
     goos:
       - linux
     goarch:
       - amd64
-      - '386'
-      - arm
+      - "386"
       - arm64
     ignore:
-      - goos: linux
+      - goos: linux   # Already built during plugin-check.
         goarch: amd64
-    binary: '{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}'
-  -
-    id: darwin-builds
-    mod_timestamp: '{{ .CommitTimestamp }}'
+    binary: "{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}"
+  - id: darwin-builds
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath #removes all file system paths from the compiled executable
+      - -trimpath
     ldflags:
-      - '-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= '
+      - "-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= "
     goos:
       - darwin
     goarch:
       - amd64
       - arm64
-    binary: '{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}'
-  -
-    id: other-builds
-    mod_timestamp: '{{ .CommitTimestamp }}'
+    binary: "{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}"
+  - id: other-builds
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
-      - -trimpath #removes all file system paths from the compiled executable
+      - -trimpath
     ldflags:
-      - '-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= '
+      - "-s -w -X {{ .ModulePath }}/version.Version={{.Version}} -X {{ .ModulePath }}/version.VersionPrerelease= "
     goos:
       - netbsd
       - openbsd
@@ -70,7 +70,7 @@ builds:
       - solaris
     goarch:
       - amd64
-      - '386'
+      - "386"
       - arm
     ignore:
       - goos: windows
@@ -78,20 +78,23 @@ builds:
       - goos: solaris
         goarch: arm
       - goos: solaris
-        goarch: '386'
-    binary: '{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}'
-archives:
-- format: zip
-  files:
-    - "LICENSE.txt"
+        goarch: "386"
+    binary: "{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}"
 
-  name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}'
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Env.API_VERSION }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - "LICENSE.txt"
+    formats: ["zip"]
+
 checksum:
-  name_template: '{{ .ProjectName }}_v{{ .Version }}_SHA256SUMS'
+  name_template: "{{ .ProjectName }}_v{{ .Version }}_SHA256SUMS"
   algorithm: sha256
+
 signs:
-  - artifacts: checksum
-    args:
+   - artifacts: checksum
+     args:
       # if you are using this is in a GitHub action or some other automated pipeline, you
       # need to pass the batch flag to indicate its not interactive.
       - "--batch"
