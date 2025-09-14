@@ -30,6 +30,10 @@ type DriverMock struct {
 
 	FindVMCalled bool
 	FindVMName   string
+
+	FindContentLibraryFileDatastorePathCalled bool
+	FindContentLibraryFileDatastorePathReturn string
+	FindContentLibraryFileDatastorePathErr    error
 }
 
 func NewDriverMock() *DriverMock {
@@ -118,7 +122,8 @@ func (d *DriverMock) FindContentLibraryItem(libraryId string, name string) (*lib
 }
 
 func (d *DriverMock) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
-	return "", nil
+	d.FindContentLibraryFileDatastorePathCalled = true
+	return d.FindContentLibraryFileDatastorePathReturn, d.FindContentLibraryFileDatastorePathErr
 }
 
 func (d *DriverMock) UpdateContentLibraryItem(item *library.Item, name string, description string) error {

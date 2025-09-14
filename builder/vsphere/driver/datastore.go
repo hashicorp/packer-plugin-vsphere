@@ -229,6 +229,11 @@ type DatastoreIsoPath struct {
 	path string
 }
 
+// NewDatastoreIsoPath creates a new DatastoreIsoPath with the given path
+func NewDatastoreIsoPath(path string) *DatastoreIsoPath {
+	return &DatastoreIsoPath{path: path}
+}
+
 // Validate checks if the path matches the expected datastore ISO path format.
 // Returns true if valid, otherwise false.
 func (d *DatastoreIsoPath) Validate() bool {
