@@ -9,7 +9,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -147,8 +146,15 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	if !reflect.DeepEqual(*s.Config, HardwareConfig{}) {
-		ui.Say("Customizing hardware...")
+	hasCustomConfig := s.hasCustomHardwareConfig()
+
+	// Always run hardware configuration to preserve template settings.
+	{
+		if hasCustomConfig {
+			ui.Say("Customizing hardware...")
+		} else {
+			ui.Say("Applying hardware configuration...")
+		}
 
 		var allowedDevices []driver.PCIPassthroughAllowedDevice
 		for _, device := range s.Config.AllowedDevices {
@@ -182,6 +188,26 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 	}
 
 	return multistep.ActionContinue
+}
+
+// hasCustomHardwareConfig checks if user provided custom hardware configuration.
+func (s *StepConfigureHardware) hasCustomHardwareConfig() bool {
+	c := s.Config
+
+	if c.CPUs != 0 || c.CpuCores != 0 || c.CPUReservation != 0 || c.CPULimit != 0 ||
+		c.RAM != 0 || c.RAMReservation != 0 || c.RAMReserveAll ||
+		c.CpuHotAddEnabled || c.MemoryHotAddEnabled ||
+		c.VideoRAM != 0 || c.Displays != 0 || c.NestedHV ||
+		c.VGPUProfile != "" || c.Firmware != "" || c.ForceBIOSSetup ||
+		c.VTPMEnabled || c.VirtualPrecisionClock != "" {
+		return true
+	}
+
+	if len(c.AllowedDevices) > 0 {
+		return true
+	}
+
+	return false
 }
 
 func (s *StepConfigureHardware) Cleanup(multistep.StateBag) {}

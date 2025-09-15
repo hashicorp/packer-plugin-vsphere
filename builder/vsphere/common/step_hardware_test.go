@@ -150,11 +150,12 @@ func TestStepConfigureHardware_Run(t *testing.T) {
 			hardwareConfig:  driverHardwareConfigFromConfig(basicStepConfigureHardware().Config),
 		},
 		{
-			name:            "Don't configure hardware when config is empty",
+			name:            "Configure hardware even when config is empty (preserves template settings)",
 			step:            &StepConfigureHardware{Config: &HardwareConfig{}},
 			action:          multistep.ActionContinue,
 			configureError:  nil,
-			configureCalled: false,
+			configureCalled: true,
+			hardwareConfig:  driverHardwareConfigFromConfig(&HardwareConfig{}),
 		},
 		{
 			name:            "Halt when configure return error",
