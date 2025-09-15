@@ -9,7 +9,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -147,41 +146,70 @@ func (s *StepConfigureHardware) Run(_ context.Context, state multistep.StateBag)
 	ui := state.Get("ui").(packersdk.Ui)
 	vm := state.Get("vm").(driver.VirtualMachine)
 
-	if !reflect.DeepEqual(*s.Config, HardwareConfig{}) {
-		ui.Say("Customizing hardware...")
+	hasCustomConfig := s.hasCustomHardwareConfig()
 
-		var allowedDevices []driver.PCIPassthroughAllowedDevice
-		for _, device := range s.Config.AllowedDevices {
-			allowedDevices = append(allowedDevices, driver.PCIPassthroughAllowedDevice(device))
-		}
+	if hasCustomConfig {
+		ui.Say("Applying custom hardware configuration...")
+	} else {
+		ui.Say("Applying hardware configuration...")
+	}
 
-		err := vm.Configure(&driver.HardwareConfig{
-			CPUs:                  s.Config.CPUs,
-			CpuCores:              s.Config.CpuCores,
-			CPUReservation:        s.Config.CPUReservation,
-			CPULimit:              s.Config.CPULimit,
-			RAM:                   s.Config.RAM,
-			RAMReservation:        s.Config.RAMReservation,
-			RAMReserveAll:         s.Config.RAMReserveAll,
-			NestedHV:              s.Config.NestedHV,
-			CpuHotAddEnabled:      s.Config.CpuHotAddEnabled,
-			MemoryHotAddEnabled:   s.Config.MemoryHotAddEnabled,
-			VideoRAM:              s.Config.VideoRAM,
-			Displays:              s.Config.Displays,
-			AllowedDevices:        allowedDevices,
-			VGPUProfile:           s.Config.VGPUProfile,
-			Firmware:              s.Config.Firmware,
-			ForceBIOSSetup:        s.Config.ForceBIOSSetup,
-			VTPMEnabled:           s.Config.VTPMEnabled,
-			VirtualPrecisionClock: s.Config.VirtualPrecisionClock,
-		})
-		if err != nil {
-			state.Put("error", err)
-			return multistep.ActionHalt
-		}
+	var allowedDevices []driver.PCIPassthroughAllowedDevice
+	for _, device := range s.Config.AllowedDevices {
+		allowedDevices = append(allowedDevices, driver.PCIPassthroughAllowedDevice(device))
+	}
+
+	err := vm.Configure(&driver.HardwareConfig{
+		CPUs:                  s.Config.CPUs,
+		CpuCores:              s.Config.CpuCores,
+		CPUReservation:        s.Config.CPUReservation,
+		CPULimit:              s.Config.CPULimit,
+		RAM:                   s.Config.RAM,
+		RAMReservation:        s.Config.RAMReservation,
+		RAMReserveAll:         s.Config.RAMReserveAll,
+		NestedHV:              s.Config.NestedHV,
+		CpuHotAddEnabled:      s.Config.CpuHotAddEnabled,
+		MemoryHotAddEnabled:   s.Config.MemoryHotAddEnabled,
+		VideoRAM:              s.Config.VideoRAM,
+		Displays:              s.Config.Displays,
+		AllowedDevices:        allowedDevices,
+		VGPUProfile:           s.Config.VGPUProfile,
+		Firmware:              s.Config.Firmware,
+		ForceBIOSSetup:        s.Config.ForceBIOSSetup,
+		VTPMEnabled:           s.Config.VTPMEnabled,
+		VirtualPrecisionClock: s.Config.VirtualPrecisionClock,
+	})
+	if err != nil {
+		state.Put("error", err)
+		return multistep.ActionHalt
 	}
 
 	return multistep.ActionContinue
+}
+
+// hasCustomHardwareConfig checks if user provided custom hardware configuration.
+func (s *StepConfigureHardware) hasCustomHardwareConfig() bool {
+	c := s.Config
+
+	hasCpuConfig := c.CPUs != 0 || c.CpuCores != 0 || c.CPUReservation != 0 || c.CPULimit != 0
+	hasMemoryConfig := c.RAM != 0 || c.RAMReservation != 0 || c.RAMReserveAll
+	hasHotAddConfig := c.CpuHotAddEnabled || c.MemoryHotAddEnabled
+	hasDisplayConfig := c.VideoRAM != 0 || c.Displays != 0
+	hasNestedConfig := c.NestedHV
+	hasGpuConfig := c.VGPUProfile != ""
+	hasFirmwareConfig := c.Firmware != "" || c.ForceBIOSSetup || c.VTPMEnabled
+	hasClockConfig := c.VirtualPrecisionClock != ""
+	hasDeviceConfig := len(c.AllowedDevices) > 0
+
+	return hasCpuConfig ||
+		hasMemoryConfig ||
+		hasHotAddConfig ||
+		hasDisplayConfig ||
+		hasNestedConfig ||
+		hasGpuConfig ||
+		hasFirmwareConfig ||
+		hasClockConfig ||
+		hasDeviceConfig
 }
 
 func (s *StepConfigureHardware) Cleanup(multistep.StateBag) {}
