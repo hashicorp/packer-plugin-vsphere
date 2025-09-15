@@ -62,8 +62,10 @@ type Config struct {
 	SnapshotName string `mapstructure:"snapshot_name"`
 	// A description for the snapshot. Required when `snapshot_enable` is `true`.
 	SnapshotDescription string `mapstructure:"snapshot_description"`
-	// Keepe the virtual machine registered after marking as a template.
+	// Keep the virtual machine registered after marking as a template.
 	ReregisterVM config.Trilean `mapstructure:"reregister_vm"`
+	// Overwrite existing template. Defaults to `false`.
+	Override bool `mapstructure:"override"`
 
 	ctx interpolate.Context
 }
