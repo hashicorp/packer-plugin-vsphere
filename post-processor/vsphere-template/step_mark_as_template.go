@@ -24,6 +24,7 @@ type StepMarkAsTemplate struct {
 	TemplateName string
 	RemoteFolder string
 	ReregisterVM config.Trilean
+	Override     bool
 }
 
 func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *StepMarkAsTemplate {
@@ -48,6 +49,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *StepM
 		TemplateName: p.config.TemplateName,
 		RemoteFolder: remoteFolder,
 		ReregisterVM: p.config.ReregisterVM,
+		Override:     p.config.Override,
 	}
 }
 
@@ -62,6 +64,41 @@ func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		state.Put("error", err)
 		ui.Errorf("%s", err)
 		return multistep.ActionHalt
+	}
+
+	templateName := s.VMName
+	if s.TemplateName != "" {
+		templateName = s.TemplateName
+	}
+
+	existingTemplate, err := findTemplate(cli, folder, templateName)
+	if err != nil {
+		state.Put("error", fmt.Errorf("error checking for existing template: %s", err))
+		ui.Errorf("error checking for existing template: %s", err)
+		return multistep.ActionHalt
+	}
+
+	if existingTemplate != nil {
+		if !s.Override {
+			err := fmt.Errorf("template '%s' already exists. Set 'override = true' to replace existing templates", templateName)
+			state.Put("error", err)
+			ui.Errorf("%s", err)
+			return multistep.ActionHalt
+		}
+
+		ui.Say(fmt.Sprintf("Removing existing template '%s'...", templateName))
+		task, err := existingTemplate.Destroy(context.Background())
+		if err != nil {
+			state.Put("error", fmt.Errorf("failed to remove existing template '%s': %s", templateName, err))
+			ui.Errorf("failed to remove existing template '%s': %s", templateName, err)
+			return multistep.ActionHalt
+		}
+		if err = task.Wait(context.Background()); err != nil {
+			state.Put("error", fmt.Errorf("failed to remove existing template '%s': %s", templateName, err))
+			ui.Errorf("failed to remove existing template '%s': %s", templateName, err)
+			return multistep.ActionHalt
+		}
+		ui.Say(fmt.Sprintf("Successfully removed existing template '%s'", templateName))
 	}
 
 	// Use the MarkAsTemplate method unless the `reregister_vm` is set to `true`.
@@ -192,6 +229,23 @@ func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name strin
 		}
 	}
 	return nil
+}
+
+func findTemplate(cli *govmomi.Client, folder *object.Folder, name string) (*object.VirtualMachine, error) {
+	si := object.NewSearchIndex(cli.Client)
+	fullPath := path.Join(folder.InventoryPath, name)
+
+	ref, err := si.FindByInventoryPath(context.Background(), fullPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if ref != nil {
+		if vm, ok := ref.(*object.VirtualMachine); ok {
+			return vm, nil
+		}
+	}
+	return nil, nil
 }
 
 func (s *StepMarkAsTemplate) Cleanup(multistep.StateBag) {}
