@@ -55,8 +55,7 @@ The following configuration options are available for the post-processor.
 - `options` ([]string) - Options to send to `ovftool` when uploading the virtual machine.
   Use `ovftool --help` to list all the options available.
 
-- `overwrite` (bool) - Overwrite existing files.
-  If `true`, forces overwrites of existing files. Defaults to `false`.
+- `overwrite` (bool) - Overwrite existing files. Defaults to `false`.
 
 - `resource_pool` (string) - The name of the resource pool to place the virtual machine.
 
