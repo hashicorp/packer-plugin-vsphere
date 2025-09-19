@@ -97,7 +97,6 @@ type HardwareConfig struct {
 	// for examples of profile names. Defaults to none.
 	VGPUProfile string `mapstructure:"vgpu_profile"`
 	// Enable nested hardware virtualization for the virtual machine.
-	// Defaults to `false`.
 	NestedHV bool `mapstructure:"NestedHV"`
 	// The firmware for the virtual machine.
 	//
