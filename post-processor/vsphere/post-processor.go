@@ -66,8 +66,7 @@ type Config struct {
 	// Options to send to `ovftool` when uploading the virtual machine.
 	// Use `ovftool --help` to list all the options available.
 	Options []string `mapstructure:"options"`
-	// Overwrite existing files.
-	// If `true`, forces overwrites of existing files. Defaults to `false`.
+	// Overwrite existing files. Defaults to `false`.
 	Overwrite bool `mapstructure:"overwrite"`
 	// The password to use to authenticate to the vSphere endpoint.
 	Password string `mapstructure:"password" required:"true"`
