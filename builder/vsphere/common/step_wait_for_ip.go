@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -171,12 +170,8 @@ loop:
 	} else {
 		log.Printf("VM IP is still the same: %s", prevIp)
 		if time.Now().After(stopTime) {
-			if strings.Contains(ip, ":") {
-				// To use a literal IPv6 address in a URL the literal address should be enclosed in
-				// "[" and "]" characters. Refer to https://www.ietf.org/rfc/rfc2732.
-				// Example: ssh example@[2010:836B:4179::836B:4179]
-				ip = "[" + ip + "]"
-			}
+			// NOTE: IPv6 addresses are returned without brackets.
+			// The SSH communicator wraps them when needed.
 			log.Printf("VM IP seems stable enough: %s", ip)
 			return ip, nil
 		}
