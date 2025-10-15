@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package testing
+package vsphere
 
 import (
 	"context"
@@ -42,7 +42,7 @@ type VCenterSimulator struct {
 	Datacenter *object.Datacenter
 }
 
-// NewVCenterSimulator creates simulator object with model passed as argument.
+// NewVCenterSimulator creates a new vCenter simulator with the specified model.
 func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
 	ctx := context.Background()
 	if model == nil {
@@ -106,8 +106,7 @@ func (sim *VCenterSimulator) Stop() {
 	}
 }
 
-// CustomizeSimulator configures virtual machines in order that was retrieved from simulator according to
-// list of machine configs in `vmsConfig`. Available options can be found in SimulatedVMConfig type.
+// CustomizeSimulator configures virtual machines in the simulator according to the provided configurations.
 func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) error {
 	tagMan := tags.NewManager(sim.RestClient)
 
@@ -144,13 +143,13 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 
 		if vmsConfig[i].Tags != nil {
 			for _, tag := range vmsConfig[i].Tags {
-				catID, err := FindOrCreateCategory(sim.Ctx, tagMan, tag.Category)
+				catID, err := EnsureCategory(sim.Ctx, tagMan, tag.Category)
 				if err != nil {
-					return fmt.Errorf("failed to find/create category: %w", err)
+					return fmt.Errorf("failed to ensure category exists: %w", err)
 				}
-				tagID, err := FindOrCreateTag(sim.Ctx, tagMan, catID, tag.Name)
+				tagID, err := EnsureTag(sim.Ctx, tagMan, catID, tag.Name)
 				if err != nil {
-					return fmt.Errorf("failed to find/create tag: %w", err)
+					return fmt.Errorf("failed to ensure tag exists: %w", err)
 				}
 				err = tagMan.AttachTag(sim.Ctx, tagID, vms[i].Reference())
 				if err != nil {

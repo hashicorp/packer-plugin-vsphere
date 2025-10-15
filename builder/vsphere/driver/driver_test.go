@@ -152,15 +152,15 @@ func (s *VCenterSimulator) NewSimulatorDriver() (*VCenterDriver, error) {
 	finder.SetDatacenter(datacenter)
 
 	d := &VCenterDriver{
-		ctx:       ctx,
-		client:    client,
-		vimClient: vimClient,
-		restClient: &RestClient{
+		Ctx:       ctx,
+		Client:    client,
+		VimClient: vimClient,
+		RestClient: &RestClient{
 			client:      rest.NewClient(vimClient),
 			credentials: user,
 		},
-		datacenter: datacenter,
-		finder:     finder,
+		Datacenter: datacenter,
+		Finder:     finder,
 	}
 	return d, nil
 }

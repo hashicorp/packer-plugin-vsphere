@@ -8,16 +8,15 @@ import (
 	"time"
 
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/hashicorp/packer-plugin-vsphere/testing/vsphere"
 	"github.com/vmware/govmomi/simulator"
-
-	commonT "github.com/hashicorp/packer-plugin-vsphere/datasource/common/testing"
 )
 
-func TestExecute(t *testing.T) {
-	machinesToPrepare := []commonT.SimulatedVMConfig{
+func TestDatasource_Execute(t *testing.T) {
+	machinesToPrepare := []vsphere.SimulatedVMConfig{
 		{
 			Name: "first-vm",
-			Tags: []commonT.Tag{
+			Tags: []vsphere.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -25,7 +24,7 @@ func TestExecute(t *testing.T) {
 			},
 		}, {
 			Name: "second-vm",
-			Tags: []commonT.Tag{
+			Tags: []vsphere.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -42,7 +41,7 @@ func TestExecute(t *testing.T) {
 			Template: true,
 		}, {
 			Name: "machine-three",
-			Tags: []commonT.Tag{
+			Tags: []vsphere.Tag{
 				{
 					Category: "operating-system-class",
 					Name:     "Linux",
@@ -60,7 +59,7 @@ func TestExecute(t *testing.T) {
 	model.Datacenter = 2
 	model.Machine = 8
 
-	vcSim, err := commonT.NewVCenterSimulator(model)
+	vcSim, err := vsphere.NewVCenterSimulator(model)
 	if err != nil {
 		t.Fatalf("error creating vCenter simulator: %s", err)
 	}
