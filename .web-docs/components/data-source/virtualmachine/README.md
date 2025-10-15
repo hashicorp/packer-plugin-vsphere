@@ -2,8 +2,8 @@ Type: `vsphere-virtualmachine`
 Artifact BuilderId: `vsphere.virtualmachine`
 
 This data source retrieves information about existing virtual machines from vSphere
-and return name of one virtual machine that matches all specified filters. This virtual
-machine can be used in the vSphere Clone builder to select a template.
+and returns the name of a virtual machine that matches all specified filters. This
+virtual machine can be used in the vSphere Clone builder to select a template.
 
 ## Configuration Reference
 
@@ -30,27 +30,25 @@ machine can be used in the vSphere Clone builder to select a template.
 
 - `host` (string) - Filter to search virtual machines only on the specified ESX host.
 
-- `tag` ([]Tag) - Filter to return only that virtual machines that have attached all
-  specified tags. Specify one or more `tag` blocks to define list of tags
-   for the filter.
-
+- `tag` ([]Tag) - Filter to return only the virtual machines that have attached all specified tags.
+  Specify one or more `tag` blocks to define list of tags for the filter.
+  
   HCL Example:
-
+  
   ```hcl
   	tag {
   	  category = "team"
-  	  name = "operations"
+  	  name     = "operations"
   	}
   	tag {
   	  category = "sla"
-  	  name = "gold"
+  	  name     = "gold"
   	}
   ```
 
-- `latest` (bool) - This filter determines how to handle multiple machines that were
-  matched with all previous filters. Machine creation time is being used
-  to find latest. By default, multiple matching machines results in an
-  error.
+- `latest` (bool) - This filter determines how to handle multiple virtual machines that were matched
+  with all previous filters. Virtual machine creation time is being used to find
+  the latest. By default, multiple matching machines results in an error.
 
 <!-- End of code generated from the comments of the Config struct in datasource/virtualmachine/data.go; -->
 
@@ -65,7 +63,7 @@ machine can be used in the vSphere Clone builder to select a template.
   filter.
 
 - `category` (string) - Name of the tag category that contains the tag.
-
+  
   -> **Note:** Both `name` and `category` must be specified in the `tag`
   filter.
 
@@ -78,21 +76,21 @@ machine can be used in the vSphere Clone builder to select a template.
 
 <!-- Code generated from the comments of the ConnectConfig struct in builder/vsphere/common/step_connect.go; DO NOT EDIT MANUALLY -->
 
-- `vcenter_server` (string) - The fully qualified domain name or IP address of the vCenter Server
+- `vcenter_server` (string) - The fully qualified domain name or IP address of the vCenter instance
   instance.
 
-- `username` (string) - The username to authenticate with the vCenter Server instance.
+- `username` (string) - The username to authenticate with the vCenter instance.
 
-- `password` (string) - The password to authenticate with the vCenter Server instance.
+- `password` (string) - The password to authenticate with the vCenter instance.
 
-- `insecure_connection` (bool) - Do not validate the certificate of the vCenter Server instance.
+- `insecure_connection` (bool) - Do not validate the certificate of the vCenter instance.
   Defaults to `false`.
-
+  
   -> **Note:** This option is beneficial in scenarios where the certificate
   is self-signed or does not meet standard validation criteria.
 
 - `datacenter` (string) - The name of the datacenter object in the vSphere inventory.
-
+  
   -> **Note:** Required if more than one datacenter object exists in the
   vSphere inventory.
 
@@ -110,29 +108,32 @@ machine can be used in the vSphere Clone builder to select a template.
 
 ## Example Usage
 
-This example demonstrates how to connect to vSphere cluster and search for the latest virtual machine
-that matches the filters. The name of the machine is then output to the console as an output variable.
-```hcl
-data "vsphere-virtualmachine" "default" {
-    vcenter_server = "vcenter.example.com"
-    insecure_connection = true
-    username = "administrator@vsphere.local"
-    password = "VMware1!"
-    datacenter = "dc-01"
-    latest = true
-    tag {
-	  category = "team"
-	  name = "operations"
-	}
-	tag {
-	  category = "sla"
-	  name = "gold"
-	}
+### Filter by Tags and Get Latest
 
+This example demonstrates how to connect to vSphere cluster and search for the latest
+virtual machine that matches the specified tag filters.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  latest         = true
+
+  tag {
+    category = "team"
+    name     = "operations"
+  }
+
+  tag {
+    category = "sla"
+    name     = "gold"
+  }
 }
 
 locals {
-  vm_name = data.vsphere-virtualmachine.default.vm_name
+  vm_name = data.vsphere-virtualmachine.example.vm_name
 }
 
 source "null" "example" {
@@ -149,5 +150,86 @@ build {
       "echo vm_name: ${local.vm_name}",
     ]
   }
+}
+```
+
+### Filter by Name with Glob Pattern
+
+This example shows how to use the `name` filter with glob patterns to find virtual
+machines matching a specific naming convention.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name           = "linux-debian-13-*"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter by Name with Regular Expression
+
+This example demonstrates using the `name_regex` filter for more complex pattern
+matching with regular expressions.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name_regex     = "^linux-debian-[0-9]+-.+$"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter for VM Templates Only
+
+This example shows how to use the `template` filter to search only for virtual
+machine templates.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name           = "linux-debian-13-*"
+  template       = true
+}
+
+locals {
+  result_template = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter by ESX Host
+
+This example demonstrates filtering virtual machines by a specific ESX host,
+combined with other filters.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  host           = "esxi-01.example.com"
+  name           = "linux-debian-13-*"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
 }
 ```

@@ -3,6 +3,7 @@
 
 //go:generate packer-sdc struct-markdown
 //go:generate packer-sdc mapstructure-to-hcl2 -type Config,Tag,DatasourceOutput
+
 package virtualmachine
 
 import (
@@ -15,7 +16,7 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	vsphere "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
-	"github.com/hashicorp/packer-plugin-vsphere/datasource/common/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -51,27 +52,25 @@ type Config struct {
 	Template bool `mapstructure:"template"`
 	// Filter to search virtual machines only on the specified ESX host.
 	Host string `mapstructure:"host"`
-	// Filter to return only that virtual machines that have attached all
-	// specified tags. Specify one or more `tag` blocks to define list of tags
-	//  for the filter.
+	// Filter to return only the virtual machines that have attached all specified tags.
+	// Specify one or more `tag` blocks to define list of tags for the filter.
 	//
 	// HCL Example:
 	//
 	// ```hcl
 	//	tag {
 	//	  category = "team"
-	//	  name = "operations"
+	//	  name     = "operations"
 	//	}
 	//	tag {
 	//	  category = "sla"
-	//	  name = "gold"
+	//	  name     = "gold"
 	//	}
 	// ```
 	Tags []Tag `mapstructure:"tag"`
-	// This filter determines how to handle multiple machines that were
-	// matched with all previous filters. Machine creation time is being used
-	// to find latest. By default, multiple matching machines results in an
-	// error.
+	// This filter determines how to handle multiple virtual machines that were matched
+	// with all previous filters. Virtual machine creation time is being used to find
+	// the latest. By default, multiple matching machines results in an error.
 	Latest bool `mapstructure:"latest"`
 }
 
@@ -124,37 +123,42 @@ func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
 }
 
 func (d *Datasource) Execute() (cty.Value, error) {
-	dr, err := driver.NewDriver(d.config.ConnectConfig)
+	driverConfig := &driver.ConnectConfig{
+		VCenterServer:      d.config.VCenterServer,
+		Username:           d.config.Username,
+		Password:           d.config.Password,
+		InsecureConnection: d.config.InsecureConnection,
+		Datacenter:         d.config.Datacenter,
+	}
+
+	dr, err := driver.NewDriver(driverConfig)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to initialize driver: %w", err)
 	}
 
-	// This is the first level of filters
-	// (the finder with glob will return filtered list or drop an error if found nothing).
-	vmList, err := dr.Finder.VirtualMachineList(dr.Ctx, d.config.Name)
+	vcDriver := dr.(*driver.VCenterDriver)
+
+	vmList, err := vcDriver.Finder.VirtualMachineList(vcDriver.Ctx, d.config.Name)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to retrieve virtual machines list: %w", err)
 	}
 
-	// Chain of other filters that will be executed only when defined.
-	filteredVms, err := filterVms(vmList, d.config, dr)
+	filteredVms, err := filterVms(vmList, d.config, vcDriver)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to filter virtual machines: %w", err)
 	}
 
-	// No VMs passed the filter chain. Nothing to return.
 	if len(filteredVms) == 0 {
 		return cty.NullVal(cty.EmptyObject), errors.New("no virtual machine matches the filters")
 	}
 
 	if len(filteredVms) > 1 {
 		if d.config.Latest {
-			filteredVms, err = findLatestVM(dr, filteredVms)
+			filteredVms, err = findLatestVM(vcDriver, filteredVms)
 			if err != nil {
 				return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed to find the latest virtual machine: %w", err)
 			}
 		} else {
-			// Too many machines passed the filter chain. Cannot decide which machine to return.
 			return cty.NullVal(cty.EmptyObject), errors.New("more than one virtual machine matched the filters")
 		}
 	}

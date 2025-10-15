@@ -51,29 +51,29 @@ type Driver interface {
 }
 
 type VCenterDriver struct {
-	// context that controls the authenticated sessions used to run the VM commands
-	ctx        context.Context
-	client     *govmomi.Client
-	vimClient  *vim25.Client
-	restClient *RestClient
-	finder     *find.Finder
-	datacenter *object.Datacenter
+	Ctx        context.Context
+	Client     *govmomi.Client
+	VimClient  *vim25.Client
+	RestClient *RestClient
+	Finder     *find.Finder
+	Datacenter *object.Datacenter
 }
 
 func NewVCenterDriver(ctx context.Context, client *govmomi.Client, vimClient *vim25.Client, user *url.Userinfo, finder *find.Finder, datacenter *object.Datacenter) *VCenterDriver {
 	return &VCenterDriver{
-		ctx:       ctx,
-		client:    client,
-		vimClient: vimClient,
-		restClient: &RestClient{
+		Ctx:       ctx,
+		Client:    client,
+		VimClient: vimClient,
+		RestClient: &RestClient{
 			client:      rest.NewClient(vimClient),
 			credentials: user,
 		},
-		datacenter: datacenter,
-		finder:     finder,
+		Datacenter: datacenter,
+		Finder:     finder,
 	}
 }
 
+// ConnectConfig contains the configuration for connecting to vCenter.
 type ConnectConfig struct {
 	VCenterServer      string
 	Username           string
@@ -117,24 +117,24 @@ func NewDriver(config *ConnectConfig) (Driver, error) {
 	finder.SetDatacenter(datacenter)
 
 	d := &VCenterDriver{
-		ctx:       ctx,
-		client:    client,
-		vimClient: vimClient,
-		restClient: &RestClient{
+		Ctx:       ctx,
+		Client:    client,
+		VimClient: vimClient,
+		RestClient: &RestClient{
 			client:      rest.NewClient(vimClient),
 			credentials: credentials,
 		},
-		datacenter: datacenter,
-		finder:     finder,
+		Datacenter: datacenter,
+		Finder:     finder,
 	}
 	return d, nil
 }
 
 func (d *VCenterDriver) Cleanup() (error, error) {
-	return d.restClient.client.Logout(d.ctx), d.client.SessionManager.Logout(d.ctx)
+	return d.RestClient.client.Logout(d.Ctx), d.Client.SessionManager.Logout(d.Ctx)
 }
 
-// RestClient manages RESTful interactions with vCenter, handling client initialization and credential storage.
+// RestClient manages RESTful interactions with vCenter.
 type RestClient struct {
 	client      *rest.Client
 	credentials *url.Userinfo
@@ -146,4 +146,9 @@ func (r *RestClient) Login(ctx context.Context) error {
 
 func (r *RestClient) Logout(ctx context.Context) error {
 	return r.client.Logout(ctx)
+}
+
+// Client returns the underlying rest.Client for direct API access.
+func (r *RestClient) Client() *rest.Client {
+	return r.client
 }

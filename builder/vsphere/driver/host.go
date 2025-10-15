@@ -18,7 +18,7 @@ type Host struct {
 // ManagedObjectReference and the VCenterDriver instance.
 func (d *VCenterDriver) NewHost(ref *types.ManagedObjectReference) *Host {
 	return &Host{
-		host:   object.NewHostSystem(d.client.Client, *ref),
+		host:   object.NewHostSystem(d.Client.Client, *ref),
 		driver: d,
 	}
 }
@@ -26,7 +26,7 @@ func (d *VCenterDriver) NewHost(ref *types.ManagedObjectReference) *Host {
 // FindHost locates a host within the vCenter environment by its name. Returns
 // a Host object or an error if not found or if the retrieval process fails.
 func (d *VCenterDriver) FindHost(name string) (*Host, error) {
-	h, err := d.finder.HostSystem(d.ctx, name)
+	h, err := d.Finder.HostSystem(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (h *Host) Info(params ...string) (*mo.HostSystem, error) {
 		p = params
 	}
 	var info mo.HostSystem
-	err := h.host.Properties(h.driver.ctx, h.host.Reference(), p, &info)
+	err := h.host.Properties(h.driver.Ctx, h.host.Reference(), p, &info)
 	if err != nil {
 		return nil, err
 	}

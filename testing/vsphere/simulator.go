@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package testing
+package vsphere
 
 import (
 	"context"
@@ -25,14 +25,14 @@ type Tag struct {
 	Name     string
 }
 
-type SimulatedVMConfig struct {
+type SimulatedVmConfig struct {
 	Name         string
 	Tags         []Tag
 	Template     bool
 	CreationTime time.Time
 }
 
-type VCenterSimulator struct {
+type simulatorContext struct {
 	Model      *simulator.Model
 	Server     *simulator.Server
 	Ctx        context.Context
@@ -42,8 +42,8 @@ type VCenterSimulator struct {
 	Datacenter *object.Datacenter
 }
 
-// NewVCenterSimulator creates simulator object with model passed as argument.
-func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
+// NewSimulator creates a new vCenter simulator with the specified model.
+func NewSimulator(model *simulator.Model) (*simulatorContext, error) {
 	ctx := context.Background()
 	if model == nil {
 		return nil, fmt.Errorf("model has not been initialized")
@@ -86,7 +86,7 @@ func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
 	}
 	finder.SetDatacenter(dcs[0])
 
-	return &VCenterSimulator{
+	return &simulatorContext{
 		Ctx:        ctx,
 		Server:     server,
 		Model:      model,
@@ -97,7 +97,7 @@ func NewVCenterSimulator(model *simulator.Model) (*VCenterSimulator, error) {
 	}, nil
 }
 
-func (sim *VCenterSimulator) Stop() {
+func (sim *simulatorContext) Stop() {
 	if sim.Model != nil {
 		sim.Model.Remove()
 	}
@@ -106,9 +106,8 @@ func (sim *VCenterSimulator) Stop() {
 	}
 }
 
-// CustomizeSimulator configures virtual machines in order that was retrieved from simulator according to
-// list of machine configs in `vmsConfig`. Available options can be found in SimulatedVMConfig type.
-func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) error {
+// ApplyVmConfiguration applies virtual machines in the simulator according to the provided configurations.
+func (sim *simulatorContext) ApplyVmConfiguration(vmsConfig []SimulatedVmConfig) error {
 	tagMan := tags.NewManager(sim.RestClient)
 
 	vms, err := sim.Finder.VirtualMachineList(sim.Ctx, "*")
@@ -136,7 +135,7 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 		}
 
 		if vmsConfig[i].Template {
-			err = MarkSimulatedVmAsTemplate(sim.Ctx, vms[i])
+			err = markSimulatedVmAsTemplate(sim.Ctx, vms[i])
 			if err != nil {
 				return fmt.Errorf("failed to convert to templates: %w", err)
 			}
@@ -144,13 +143,13 @@ func (sim *VCenterSimulator) CustomizeSimulator(vmsConfig []SimulatedVMConfig) e
 
 		if vmsConfig[i].Tags != nil {
 			for _, tag := range vmsConfig[i].Tags {
-				catID, err := FindOrCreateCategory(sim.Ctx, tagMan, tag.Category)
+				catID, err := ensureCategory(sim.Ctx, tagMan, tag.Category)
 				if err != nil {
-					return fmt.Errorf("failed to find/create category: %w", err)
+					return fmt.Errorf("failed to ensure category exists: %w", err)
 				}
-				tagID, err := FindOrCreateTag(sim.Ctx, tagMan, catID, tag.Name)
+				tagID, err := ensureTag(sim.Ctx, tagMan, catID, tag.Name)
 				if err != nil {
-					return fmt.Errorf("failed to find/create tag: %w", err)
+					return fmt.Errorf("failed to ensure tag exists: %w", err)
 				}
 				err = tagMan.AttachTag(sim.Ctx, tagID, vms[i].Reference())
 				if err != nil {
