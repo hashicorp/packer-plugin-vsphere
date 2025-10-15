@@ -119,7 +119,7 @@ func (vm *VirtualMachineDriver) EjectCdroms() error {
 		c := cd.(*types.VirtualCdrom)
 		c.Backing = &types.VirtualCdromRemotePassthroughBackingInfo{}
 		c.Connectable = &types.VirtualDeviceConnectInfo{}
-		err := vm.vm.EditDevice(vm.driver.ctx, c)
+		err := vm.vm.EditDevice(vm.driver.Ctx, c)
 		if err != nil {
 			return err
 		}

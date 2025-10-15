@@ -8,18 +8,17 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/datasource/common/driver"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
 )
 
-// filterVms removes from the `vmList` virtual machines that do not match some filters in the datasource config.
+// filterVms removes virtual machines from vmList that do not match the datasource config filters.
 func filterVms(vmList []*object.VirtualMachine, c Config, d *driver.VCenterDriver) ([]*object.VirtualMachine, error) {
 	filterFuncs := make([]func(*object.VirtualMachine) (bool, error), 0)
 
-	// Filters machines by matching their names against defined regular expression.
 	if c.NameRegex != "" {
 		re := regexp.MustCompile(c.NameRegex)
 		filterFuncs = append(filterFuncs, func(vm *object.VirtualMachine) (bool, error) {
@@ -27,7 +26,6 @@ func filterVms(vmList []*object.VirtualMachine, c Config, d *driver.VCenterDrive
 		})
 	}
 
-	// Filters machines by template attribute. Only templates will pass the filter.
 	if c.Template {
 		filterFuncs = append(filterFuncs, func(vm *object.VirtualMachine) (bool, error) {
 			isTemplate, err := vm.IsTemplate(d.Ctx)
@@ -38,10 +36,7 @@ func filterVms(vmList []*object.VirtualMachine, c Config, d *driver.VCenterDrive
 		})
 	}
 
-	// Filters machines by ESX host placement.
-	// Only machines that are stored on the defined host will pass the filter.
 	if c.Host != "" {
-		// The filter uses a function closure because it only needs to retrieve the list of virtual machines from the host once.
 		hostVms, err := getHostVms(d, c.Host)
 		if err != nil {
 			return nil, err
@@ -58,7 +53,6 @@ func filterVms(vmList []*object.VirtualMachine, c Config, d *driver.VCenterDrive
 		})
 	}
 
-	// Filters machines by tags. Only machines that has all the tags from list will pass the filter.
 	if c.Tags != nil {
 		filterFuncs = append(filterFuncs, func(vm *object.VirtualMachine) (bool, error) {
 			result, err := configTagsMatchHostTags(d, vm, c.Tags)
@@ -93,7 +87,7 @@ func filterVms(vmList []*object.VirtualMachine, c Config, d *driver.VCenterDrive
 	return result, nil
 }
 
-// findLatestVM filters machines by creation date. It returns list with one element.
+// findLatestVM returns the most recently created virtual machine from vmList.
 func findLatestVM(d *driver.VCenterDriver, vmList []*object.VirtualMachine) ([]*object.VirtualMachine, error) {
 	var latestVM *object.VirtualMachine
 	var latestTimestamp time.Time
@@ -112,7 +106,7 @@ func findLatestVM(d *driver.VCenterDriver, vmList []*object.VirtualMachine) ([]*
 	return result, nil
 }
 
-// getHostVms retrieves existing virtual machines on the host defined by `hostName`
+// getHostVms retrieves all virtual machines on the specified host.
 func getHostVms(d *driver.VCenterDriver, hostName string) ([]mo.VirtualMachine, error) {
 	pc := property.DefaultCollector(d.Client.Client)
 	obj, err := d.Finder.HostSystem(d.Ctx, hostName)
@@ -134,9 +128,14 @@ func getHostVms(d *driver.VCenterDriver, hostName string) ([]mo.VirtualMachine, 
 	return hostVms, nil
 }
 
-// configTagsMatchHostTags compares `tagList` with the list of tags attached to the virtual machine in the cluster.
+// configTagsMatchHostTags returns true if the virtual machine has all tags specified in tagList.
 func configTagsMatchHostTags(d *driver.VCenterDriver, vm *object.VirtualMachine, tagList []Tag) (bool, error) {
-	tagMan := tags.NewManager(d.RestClient)
+	err := d.RestClient.Login(d.Ctx)
+	if err != nil {
+		return false, fmt.Errorf("failed to login to REST API: %w", err)
+	}
+
+	tagMan := tags.NewManager(d.RestClient.Client())
 	realTagsList, err := tagMan.GetAttachedTags(d.Ctx, vm.Reference())
 	if err != nil {
 		return false, fmt.Errorf("failed return tags for the virtual machine: %w", err)
@@ -159,8 +158,6 @@ func configTagsMatchHostTags(d *driver.VCenterDriver, vm *object.VirtualMachine,
 		if configTagMatched {
 			matchedTagsCount++
 		} else {
-			// If a single requested tag from config not matched then no need to proceed.
-			// Fail early.
 			break
 		}
 	}

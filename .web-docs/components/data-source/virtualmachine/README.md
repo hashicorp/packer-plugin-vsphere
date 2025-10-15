@@ -33,9 +33,9 @@ machine can be used in the vSphere Clone builder to select a template.
 - `tag` ([]Tag) - Filter to return only that virtual machines that have attached all
   specified tags. Specify one or more `tag` blocks to define list of tags
    for the filter.
-
+  
   HCL Example:
-
+  
   ```hcl
   	tag {
   	  category = "team"
@@ -65,7 +65,7 @@ machine can be used in the vSphere Clone builder to select a template.
   filter.
 
 - `category` (string) - Name of the tag category that contains the tag.
-
+  
   -> **Note:** Both `name` and `category` must be specified in the `tag`
   filter.
 
@@ -87,12 +87,12 @@ machine can be used in the vSphere Clone builder to select a template.
 
 - `insecure_connection` (bool) - Do not validate the certificate of the vCenter Server instance.
   Defaults to `false`.
-
+  
   -> **Note:** This option is beneficial in scenarios where the certificate
   is self-signed or does not meet standard validation criteria.
 
 - `datacenter` (string) - The name of the datacenter object in the vSphere inventory.
-
+  
   -> **Note:** Required if more than one datacenter object exists in the
   vSphere inventory.
 

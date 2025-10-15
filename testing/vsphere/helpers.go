@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package testing
+package vsphere
 
 import (
 	"context"
@@ -11,9 +11,8 @@ import (
 	"github.com/vmware/govmomi/vapi/tags"
 )
 
-// MarkSimulatedVmAsTemplate powers off the virtual machine before converting it to a template (because the simulator
-// creates all virtual machines in an online state).
-func MarkSimulatedVmAsTemplate(ctx context.Context, vm *object.VirtualMachine) error {
+// markSimulatedVmAsTemplate powers off the virtual machine and converts it to a template.
+func markSimulatedVmAsTemplate(ctx context.Context, vm *object.VirtualMachine) error {
 	task, err := vm.PowerOff(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to issue powering off command to the machine: %w", err)
@@ -29,9 +28,8 @@ func MarkSimulatedVmAsTemplate(ctx context.Context, vm *object.VirtualMachine) e
 	return nil
 }
 
-// FindOrCreateCategory tries to find category passed by name, creates category if not found and returns category ID.
-// Category will be created with "MULTIPLE" constraint.
-func FindOrCreateCategory(ctx context.Context, man *tags.Manager, catName string) (string, error) {
+// ensureCategory ensures a tag category exists by name and returns its ID.
+func ensureCategory(ctx context.Context, man *tags.Manager, catName string) (string, error) {
 	categoryList, err := man.GetCategories(ctx)
 	if err != nil {
 		return "", fmt.Errorf("cannot return categories from cluster: %w", err)
@@ -48,8 +46,8 @@ func FindOrCreateCategory(ctx context.Context, man *tags.Manager, catName string
 	return newCategoryID, nil
 }
 
-// FindOrCreateTag tries to find the tagName in category with catID, creates if not found and returns tag ID.
-func FindOrCreateTag(ctx context.Context, man *tags.Manager, catID string, tagName string) (string, error) {
+// ensureTag ensures a tag exists within the specified category and returns its ID.
+func ensureTag(ctx context.Context, man *tags.Manager, catID string, tagName string) (string, error) {
 	tagsInCategory, err := man.GetTagsForCategory(ctx, catID)
 	if err != nil {
 		return "", fmt.Errorf("cannot return tags for category: %w", err)
