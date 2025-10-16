@@ -46,7 +46,7 @@ type StepDownload struct {
 }
 
 func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
-	driver := state.Get("driver").(driver.Driver)
+	d := state.Get("driver").(driver.Driver)
 	ui := state.Get("ui").(packersdk.Ui)
 
 	// Set the remote cache datastore. If not set, use the default datastore for the build.
@@ -55,11 +55,19 @@ func (s *StepDownload) Run(ctx context.Context, state multistep.StateBag) multis
 		remoteCacheDatastore = s.RemoteCacheDatastore
 	}
 
-	// Find the datastore to use for the remote cache.
-	ds, err := driver.FindDatastore(remoteCacheDatastore, s.Host)
-	if err != nil {
-		state.Put("error", fmt.Errorf("error finding the datastore: %v", err))
-		return multistep.ActionHalt
+	var ds driver.Datastore
+	var err error
+
+	// If a datastore was resolved (from datastore or datastore_cluster), use it.
+	if resolvedDs, ok := state.GetOk("datastore"); ok && remoteCacheDatastore == s.Datastore {
+		ds = resolvedDs.(driver.Datastore)
+	} else {
+		// Find the datastore to use for the remote cache.
+		ds, err = d.FindDatastore(remoteCacheDatastore, s.Host)
+		if err != nil {
+			state.Put("error", fmt.Errorf("error finding the datastore: %v", err))
+			return multistep.ActionHalt
+		}
 	}
 
 	// Set the remote cache path. If not set, use the default cache path.

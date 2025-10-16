@@ -23,14 +23,12 @@ The following configuration options are available for the post-processor.
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `cluster` (string) - The cluster or ESX host to upload the virtual machine.
-  This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
-  or IP address of the ESX host.
+- `cluster` (string) - The cluster or ESX host to upload the virtual machine. This can be either the
+  name of the vSphere cluster or the fully qualified domain name (FQDN) or IP
+  address of the ESX host.
 
 - `datacenter` (string) - The name of the vSphere datacenter object to place the virtual machine.
   This is _not required_ if `resource_pool` is specified.
-
-- `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
 
 - `host` (string) - The fully qualified domain name or IP address of the vCenter instance or ESX host.
 
@@ -45,6 +43,13 @@ The following configuration options are available for the post-processor.
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
+- `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
+  Mutually exclusive with `datastore_cluster`.
+
+- `datastore_cluster` (string) - The name of the vSphere datastore cluster to place the virtual machine.
+  When specified, Storage DRS will automatically select the optimal datastore.
+  Mutually exclusive with `datastore`.
+
 - `disk_mode` (string) - The disk format of the target virtual machine. One of `thin`, `thick`,
 
 - `esxi_host` (string) - The fully qualified domain name or IP address of the ESX host to upload the
@@ -55,7 +60,8 @@ The following configuration options are available for the post-processor.
 - `options` ([]string) - Options to send to `ovftool` when uploading the virtual machine.
   Use `ovftool --help` to list all the options available.
 
-- `overwrite` (bool) - Overwrite existing files. Defaults to `false`.
+- `overwrite` (bool) - Overwrite existing files.
+  If `true`, forces overwrites of existing files. Defaults to `false`.
 
 - `resource_pool` (string) - The name of the resource pool to place the virtual machine.
 
@@ -68,14 +74,15 @@ The following configuration options are available for the post-processor.
 
 - `hardware_version` (string) - The maximum virtual hardware version for the deployed virtual machine.
   
-  It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
-  virtual hardware version of the deployed virtual machine  to the specified version.
-  If the source virtual machine's hardware version is higher than the specified version, the
-  deployed virtual machine's hardware version will be downgraded to the specified version.
+  It does not upgrade the virtual hardware version of the source VM. Instead, it
+  limits the virtual hardware version of the deployed virtual machine to the
+  specified version. If the source virtual machine's hardware version is higher
+  than the specified version, the deployed virtual machine's hardware version will
+  be downgraded to the specified version.
   
-  If the source virtual machine's hardware version is lower than or equal to the specified
-  version, the deployed virtual machine's hardware version will be the same as the source
-  virtual machine's.
+  If the source virtual machine's hardware version is lower than or equal to the
+  specified version, the deployed virtual machine's hardware version will be the
+  same as the source virtual machine's.
   
   This option is useful when deploying to vCenter instance or an ESX host whose
   version is different than the one used to create the artifact.

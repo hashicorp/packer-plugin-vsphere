@@ -25,6 +25,7 @@ import (
 	shelllocal "github.com/hashicorp/packer-plugin-sdk/shell-local"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 const (
@@ -36,8 +37,9 @@ const (
 var ovftool = "ovftool"
 
 var (
-	// Regular expression to validate an RFC1035 hostname from and FQDN or simple hostname.
-	// For example "esxi-01". Requires proper DNS setup and/or correct DNS search domain setting.
+	// Regular expression to validate an RFC1035 hostname from and FQDN or simple
+	// hostname. For example "esxi-01". Requires proper DNS setup and/or correct DNS
+	// search domain setting.
 	hostnameRegex = regexp.MustCompile(`^[[:alnum:]][[:alnum:]\-]{0,61}[[:alnum:]]|[[:alpha:]]$`)
 
 	// Simple regular expression to validate IPv4 values.
@@ -47,15 +49,20 @@ var (
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	// The cluster or ESX host to upload the virtual machine.
-	// This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
-	// or IP address of the ESX host.
+	// The cluster or ESX host to upload the virtual machine. This can be either the
+	// name of the vSphere cluster or the fully qualified domain name (FQDN) or IP
+	// address of the ESX host.
 	Cluster string `mapstructure:"cluster" required:"true"`
 	// The name of the vSphere datacenter object to place the virtual machine.
 	// This is _not required_ if `resource_pool` is specified.
 	Datacenter string `mapstructure:"datacenter" required:"true"`
 	// The name of the vSphere datastore to place the virtual machine.
-	Datastore string `mapstructure:"datastore"  required:"true"`
+	// Mutually exclusive with `datastore_cluster`.
+	Datastore string `mapstructure:"datastore"`
+	// The name of the vSphere datastore cluster to place the virtual machine.
+	// When specified, Storage DRS will automatically select the optimal datastore.
+	// Mutually exclusive with `datastore`.
+	DatastoreCluster string `mapstructure:"datastore_cluster"`
 	// The disk format of the target virtual machine. One of `thin`, `thick`,
 	DiskMode string `mapstructure:"disk_mode"`
 	// The fully qualified domain name or IP address of the vCenter instance or ESX host.
@@ -68,7 +75,8 @@ type Config struct {
 	// Options to send to `ovftool` when uploading the virtual machine.
 	// Use `ovftool --help` to list all the options available.
 	Options []string `mapstructure:"options"`
-	// Overwrite existing files. Defaults to `false`.
+	// Overwrite existing files.
+	// If `true`, forces overwrites of existing files. Defaults to `false`.
 	Overwrite bool `mapstructure:"overwrite"`
 	// The password to use to authenticate to the vSphere endpoint.
 	Password string `mapstructure:"password" required:"true"`
@@ -85,14 +93,15 @@ type Config struct {
 	VMNetwork string `mapstructure:"vm_network"`
 	// The maximum virtual hardware version for the deployed virtual machine.
 	//
-	// It does not upgrade the virtual hardware version of the source VM. Instead, it limits the
-	// virtual hardware version of the deployed virtual machine  to the specified version.
-	// If the source virtual machine's hardware version is higher than the specified version, the
-	// deployed virtual machine's hardware version will be downgraded to the specified version.
+	// It does not upgrade the virtual hardware version of the source VM. Instead, it
+	// limits the virtual hardware version of the deployed virtual machine to the
+	// specified version. If the source virtual machine's hardware version is higher
+	// than the specified version, the deployed virtual machine's hardware version will
+	// be downgraded to the specified version.
 	//
-	// If the source virtual machine's hardware version is lower than or equal to the specified
-	// version, the deployed virtual machine's hardware version will be the same as the source
-	// virtual machine's.
+	// If the source virtual machine's hardware version is lower than or equal to the
+	// specified version, the deployed virtual machine's hardware version will be the
+	// same as the source virtual machine's.
 	//
 	// This option is useful when deploying to vCenter instance or an ESX host whose
 	// version is different than the one used to create the artifact.
@@ -108,7 +117,8 @@ type Config struct {
 }
 
 type PostProcessor struct {
-	config Config
+	config            Config
+	resolvedDatastore string
 }
 
 func (p *PostProcessor) ConfigSpec() hcldec.ObjectSpec { return p.config.FlatMapstructure().HCL2Spec() }
@@ -136,7 +146,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		p.config.DiskMode = DefaultDiskMode
 	}
 
-	// Accumulate any errors.
+	// Accumulate any errors
 	errs := new(packersdk.MultiError)
 
 	if runtime.GOOS == "windows" {
@@ -148,7 +158,16 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 			errs, fmt.Errorf("ovftool not found: %s", err))
 	}
 
-	// Define the parameters that are required.
+	if p.config.Datastore != "" && p.config.DatastoreCluster != "" {
+		errs = packersdk.MultiErrorAppend(
+			errs, fmt.Errorf("'datastore' and 'datastore_cluster' are mutually exclusive; specify only one"))
+	}
+
+	if p.config.Datastore == "" && p.config.DatastoreCluster == "" {
+		errs = packersdk.MultiErrorAppend(
+			errs, fmt.Errorf("either 'datastore' or 'datastore_cluster' must be specified"))
+	}
+
 	templates := map[string]*string{
 		"cluster":    &p.config.Cluster,
 		"datacenter": &p.config.Datacenter,
@@ -158,6 +177,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		"username":   &p.config.Username,
 		"vm_name":    &p.config.VMName,
 	}
+
 	for key, ptr := range templates {
 		if *ptr == "" {
 			errs = packersdk.MultiErrorAppend(
@@ -173,7 +193,6 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) generateURI() (*url.URL, error) {
-	// Use the net/url standard library to encode and escape the URI.
 	ovftoolURI := fmt.Sprintf("vi://%s/%s/host/%s",
 		p.config.Host,
 		p.config.Datacenter,
@@ -202,7 +221,6 @@ func (p *PostProcessor) generateURI() (*url.URL, error) {
 }
 
 func getEncodedPassword(u *url.URL) (string, bool) {
-	// Filter the password from the logs.
 	password, passwordSet := u.User.Password()
 	if passwordSet && password != "" {
 		encodedPassword := strings.Split(u.User.String(), ":")[1]
@@ -222,6 +240,44 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 
 	if source == "" {
 		return nil, false, false, fmt.Errorf("error locating expected .vmx, .ovf, or .ova artifact")
+	}
+
+	if p.config.DatastoreCluster != "" {
+		ui.Say(fmt.Sprintf("Resolving datastore from cluster '%s'...", p.config.DatastoreCluster))
+
+		d, err := p.connectToVCenter()
+		if err != nil {
+			return nil, false, false, fmt.Errorf("error connecting to vCenter: %s", err)
+		}
+		defer func() {
+			if restErr, soapErr := d.Cleanup(); restErr != nil || soapErr != nil {
+				if restErr != nil {
+					ui.Error(fmt.Sprintf("error cleaning up REST client: %s", restErr))
+				}
+				if soapErr != nil {
+					ui.Error(fmt.Sprintf("error cleaning up SOAP client: %s", soapErr))
+				}
+			}
+		}()
+
+		vcenterDriver, ok := d.(*driver.VCenterDriver)
+		if !ok {
+			return nil, false, false, fmt.Errorf("error: driver is not a VCenterDriver")
+		}
+
+		ds, selectionMethod, err := vcenterDriver.SelectDatastoreFromCluster(p.config.DatastoreCluster)
+		if err != nil {
+			return nil, false, false, fmt.Errorf("error selecting datastore from cluster: %s", err)
+		}
+
+		p.resolvedDatastore = ds.Name()
+		if selectionMethod == driver.SelectionMethodDRS {
+			log.Printf("[INFO] Storage DRS selected datastore '%s' from cluster '%s'", p.resolvedDatastore, p.config.DatastoreCluster)
+		} else {
+			log.Printf("[INFO] Selected datastore '%s' from cluster '%s' (first available)", p.resolvedDatastore, p.config.DatastoreCluster)
+		}
+	} else {
+		p.resolvedDatastore = p.config.Datastore
 	}
 
 	ovftoolURI, err := p.generateURI()
@@ -246,7 +302,6 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil, false, false, err
 	}
 
-	// Validation has passed, so run for real.
 	ui.Say("Uploading virtual machine...")
 	commandAndArgs := []string{ovftool}
 	commandAndArgs = append(commandAndArgs, args...)
@@ -269,9 +324,26 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil
 	})
 
-	artifact = NewArtifact(p.config.Datastore, p.config.VMFolder, p.config.VMName, artifact.Files())
+	artifact = NewArtifact(p.resolvedDatastore, p.config.VMFolder, p.config.VMName, artifact.Files())
 
 	return artifact, false, false, nil
+}
+
+func (p *PostProcessor) connectToVCenter() (driver.Driver, error) {
+	connectConfig := &driver.ConnectConfig{
+		VCenterServer:      p.config.Host,
+		Username:           p.config.Username,
+		Password:           p.config.Password,
+		InsecureConnection: p.config.Insecure,
+		Datacenter:         p.config.Datacenter,
+	}
+
+	d, err := driver.NewDriver(connectConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error creating driver: %s", err)
+	}
+
+	return d, nil
 }
 
 func (p *PostProcessor) ValidateOvfTool(args []string, ovftool string, ui packersdk.Ui) error {
@@ -286,8 +358,8 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ovftool string, ui packer
 	cmd := exec.CommandContext(cmdCtx, ovftool, args...)
 	cmd.Stdout = &out
 
-	// Need to manually close stdin or else the ovftool call will hang if the
-	// user has provided an invalid credential.
+	// Manually closing stdin is necessary to prevent the ovftool call from hanging
+	// indefinitely when the user provides an invalid password or username.
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
@@ -318,7 +390,7 @@ func (p *PostProcessor) BuildArgs(source, ovftoolURI string) ([]string, error) {
 	args := []string{
 		"--acceptAllEulas",
 		fmt.Sprintf(`--name=%s`, p.config.VMName),
-		fmt.Sprintf(`--datastore=%s`, p.config.Datastore),
+		fmt.Sprintf(`--datastore=%s`, p.resolvedDatastore),
 	}
 
 	if p.config.Insecure {

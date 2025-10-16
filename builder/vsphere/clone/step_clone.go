@@ -9,6 +9,7 @@ package clone
 import (
 	"context"
 	"fmt"
+	"log"
 	"path"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/govmomi/vim25/types"
 )
 
 type vAppConfig struct {
@@ -159,13 +161,61 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 		})
 	}
 
+	datastoreName := s.Location.Datastore
+	var primaryDatastore driver.Datastore
+	if ds, ok := state.GetOk("datastore"); ok {
+		primaryDatastore = ds.(driver.Datastore)
+		datastoreName = primaryDatastore.Name()
+	}
+
+	// If no datastore was resolved and no datastore was specified, return an error.
+	if datastoreName == "" && s.Location.DatastoreCluster == "" {
+		state.Put("error", fmt.Errorf("no datastore specified and no datastore resolved from cluster"))
+		return multistep.ActionHalt
+	}
+
+	// Handle multi-disk placement when using a datastore cluster.
+	var datastoreRefs []*types.ManagedObjectReference
+	if s.Location.DatastoreCluster != "" && len(disks) > 1 {
+		if vcDriver, ok := d.(*driver.VCenterDriver); ok {
+			// Request Storage DRS recommendations for all disks at once for optimal placement.
+			ui.Sayf("Requesting Storage DRS recommendations for %d disks...", len(disks))
+
+			diskDatastores, method, err := vcDriver.SelectDatastoresForDisks(s.Location.DatastoreCluster, disks)
+			if err != nil {
+				ui.Errorf("Warning: Failed to get Storage DRS recommendations: %s. Using primary datastore.", err)
+				if primaryDatastore != nil {
+					ref := primaryDatastore.Reference()
+					for i := 0; i < len(disks); i++ {
+						datastoreRefs = append(datastoreRefs, &ref)
+					}
+				}
+			} else {
+				// Use the first disk's datastore as the primary datastore.
+				if len(diskDatastores) > 0 {
+					datastoreName = diskDatastores[0].Name()
+				}
+
+				for i, ds := range diskDatastores {
+					ref := ds.Reference()
+					if method == driver.SelectionMethodDRS {
+						log.Printf("[INFO] Disk %d: Storage DRS selected datastore '%s'", i+1, ds.Name())
+					} else {
+						log.Printf("[INFO] Disk %d: Using first available datastore '%s'", i+1, ds.Name())
+					}
+					datastoreRefs = append(datastoreRefs, &ref)
+				}
+			}
+		}
+	}
+
 	vm, err := template.Clone(ctx, &driver.CloneConfig{
 		Name:            s.Location.VMName,
 		Folder:          s.Location.Folder,
 		Cluster:         s.Location.Cluster,
 		Host:            s.Location.Host,
 		ResourcePool:    s.Location.ResourcePool,
-		Datastore:       s.Location.Datastore,
+		Datastore:       datastoreName,
 		LinkedClone:     s.Config.LinkedClone,
 		Network:         s.Config.Network,
 		MacAddress:      strings.ToLower(s.Config.MacAddress),
@@ -175,6 +225,7 @@ func (s *StepCloneVM) Run(ctx context.Context, state multistep.StateBag) multist
 		StorageConfig: driver.StorageConfig{
 			DiskControllerType: s.Config.StorageConfig.DiskControllerType,
 			Storage:            disks,
+			DatastoreRefs:      datastoreRefs,
 		},
 	})
 	if err != nil {
