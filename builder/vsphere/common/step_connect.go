@@ -59,6 +59,8 @@ type StepConnect struct {
 }
 
 func (s *StepConnect) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
+	// Convert common.ConnectConfig to driver.ConnectConfig
+	// Both structs have identical fields to avoid import cycles
 	d, err := driver.NewDriver(&driver.ConnectConfig{
 		VCenterServer:      s.Config.VCenterServer,
 		Username:           s.Config.Username,

@@ -20,7 +20,7 @@ type Network struct {
 // ManagedObjectReference.
 func (d *VCenterDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
 	return &Network{
-		network: object.NewNetwork(d.client.Client, *ref),
+		network: object.NewNetwork(d.Client.Client, *ref),
 		driver:  d,
 	}
 }
@@ -28,7 +28,7 @@ func (d *VCenterDriver) NewNetwork(ref *types.ManagedObjectReference) *Network {
 // FindNetwork locates a network by its name within the vCenter context.
 // Returns a Network object or an error if the network is not found.
 func (d *VCenterDriver) FindNetwork(name string) (*Network, error) {
-	n, err := d.finder.Network(d.ctx, name)
+	n, err := d.Finder.Network(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (d *VCenterDriver) FindNetwork(name string) (*Network, error) {
 // FindNetworks retrieves a list of networks in the vCenter matching the
 // provided name and returns them as Network objects.
 func (d *VCenterDriver) FindNetworks(name string) ([]*Network, error) {
-	ns, err := d.finder.NetworkList(d.ctx, name)
+	ns, err := d.Finder.NetworkList(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (n *Network) Info(params ...string) (*mo.Network, error) {
 		return nil, fmt.Errorf("unexpected %t network object type", n.network)
 	}
 
-	err := network.Properties(n.driver.ctx, network.Reference(), p, &info)
+	err := network.Properties(n.driver.Ctx, network.Reference(), p, &info)
 	if err != nil {
 		return nil, err
 	}

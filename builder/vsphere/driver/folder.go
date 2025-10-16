@@ -22,7 +22,7 @@ type Folder struct {
 
 func (d *VCenterDriver) NewFolder(ref *types.ManagedObjectReference) *Folder {
 	return &Folder{
-		folder: object.NewFolder(d.client.Client, *ref),
+		folder: object.NewFolder(d.Client.Client, *ref),
 		driver: d,
 	}
 }
@@ -34,17 +34,17 @@ func (d *VCenterDriver) FindFolder(name string) (*Folder, error) {
 	if name != "" {
 		// If the folder does not exist, create it.
 		parent := ""
-		parentFolder, err := d.finder.Folder(d.ctx, path.Join(d.datacenter.InventoryPath, "vm"))
+		parentFolder, err := d.Finder.Folder(d.Ctx, path.Join(d.Datacenter.InventoryPath, "vm"))
 		if err != nil {
 			return nil, err
 		}
 		folders := strings.Split(name, "/")
 		for _, folder := range folders {
 			parent = path.Join(parent, folder)
-			f, err := d.finder.Folder(d.ctx, path.Join(d.datacenter.InventoryPath, "vm", parent))
+			f, err := d.Finder.Folder(d.Ctx, path.Join(d.Datacenter.InventoryPath, "vm", parent))
 			var notFoundError *find.NotFoundError
 			if errors.As(err, &notFoundError) {
-				f, err = parentFolder.CreateFolder(d.ctx, folder)
+				f, err = parentFolder.CreateFolder(d.Ctx, folder)
 			}
 			if err != nil {
 				return nil, err
@@ -53,7 +53,7 @@ func (d *VCenterDriver) FindFolder(name string) (*Folder, error) {
 		}
 	}
 
-	f, err := d.finder.Folder(d.ctx, path.Join(d.datacenter.InventoryPath, "vm", name))
+	f, err := d.Finder.Folder(d.Ctx, path.Join(d.Datacenter.InventoryPath, "vm", name))
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (f *Folder) Info(params ...string) (*mo.Folder, error) {
 		p = params
 	}
 	var info mo.Folder
-	err := f.folder.Properties(f.driver.ctx, f.folder.Reference(), p, &info)
+	err := f.folder.Properties(f.driver.Ctx, f.folder.Reference(), p, &info)
 	if err != nil {
 		return nil, err
 	}
