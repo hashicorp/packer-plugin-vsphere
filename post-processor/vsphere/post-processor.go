@@ -47,9 +47,9 @@ var (
 
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
-	// The cluster or ESXi host to upload the virtual machine.
+	// The cluster or ESX host to upload the virtual machine.
 	// This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
-	// or IP address of the ESXi host.
+	// or IP address of the ESX host.
 	Cluster string `mapstructure:"cluster" required:"true"`
 	// The name of the vSphere datacenter object to place the virtual machine.
 	// This is _not required_ if `resource_pool` is specified.
@@ -58,11 +58,11 @@ type Config struct {
 	Datastore string `mapstructure:"datastore"  required:"true"`
 	// The disk format of the target virtual machine. One of `thin`, `thick`,
 	DiskMode string `mapstructure:"disk_mode"`
-	// The fully qualified domain name or IP address of the vCenter Server or ESXi host.
+	// The fully qualified domain name or IP address of the vCenter instance or ESX host.
 	Host string `mapstructure:"host" required:"true"`
-	// The fully qualified domain name or IP address of the ESXi host to upload the
-	// virtual machine. This is _not required_ if `host` is a vCenter Server.
-	ESXiHost string `mapstructure:"esxi_host"`
+	// The fully qualified domain name or IP address of the ESX host to upload the
+	// virtual machine. This is _not required_ if `host` is a vCenter instance.
+	ESXHost string `mapstructure:"esxi_host"`
 	// Skip the verification of the server certificate. Defaults to `false`.
 	Insecure bool `mapstructure:"insecure"`
 	// Options to send to `ovftool` when uploading the virtual machine.
@@ -94,7 +94,7 @@ type Config struct {
 	// version, the deployed virtual machine's hardware version will be the same as the source
 	// virtual machine's.
 	//
-	// This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+	// This option is useful when deploying to vCenter instance or an ESX host whose
 	// version is different than the one used to create the artifact.
 	//
 	// Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
@@ -189,12 +189,12 @@ func (p *PostProcessor) generateURI() (*url.URL, error) {
 	}
 	u.User = url.UserPassword(p.config.Username, p.config.Password)
 
-	if p.config.ESXiHost != "" {
+	if p.config.ESXHost != "" {
 		q := u.Query()
-		if ipv4Regex.MatchString(p.config.ESXiHost) {
-			q.Add("ip", p.config.ESXiHost)
-		} else if hostnameRegex.MatchString(p.config.ESXiHost) {
-			q.Add("dns", p.config.ESXiHost)
+		if ipv4Regex.MatchString(p.config.ESXHost) {
+			q.Add("ip", p.config.ESXHost)
+		} else if hostnameRegex.MatchString(p.config.ESXHost) {
+			q.Add("dns", p.config.ESXHost)
 		}
 		u.RawQuery = q.Encode()
 	}

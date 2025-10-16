@@ -23,7 +23,7 @@ type FlatConfig struct {
 	Datastore           *string           `mapstructure:"datastore" required:"true" cty:"datastore" hcl:"datastore"`
 	DiskMode            *string           `mapstructure:"disk_mode" cty:"disk_mode" hcl:"disk_mode"`
 	Host                *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
-	ESXiHost            *string           `mapstructure:"esxi_host" cty:"esxi_host" hcl:"esxi_host"`
+	ESXHost             *string           `mapstructure:"esxi_host" cty:"esxi_host" hcl:"esxi_host"`
 	Insecure            *bool             `mapstructure:"insecure" cty:"insecure" hcl:"insecure"`
 	Options             []string          `mapstructure:"options" cty:"options" hcl:"options"`
 	Overwrite           *bool             `mapstructure:"overwrite" cty:"overwrite" hcl:"overwrite"`

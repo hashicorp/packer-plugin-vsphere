@@ -23,16 +23,16 @@ The following configuration options are available for the post-processor.
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `cluster` (string) - The cluster or ESXi host to upload the virtual machine.
+- `cluster` (string) - The cluster or ESX host to upload the virtual machine.
   This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
-  or IP address of the ESXi host.
+  or IP address of the ESX host.
 
 - `datacenter` (string) - The name of the vSphere datacenter object to place the virtual machine.
   This is _not required_ if `resource_pool` is specified.
 
 - `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
 
-- `host` (string) - The fully qualified domain name or IP address of the vCenter Server or ESXi host.
+- `host` (string) - The fully qualified domain name or IP address of the vCenter instance or ESX host.
 
 - `password` (string) - The password to use to authenticate to the vSphere endpoint.
 
@@ -47,8 +47,8 @@ The following configuration options are available for the post-processor.
 
 - `disk_mode` (string) - The disk format of the target virtual machine. One of `thin`, `thick`,
 
-- `esxi_host` (string) - The fully qualified domain name or IP address of the ESXi host to upload the
-  virtual machine. This is _not required_ if `host` is a vCenter Server.
+- `esxi_host` (string) - The fully qualified domain name or IP address of the ESX host to upload the
+  virtual machine. This is _not required_ if `host` is a vCenter instance.
 
 - `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
@@ -77,7 +77,7 @@ The following configuration options are available for the post-processor.
   version, the deployed virtual machine's hardware version will be the same as the source
   virtual machine's.
   
-  This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+  This option is useful when deploying to vCenter instance or an ESX host whose
   version is different than the one used to create the artifact.
   
   Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)

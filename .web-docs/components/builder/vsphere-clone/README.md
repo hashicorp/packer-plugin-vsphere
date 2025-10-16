@@ -319,7 +319,7 @@ JSON Example:
   are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
   in the vSphere API documentation.
 
-- `tools_sync_time` (bool) - Enable time synchronization with the ESXi host where the virtual machine
+- `tools_sync_time` (bool) - Enable time synchronization with the ESX host where the virtual machine
   is running. Defaults to `false`.
 
 - `tools_upgrade_policy` (bool) - Automatically check for and upgrade VMware Tools after a virtual machine
@@ -923,14 +923,14 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 
 <!-- Code generated from the comments of the ConnectConfig struct in builder/vsphere/common/step_connect.go; DO NOT EDIT MANUALLY -->
 
-- `vcenter_server` (string) - The fully qualified domain name or IP address of the vCenter Server
+- `vcenter_server` (string) - The fully qualified domain name or IP address of the vCenter instance
   instance.
 
-- `username` (string) - The username to authenticate with the vCenter Server instance.
+- `username` (string) - The username to authenticate with the vCenter instance.
 
-- `password` (string) - The password to authenticate with the vCenter Server instance.
+- `password` (string) - The password to authenticate with the vCenter instance.
 
-- `insecure_connection` (bool) - Do not validate the certificate of the vCenter Server instance.
+- `insecure_connection` (bool) - Do not validate the certificate of the vCenter instance.
   Defaults to `false`.
   
   -> **Note:** This option is beneficial in scenarios where the certificate
@@ -1665,7 +1665,7 @@ The template is stored in an existing or newly created library item.
 
 - `cluster` (string) - The cluster where the VM template will be placed.
   If `cluster` and `resource_pool` are both specified, `resource_pool` must
-  belong to cluster. If `cluster` and `host` are both specified, the ESXi
+  belong to cluster. If `cluster` and `host` are both specified, the ESX
   host must be a member of the cluster. This option is not used when
   importing OVF templates. Defaults to [`cluster`](#cluster).
 
@@ -1673,7 +1673,7 @@ The template is stored in an existing or newly created library item.
   This option is not used when importing OVF templates. Defaults to
   the same folder as the source virtual machine.
 
-- `host` (string) - The ESXi host where the virtual machine template will be placed.
+- `host` (string) - The ESX host where the virtual machine template will be placed.
   If `host` and `resource_pool` are both specified, `resource_pool` must
   belong to host. If `host` and `cluster` are both specified, `host` must
   be a member of the cluster. This option is not used when importing OVF

@@ -18,14 +18,14 @@ import (
 )
 
 type ConnectConfig struct {
-	// The fully qualified domain name or IP address of the vCenter Server
+	// The fully qualified domain name or IP address of the vCenter instance
 	// instance.
 	VCenterServer string `mapstructure:"vcenter_server"`
-	// The username to authenticate with the vCenter Server instance.
+	// The username to authenticate with the vCenter instance.
 	Username string `mapstructure:"username"`
-	// The password to authenticate with the vCenter Server instance.
+	// The password to authenticate with the vCenter instance.
 	Password string `mapstructure:"password"`
-	// Do not validate the certificate of the vCenter Server instance.
+	// Do not validate the certificate of the vCenter instance.
 	// Defaults to `false`.
 	//
 	// -> **Note:** This option is beneficial in scenarios where the certificate
