@@ -27,15 +27,17 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
-const DefaultMaxRetries = 5
-const DefaultDiskMode = "thick"
-const OvftoolWindows = "ovftool.exe"
+const (
+	DefaultMaxRetries = 5
+	DefaultDiskMode   = "thick"
+	OvftoolWindows    = "ovftool.exe"
+)
 
 var ovftool = "ovftool"
 
 var (
-	// Regular expression to validate RFC1035 hostnames from full fqdn or simple hostname.
-	// For example "packer-esxi1". Requires proper DNS setup and/or correct DNS search domain setting.
+	// Regular expression to validate an RFC1035 hostname from and FQDN or simple hostname.
+	// For example "esxi-01". Requires proper DNS setup and/or correct DNS search domain setting.
 	hostnameRegex = regexp.MustCompile(`^[[:alnum:]][[:alnum:]\-]{0,61}[[:alnum:]]|[[:alpha:]]$`)
 
 	// Simple regular expression to validate IPv4 values.
@@ -126,7 +128,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 	// Set default value for MaxRetries if not provided.
 	if p.config.MaxRetries == 0 {
-		p.config.MaxRetries = DefaultMaxRetries // Set default value
+		p.config.MaxRetries = DefaultMaxRetries
 	}
 
 	// Defaults
@@ -134,7 +136,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		p.config.DiskMode = DefaultDiskMode
 	}
 
-	// Accumulate any errors
+	// Accumulate any errors.
 	errs := new(packersdk.MultiError)
 
 	if runtime.GOOS == "windows" {
@@ -146,7 +148,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 			errs, fmt.Errorf("ovftool not found: %s", err))
 	}
 
-	// First define all our templatable parameters that are _required_
+	// Define the parameters that are required.
 	templates := map[string]*string{
 		"cluster":    &p.config.Cluster,
 		"datacenter": &p.config.Datacenter,
@@ -171,7 +173,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) generateURI() (*url.URL, error) {
-	// use net/url lib to encode and escape url elements
+	// Use the net/url standard library to encode and escape the URI.
 	ovftoolURI := fmt.Sprintf("vi://%s/%s/host/%s",
 		p.config.Host,
 		p.config.Datacenter,
@@ -200,7 +202,7 @@ func (p *PostProcessor) generateURI() (*url.URL, error) {
 }
 
 func getEncodedPassword(u *url.URL) (string, bool) {
-	// filter password from all logging
+	// Filter the password from the logs.
 	password, passwordSet := u.User.Password()
 	if passwordSet && password != "" {
 		encodedPassword := strings.Split(u.User.String(), ":")[1]
@@ -272,7 +274,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 	return artifact, false, false, nil
 }
 
-func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packersdk.Ui) error {
+func (p *PostProcessor) ValidateOvfTool(args []string, ovftool string, ui packersdk.Ui) error {
 	args = append([]string{"--verifyOnly"}, args...)
 	if p.config.Insecure {
 		args = append(args, "--noSSLVerify")
@@ -284,9 +286,8 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packer
 	cmd := exec.CommandContext(cmdCtx, ovftool, args...)
 	cmd.Stdout = &out
 
-	// Need to manually close stdin or else the ofvtool call will hang
-	// forever in a situation where the user has provided an invalid
-	// password or username
+	// Need to manually close stdin or else the ovftool call will hang if the
+	// user has provided an invalid credential.
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
