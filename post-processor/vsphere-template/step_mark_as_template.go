@@ -24,6 +24,7 @@ type StepMarkAsTemplate struct {
 	TemplateName string
 	RemoteFolder string
 	ReregisterVM config.Trilean
+	Override     bool
 }
 
 func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *StepMarkAsTemplate {
@@ -48,6 +49,7 @@ func NewStepMarkAsTemplate(artifact packersdk.Artifact, p *PostProcessor) *StepM
 		TemplateName: p.config.TemplateName,
 		RemoteFolder: remoteFolder,
 		ReregisterVM: p.config.ReregisterVM,
+		Override:     p.config.Override,
 	}
 }
 
@@ -57,11 +59,23 @@ func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	folder := state.Get("folder").(*object.Folder)
 	dcPath := state.Get("dcPath").(string)
 
-	vm, err := findRuntimeVM(cli, dcPath, s.VMName, s.RemoteFolder)
+	vm, err := findVirtualMachine(cli, dcPath, s.VMName, s.RemoteFolder)
 	if err != nil {
 		state.Put("error", err)
 		ui.Errorf("%s", err)
 		return multistep.ActionHalt
+	}
+
+	templateName := s.VMName
+	if s.TemplateName != "" {
+		templateName = s.TemplateName
+	}
+
+	action, err := handleExistingTemplate(cli, folder, templateName, s.Override, ui)
+	if err != nil {
+		state.Put("error", err)
+		ui.Errorf("%s", err)
+		return action
 	}
 
 	// Use the MarkAsTemplate method unless the `reregister_vm` is set to `true`.
@@ -96,15 +110,23 @@ func (s *StepMarkAsTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	if err := unregisterPreviousVM(cli, folder, s.VMName); err != nil {
-		state.Put("error", err)
-		ui.Errorf("unregisterPreviousVM: %s", err)
-		return multistep.ActionHalt
-	}
-
 	artifactName := s.VMName
 	if s.TemplateName != "" {
 		artifactName = s.TemplateName
+	}
+
+	if err := unregisterVirtualMachine(cli, folder, artifactName); err != nil {
+		state.Put("error", err)
+		ui.Errorf("unregisterVirtualMachine: %s", err)
+		return multistep.ActionHalt
+	}
+
+	// Check if a template with the target name already exists in the destination folder.
+	action, err = handleExistingTemplate(cli, folder, artifactName, s.Override, ui)
+	if err != nil {
+		state.Put("error", err)
+		ui.Errorf("%s", err)
+		return action
 	}
 
 	ui.Say("Registering virtual machine as a template: " + artifactName)
@@ -155,7 +177,7 @@ func datastorePath(vm *object.VirtualMachine) (*object.DatastorePath, error) {
 	}, nil
 }
 
-func findRuntimeVM(cli *govmomi.Client, dcPath, name, remoteFolder string) (*object.VirtualMachine, error) {
+func findVirtualMachine(cli *govmomi.Client, dcPath, name, remoteFolder string) (*object.VirtualMachine, error) {
 	si := object.NewSearchIndex(cli.Client)
 	fullPath := path.Join(dcPath, "vm", remoteFolder, name)
 
@@ -175,7 +197,7 @@ func findRuntimeVM(cli *govmomi.Client, dcPath, name, remoteFolder string) (*obj
 	return vm, nil
 }
 
-func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name string) error {
+func unregisterVirtualMachine(cli *govmomi.Client, folder *object.Folder, name string) error {
 	si := object.NewSearchIndex(cli.Client)
 	fullPath := path.Join(folder.InventoryPath, name)
 
@@ -187,11 +209,52 @@ func unregisterPreviousVM(cli *govmomi.Client, folder *object.Folder, name strin
 	if ref != nil {
 		if vm, ok := ref.(*object.VirtualMachine); ok {
 			return vm.Unregister(context.Background())
-		} else {
-			return fmt.Errorf("object name '%v' already exists", name)
 		}
+		return fmt.Errorf("object name '%v' already exists", name)
 	}
 	return nil
+}
+
+func findTemplate(cli *govmomi.Client, folder *object.Folder, name string) (*object.VirtualMachine, error) {
+	si := object.NewSearchIndex(cli.Client)
+	fullPath := path.Join(folder.InventoryPath, name)
+
+	ref, err := si.FindByInventoryPath(context.Background(), fullPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if ref != nil {
+		if vm, ok := ref.(*object.VirtualMachine); ok {
+			return vm, nil
+		}
+	}
+	return nil, nil
+}
+
+func handleExistingTemplate(cli *govmomi.Client, folder *object.Folder, templateName string, override bool, ui packersdk.Ui) (multistep.StepAction, error) {
+	existingTemplate, err := findTemplate(cli, folder, templateName)
+	if err != nil {
+		return multistep.ActionHalt, fmt.Errorf("error checking for existing template: %s", err)
+	}
+
+	if existingTemplate != nil {
+		if !override {
+			return multistep.ActionHalt, fmt.Errorf("template '%s' already exists. Set 'override = true' to replace existing templates", templateName)
+		}
+
+		ui.Say(fmt.Sprintf("Removing existing template '%s'...", templateName))
+		task, err := existingTemplate.Destroy(context.Background())
+		if err != nil {
+			return multistep.ActionHalt, fmt.Errorf("failed to remove existing template '%s': %s", templateName, err)
+		}
+		if err = task.Wait(context.Background()); err != nil {
+			return multistep.ActionHalt, fmt.Errorf("failed to remove existing template '%s': %s", templateName, err)
+		}
+		ui.Say(fmt.Sprintf("Successfully removed existing template '%s'", templateName))
+	}
+
+	return multistep.ActionContinue, nil
 }
 
 func (s *StepMarkAsTemplate) Cleanup(multistep.StateBag) {}

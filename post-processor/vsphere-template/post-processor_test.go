@@ -15,7 +15,7 @@ func getTestConfig() Config {
 	}
 }
 
-func TestConfigure_Good(t *testing.T) {
+func TestConfigure_Valid(t *testing.T) {
 	var p PostProcessor
 
 	config := getTestConfig()
@@ -26,7 +26,7 @@ func TestConfigure_Good(t *testing.T) {
 	}
 }
 
-func TestConfigure_ReRegisterVM(t *testing.T) {
+func TestConfigure_ReregisterVM_Default(t *testing.T) {
 	var p PostProcessor
 
 	config := getTestConfig()
@@ -38,5 +38,49 @@ func TestConfigure_ReRegisterVM(t *testing.T) {
 
 	if p.config.ReregisterVM.False() {
 		t.Errorf("error: should be unset, not false")
+	}
+}
+
+func TestConfigure_Override(t *testing.T) {
+	tests := []struct {
+		name     string
+		override *bool
+		expected bool
+	}{
+		{
+			name:     "default",
+			override: nil,
+			expected: false,
+		},
+		{
+			name:     "true",
+			override: &[]bool{true}[0],
+			expected: true,
+		},
+		{
+			name:     "false",
+			override: &[]bool{false}[0],
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var p PostProcessor
+			config := getTestConfig()
+
+			if tt.override != nil {
+				config.Override = *tt.override
+			}
+
+			err := p.Configure(config)
+			if err != nil {
+				t.Errorf("error: %s", err)
+			}
+
+			if p.config.Override != tt.expected {
+				t.Errorf("expected override to be %v, got %v", tt.expected, p.config.Override)
+			}
+		})
 	}
 }
