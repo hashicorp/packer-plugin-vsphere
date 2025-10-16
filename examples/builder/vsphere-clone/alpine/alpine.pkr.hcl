@@ -10,16 +10,10 @@ packer {
   }
 }
 
-variable "vm_name_prefix" {
+variable "vcenter_server" {
   type        = string
-  default     = "alpine"
-  description = "Prefix for naming the virtual machine."
-}
-
-variable "guest_os_type" {
-  type        = string
-  default     = "other5xLinux64Guest"
-  description = "The type of guest OS to configure for the virtual machine."
+  default     = "vcenter.example.com"
+  description = "The vCenter instance used for managing the ESX host."
 }
 
 variable "username" {
@@ -36,10 +30,10 @@ variable "password" {
   description = "The password for authenticating with the vCenter instance."
 }
 
-variable "vcenter_server" {
-  type        = string
-  default     = "vcenter.example.com"
-  description = "The vCenter instance used for managing the ESX host."
+variable "insecure_connection" {
+  type        = bool
+  default     = true
+  description = "Set to true to allow insecure connections to the vCenter instance."
 }
 
 variable "host" {
@@ -48,13 +42,19 @@ variable "host" {
   description = "The ESX host where the virtual machine will be built."
 }
 
-variable "insecure_connection" {
-  type        = bool
-  default     = true
-  description = "Set to true to allow insecure connections to the vCenter instance."
+variable "datastore" {
+  type        = string
+  default     = "local-ssd01-esx01"
+  description = "The datastore host where the virtual machine will be built."
 }
 
-variable "communicator"
+variable "vm_name_prefix" {
+  type        = string
+  default     = "alpine"
+  description = "Prefix for naming the virtual machine."
+}
+
+variable "communicator" {
   type        = string
   default     = "none"
 }
@@ -62,17 +62,17 @@ variable "communicator"
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
 source "vsphere-clone" "example" {
-  communicator        = var.communicator
+  vcenter_server      = var.vcenter_server
   username            = var.username
   password            = var.password
-  vcenter_server      = var.vcenter_server
-  host                = var.host
   insecure_connection = var.insecure_connection
+  host                = var.host
+  datastore           = var.datastore
   vm_name             = "${var.vm_name_prefix}-${local.timestamp}"
   template            = var.vm_name_prefix
+  communicator        = var.communicator
 }
 
 build {
   sources = ["source.vsphere-clone.example"]
-
 }
