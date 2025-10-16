@@ -4,9 +4,9 @@
 package main
 
 import (
-	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"log"
 
+	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/clone"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/iso"
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
