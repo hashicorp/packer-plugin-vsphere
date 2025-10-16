@@ -34,10 +34,18 @@ func (s *StepRemoveFloppy) Run(_ context.Context, state multistep.StateBag) mult
 
 	if UploadedFloppyPath, ok := state.GetOk("uploaded_floppy_path"); ok {
 		ui.Say("Deleting floppy image...")
-		ds, err := d.FindDatastore(s.Datastore, s.Host)
-		if err != nil {
-			state.Put("error", err)
-			return multistep.ActionHalt
+
+		var ds driver.Datastore
+
+		// If a datastore was resolved (from datastore or datastore_cluster), use it.
+		if resolvedDs, ok := state.GetOk("datastore"); ok {
+			ds = resolvedDs.(driver.Datastore)
+		} else {
+			ds, err = d.FindDatastore(s.Datastore, s.Host)
+			if err != nil {
+				state.Put("error", err)
+				return multistep.ActionHalt
+			}
 		}
 		if err := ds.Delete(UploadedFloppyPath.(string)); err != nil {
 			state.Put("error", err)
