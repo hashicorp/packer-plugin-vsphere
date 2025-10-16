@@ -597,26 +597,34 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	confSpec.MemoryMB = config.RAM
 
 	var cpuSpec types.ResourceAllocationInfo
-	cpuSpec.Reservation = &config.CPUReservation
+	if config.CPUReservation != 0 {
+		cpuSpec.Reservation = &config.CPUReservation
+	}
 	if config.CPULimit != 0 {
 		cpuSpec.Limit = &config.CPULimit
 	}
 	confSpec.CpuAllocation = &cpuSpec
 
 	var ramSpec types.ResourceAllocationInfo
-	ramSpec.Reservation = &config.RAMReservation
+	if config.RAMReservation != 0 {
+		ramSpec.Reservation = &config.RAMReservation
+	}
 	confSpec.MemoryAllocation = &ramSpec
 
-	confSpec.MemoryReservationLockedToMax = &config.RAMReserveAll
+	if config.RAMReserveAll {
+		confSpec.MemoryReservationLockedToMax = &config.RAMReserveAll
+	}
+
 	if config.NestedHV {
 		confSpec.NestedHVEnabled = &config.NestedHV
 	}
 
-	confSpec.CpuHotAddEnabled = &config.CpuHotAddEnabled
-	confSpec.MemoryHotAddEnabled = &config.MemoryHotAddEnabled
+	if config.CpuHotAddEnabled {
+		confSpec.CpuHotAddEnabled = &config.CpuHotAddEnabled
+	}
 
-	if config.Displays == 0 {
-		config.Displays = 1
+	if config.MemoryHotAddEnabled {
+		confSpec.MemoryHotAddEnabled = &config.MemoryHotAddEnabled
 	}
 
 	if config.VideoRAM != 0 || config.Displays != 0 {
@@ -629,8 +637,15 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 			return err
 		}
 		card := l[0].(*types.VirtualMachineVideoCard)
-		card.VideoRamSizeInKB = config.VideoRAM
-		card.NumDisplays = config.Displays
+
+		if config.VideoRAM != 0 {
+			card.VideoRamSizeInKB = config.VideoRAM
+		}
+
+		if config.Displays != 0 {
+			card.NumDisplays = config.Displays
+		}
+
 		spec := &types.VirtualDeviceConfigSpec{
 			Device:    card,
 			Operation: types.VirtualDeviceConfigSpecOperationEdit,
@@ -686,9 +701,12 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	confSpec.Firmware = firmware
-	confSpec.BootOptions = &types.VirtualMachineBootOptions{
-		EnterBIOSSetup:       types.NewBool(config.ForceBIOSSetup),
-		EfiSecureBootEnabled: types.NewBool(efiSecureBootEnabled),
+
+	if config.Firmware != "" || config.ForceBIOSSetup {
+		confSpec.BootOptions = &types.VirtualMachineBootOptions{
+			EnterBIOSSetup:       types.NewBool(config.ForceBIOSSetup),
+			EfiSecureBootEnabled: types.NewBool(efiSecureBootEnabled),
+		}
 	}
 
 	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
