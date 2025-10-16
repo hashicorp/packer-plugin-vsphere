@@ -39,7 +39,7 @@ packer plugins install github.com/hashicorp/vsphere
 
 - [vsphere-iso](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-iso) - This
   builder starts from an ISO file and uses the vSphere API to build a virtual machine image on
-  an ESXi host.
+  an ESX host.
 
 - [vsphere-clone](/packer/integrations/hashicorp/vsphere/latest/components/builder/vsphere-clone) -
   This builder clones a virtual machine from an existing template using the uses the vSphere API and
@@ -55,7 +55,7 @@ packer plugins install github.com/hashicorp/vsphere
   This post-processor uploads an artifact to a vSphere endpoint. The artifact must be a VMX, OVA,
   or OVF file.
 
-- [vsphere-template](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere-template) - This post-processor uses an artifact from the `vmware-iso` builder with an ESXi host or an
+- [vsphere-template](/packer/integrations/hashicorp/vsphere/latest/components/post-processor/vsphere-template) - This post-processor uses an artifact from the `vmware-iso` builder with an ESX host or an
     artifact from the [vSphere](/packer/plugins/post-processors/vsphere/vsphere) post-processor. It
     then marks the virtual machine as a template and moves it to your specified path.
 
@@ -65,7 +65,7 @@ While both this plugin and the [`packer-plugin-vmware`](packer/integrations/hash
 designed to create virtual machine images, there are some key differences:
 
 - **Platforms**: This plugin is specifically developed to utilize the VMware vSphere API,
-  facilitating the creation of virtual machine images by integrating with VMware vCenter Server and
+  facilitating the creation of virtual machine images by integrating with VMware vCenter and
   the VMware vSphere Hypervisor. On the other hand, `packer-plugin-vmware` supports a variety of
   platforms including VMware vSphere Hypervisor and desktop virtualization products such as VMware
   Fusion, VMware Workstation, and VMware Player, though it does not utilize the vSphere API for its

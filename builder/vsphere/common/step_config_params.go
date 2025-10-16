@@ -47,7 +47,7 @@ type ConfigParamsConfig struct {
 	// are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
 	// in the vSphere API documentation.
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
-	// Enable time synchronization with the ESXi host where the virtual machine
+	// Enable time synchronization with the ESX host where the virtual machine
 	// is running. Defaults to `false`.
 	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
 	// Automatically check for and upgrade VMware Tools after a virtual machine

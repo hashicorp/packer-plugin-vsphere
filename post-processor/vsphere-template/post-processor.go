@@ -49,7 +49,7 @@ type Config struct {
 	// Skip the verification of the server certificate. Defaults to `false`.
 	Insecure bool `mapstructure:"insecure"`
 	// The name of the datacenter to use.
-	// Required when the vCenter Server instance endpoint has more than one datacenter.
+	// Required when the vCenter instance has more than one datacenter.
 	Datacenter string `mapstructure:"datacenter"`
 	// The name of the template.
 	// If not specified, the name of the virtual machine will be used.
