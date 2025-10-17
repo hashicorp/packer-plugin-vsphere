@@ -50,6 +50,7 @@ type FlatConfig struct {
 	Host                            *string                                     `mapstructure:"host" cty:"host" hcl:"host"`
 	ResourcePool                    *string                                     `mapstructure:"resource_pool" cty:"resource_pool" hcl:"resource_pool"`
 	Datastore                       *string                                     `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
+	DatastoreCluster                *string                                     `mapstructure:"datastore_cluster" cty:"datastore_cluster" hcl:"datastore_cluster"`
 	SetHostForDatastoreUploads      *bool                                       `mapstructure:"set_host_for_datastore_uploads" cty:"set_host_for_datastore_uploads" hcl:"set_host_for_datastore_uploads"`
 	CPUs                            *int32                                      `mapstructure:"CPUs" cty:"CPUs" hcl:"CPUs"`
 	CpuCores                        *int32                                      `mapstructure:"cpu_cores" cty:"cpu_cores" hcl:"cpu_cores"`
@@ -203,6 +204,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"host":                           &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
 		"resource_pool":                  &hcldec.AttrSpec{Name: "resource_pool", Type: cty.String, Required: false},
 		"datastore":                      &hcldec.AttrSpec{Name: "datastore", Type: cty.String, Required: false},
+		"datastore_cluster":              &hcldec.AttrSpec{Name: "datastore_cluster", Type: cty.String, Required: false},
 		"set_host_for_datastore_uploads": &hcldec.AttrSpec{Name: "set_host_for_datastore_uploads", Type: cty.Bool, Required: false},
 		"CPUs":                           &hcldec.AttrSpec{Name: "CPUs", Type: cty.Number, Required: false},
 		"cpu_cores":                      &hcldec.AttrSpec{Name: "cpu_cores", Type: cty.Number, Required: false},

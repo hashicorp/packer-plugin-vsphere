@@ -1036,7 +1036,15 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   a nested path might resemble 'rp-packer/rp-linux-images'.
 
 - `datastore` (string) - The datastore where the virtual machine is created.
-  Required if `host` is a cluster, or if `host` has multiple datastores.
+  Required if `host` is a cluster or if `host` has multiple datastores,
+  unless `datastore_cluster` is specified.
+  
+  ~> **Note:** Cannot be used with `datastore_cluster`.
+
+- `datastore_cluster` (string) - The datastore cluster where the virtual machine is created.
+  When specified, Storage DRS will automatically select the optimal datastore.
+  
+  ~> **Note:** Cannot be used with `datastore`.
 
 - `set_host_for_datastore_uploads` (bool) - The ESXI host used for uploading files to the datastore.
   Defaults to `false`.
