@@ -14,7 +14,7 @@ type Cluster struct {
 // Returns a Cluster object or an error if not found or if the retrieval
 // process fails.
 func (d *VCenterDriver) FindCluster(name string) (*Cluster, error) {
-	c, err := d.finder.ClusterComputeResource(d.ctx, name)
+	c, err := d.Finder.ClusterComputeResource(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}

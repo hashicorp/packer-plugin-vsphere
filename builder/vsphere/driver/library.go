@@ -20,8 +20,8 @@ type Library struct {
 // FindContentLibraryByName retrieves a content library by its name. Returns a
 // Library object or an error if the library is not found.
 func (d *VCenterDriver) FindContentLibraryByName(name string) (*Library, error) {
-	lm := library.NewManager(d.restClient.client)
-	l, err := lm.GetLibraryByName(d.ctx, name)
+	lm := library.NewManager(d.RestClient.client)
+	l, err := lm.GetLibraryByName(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func (d *VCenterDriver) FindContentLibraryByName(name string) (*Library, error) 
 // the specified library ID.  Returns the library item if found or an error if
 // the item is not found or the retrieval process fails.
 func (d *VCenterDriver) FindContentLibraryItem(libraryId string, name string) (*library.Item, error) {
-	lm := library.NewManager(d.restClient.client)
-	items, err := lm.GetLibraryItems(d.ctx, libraryId)
+	lm := library.NewManager(d.RestClient.client)
+	items, err := lm.GetLibraryItems(d.Ctx, libraryId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (d *VCenterDriver) FindContentLibraryItemUUID(libraryId string, name string
 // not identified as a content library path or if the retrieval process fails.
 func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (string, error) {
 	log.Printf("Check if ISO path is a Content Library path")
-	err := d.restClient.Login(d.ctx)
+	err := d.RestClient.Login(d.Ctx)
 	if err != nil {
 		log.Printf("vCenter client not available. ISO path not identified as a Content Library path")
 		return isoPath, err
@@ -107,20 +107,20 @@ func (d *VCenterDriver) FindContentLibraryFileDatastorePath(isoPath string) (str
 		return isoPath, err
 	}
 
-	_ = d.restClient.Logout(d.ctx)
+	_ = d.RestClient.Logout(d.Ctx)
 	return path.Join(libItemDir, isoFilePath), nil
 }
 
 // UpdateContentLibraryItem updates the metadata of a content library item,
 // such as its name and description. Returns an error if the update fails.
 func (d *VCenterDriver) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
-	lm := library.NewManager(d.restClient.client)
+	lm := library.NewManager(d.RestClient.client)
 	item.Patch(&library.Item{
 		ID:          item.ID,
 		Name:        name,
 		Description: &description,
 	})
-	return lm.UpdateLibraryItem(d.ctx, item)
+	return lm.UpdateLibraryItem(d.Ctx, item)
 }
 
 type LibraryFilePath struct {
