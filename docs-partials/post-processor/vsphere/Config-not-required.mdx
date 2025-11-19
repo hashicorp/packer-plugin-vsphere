@@ -2,8 +2,8 @@
 
 - `disk_mode` (string) - The disk format of the target virtual machine. One of `thin`, `thick`,
 
-- `esxi_host` (string) - The fully qualified domain name or IP address of the ESXi host to upload the
-  virtual machine. This is _not required_ if `host` is a vCenter Server.
+- `esxi_host` (string) - The fully qualified domain name or IP address of the ESX host to upload the
+  virtual machine. This is _not required_ if `host` is a vCenter instance.
 
 - `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
@@ -32,7 +32,7 @@
   version, the deployed virtual machine's hardware version will be the same as the source
   virtual machine's.
   
-  This option is useful when deploying to vCenter Server instance ot an ESXi host whose
+  This option is useful when deploying to vCenter instance or an ESX host whose
   version is different than the one used to create the artifact.
   
   Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)

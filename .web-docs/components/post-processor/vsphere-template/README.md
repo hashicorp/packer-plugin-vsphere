@@ -39,7 +39,7 @@ The following configuration options are available for the post-processor.
 - `insecure` (bool) - Skip the verification of the server certificate. Defaults to `false`.
 
 - `datacenter` (string) - The name of the datacenter to use.
-  Required when the vCenter Server instance endpoint has more than one datacenter.
+  Required when the vCenter instance has more than one datacenter.
 
 - `template_name` (string) - The name of the template.
   If not specified, the name of the virtual machine will be used.

@@ -44,7 +44,7 @@ type ContentLibraryDestinationConfig struct {
 	Description string `mapstructure:"description"`
 	// The cluster where the VM template will be placed.
 	// If `cluster` and `resource_pool` are both specified, `resource_pool` must
-	// belong to cluster. If `cluster` and `host` are both specified, the ESXi
+	// belong to cluster. If `cluster` and `host` are both specified, the ESX
 	// host must be a member of the cluster. This option is not used when
 	// importing OVF templates. Defaults to [`cluster`](#cluster).
 	Cluster string `mapstructure:"cluster"`
@@ -52,7 +52,7 @@ type ContentLibraryDestinationConfig struct {
 	// This option is not used when importing OVF templates. Defaults to
 	// the same folder as the source virtual machine.
 	Folder string `mapstructure:"folder"`
-	// The ESXi host where the virtual machine template will be placed.
+	// The ESX host where the virtual machine template will be placed.
 	// If `host` and `resource_pool` are both specified, `resource_pool` must
 	// belong to host. If `host` and `cluster` are both specified, `host` must
 	// be a member of the cluster. This option is not used when importing OVF

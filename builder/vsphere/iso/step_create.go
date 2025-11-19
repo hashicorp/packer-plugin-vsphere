@@ -84,7 +84,7 @@ type NIC struct {
 
 type CreateConfig struct {
 	// Specifies the virtual machine hardware version. Defaults to the most
-	// current virtual machine hardware version supported by the ESXi host.
+	// current virtual machine hardware version supported by the ESX host.
 	// Refer to [KB 315655](https://knowledge.broadcom.com/external/article?articleNumber=315655)
 	// for more information on supported virtual hardware versions.
 	Version uint `mapstructure:"vm_version"`
@@ -92,7 +92,7 @@ type CreateConfig struct {
 	// Defaults to `otherGuest`.
 	//
 	// To get a list of supported guest operating system identifiers for your
-	// ESXi host, run the following PowerShell command using `VMware.PowerCLI`:
+	// ESX host, run the following PowerShell command using `VMware.PowerCLI`:
 	//
 	// ```powershell
 	// Connect-VIServer -Server "vcenter.example.com" -User "administrator@vsphere.local" -Password "password"
