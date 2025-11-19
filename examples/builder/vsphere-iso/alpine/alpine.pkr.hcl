@@ -79,7 +79,7 @@ variable "ssh_username" {
 variable "datastore" {
   type        = string
   default     = "example-datastore"
-  description = "The ESXi datastore where the ISO and virtual machine will be stored."
+  description = "The ESX datastore where the ISO and virtual machine will be stored."
 }
 
 variable "datastore_path" {

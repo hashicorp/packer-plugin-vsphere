@@ -1,15 +1,15 @@
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
-- `cluster` (string) - The cluster or ESXi host to upload the virtual machine.
+- `cluster` (string) - The cluster or ESX host to upload the virtual machine.
   This can be either the name of the vSphere cluster or the fully qualified domain name (FQDN)
-  or IP address of the ESXi host.
+  or IP address of the ESX host.
 
 - `datacenter` (string) - The name of the vSphere datacenter object to place the virtual machine.
   This is _not required_ if `resource_pool` is specified.
 
 - `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
 
-- `host` (string) - The fully qualified domain name or IP address of the vCenter Server or ESXi host.
+- `host` (string) - The fully qualified domain name or IP address of the vCenter instance or ESX host.
 
 - `password` (string) - The password to use to authenticate to the vSphere endpoint.
 
