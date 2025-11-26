@@ -25,6 +25,7 @@ import (
 	shelllocal "github.com/hashicorp/packer-plugin-sdk/shell-local"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
+	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 const (
@@ -55,7 +56,12 @@ type Config struct {
 	// This is _not required_ if `resource_pool` is specified.
 	Datacenter string `mapstructure:"datacenter" required:"true"`
 	// The name of the vSphere datastore to place the virtual machine.
-	Datastore string `mapstructure:"datastore"  required:"true"`
+	// Mutually exclusive with `datastore_cluster`.
+	Datastore string `mapstructure:"datastore"`
+	// The name of the vSphere datastore cluster to place the virtual machine.
+	// When specified, Storage DRS will automatically select the optimal datastore.
+	// Mutually exclusive with `datastore`.
+	DatastoreCluster string `mapstructure:"datastore_cluster"`
 	// The disk format of the target virtual machine. One of `thin`, `thick`,
 	DiskMode string `mapstructure:"disk_mode"`
 	// The fully qualified domain name or IP address of the vCenter instance or ESX host.
@@ -68,7 +74,8 @@ type Config struct {
 	// Options to send to `ovftool` when uploading the virtual machine.
 	// Use `ovftool --help` to list all the options available.
 	Options []string `mapstructure:"options"`
-	// Overwrite existing files. Defaults to `false`.
+	// Overwrite existing files.
+	// If `true`, forces overwrites of existing files. Defaults to `false`.
 	Overwrite bool `mapstructure:"overwrite"`
 	// The password to use to authenticate to the vSphere endpoint.
 	Password string `mapstructure:"password" required:"true"`
@@ -108,7 +115,8 @@ type Config struct {
 }
 
 type PostProcessor struct {
-	config Config
+	config            Config
+	resolvedDatastore string
 }
 
 func (p *PostProcessor) ConfigSpec() hcldec.ObjectSpec { return p.config.FlatMapstructure().HCL2Spec() }
@@ -128,7 +136,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 
 	// Set default value for MaxRetries if not provided.
 	if p.config.MaxRetries == 0 {
-		p.config.MaxRetries = DefaultMaxRetries
+		p.config.MaxRetries = DefaultMaxRetries // Set default value
 	}
 
 	// Defaults
@@ -136,7 +144,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 		p.config.DiskMode = DefaultDiskMode
 	}
 
-	// Accumulate any errors.
+	// Accumulate any errors
 	errs := new(packersdk.MultiError)
 
 	if runtime.GOOS == "windows" {
@@ -148,7 +156,19 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 			errs, fmt.Errorf("ovftool not found: %s", err))
 	}
 
-	// Define the parameters that are required.
+	// Validate datastore and datastore_cluster mutual exclusivity
+	if p.config.Datastore != "" && p.config.DatastoreCluster != "" {
+		errs = packersdk.MultiErrorAppend(
+			errs, fmt.Errorf("'datastore' and 'datastore_cluster' are mutually exclusive; specify only one"))
+	}
+
+	// Validate that at least one of datastore or datastore_cluster is specified
+	if p.config.Datastore == "" && p.config.DatastoreCluster == "" {
+		errs = packersdk.MultiErrorAppend(
+			errs, fmt.Errorf("either 'datastore' or 'datastore_cluster' must be specified"))
+	}
+
+	// First define all our templatable parameters that are _required_
 	templates := map[string]*string{
 		"cluster":    &p.config.Cluster,
 		"datacenter": &p.config.Datacenter,
@@ -173,7 +193,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 }
 
 func (p *PostProcessor) generateURI() (*url.URL, error) {
-	// Use the net/url standard library to encode and escape the URI.
+	// use net/url lib to encode and escape url elements
 	ovftoolURI := fmt.Sprintf("vi://%s/%s/host/%s",
 		p.config.Host,
 		p.config.Datacenter,
@@ -202,7 +222,7 @@ func (p *PostProcessor) generateURI() (*url.URL, error) {
 }
 
 func getEncodedPassword(u *url.URL) (string, bool) {
-	// Filter the password from the logs.
+	// filter password from all logging
 	password, passwordSet := u.User.Password()
 	if passwordSet && password != "" {
 		encodedPassword := strings.Split(u.User.String(), ":")[1]
@@ -222,6 +242,44 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 
 	if source == "" {
 		return nil, false, false, fmt.Errorf("error locating expected .vmx, .ovf, or .ova artifact")
+	}
+
+	if p.config.DatastoreCluster != "" {
+		ui.Say(fmt.Sprintf("Resolving datastore from cluster '%s'...", p.config.DatastoreCluster))
+
+		d, err := p.connectToVCenter()
+		if err != nil {
+			return nil, false, false, fmt.Errorf("error connecting to vCenter: %s", err)
+		}
+		defer func() {
+			if restErr, soapErr := d.Cleanup(); restErr != nil || soapErr != nil {
+				if restErr != nil {
+					ui.Error(fmt.Sprintf("error cleaning up REST client: %s", restErr))
+				}
+				if soapErr != nil {
+					ui.Error(fmt.Sprintf("error cleaning up SOAP client: %s", soapErr))
+				}
+			}
+		}()
+
+		vcenterDriver, ok := d.(*driver.VCenterDriver)
+		if !ok {
+			return nil, false, false, fmt.Errorf("error: driver is not a VCenterDriver")
+		}
+
+		ds, selectionMethod, err := vcenterDriver.SelectDatastoreFromCluster(p.config.DatastoreCluster)
+		if err != nil {
+			return nil, false, false, fmt.Errorf("error selecting datastore from cluster: %s", err)
+		}
+
+		p.resolvedDatastore = ds.Name()
+		if selectionMethod == driver.SelectionMethodDRS {
+			log.Printf("[INFO] Storage DRS selected datastore '%s' from cluster '%s'", p.resolvedDatastore, p.config.DatastoreCluster)
+		} else {
+			log.Printf("[INFO] Selected datastore '%s' from cluster '%s' (first available)", p.resolvedDatastore, p.config.DatastoreCluster)
+		}
+	} else {
+		p.resolvedDatastore = p.config.Datastore
 	}
 
 	ovftoolURI, err := p.generateURI()
@@ -269,12 +327,29 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packersdk.Ui, artifa
 		return nil
 	})
 
-	artifact = NewArtifact(p.config.Datastore, p.config.VMFolder, p.config.VMName, artifact.Files())
+	artifact = NewArtifact(p.resolvedDatastore, p.config.VMFolder, p.config.VMName, artifact.Files())
 
 	return artifact, false, false, nil
 }
 
-func (p *PostProcessor) ValidateOvfTool(args []string, ovftool string, ui packersdk.Ui) error {
+func (p *PostProcessor) connectToVCenter() (driver.Driver, error) {
+	connectConfig := &driver.ConnectConfig{
+		VCenterServer:      p.config.Host,
+		Username:           p.config.Username,
+		Password:           p.config.Password,
+		InsecureConnection: p.config.Insecure,
+		Datacenter:         p.config.Datacenter,
+	}
+
+	d, err := driver.NewDriver(connectConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error creating driver: %s", err)
+	}
+
+	return d, nil
+}
+
+func (p *PostProcessor) ValidateOvfTool(args []string, ofvtool string, ui packersdk.Ui) error {
 	args = append([]string{"--verifyOnly"}, args...)
 	if p.config.Insecure {
 		args = append(args, "--noSSLVerify")
@@ -286,8 +361,9 @@ func (p *PostProcessor) ValidateOvfTool(args []string, ovftool string, ui packer
 	cmd := exec.CommandContext(cmdCtx, ovftool, args...)
 	cmd.Stdout = &out
 
-	// Need to manually close stdin or else the ovftool call will hang if the
-	// user has provided an invalid credential.
+	// Need to manually close stdin or else the ofvtool call will hang
+	// forever in a situation where the user has provided an invalid
+	// password or username
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err
@@ -318,7 +394,7 @@ func (p *PostProcessor) BuildArgs(source, ovftoolURI string) ([]string, error) {
 	args := []string{
 		"--acceptAllEulas",
 		fmt.Sprintf(`--name=%s`, p.config.VMName),
-		fmt.Sprintf(`--datastore=%s`, p.config.Datastore),
+		fmt.Sprintf(`--datastore=%s`, p.resolvedDatastore),
 	}
 
 	if p.config.Insecure {
