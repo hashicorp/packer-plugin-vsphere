@@ -32,7 +32,7 @@ func (s *StepRemoteUpload) Run(_ context.Context, state multistep.StateBag) mult
 
 	if path, ok := state.GetOk("iso_path"); ok {
 		// user-supplied boot iso
-		fullRemotePath, err := s.uploadFile(path.(string), d, ui)
+		fullRemotePath, err := s.uploadFile(path.(string), d, ui, state)
 		if err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
@@ -41,7 +41,7 @@ func (s *StepRemoteUpload) Run(_ context.Context, state multistep.StateBag) mult
 	}
 	if cdPath, ok := state.GetOk("cd_path"); ok {
 		// Packer-created cd_files disk
-		fullRemotePath, err := s.uploadFile(cdPath.(string), d, ui)
+		fullRemotePath, err := s.uploadFile(cdPath.(string), d, ui, state)
 		if err != nil {
 			state.Put("error", err)
 			return multistep.ActionHalt
@@ -66,7 +66,7 @@ func GetRemoteDirectoryAndPath(path string, ds driver.Datastore, remoteCachePath
 	return filename, remotePath, remoteDirectory, fullRemotePath
 }
 
-func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk.Ui) (string, error) {
+func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk.Ui, state multistep.StateBag) (string, error) {
 
 	// Set the remote cache datastore. If not set, use the default datastore for the build.
 	remoteCacheDatastore := s.Datastore
@@ -74,10 +74,18 @@ func (s *StepRemoteUpload) uploadFile(path string, d driver.Driver, ui packersdk
 		remoteCacheDatastore = s.RemoteCacheDatastore
 	}
 
-	// Find the datastore to use for the remote cache.
-	ds, err := d.FindDatastore(remoteCacheDatastore, s.Host)
-	if err != nil {
-		return "", fmt.Errorf("error finding the remote cache datastore: %v", err)
+	var ds driver.Datastore
+	var err error
+
+	// If a datastore was resolved (from datastore or datastore_cluster), use it.
+	if resolvedDs, ok := state.GetOk("datastore"); ok && remoteCacheDatastore == s.Datastore {
+		ds = resolvedDs.(driver.Datastore)
+	} else {
+		// Find the datastore to use for the remote cache.
+		ds, err = d.FindDatastore(remoteCacheDatastore, s.Host)
+		if err != nil {
+			return "", fmt.Errorf("error finding the remote cache datastore: %v", err)
+		}
 	}
 
 	// Set the remote cache path. If not set, use the default cache path.
@@ -143,10 +151,18 @@ func (s *StepRemoteUpload) Cleanup(state multistep.StateBag) {
 	d := state.Get("driver").(*driver.VCenterDriver)
 	ui.Sayf("Removing %s...", UploadedCDPath)
 
-	ds, err := d.FindDatastore(s.Datastore, s.Host)
-	if err != nil {
-		ui.Sayf("Unable to find the remote cache datastore. Please remove the item manually: %s", err)
-		return
+	var ds driver.Datastore
+	var err error
+
+	// If a datastore was resolved (from datastore or datastore_cluster), use it.
+	if resolvedDs, ok := state.GetOk("datastore"); ok {
+		ds = resolvedDs.(driver.Datastore)
+	} else {
+		ds, err = d.FindDatastore(s.Datastore, s.Host)
+		if err != nil {
+			ui.Sayf("Unable to find the remote cache datastore. Please remove the item manually: %s", err)
+			return
+		}
 	}
 
 	err = ds.Delete(UploadedCDPath.(string))

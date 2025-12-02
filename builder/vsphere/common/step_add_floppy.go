@@ -63,10 +63,18 @@ func (s *StepAddFloppy) Run(_ context.Context, state multistep.StateBag) multist
 	if floppyPath, ok := state.GetOk("floppy_path"); ok {
 		ui.Say("Uploading floppy image...")
 
-		ds, err := d.FindDatastore(s.Datastore, s.Host)
-		if err != nil {
-			state.Put("error", err)
-			return multistep.ActionHalt
+		var ds driver.Datastore
+		var err error
+
+		// If a datastore was resolved (from datastore or datastore_cluster), use it.
+		if resolvedDs, ok := state.GetOk("datastore"); ok {
+			ds = resolvedDs.(driver.Datastore)
+		} else {
+			ds, err = d.FindDatastore(s.Datastore, s.Host)
+			if err != nil {
+				state.Put("error", err)
+				return multistep.ActionHalt
+			}
 		}
 		vmDir, err := vm.GetDir()
 		if err != nil {
@@ -123,10 +131,18 @@ func (s *StepAddFloppy) Cleanup(state multistep.StateBag) {
 	if UploadedFloppyPath, ok := state.GetOk("uploaded_floppy_path"); ok {
 		ui.Say("Deleting floppy image...")
 
-		ds, err := d.FindDatastore(s.Datastore, s.Host)
-		if err != nil {
-			state.Put("error", err)
-			return
+		var ds driver.Datastore
+		var err error
+
+		// If a datastore was resolved (from datastore or datastore_cluster), use it.
+		if resolvedDs, ok := state.GetOk("datastore"); ok {
+			ds = resolvedDs.(driver.Datastore)
+		} else {
+			ds, err = d.FindDatastore(s.Datastore, s.Host)
+			if err != nil {
+				state.Put("error", err)
+				return
+			}
 		}
 
 		err = ds.Delete(UploadedFloppyPath.(string))

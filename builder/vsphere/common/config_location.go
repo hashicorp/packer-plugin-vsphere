@@ -35,8 +35,16 @@ type LocationConfig struct {
 	// a nested path might resemble 'rp-packer/rp-linux-images'.
 	ResourcePool string `mapstructure:"resource_pool"`
 	// The datastore where the virtual machine is created.
-	// Required if `host` is a cluster, or if `host` has multiple datastores.
+	// Required if `host` is a cluster or if `host` has multiple datastores,
+	// unless `datastore_cluster` is specified.
+	//
+	// ~> **Note:** Cannot be used with `datastore_cluster`.
 	Datastore string `mapstructure:"datastore"`
+	// The datastore cluster where the virtual machine is created.
+	// When specified, Storage DRS will automatically select the optimal datastore.
+	//
+	// ~> **Note:** Cannot be used with `datastore`.
+	DatastoreCluster string `mapstructure:"datastore_cluster"`
 	// The ESXI host used for uploading files to the datastore.
 	// Defaults to `false`.
 	SetHostForDatastoreUploads bool `mapstructure:"set_host_for_datastore_uploads"`
@@ -52,7 +60,10 @@ func (c *LocationConfig) Prepare() []error {
 		errs = append(errs, fmt.Errorf("'host' or 'cluster' is required"))
 	}
 
-	// clean Folder path and remove leading slash as folders are relative within vsphere
+	if c.Datastore != "" && c.DatastoreCluster != "" {
+		errs = append(errs, fmt.Errorf("'datastore' and 'datastore_cluster' are mutually exclusive; specify only one"))
+	}
+
 	c.Folder = path.Clean(c.Folder)
 	c.Folder = strings.TrimLeft(c.Folder, "/")
 

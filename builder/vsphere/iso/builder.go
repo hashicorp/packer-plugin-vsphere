@@ -48,6 +48,11 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&common.StepConnect{
 			Config: &b.config.ConnectConfig,
 		},
+		&common.StepResolveDatastore{
+			Datastore:        b.config.Datastore,
+			DatastoreCluster: b.config.DatastoreCluster,
+			DiskCount:        len(b.config.StorageConfig.Storage),
+		},
 		&common.StepDownload{
 			DownloadStep: &commonsteps.StepDownload{
 				Checksum:    b.config.ISOChecksum,

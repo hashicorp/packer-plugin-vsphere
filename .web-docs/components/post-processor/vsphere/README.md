@@ -30,8 +30,6 @@ The following configuration options are available for the post-processor.
 - `datacenter` (string) - The name of the vSphere datacenter object to place the virtual machine.
   This is _not required_ if `resource_pool` is specified.
 
-- `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
-
 - `host` (string) - The fully qualified domain name or IP address of the vCenter instance or ESX host.
 
 - `password` (string) - The password to use to authenticate to the vSphere endpoint.
@@ -45,6 +43,13 @@ The following configuration options are available for the post-processor.
 
 <!-- Code generated from the comments of the Config struct in post-processor/vsphere/post-processor.go; DO NOT EDIT MANUALLY -->
 
+- `datastore` (string) - The name of the vSphere datastore to place the virtual machine.
+  Mutually exclusive with `datastore_cluster`.
+
+- `datastore_cluster` (string) - The name of the vSphere datastore cluster to place the virtual machine.
+  When specified, Storage DRS will automatically select the optimal datastore.
+  Mutually exclusive with `datastore`.
+
 - `disk_mode` (string) - The disk format of the target virtual machine. One of `thin`, `thick`,
 
 - `esxi_host` (string) - The fully qualified domain name or IP address of the ESX host to upload the
@@ -55,7 +60,8 @@ The following configuration options are available for the post-processor.
 - `options` ([]string) - Options to send to `ovftool` when uploading the virtual machine.
   Use `ovftool --help` to list all the options available.
 
-- `overwrite` (bool) - Overwrite existing files. Defaults to `false`.
+- `overwrite` (bool) - Overwrite existing files.
+  If `true`, forces overwrites of existing files. Defaults to `false`.
 
 - `resource_pool` (string) - The name of the resource pool to place the virtual machine.
 

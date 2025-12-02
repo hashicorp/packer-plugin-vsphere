@@ -1036,7 +1036,15 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
   a nested path might resemble 'rp-packer/rp-linux-images'.
 
 - `datastore` (string) - The datastore where the virtual machine is created.
-  Required if `host` is a cluster, or if `host` has multiple datastores.
+  Required if `host` is a cluster or if `host` has multiple datastores,
+  unless `datastore_cluster` is specified.
+  
+  ~> **Note:** Cannot be used with `datastore_cluster`.
+
+- `datastore_cluster` (string) - The datastore cluster where the virtual machine is created.
+  When specified, Storage DRS will automatically select the optimal datastore.
+  
+  ~> **Note:** Cannot be used with `datastore`.
 
 - `set_host_for_datastore_uploads` (bool) - The ESXI host used for uploading files to the datastore.
   Defaults to `false`.
@@ -1364,9 +1372,13 @@ boot time.
   useful if, for example, packer hangs on a connection after a reboot.
   Example: `5m`. Disabled by default.
 
-- `ssh_remote_tunnels` ([]string) - 
+- `ssh_remote_tunnels` ([]string) - Remote tunnels forward a port from your local machine to the instance.
+  Format: ["REMOTE_PORT:LOCAL_HOST:LOCAL_PORT"]
+  Example: "9090:localhost:80" forwards localhost:9090 on your machine to port 80 on the instance.
 
-- `ssh_local_tunnels` ([]string) - 
+- `ssh_local_tunnels` ([]string) - Local tunnels forward a port from the instance to your local machine.
+  Format: ["LOCAL_PORT:REMOTE_HOST:REMOTE_PORT"]
+  Example: "8080:localhost:3000" allows the instance to access your local machine’s port 3000 via localhost:8080.
 
 <!-- End of code generated from the comments of the SSH struct in communicator/config.go; -->
 
