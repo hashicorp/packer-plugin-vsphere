@@ -57,7 +57,7 @@ Please refer to the documentation for each plugin to understand the specific cap
 
     The plugin supports versions in accordance with the [Broadcom Product Lifecycle][product-lifecycle].
 
-- [Go 1.23.12][golang-install]
+- [Go 1.24.10][golang-install]
 
     Required if building the plugin.
 
