@@ -36,7 +36,7 @@ func (vm *VirtualMachineDriver) TypeOnKeyboard(input KeyInput) (int32, error) {
 		Spec: spec,
 	}
 
-	resp, err := methods.PutUsbScanCodes(vm.driver.ctx, vm.driver.client.RoundTripper, req)
+	resp, err := methods.PutUsbScanCodes(vm.driver.Ctx, vm.driver.Client.RoundTripper, req)
 	if err != nil {
 		return 0, err
 	}
