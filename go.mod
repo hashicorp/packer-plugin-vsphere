@@ -1,6 +1,6 @@
 module github.com/hashicorp/packer-plugin-vsphere
 
-go 1.24.10
+go 1.24.11
 
 require (
 	github.com/google/go-cmp v0.7.0
