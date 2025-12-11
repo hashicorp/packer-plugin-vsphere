@@ -143,6 +143,7 @@ type CreateConfig struct {
 	NICs          []NIC
 	USBController []string
 	Version       uint
+	Firmware      string
 	StorageConfig StorageConfig
 }
 
@@ -216,6 +217,19 @@ func (d *VCenterDriver) CreateVM(config *CreateConfig) (VirtualMachine, error) {
 	}
 	if config.Version != 0 {
 		createSpec.Version = fmt.Sprintf("%s%d", "vmx-", config.Version)
+	}
+
+	// Set firmware, if specified.
+	if config.Firmware != "" {
+		firmware := config.Firmware
+		efiSecureBootEnabled := firmware == "efi-secure"
+		if efiSecureBootEnabled {
+			firmware = "efi"
+		}
+		createSpec.Firmware = firmware
+		createSpec.BootOptions = &types.VirtualMachineBootOptions{
+			EfiSecureBootEnabled: types.NewBool(efiSecureBootEnabled),
+		}
 	}
 
 	folder, err := d.FindFolder(config.Folder)
@@ -296,7 +310,9 @@ func (d *VCenterDriver) CreateVM(config *CreateConfig) (VirtualMachine, error) {
 		return nil, fmt.Errorf("something went wrong when creating the VM")
 	}
 
-	return d.NewVM(&vmRef), nil
+	vm := d.NewVM(&vmRef)
+
+	return vm, nil
 }
 
 // Info retrieves properties of the virtual machine object with optional filters
@@ -692,12 +708,10 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 		confSpec.DeviceChange = append(confSpec.DeviceChange, spec)
 	}
 
-	efiSecureBootEnabled := false
 	firmware := config.Firmware
-
-	if firmware == "efi-secure" {
+	efiSecureBootEnabled := firmware == "efi-secure"
+	if efiSecureBootEnabled {
 		firmware = "efi"
-		efiSecureBootEnabled = true
 	}
 
 	confSpec.Firmware = firmware
@@ -751,7 +765,7 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 		}
 	}
 
-	return err
+	return nil
 }
 
 // Reconfigure modifies the configuration of an existing virtual machine based

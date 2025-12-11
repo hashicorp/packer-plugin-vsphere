@@ -170,6 +170,7 @@ type StepCreateVM struct {
 	Config        *CreateConfig
 	Location      *common.LocationConfig
 	Force         bool
+	Firmware      string
 	GeneratedData *packerbuilderdata.GeneratedData
 }
 
@@ -228,6 +229,7 @@ func (s *StepCreateVM) Run(_ context.Context, state multistep.StateBag) multiste
 		NICs:          networkCards,
 		USBController: s.Config.USBController,
 		Version:       s.Config.Version,
+		Firmware:      s.Firmware,
 	})
 	if err != nil {
 		state.Put("error", fmt.Errorf("error creating virtual machine: %v", err))

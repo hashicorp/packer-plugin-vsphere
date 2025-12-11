@@ -84,6 +84,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Config:   &b.config.CreateConfig,
 			Location: &b.config.LocationConfig,
 			Force:    b.config.PackerForce,
+			Firmware: b.config.Firmware,
 		},
 		&common.StepConfigureHardware{
 			Config: &b.config.HardwareConfig,
