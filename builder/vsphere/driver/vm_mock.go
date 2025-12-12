@@ -289,7 +289,7 @@ func (vm *VirtualMachineMock) RemoveNCdroms(nCdroms int) error {
 	if nCdroms == 0 {
 		return nil
 	}
-	vm.CdromDevicesList = vm.CdromDevicesList[:nCdroms]
+	vm.CdromDevicesList = vm.CdromDevicesList[len(vm.CdromDevicesList)-nCdroms:]
 	return vm.RemoveNCdromsErr
 }
 
