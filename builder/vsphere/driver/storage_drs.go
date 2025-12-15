@@ -32,7 +32,7 @@ func (d *VCenterDriver) RequestStoragePlacement(
 	vmSpec types.VirtualMachineConfigSpec,
 	resourcePool *types.ManagedObjectReference,
 ) (*types.StoragePlacementResult, error) {
-	ctx, cancel := context.WithTimeout(d.ctx, StorageDRSTimeout)
+	ctx, cancel := context.WithTimeout(d.Ctx, StorageDRSTimeout)
 	defer cancel()
 
 	placementSpec := types.StoragePlacementSpec{
@@ -44,7 +44,7 @@ func (d *VCenterDriver) RequestStoragePlacement(
 		},
 	}
 
-	storageResourceManager := d.vimClient.ServiceContent.StorageResourceManager
+	storageResourceManager := d.VimClient.ServiceContent.StorageResourceManager
 	if storageResourceManager == nil {
 		return nil, fmt.Errorf("storage resource manager not available")
 	}
@@ -54,7 +54,7 @@ func (d *VCenterDriver) RequestStoragePlacement(
 		StorageSpec: placementSpec,
 	}
 
-	res, err := methods.RecommendDatastores(ctx, d.vimClient, &req)
+	res, err := methods.RecommendDatastores(ctx, d.VimClient, &req)
 	if err != nil {
 		return nil, fmt.Errorf("error requesting storage placement: %s", err)
 	}
@@ -136,8 +136,8 @@ func (d *VCenterDriver) SelectDatastoresForDisks(
 		dsInfo, err := datastores[0].Info("host")
 		if err == nil && len(dsInfo.Host) > 0 {
 			hostRef := dsInfo.Host[0].Key
-			host := object.NewHostSystem(d.client.Client, hostRef)
-			hostInfo, err := host.ResourcePool(d.ctx)
+			host := object.NewHostSystem(d.Client.Client, hostRef)
+			hostInfo, err := host.ResourcePool(d.Ctx)
 			if err == nil {
 				ref := hostInfo.Reference()
 				resourcePoolRef = &ref
@@ -156,7 +156,7 @@ func (d *VCenterDriver) SelectDatastoresForDisks(
 
 			for _, action := range recommendation.Action {
 				if relocateAction, ok := action.(*types.StoragePlacementAction); ok {
-					datastoreObj := object.NewDatastore(d.client.Client, relocateAction.Destination)
+					datastoreObj := object.NewDatastore(d.Client.Client, relocateAction.Destination)
 					dsDriver := &DatastoreDriver{
 						ds:     datastoreObj,
 						driver: d,
@@ -167,7 +167,7 @@ func (d *VCenterDriver) SelectDatastoresForDisks(
 						continue
 					}
 
-					ds, err := d.finder.Datastore(d.ctx, info.Name)
+					ds, err := d.Finder.Datastore(d.Ctx, info.Name)
 					if err != nil {
 						log.Printf("[WARN] Failed to find datastore '%s': %s. Using direct reference.", info.Name, err)
 						recommendedDatastore = dsDriver
@@ -238,8 +238,8 @@ func (d *VCenterDriver) SelectDatastoreFromCluster(
 		dsInfo, err := datastores[0].Info("host")
 		if err == nil && len(dsInfo.Host) > 0 {
 			hostRef := dsInfo.Host[0].Key
-			host := object.NewHostSystem(d.client.Client, hostRef)
-			hostInfo, err := host.ResourcePool(d.ctx)
+			host := object.NewHostSystem(d.Client.Client, hostRef)
+			hostInfo, err := host.ResourcePool(d.Ctx)
 			if err == nil {
 				ref := hostInfo.Reference()
 				resourcePoolRef = &ref
@@ -254,7 +254,7 @@ func (d *VCenterDriver) SelectDatastoreFromCluster(
 		if len(recommendation.Action) > 0 {
 			for _, action := range recommendation.Action {
 				if relocateAction, ok := action.(*types.StoragePlacementAction); ok {
-					datastoreObj := object.NewDatastore(d.client.Client, relocateAction.Destination)
+					datastoreObj := object.NewDatastore(d.Client.Client, relocateAction.Destination)
 					dsDriver := &DatastoreDriver{
 						ds:     datastoreObj,
 						driver: d,
@@ -267,7 +267,7 @@ func (d *VCenterDriver) SelectDatastoreFromCluster(
 					log.Printf("[INFO] Storage DRS recommended datastore '%s' for cluster '%s'",
 						info.Name, clusterName)
 
-					ds, err := d.finder.Datastore(d.ctx, info.Name)
+					ds, err := d.Finder.Datastore(d.Ctx, info.Name)
 					if err != nil {
 						log.Printf("[WARN] Failed to find datastore '%s': %s. Using direct reference.", info.Name, err)
 						return dsDriver, SelectionMethodDRS, nil

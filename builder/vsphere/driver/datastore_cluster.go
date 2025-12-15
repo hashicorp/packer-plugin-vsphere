@@ -41,7 +41,7 @@ func (dsc *DatastoreClusterDriver) Reference() types.ManagedObjectReference {
 
 // ListDatastores returns all datastores in the cluster.
 func (dsc *DatastoreClusterDriver) ListDatastores() ([]Datastore, error) {
-	datastores, err := dsc.cluster.Children(dsc.driver.ctx)
+	datastores, err := dsc.cluster.Children(dsc.driver.Ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error listing datastores in cluster '%s': %s", dsc.Name(), err)
 	}
@@ -49,10 +49,10 @@ func (dsc *DatastoreClusterDriver) ListDatastores() ([]Datastore, error) {
 	var result []Datastore
 	for _, dsRef := range datastores {
 		// Try to get the datastore via finder first for proper initialization.
-		ds, err := dsc.driver.finder.Datastore(dsc.driver.ctx, dsRef.Reference().Value)
+		ds, err := dsc.driver.Finder.Datastore(dsc.driver.Ctx, dsRef.Reference().Value)
 		if err != nil {
 			// If finder fails, create from reference and fetch properties.
-			datastoreObj := object.NewDatastore(dsc.driver.client.Client, dsRef.Reference())
+			datastoreObj := object.NewDatastore(dsc.driver.Client.Client, dsRef.Reference())
 			dsDriver := &DatastoreDriver{
 				ds:     datastoreObj,
 				driver: dsc.driver,
@@ -79,9 +79,9 @@ func (dsc *DatastoreClusterDriver) ListDatastores() ([]Datastore, error) {
 // FindDatastoreCluster locates a datastore cluster by name.
 // Returns a DatastoreCluster object or an error if the cluster is not found.
 func (d *VCenterDriver) FindDatastoreCluster(name string) (DatastoreCluster, error) {
-	storagePod, err := d.finder.DatastoreCluster(d.ctx, name)
+	storagePod, err := d.Finder.DatastoreCluster(d.Ctx, name)
 	if err != nil {
-		clusters, listErr := d.finder.DatastoreClusterList(d.ctx, "*")
+		clusters, listErr := d.Finder.DatastoreClusterList(d.Ctx, "*")
 		if listErr == nil && len(clusters) > 0 {
 			var names []string
 			for _, c := range clusters {
