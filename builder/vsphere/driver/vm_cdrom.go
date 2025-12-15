@@ -100,7 +100,11 @@ func (vm *VirtualMachineDriver) RemoveNCdroms(n int) error {
 		return fmt.Errorf("invalid number: n must be between 0 and %d", len(cdroms))
 	}
 
-	cdroms = cdroms[:n]
+	// Remove up to n CD-ROMs from the end of the list.
+	// For example, removing from the end preserves lower-numbered device slots, which
+	// prevents IDE controller errors where a slave device exists without a primary
+	// (master) device.
+	cdroms = cdroms[len(cdroms)-n:]
 	if err = vm.RemoveDevice(true, cdroms...); err != nil {
 		return err
 	}
