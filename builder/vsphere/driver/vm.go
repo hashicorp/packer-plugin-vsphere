@@ -149,14 +149,14 @@ type CreateConfig struct {
 // NewVM creates a new virtual machine object.
 func (d *VCenterDriver) NewVM(ref *types.ManagedObjectReference) VirtualMachine {
 	return &VirtualMachineDriver{
-		vm:     object.NewVirtualMachine(d.client.Client, *ref),
+		vm:     object.NewVirtualMachine(d.Client.Client, *ref),
 		driver: d,
 	}
 }
 
 // FindVM locates a virtual machine by its name.
 func (d *VCenterDriver) FindVM(name string) (VirtualMachine, error) {
-	vm, err := d.finder.VirtualMachine(d.ctx, name)
+	vm, err := d.Finder.VirtualMachine(d.Ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -282,11 +282,11 @@ func (d *VCenterDriver) CreateVM(config *CreateConfig) (VirtualMachine, error) {
 		VmPathName: fmt.Sprintf("[%s]", datastore.Name()),
 	}
 
-	task, err := folder.folder.CreateVM(d.ctx, createSpec, resourcePool.pool, host)
+	task, err := folder.folder.CreateVM(d.Ctx, createSpec, resourcePool.pool, host)
 	if err != nil {
 		return nil, err
 	}
-	taskInfo, err := task.WaitForResult(d.ctx, nil)
+	taskInfo, err := task.WaitForResult(d.Ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +310,7 @@ func (vm *VirtualMachineDriver) Info(params ...string) (*mo.VirtualMachine, erro
 		p = params
 	}
 	var info mo.VirtualMachine
-	err := vm.vm.Properties(vm.driver.ctx, vm.vm.Reference(), p, &info)
+	err := vm.vm.Properties(vm.driver.Ctx, vm.vm.Reference(), p, &info)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +406,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 		configSpec.Annotation = config.Annotation
 	}
 
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -465,7 +465,6 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 			Device:    adapter.(types.BaseVirtualDevice),
 			Operation: types.VirtualDeviceConfigSpecOperationEdit,
 		}
-
 		configSpec.DeviceChange = append(configSpec.DeviceChange, config)
 	}
 
@@ -475,7 +474,7 @@ func (vm *VirtualMachineDriver) Clone(ctx context.Context, config *CloneConfig) 
 	}
 	configSpec.VAppConfig = vAppConfig
 
-	task, err := vm.vm.Clone(vm.driver.ctx, folder.folder, config.Name, cloneSpec)
+	task, err := vm.vm.Clone(vm.driver.Ctx, folder.folder, config.Name, cloneSpec)
 	if err != nil {
 		return nil, fmt.Errorf("error calling vm.vm.Clone task: %s", err)
 	}
@@ -559,12 +558,12 @@ func (vm *VirtualMachineDriver) AddPublicKeys(ctx context.Context, publicKeys st
 	}
 
 	confSpec := types.VirtualMachineConfigSpec{VAppConfig: config}
-	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	task, err := vm.vm.Reconfigure(vm.driver.Ctx, confSpec)
 	if err != nil {
 		return err
 	}
 
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
@@ -580,11 +579,11 @@ func (vm *VirtualMachineDriver) Properties(ctx context.Context) (*mo.VirtualMach
 
 // Destroy removes the virtual machine.
 func (vm *VirtualMachineDriver) Destroy() error {
-	task, err := vm.vm.Destroy(vm.driver.ctx)
+	task, err := vm.vm.Destroy(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
@@ -628,7 +627,7 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	if config.VideoRAM != 0 || config.Displays != 0 {
-		devices, err := vm.vm.Device(vm.driver.ctx)
+		devices, err := vm.vm.Device(vm.driver.Ctx)
 		if err != nil {
 			return err
 		}
@@ -654,7 +653,7 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 	}
 
 	if config.VGPUProfile != "" {
-		devices, err := vm.vm.Device(vm.driver.ctx)
+		devices, err := vm.vm.Device(vm.driver.Ctx)
 		if err != nil {
 			return err
 		}
@@ -709,12 +708,12 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 		}
 	}
 
-	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	task, err := vm.vm.Reconfigure(vm.driver.Ctx, confSpec)
 	if err != nil {
 		return err
 	}
 
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -757,22 +756,22 @@ func (vm *VirtualMachineDriver) Configure(config *HardwareConfig) error {
 // Reconfigure modifies the configuration of an existing virtual machine based
 // on the provided configuration specification.
 func (vm *VirtualMachineDriver) Reconfigure(confSpec types.VirtualMachineConfigSpec) error {
-	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	task, err := vm.vm.Reconfigure(vm.driver.Ctx, confSpec)
 	if err != nil {
 		return err
 	}
 
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
 // Customize applies the given CustomizationSpec to the virtual machine.
 func (vm *VirtualMachineDriver) Customize(spec types.CustomizationSpec) error {
-	task, err := vm.vm.Customize(vm.driver.ctx, spec)
+	task, err := vm.vm.Customize(vm.driver.Ctx, spec)
 	if err != nil {
 		return err
 	}
-	return task.Wait(vm.driver.ctx)
+	return task.Wait(vm.driver.Ctx)
 }
 
 // ResizeDisk adjusts the size of the virtual disk to the specified diskSize in
@@ -780,7 +779,7 @@ func (vm *VirtualMachineDriver) Customize(spec types.CustomizationSpec) error {
 // an error if the operation fails.
 // TODO: This method should be refactored to support resizing multiple disks.
 func (vm *VirtualMachineDriver) ResizeDisk(diskSize int64) ([]types.BaseVirtualDeviceConfigSpec, error) {
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -803,11 +802,11 @@ func (vm *VirtualMachineDriver) ResizeDisk(diskSize int64) ([]types.BaseVirtualD
 
 // PowerOn starts the virtual machine and waits for the operation to complete.
 func (vm *VirtualMachineDriver) PowerOn() error {
-	task, err := vm.vm.PowerOn(vm.driver.ctx)
+	task, err := vm.vm.PowerOn(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
@@ -839,7 +838,7 @@ func (vm *VirtualMachineDriver) WaitForIP(ctx context.Context, ipNet *net.IPNet)
 
 // PowerOff stops the virtual machine and waits for the operation to complete.
 func (vm *VirtualMachineDriver) PowerOff() error {
-	state, err := vm.vm.PowerState(vm.driver.ctx)
+	state, err := vm.vm.PowerState(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -848,17 +847,17 @@ func (vm *VirtualMachineDriver) PowerOff() error {
 		return nil
 	}
 
-	task, err := vm.vm.PowerOff(vm.driver.ctx)
+	task, err := vm.vm.PowerOff(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
 // IsPoweredOff checks if the virtual machine is powered off.
 func (vm *VirtualMachineDriver) IsPoweredOff() (bool, error) {
-	state, err := vm.vm.PowerState(vm.driver.ctx)
+	state, err := vm.vm.PowerState(vm.driver.Ctx)
 	if err != nil {
 		return false, err
 	}
@@ -868,7 +867,7 @@ func (vm *VirtualMachineDriver) IsPoweredOff() (bool, error) {
 
 // StartShutdown initiates a guest shutdown operation.
 func (vm *VirtualMachineDriver) StartShutdown() error {
-	err := vm.vm.ShutdownGuest(vm.driver.ctx)
+	err := vm.vm.ShutdownGuest(vm.driver.Ctx)
 	return err
 }
 
@@ -899,22 +898,22 @@ func (vm *VirtualMachineDriver) WaitForShutdown(ctx context.Context, timeout tim
 
 // CreateSnapshot creates a snapshot of the virtual machine.
 func (vm *VirtualMachineDriver) CreateSnapshot(name string) error {
-	task, err := vm.vm.CreateSnapshot(vm.driver.ctx, name, "", false, false)
+	task, err := vm.vm.CreateSnapshot(vm.driver.Ctx, name, "", false, false)
 	if err != nil {
 		return err
 	}
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
 // ConvertToTemplate converts the virtual machine to a template.
 func (vm *VirtualMachineDriver) ConvertToTemplate() error {
-	return vm.vm.MarkAsTemplate(vm.driver.ctx)
+	return vm.vm.MarkAsTemplate(vm.driver.Ctx)
 }
 
 // IsTemplate checks if the virtual machine is a template.
 func (vm *VirtualMachineDriver) IsTemplate() (bool, error) {
-	state, err := vm.vm.IsTemplate(vm.driver.ctx)
+	state, err := vm.vm.IsTemplate(vm.driver.Ctx)
 	if err != nil {
 		return false, err
 	}
@@ -938,12 +937,12 @@ func (vm *VirtualMachineDriver) ConvertToVirtualMachine(vsphereCluster string, v
 		return err
 	}
 
-	return vm.vm.MarkAsVirtualMachine(vm.driver.ctx, *resourcePool.pool, host)
+	return vm.vm.MarkAsVirtualMachine(vm.driver.Ctx, *resourcePool.pool, host)
 }
 
 // ImportOvfToContentLibrary imports the OVF to the content library.
 func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error {
-	err := vm.driver.restClient.Login(vm.driver.ctx)
+	err := vm.driver.RestClient.Login(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -977,18 +976,18 @@ func (vm *VirtualMachineDriver) ImportOvfToContentLibrary(ovf vcenter.OVF) error
 	ovf.Source.Value = vm.vm.Reference().Value
 	ovf.Source.Type = "VirtualMachine"
 
-	vcm := vcenter.NewManager(vm.driver.restClient.client)
-	_, err = vcm.CreateOVF(vm.driver.ctx, ovf)
+	vcm := vcenter.NewManager(vm.driver.RestClient.client)
+	_, err = vcm.CreateOVF(vm.driver.Ctx, ovf)
 	if err != nil {
 		return err
 	}
 
-	return vm.driver.restClient.Logout(vm.driver.ctx)
+	return vm.driver.RestClient.Logout(vm.driver.Ctx)
 }
 
 // ImportToContentLibrary imports the virtual machine to the content library.
 func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template) error {
-	err := vm.driver.restClient.Login(vm.driver.ctx)
+	err := vm.driver.RestClient.Login(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -1052,15 +1051,15 @@ func (vm *VirtualMachineDriver) ImportToContentLibrary(template vcenter.Template
 		template.Placement.Host = h.host.Reference().Value
 	}
 
-	vcm := vcenter.NewManager(vm.driver.restClient.client)
-	_, err = vcm.CreateTemplate(vm.driver.ctx, template)
+	vcm := vcenter.NewManager(vm.driver.RestClient.client)
+	_, err = vcm.CreateTemplate(vm.driver.Ctx, template)
 	if err != nil {
 		log.Printf("cannot create template: %v", err)
 		vm.logout()
 		return err
 	}
 
-	return vm.driver.restClient.Logout(vm.driver.ctx)
+	return vm.driver.RestClient.Logout(vm.driver.Ctx)
 }
 
 // GetDir returns the directory of the virtual machine. Returns an error if the
@@ -1089,7 +1088,7 @@ func addNetwork(d *VCenterDriver, devices object.VirtualDeviceList, config *Crea
 			return nil, err
 		}
 
-		backing, err := network.EthernetCardBackingInfo(d.ctx)
+		backing, err := network.EthernetCardBackingInfo(d.Ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -1161,7 +1160,7 @@ func findNetwork(network string, host string, d *VCenterDriver) (object.NetworkR
 			return nil, fmt.Errorf("more than one network found on host %s, specify the network", host)
 		}
 
-		return object.NewNetwork(d.client.Client, i.Network[0]), nil
+		return object.NewNetwork(d.Client.Client, i.Network[0]), nil
 	}
 
 	return nil, fmt.Errorf("error finding network; 'host' and 'network' not specified. at least one of the two must be specified")
@@ -1233,7 +1232,7 @@ func newVGPUProfile(vGPUProfile string) types.VirtualPCIPassthrough {
 // MountCdrom mounts a CD-ROM to the virtual machine.
 func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPath string, _cdrom types.BaseVirtualDevice) error {
 	cdrom := _cdrom.(*types.VirtualCdrom)
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -1259,7 +1258,7 @@ func (vm *VirtualMachineDriver) MountCdrom(controllerType string, datastoreIsoPa
 
 // AddCdrom adds a CD-ROM to the virtual machine.
 func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath string) error {
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -1300,7 +1299,7 @@ func (vm *VirtualMachineDriver) AddCdrom(controllerType string, datastoreIsoPath
 
 // AddFloppy adds a floppy disk to the virtual machine.
 func (vm *VirtualMachineDriver) AddFloppy(imgPath string) error {
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -1319,7 +1318,7 @@ func (vm *VirtualMachineDriver) AddFloppy(imgPath string) error {
 
 // SetBootOrder sets the boot order of the virtual machine.
 func (vm *VirtualMachineDriver) SetBootOrder(order []string) error {
-	devices, err := vm.vm.Device(vm.driver.ctx)
+	devices, err := vm.vm.Device(vm.driver.Ctx)
 	if err != nil {
 		return err
 	}
@@ -1328,12 +1327,12 @@ func (vm *VirtualMachineDriver) SetBootOrder(order []string) error {
 		BootOrder: devices.BootOrder(order),
 	}
 
-	return vm.vm.SetBootOptions(vm.driver.ctx, &bootOptions)
+	return vm.vm.SetBootOptions(vm.driver.Ctx, &bootOptions)
 }
 
 // RemoveDevice removes a device from the virtual machine.
 func (vm *VirtualMachineDriver) RemoveDevice(keepFiles bool, device ...types.BaseVirtualDevice) error {
-	return vm.vm.RemoveDevice(vm.driver.ctx, keepFiles, device...)
+	return vm.vm.RemoveDevice(vm.driver.Ctx, keepFiles, device...)
 }
 
 // addDevice adds a device to the virtual machine.
@@ -1346,12 +1345,12 @@ func (vm *VirtualMachineDriver) addDevice(device types.BaseVirtualDevice) error 
 		return err
 	}
 
-	task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+	task, err := vm.vm.Reconfigure(vm.driver.Ctx, confSpec)
 	if err != nil {
 		return err
 	}
 
-	_, err = task.WaitForResult(vm.driver.ctx, nil)
+	_, err = task.WaitForResult(vm.driver.Ctx, nil)
 	return err
 }
 
@@ -1372,12 +1371,12 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 	confSpec.Tools = info
 
 	if len(confSpec.ExtraConfig) > 0 || confSpec.Tools != nil {
-		task, err := vm.vm.Reconfigure(vm.driver.ctx, confSpec)
+		task, err := vm.vm.Reconfigure(vm.driver.Ctx, confSpec)
 		if err != nil {
 			return fmt.Errorf("failed to start reconfiguration task: %w", err)
 		}
 
-		_, err = task.WaitForResult(vm.driver.ctx, nil)
+		_, err = task.WaitForResult(vm.driver.Ctx, nil)
 		if err != nil {
 			return fmt.Errorf("reconfiguration task failed: %w", err)
 		}
@@ -1386,7 +1385,7 @@ func (vm *VirtualMachineDriver) AddConfigParams(params map[string]string, info *
 
 		// Retrieve the current configuration.
 		var moVM mo.VirtualMachine
-		err = vm.vm.Properties(vm.driver.ctx, vm.vm.Reference(), []string{"config.extraConfig"}, &moVM)
+		err = vm.vm.Properties(vm.driver.Ctx, vm.vm.Reference(), []string{"config.extraConfig"}, &moVM)
 		if err != nil {
 			return fmt.Errorf("failed to retrieve current configuration: %w", err)
 		}
@@ -1436,12 +1435,12 @@ func (vm *VirtualMachineDriver) AddFlag(ctx context.Context, flagSpec *types.Vir
 
 // Export exports the virtual machine.
 func (vm *VirtualMachineDriver) Export() (*nfc.Lease, error) {
-	return vm.vm.Export(vm.driver.ctx)
+	return vm.vm.Export(vm.driver.Ctx)
 }
 
 // CreateDescriptor creates a descriptor for the virtual machine used when exporting the virtual machine to an OVF.
 func (vm *VirtualMachineDriver) CreateDescriptor(m *ovf.Manager, cdp types.OvfCreateDescriptorParams) (*types.OvfCreateDescriptorResult, error) {
-	return m.CreateDescriptor(vm.driver.ctx, vm.vm, cdp)
+	return m.CreateDescriptor(vm.driver.Ctx, vm.vm, cdp)
 }
 
 // NewOvfManager creates a new OVF manager instance.
@@ -1452,7 +1451,7 @@ func (vm *VirtualMachineDriver) NewOvfManager() *ovf.Manager {
 // GetOvfExportOptions retrieves the OVF export options for the virtual machine.
 func (vm *VirtualMachineDriver) GetOvfExportOptions(m *ovf.Manager) ([]types.OvfOptionInfo, error) {
 	var mgr mo.OvfManager
-	err := property.DefaultCollector(vm.vm.Client()).RetrieveOne(vm.driver.ctx, m.Reference(), nil, &mgr)
+	err := property.DefaultCollector(vm.vm.Client()).RetrieveOne(vm.driver.Ctx, m.Reference(), nil, &mgr)
 	if err != nil {
 		return nil, err
 	}
@@ -1481,12 +1480,12 @@ func (vm *VirtualMachineDriver) NewNetwork(ref *types.ManagedObjectReference) *N
 
 // Datacenter returns the datacenter of the virtual machine.
 func (vm *VirtualMachineDriver) Datacenter() *object.Datacenter {
-	return vm.driver.datacenter
+	return vm.driver.Datacenter
 }
 
 // FindContentLibraryItemUUID finds a content library item by name.
 func (vm *VirtualMachineDriver) FindContentLibraryItemUUID(library string, name string) (string, error) {
-	err := vm.driver.restClient.Login(vm.driver.ctx)
+	err := vm.driver.RestClient.Login(vm.driver.Ctx)
 	if err != nil {
 		return "", err
 	}
@@ -1510,7 +1509,7 @@ func (vm *VirtualMachineDriver) FindContentLibraryItemUUID(library string, name 
 
 // FindContentLibraryTemplateDatastoreName finds the datastore name of the content library template.
 func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library string) ([]string, error) {
-	err := vm.driver.restClient.Login(vm.driver.ctx)
+	err := vm.driver.RestClient.Login(vm.driver.Ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -1530,15 +1529,15 @@ func (vm *VirtualMachineDriver) FindContentLibraryTemplateDatastoreName(library 
 		}
 		datastores = append(datastores, name)
 	}
-	return datastores, vm.driver.restClient.Logout(vm.driver.ctx)
+	return datastores, vm.driver.RestClient.Logout(vm.driver.Ctx)
 }
 
 // logout logs the user out of the vCenter.
 func (vm *VirtualMachineDriver) logout() {
-	if vm.driver.restClient == nil {
+	if vm.driver.RestClient == nil {
 		return
 	}
-	if err := vm.driver.restClient.Logout(vm.driver.ctx); err != nil {
+	if err := vm.driver.RestClient.Logout(vm.driver.Ctx); err != nil {
 		log.Printf("cannot logout: %s ", err)
 	}
 }
