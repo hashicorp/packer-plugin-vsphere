@@ -20,7 +20,8 @@ type FlatConfig struct {
 	PackerSensitiveVars []string          `mapstructure:"packer_sensitive_variables" cty:"packer_sensitive_variables" hcl:"packer_sensitive_variables"`
 	Cluster             *string           `mapstructure:"cluster" required:"true" cty:"cluster" hcl:"cluster"`
 	Datacenter          *string           `mapstructure:"datacenter" required:"true" cty:"datacenter" hcl:"datacenter"`
-	Datastore           *string           `mapstructure:"datastore" required:"true" cty:"datastore" hcl:"datastore"`
+	Datastore           *string           `mapstructure:"datastore" cty:"datastore" hcl:"datastore"`
+	DatastoreCluster    *string           `mapstructure:"datastore_cluster" cty:"datastore_cluster" hcl:"datastore_cluster"`
 	DiskMode            *string           `mapstructure:"disk_mode" cty:"disk_mode" hcl:"disk_mode"`
 	Host                *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
 	ESXHost             *string           `mapstructure:"esxi_host" cty:"esxi_host" hcl:"esxi_host"`
@@ -60,6 +61,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"cluster":                    &hcldec.AttrSpec{Name: "cluster", Type: cty.String, Required: false},
 		"datacenter":                 &hcldec.AttrSpec{Name: "datacenter", Type: cty.String, Required: false},
 		"datastore":                  &hcldec.AttrSpec{Name: "datastore", Type: cty.String, Required: false},
+		"datastore_cluster":          &hcldec.AttrSpec{Name: "datastore_cluster", Type: cty.String, Required: false},
 		"disk_mode":                  &hcldec.AttrSpec{Name: "disk_mode", Type: cty.String, Required: false},
 		"host":                       &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
 		"esxi_host":                  &hcldec.AttrSpec{Name: "esxi_host", Type: cty.String, Required: false},

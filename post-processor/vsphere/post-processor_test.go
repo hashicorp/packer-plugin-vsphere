@@ -29,6 +29,7 @@ func TestArgs(t *testing.T) {
 	var p PostProcessor
 
 	p.config = getTestConfig()
+	p.resolvedDatastore = p.config.Datastore
 
 	source := "something.vmx"
 	ovftoolURI := fmt.Sprintf("vi://%s:%s@%s/%s/host/%s",

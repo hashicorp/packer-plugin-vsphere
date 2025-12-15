@@ -20,11 +20,13 @@ type Disk struct {
 type StorageConfig struct {
 	DiskControllerType []string
 	Storage            []Disk
+	DatastoreRefs      []*types.ManagedObjectReference
 }
 
-// AddStorageDevices adds virtual storage devices to an existing device list
-// based on the configuration. Adds a new controller for each controller type
-// specified in the configuration and adds virtual disks to the controller.
+// AddStorageDevices adds virtual storage devices to an existing device list.
+// It creates a controller for each type specified in DiskControllerType and attaches
+// virtual disks to the controllers. If DatastoreRefs is provided, each disk is placed
+// on the corresponding datastore; otherwise, disks inherit the VM's datastore.
 func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	newDevices := object.VirtualDeviceList{}
 
@@ -52,15 +54,21 @@ func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceLi
 		controllers = append(controllers, controller)
 	}
 
-	for _, dc := range c.Storage {
+	for i, dc := range c.Storage {
+		backing := &types.VirtualDiskFlatVer2BackingInfo{
+			DiskMode:        string(types.VirtualDiskModePersistent),
+			ThinProvisioned: types.NewBool(dc.DiskThinProvisioned),
+			EagerlyScrub:    types.NewBool(dc.DiskEagerlyScrub),
+		}
+
+		if i < len(c.DatastoreRefs) && c.DatastoreRefs[i] != nil {
+			backing.Datastore = c.DatastoreRefs[i]
+		}
+
 		disk := &types.VirtualDisk{
 			VirtualDevice: types.VirtualDevice{
-				Key: existingDevices.NewKey(),
-				Backing: &types.VirtualDiskFlatVer2BackingInfo{
-					DiskMode:        string(types.VirtualDiskModePersistent),
-					ThinProvisioned: types.NewBool(dc.DiskThinProvisioned),
-					EagerlyScrub:    types.NewBool(dc.DiskEagerlyScrub),
-				},
+				Key:     existingDevices.NewKey(),
+				Backing: backing,
 			},
 			CapacityInKB: dc.DiskSize * 1024,
 		}
@@ -73,8 +81,8 @@ func (c *StorageConfig) AddStorageDevices(existingDevices object.VirtualDeviceLi
 	return newDevices.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
 }
 
-// findDisk scans a list of virtual devices and retrieves a single virtual disk
-// if exactly one is found.  Returns an error if no disk or multiple disks are found.
+// findDisk scans a list of virtual devices and retrieves a single virtual disk.
+// Returns an error if no disk or multiple disks are found.
 // TODO: Add support for multiple disks.
 func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 	var disks []*types.VirtualDisk
@@ -87,12 +95,9 @@ func findDisk(devices object.VirtualDeviceList) (*types.VirtualDisk, error) {
 
 	switch len(disks) {
 	case 0:
-		// No disks found.
 		return nil, errors.New("error finding virtual disk")
 	case 1:
-		// Single disk found.
 		return disks[0], nil
 	}
-	// Multiple disks found.
 	return nil, errors.New("more than one virtual disk found, only a single disk is allowed")
 }
