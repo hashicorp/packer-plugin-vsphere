@@ -47,9 +47,23 @@ type ConfigParamsConfig struct {
 	// are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
 	// in the vSphere API documentation.
 	ConfigParams map[string]string `mapstructure:"configuration_parameters"`
-	// Enable time synchronization with the ESX host where the virtual machine
-	// is running. Defaults to `false`.
-	ToolsSyncTime bool `mapstructure:"tools_sync_time"`
+	// Enable or disable time synchronization between the guest operating system and the
+	// ESX host at startup and after VM operations that may introduce time drift (such
+	// as resume from suspend, vMotion, or snapshot restore). If set to `true`, time
+	// synchronization is explicitly enabled. If set to `false`, time synchronization is
+	// explicitly disabled. If omitted, the builder does not modify the virtual
+	// machine's time synchronization settings:
+	//   - `vsphere-iso` builder uses the vSphere default for new virtual machines
+	//      (`true`).
+	//   - `vsphere-clone` builder inherits the setting from the source virtual machine.
+	ToolsSyncTime *bool `mapstructure:"tools_sync_time"`
+	// Enable or disable periodic time synchronization between the guest operating
+	// system and the ESX host. Use this setting only if the guest operating system does
+	// not have native time synchronization.
+	//   - `vsphere-iso` builder uses the vSphere default for new virtual machines
+	//      (`false`).
+	//   - `vsphere-clone` builder inherits the setting from the source virtual machine.
+	ToolsSyncTimePeriodically *bool `mapstructure:"tools_sync_time_periodically"`
 	// Automatically check for and upgrade VMware Tools after a virtual machine
 	// power cycle. Defaults to `false`.
 	ToolsUpgradePolicy bool `mapstructure:"tools_upgrade_policy"`
@@ -57,6 +71,18 @@ type ConfigParamsConfig struct {
 
 type StepConfigParams struct {
 	Config *ConfigParamsConfig
+}
+
+func (c *ConfigParamsConfig) Prepare() []error {
+	var errs []error
+
+	if c.ToolsSyncTimePeriodically != nil && *c.ToolsSyncTimePeriodically {
+		if c.ToolsSyncTime == nil || !*c.ToolsSyncTime {
+			errs = append(errs, fmt.Errorf("'tools_sync_time_periodically' requires 'tools_sync_time' to be set to 'true'"))
+		}
+	}
+
+	return errs
 }
 
 func (s *StepConfigParams) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
@@ -69,11 +95,18 @@ func (s *StepConfigParams) Run(_ context.Context, state multistep.StateBag) mult
 	}
 
 	var info *types.ToolsConfigInfo
-	if s.Config.ToolsSyncTime || s.Config.ToolsUpgradePolicy {
+
+	if s.Config.ToolsSyncTime != nil || s.Config.ToolsSyncTimePeriodically != nil || s.Config.ToolsUpgradePolicy {
 		info = &types.ToolsConfigInfo{}
 
-		if s.Config.ToolsSyncTime {
-			info.SyncTimeWithHost = &s.Config.ToolsSyncTime
+		// Gate: Whether time synchronization is allowed.
+		if s.Config.ToolsSyncTime != nil {
+			info.SyncTimeWithHostAllowed = s.Config.ToolsSyncTime
+		}
+
+		// Optional: Whether periodic time synchronization is allowed.
+		if s.Config.ToolsSyncTimePeriodically != nil {
+			info.SyncTimeWithHost = s.Config.ToolsSyncTimePeriodically
 		}
 
 		if s.Config.ToolsUpgradePolicy {
