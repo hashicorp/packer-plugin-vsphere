@@ -1,0 +1,171 @@
+---
+modeline: |
+  vim: set ft=pandoc:
+description: |
+  This data source retrieves information about existing virtual machines from vSphere
+  and returns the name of a virtual machine that matches all specified filters. This
+  virtual machine can be used in the vSphere Clone builder to select a template.
+page_title: vSphere Virtual Machine - Data Source
+sidebar_title: vSphere Virtual Machine
+---
+
+# Virtual Machine Data Source
+
+Type: `vsphere-virtualmachine`
+Artifact BuilderId: `vsphere.virtualmachine`
+
+This data source retrieves information about existing virtual machines from vSphere
+and returns the name of a virtual machine that matches all specified filters. This
+virtual machine can be used in the vSphere Clone builder to select a template.
+
+## Configuration Reference
+
+### Filters Configuration
+
+**Optional:**
+
+@include 'datasource/virtualmachine/Config-not-required.mdx'
+
+### Tags Filter Configuration
+
+**Required:**
+
+@include 'datasource/virtualmachine/Tag-required.mdx'
+
+### Connection Configuration
+
+**Optional:**
+
+@include 'builder/vsphere/common/ConnectConfig-not-required.mdx'
+
+## Output
+
+@include 'datasource/virtualmachine/DatasourceOutput.mdx'
+
+## Example Usage
+
+### Filter by Tags and Get Latest
+
+This example demonstrates how to connect to vSphere cluster and search for the latest
+virtual machine that matches the specified tag filters.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  latest         = true
+
+  tag {
+    category = "team"
+    name     = "operations"
+  }
+
+  tag {
+    category = "sla"
+    name     = "gold"
+  }
+}
+
+locals {
+  vm_name = data.vsphere-virtualmachine.example.vm_name
+}
+
+source "null" "example" {
+    communicator = "none"
+}
+
+build {
+  sources = [
+    "source.null.example"
+  ]
+
+  provisioner "shell-local" {
+    inline = [
+      "echo vm_name: ${local.vm_name}",
+    ]
+  }
+}
+```
+
+### Filter by Name with Glob Pattern
+
+This example shows how to use the `name` filter with glob patterns to find virtual
+machines matching a specific naming convention.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name           = "linux-debian-13-*"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter by Name with Regular Expression
+
+This example demonstrates using the `name_regex` filter for more complex pattern
+matching with regular expressions.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name_regex     = "^linux-debian-[0-9]+-.+$"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter for VM Templates Only
+
+This example shows how to use the `template` filter to search only for virtual
+machine templates.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  name           = "linux-debian-13-*"
+  template       = true
+}
+
+locals {
+  result_template = data.vsphere-virtualmachine.example.vm_name
+}
+```
+
+### Filter by ESX Host
+
+This example demonstrates filtering virtual machines by a specific ESX host,
+combined with other filters.
+
+```hcl
+data "vsphere-virtualmachine" "example" {
+  vcenter_server = "vcenter.example.com"
+  username       = "administrator@vsphere.local"
+  password       = "VMware1!"
+  datacenter     = "dc-01"
+  host           = "esxi-01.example.com"
+  name           = "linux-debian-13-*"
+  latest         = true
+}
+
+locals {
+  vm_result = data.vsphere-virtualmachine.example.vm_name
+}
+```

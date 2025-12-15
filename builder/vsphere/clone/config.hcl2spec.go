@@ -72,6 +72,7 @@ type FlatConfig struct {
 	VirtualPrecisionClock           *string                                     `mapstructure:"precision_clock" cty:"precision_clock" hcl:"precision_clock"`
 	ConfigParams                    map[string]string                           `mapstructure:"configuration_parameters" cty:"configuration_parameters" hcl:"configuration_parameters"`
 	ToolsSyncTime                   *bool                                       `mapstructure:"tools_sync_time" cty:"tools_sync_time" hcl:"tools_sync_time"`
+	ToolsSyncTimePeriodically       *bool                                       `mapstructure:"tools_sync_time_periodically" cty:"tools_sync_time_periodically" hcl:"tools_sync_time_periodically"`
 	ToolsUpgradePolicy              *bool                                       `mapstructure:"tools_upgrade_policy" cty:"tools_upgrade_policy" hcl:"tools_upgrade_policy"`
 	VbsEnabled                      *bool                                       `mapstructure:"vbs_enabled" cty:"vbs_enabled" hcl:"vbs_enabled"`
 	VvtdEnabled                     *bool                                       `mapstructure:"vvtd_enabled" cty:"vvtd_enabled" hcl:"vvtd_enabled"`
@@ -226,6 +227,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"precision_clock":                &hcldec.AttrSpec{Name: "precision_clock", Type: cty.String, Required: false},
 		"configuration_parameters":       &hcldec.AttrSpec{Name: "configuration_parameters", Type: cty.Map(cty.String), Required: false},
 		"tools_sync_time":                &hcldec.AttrSpec{Name: "tools_sync_time", Type: cty.Bool, Required: false},
+		"tools_sync_time_periodically":   &hcldec.AttrSpec{Name: "tools_sync_time_periodically", Type: cty.Bool, Required: false},
 		"tools_upgrade_policy":           &hcldec.AttrSpec{Name: "tools_upgrade_policy", Type: cty.Bool, Required: false},
 		"vbs_enabled":                    &hcldec.AttrSpec{Name: "vbs_enabled", Type: cty.Bool, Required: false},
 		"vvtd_enabled":                   &hcldec.AttrSpec{Name: "vvtd_enabled", Type: cty.Bool, Required: false},

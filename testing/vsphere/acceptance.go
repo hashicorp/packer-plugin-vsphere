@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-package testing
+package vsphere
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
-func NewVMName() string {
+func NewVmName() string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return fmt.Sprintf("test-%v", r.Intn(1000))
 }
@@ -49,7 +49,7 @@ func TestConn() (driver.Driver, error) {
 	return d, nil
 }
 
-func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
+func getVm(d driver.Driver, name string) (driver.VirtualMachine, error) {
 	vm, err := d.FindVM(name)
 	if err != nil {
 		return nil, fmt.Errorf("error finding virtual machine: %v", err)
@@ -57,8 +57,8 @@ func GetVM(d driver.Driver, name string) (driver.VirtualMachine, error) {
 	return vm, nil
 }
 
-func CleanupVM(d driver.Driver, name string) error {
-	vm, err := GetVM(d, name)
+func CleanupVm(d driver.Driver, name string) error {
+	vm, err := getVm(d, name)
 	if err != nil {
 		return fmt.Errorf("error finding virtual machine: %v", err)
 	}

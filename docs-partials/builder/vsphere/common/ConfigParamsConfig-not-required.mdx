@@ -28,8 +28,22 @@
   are silently ignored. Refer to the [`VirtualMachineConfigSpec`](https://dp-downloads.broadcom.com/api-content/apis/API_VWSA_001/8.0U3/html/ReferenceGuides/vim.vm.ConfigSpec.html)
   in the vSphere API documentation.
 
-- `tools_sync_time` (bool) - Enable time synchronization with the ESX host where the virtual machine
-  is running. Defaults to `false`.
+- `tools_sync_time` (\*bool) - Enable or disable time synchronization between the guest operating system and the
+  ESX host at startup and after VM operations that may introduce time drift (such
+  as resume from suspend, vMotion, or snapshot restore). If set to `true`, time
+  synchronization is explicitly enabled. If set to `false`, time synchronization is
+  explicitly disabled. If omitted, the builder does not modify the virtual
+  machine's time synchronization settings:
+    - `vsphere-iso` builder uses the vSphere default for new virtual machines
+       (`true`).
+    - `vsphere-clone` builder inherits the setting from the source virtual machine.
+
+- `tools_sync_time_periodically` (\*bool) - Enable or disable periodic time synchronization between the guest operating
+  system and the ESX host. Use this setting only if the guest operating system does
+  not have native time synchronization.
+    - `vsphere-iso` builder uses the vSphere default for new virtual machines
+       (`false`).
+    - `vsphere-clone` builder inherits the setting from the source virtual machine.
 
 - `tools_upgrade_policy` (bool) - Automatically check for and upgrade VMware Tools after a virtual machine
   power cycle. Defaults to `false`.

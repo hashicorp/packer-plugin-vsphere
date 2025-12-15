@@ -23,7 +23,7 @@ type ResourcePool struct {
 // provided ManagedObjectReference.
 func (d *VCenterDriver) NewResourcePool(ref *types.ManagedObjectReference) *ResourcePool {
 	return &ResourcePool{
-		pool:   object.NewResourcePool(d.client.Client, *ref),
+		pool:   object.NewResourcePool(d.Client.Client, *ref),
 		driver: d,
 	}
 }
@@ -41,13 +41,13 @@ func (d *VCenterDriver) FindResourcePool(cluster string, host string, name strin
 	}
 
 	resourcePath := fmt.Sprintf("%v/Resources/%v", res, name)
-	p, err := d.finder.ResourcePool(d.ctx, resourcePath)
+	p, err := d.Finder.ResourcePool(d.Ctx, resourcePath)
 	if err != nil {
 		log.Printf("[WARN] %s not found. Looking for default resource pool.", resourcePath)
-		dp, dperr := d.finder.DefaultResourcePool(d.ctx)
+		dp, dperr := d.Finder.DefaultResourcePool(d.Ctx)
 		var notFoundError *find.NotFoundError
 		if errors.As(dperr, &notFoundError) {
-			vapp, verr := d.finder.VirtualApp(d.ctx, name)
+			vapp, verr := d.Finder.VirtualApp(d.Ctx, name)
 			if verr != nil {
 				return nil, err
 			}
@@ -73,7 +73,7 @@ func (p *ResourcePool) Info(params ...string) (*mo.ResourcePool, error) {
 		params2 = params
 	}
 	var info mo.ResourcePool
-	err := p.pool.Properties(p.driver.ctx, p.pool.Reference(), params2, &info)
+	err := p.pool.Properties(p.driver.Ctx, p.pool.Reference(), params2, &info)
 	if err != nil {
 		return nil, err
 	}
