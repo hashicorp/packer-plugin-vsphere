@@ -37,7 +37,7 @@ type DatastoreDriver struct {
 // NewDatastore creates a new Datastore object.
 func (d *VCenterDriver) NewDatastore(ref *types.ManagedObjectReference) Datastore {
 	return &DatastoreDriver{
-		ds:     object.NewDatastore(d.client.Client, *ref),
+		ds:     object.NewDatastore(d.Client.Client, *ref),
 		driver: d,
 	}
 }
@@ -68,7 +68,7 @@ func (d *VCenterDriver) FindDatastore(name string, host string) (Datastore, erro
 		name = inf.Name
 	}
 
-	ds, err := d.finder.Datastore(d.ctx, name)
+	ds, err := d.Finder.Datastore(d.Ctx, name)
 	if err != nil {
 		return nil, fmt.Errorf("error finding datastore with name %s: %s", name, err)
 	}
@@ -87,10 +87,10 @@ func (d *VCenterDriver) GetDatastoreName(id string) (string, error) {
 		Type:  "Datastore",
 		Value: id,
 	}
-	pc := property.DefaultCollector(d.vimClient)
+	pc := property.DefaultCollector(d.VimClient)
 	var me mo.ManagedEntity
 
-	err := pc.RetrieveOne(d.ctx, obj, []string{"name"}, &me)
+	err := pc.RetrieveOne(d.Ctx, obj, []string{"name"}, &me)
 	if err != nil {
 		return id, err
 	}
@@ -108,7 +108,7 @@ func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 		p = params
 	}
 	var info mo.Datastore
-	err := ds.ds.Properties(ds.driver.ctx, ds.ds.Reference(), p, &info)
+	err := ds.ds.Properties(ds.driver.Ctx, ds.ds.Reference(), p, &info)
 	if err != nil {
 		return nil, err
 	}
@@ -116,14 +116,14 @@ func (ds *DatastoreDriver) Info(params ...string) (*mo.Datastore, error) {
 }
 
 func (ds *DatastoreDriver) DirExists(filepath string) bool {
-	_, err := ds.ds.Stat(ds.driver.ctx, filepath)
+	_, err := ds.ds.Stat(ds.driver.Ctx, filepath)
 	var notFoundError *object.DatastoreNoSuchDirectoryError
 	return !errors.As(err, &notFoundError)
 }
 
 // FileExists checks if a file exists in a datastore.
 func (ds *DatastoreDriver) FileExists(path string) bool {
-	_, err := ds.ds.Stat(ds.driver.ctx, path)
+	_, err := ds.ds.Stat(ds.driver.Ctx, path)
 	return err == nil
 }
 
@@ -145,9 +145,9 @@ func (ds *DatastoreDriver) ResolvePath(path string) string {
 // GetDatastoreFilePath retrieves the full path of a file in a specified datastore directory by its datastore ID and name.
 func (d *VCenterDriver) GetDatastoreFilePath(datastoreID, dir, filename string) (string, error) {
 	ref := types.ManagedObjectReference{Type: "Datastore", Value: datastoreID}
-	ds := object.NewDatastore(d.vimClient, ref)
+	ds := object.NewDatastore(d.VimClient, ref)
 
-	b, err := ds.Browser(d.ctx)
+	b, err := ds.Browser(d.Ctx)
 	if err != nil {
 		return filename, err
 	}
@@ -157,12 +157,12 @@ func (d *VCenterDriver) GetDatastoreFilePath(datastoreID, dir, filename string) 
 		MatchPattern: []string{pat},
 	}
 
-	task, err := b.SearchDatastore(d.ctx, dir, &spec)
+	task, err := b.SearchDatastore(d.Ctx, dir, &spec)
 	if err != nil {
 		return filename, err
 	}
 
-	info, err := task.WaitForResult(d.ctx, nil)
+	info, err := task.WaitForResult(d.Ctx, nil)
 	if err != nil {
 		return filename, err
 	}
@@ -182,7 +182,7 @@ func (d *VCenterDriver) GetDatastoreFilePath(datastoreID, dir, filename string) 
 // in the datastore, with optional host context.
 func (ds *DatastoreDriver) UploadFile(src, dst, host string, setHost bool) error {
 	p := soap.DefaultUpload
-	ctx := ds.driver.ctx
+	ctx := ds.driver.Ctx
 
 	if setHost && host != "" {
 		h, err := ds.driver.FindHost(host)
@@ -197,22 +197,22 @@ func (ds *DatastoreDriver) UploadFile(src, dst, host string, setHost bool) error
 
 // Delete deletes a file from a datastore by a path.
 func (ds *DatastoreDriver) Delete(path string) error {
-	dc, err := ds.driver.finder.Datacenter(ds.driver.ctx, ds.ds.DatacenterPath)
+	dc, err := ds.driver.Finder.Datacenter(ds.driver.Ctx, ds.ds.DatacenterPath)
 	if err != nil {
 		return err
 	}
 	fm := ds.ds.NewFileManager(dc, false)
-	return fm.Delete(ds.driver.ctx, path)
+	return fm.Delete(ds.driver.Ctx, path)
 }
 
 // MakeDirectory creates a directory in a datastore by a path.
 func (ds *DatastoreDriver) MakeDirectory(path string) error {
-	dc, err := ds.driver.finder.Datacenter(ds.driver.ctx, ds.ds.DatacenterPath)
+	dc, err := ds.driver.Finder.Datacenter(ds.driver.Ctx, ds.ds.DatacenterPath)
 	if err != nil {
 		return err
 	}
 	fm := ds.ds.NewFileManager(dc, false)
-	return fm.FileManager.MakeDirectory(ds.driver.ctx, path, dc, true)
+	return fm.FileManager.MakeDirectory(ds.driver.Ctx, path, dc, true)
 }
 
 // RemoveDatastorePrefix removes the datastore prefix from a path.
