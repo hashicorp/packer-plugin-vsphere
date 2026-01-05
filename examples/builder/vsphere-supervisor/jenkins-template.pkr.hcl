@@ -122,20 +122,25 @@ EOF
       # Display the commands being executed.
       "set -x",
 
-      # Download Jenkins repository key and add it to the trusted keyrings.
-      "curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.gpg",
-      "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list",
-
-      # Download the new Kubernetes community-owned repository key and add it to the trusted keyrings (to get apt-get update working).
-      "curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg",
-      "echo deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ / | sudo tee /etc/apt/sources.list.d/kubernetes.list",
+      # Remove outdated Kubernetes apt repository if present (no longer has a Release file).
+      "sudo rm -f /etc/apt/sources.list.d/kubernetes.list",
 
       # Sometimes apt-get uses IPv6 and causes failure, force to use IPv4 address.
       "sudo apt-get -qq -o Acquire::ForceIPv4=true update",
-      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y ca-certificates openjdk-21-jre-headless",
-      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y jenkins",
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y ca-certificates openjdk-21-jre-headless wget",
+
+      # Install Jenkins from a fixed version .deb package directly (avoids GPG key issues with apt repository).
+      # 2.462.3 is the last Jenkins LTS release that supports Java 11.
+      "wget -q -O /tmp/jenkins.deb https://get.jenkins.io/debian-stable/jenkins_2.462.3_all.deb",
+      "sudo dpkg -i /tmp/jenkins.deb || true",
+
+      # Fix any missing dependencies from the dpkg install.
+      "sudo apt-get -qq -o Acquire::ForceIPv4=true install -f -y",
+
       # Restart Jenkins service, in case it didn't initialize successfully.
       "sudo systemctl restart jenkins",
+      # Wait for Jenkins to be fully up and running.
+      "until curl -s -o /dev/null -w '%%{http_code}' http://localhost:8080/ | grep -q '403\\|200'; do sleep 5; done",
 
       "export JENKINS_URL=http://localhost:8080/",
       "export USER=admin",
