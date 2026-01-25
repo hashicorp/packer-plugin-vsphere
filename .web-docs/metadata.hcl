@@ -6,7 +6,7 @@
 integration {
   name = "VMware vSphere"
   description = "The vSphere plugin is able to create vSphere virtual machines for use with any VMware product."
-  identifier = "packer/hashicorp/vsphere"
+  identifier = "packer/vmware/vsphere"
   flags = ["hcp-ready"]
   component {
     type = "builder"
