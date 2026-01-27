@@ -1,12 +1,19 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 version: 2
 updates:
-  - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "daily"
+      interval: weekly
+    labels:
+      - chore
+      - github-actions
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - chore
+      - dependencies
     allow:
       - dependency-name: "github.com/hashicorp/packer-plugin-sdk"
       - dependency-name: "github.com/vmware/govmomi"
