@@ -79,7 +79,7 @@ packer {
   required_plugins {
     vsphere = {
       version = ">= 2.0.0"
-      source  = "github.com/hashicorp/vsphere"
+      source  = "github.com/vmware/vsphere"
     }
   }
 }
@@ -129,5 +129,5 @@ For more information on how to configure the plugin, please see the [plugin docu
 [docs-vsphere-plugin]: https://developer.hashicorp.com/packer/plugins/builders/vsphere
 [golang-install]: https://golang.org/doc/install
 [packer]: https://www.packer.io
-[releases-vsphere-plugin]: https://github.com/hashicorp/packer-plugin-vsphere/releases
+[releases-vsphere-plugin]: https://github.com/vmware/packer-plugin-vsphere/releases
 [product-lifecycle]: https://support.broadcom.com/group/ecx/productlifecycle
