@@ -20,9 +20,9 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	vsphere "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
-	vspherepost "github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
 	"github.com/vmware/govmomi"
+	vsphere "github.com/vmware/packer-plugin-vsphere/builder/vsphere/common"
+	vspherepost "github.com/vmware/packer-plugin-vsphere/post-processor/vsphere"
 )
 
 const (

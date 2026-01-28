@@ -13,8 +13,8 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 type FlagConfig struct {

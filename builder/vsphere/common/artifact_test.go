@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/simulator"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func TestArtifactHCPPackerMetadata(t *testing.T) {

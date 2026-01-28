@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func TestStepAddFloppy_Run(t *testing.T) {

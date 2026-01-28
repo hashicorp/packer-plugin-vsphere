@@ -10,8 +10,8 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/post-processor/vsphere"
 	"github.com/vmware/govmomi"
+	"github.com/vmware/packer-plugin-vsphere/post-processor/vsphere"
 )
 
 type StepCreateSnapshot struct {

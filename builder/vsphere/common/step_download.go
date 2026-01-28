@@ -14,7 +14,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 // DownloadStep is an interface representing a step in the download process, providing execution, cleanup, and cache

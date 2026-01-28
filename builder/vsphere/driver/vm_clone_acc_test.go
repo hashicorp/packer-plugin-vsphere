@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common/utils"
 )
 
 func TestVMAcc_clone(t *testing.T) {

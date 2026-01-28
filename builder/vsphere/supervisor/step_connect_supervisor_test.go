@@ -15,7 +15,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
 func TestConnectSupervisor_Prepare(t *testing.T) {

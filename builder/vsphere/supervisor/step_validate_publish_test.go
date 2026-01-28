@@ -15,7 +15,7 @@ import (
 	imgregv1a1 "github.com/vmware-tanzu/image-registry-operator-api/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
 func TestValidatePublish_Prepare(t *testing.T) {

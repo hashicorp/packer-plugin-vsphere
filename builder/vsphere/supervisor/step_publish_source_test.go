@@ -17,7 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
 func TestPublishSource_Prepare(t *testing.T) {

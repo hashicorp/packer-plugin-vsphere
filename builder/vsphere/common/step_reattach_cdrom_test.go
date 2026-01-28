@@ -14,8 +14,8 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 func TestStepReattachCDRom_Run(t *testing.T) {

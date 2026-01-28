@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 type ShutdownConfig struct {

@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
-	"github.com/hashicorp/packer-plugin-vsphere/testing/vsphere"
 	"github.com/vmware/govmomi/simulator"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/vmware/packer-plugin-vsphere/testing/vsphere"
 )
 
 func TestDatasource_Execute(t *testing.T) {

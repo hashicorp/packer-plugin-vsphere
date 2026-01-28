@@ -11,9 +11,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/packer-plugin-sdk/acctest"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
-	"github.com/hashicorp/packer-plugin-vsphere/testing/vsphere"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common/utils"
+	"github.com/vmware/packer-plugin-vsphere/testing/vsphere"
 )
 
 // TestAccISOBuilderAcc_default acceptance test validates a default configuration.
