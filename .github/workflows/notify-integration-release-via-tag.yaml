@@ -51,7 +51,7 @@ jobs:
       - name: Notify Release
         uses: ./integration-release-action
         with:
-          integration_identifier: "packer/hashicorp/vsphere"
+          integration_identifier: "packer/vmware/vsphere"
           release_version: ${{ needs.strip-version.outputs.packer-version }}
           release_sha: ${{ github.ref }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
