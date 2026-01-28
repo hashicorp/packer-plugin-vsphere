@@ -9,7 +9,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 // DatastoreClusterDriver is an interface for drivers that support datastore cluster operations.

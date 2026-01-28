@@ -22,7 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/supervisor"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/supervisor"
 )
 
 func TestCheckRequiredStates(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common"
 )
 
 type Builder struct {

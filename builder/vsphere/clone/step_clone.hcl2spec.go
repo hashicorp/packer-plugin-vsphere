@@ -4,7 +4,7 @@ package clone
 
 import (
 	"github.com/hashicorp/hcl/v2/hcldec"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common"
 	"github.com/zclconf/go-cty/cty"
 )
 

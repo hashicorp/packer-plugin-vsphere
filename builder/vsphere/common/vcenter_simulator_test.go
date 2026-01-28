@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"

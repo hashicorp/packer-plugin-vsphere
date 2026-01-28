@@ -26,11 +26,11 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/nfc"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 const OvftoolWindows = "ovftool.exe"

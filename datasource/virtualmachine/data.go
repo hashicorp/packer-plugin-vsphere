@@ -15,8 +15,8 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/hcl2helper"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
-	vsphere "github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
+	vsphere "github.com/vmware/packer-plugin-vsphere/builder/vsphere/common"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/zclconf/go-cty/cty"
 )
 

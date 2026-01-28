@@ -10,8 +10,8 @@ import (
 	"os"
 
 	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 const BuilderId = "jetbrains.vsphere"

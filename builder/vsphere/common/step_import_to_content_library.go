@@ -13,8 +13,8 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/vapi/vcenter"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 // Create a content library item in a content library whose content is a VM

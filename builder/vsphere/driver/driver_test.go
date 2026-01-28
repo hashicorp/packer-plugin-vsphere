@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/common/utils"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/session"
@@ -22,6 +21,7 @@ import (
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/soap"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/common/utils"
 )
 
 func newTestDriver(t *testing.T) Driver {

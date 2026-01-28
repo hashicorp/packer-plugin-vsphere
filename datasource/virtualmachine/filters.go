@@ -8,11 +8,11 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/hashicorp/packer-plugin-vsphere/builder/vsphere/driver"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/packer-plugin-vsphere/builder/vsphere/driver"
 )
 
 // filterVms removes virtual machines from vmList that do not match the datasource config filters.
