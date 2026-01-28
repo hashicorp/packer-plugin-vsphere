@@ -12,7 +12,7 @@ jobs:
   build_darwin:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -29,7 +29,7 @@ jobs:
   build_freebsd:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -50,7 +50,7 @@ jobs:
   build_linux:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -75,7 +75,7 @@ jobs:
   build_netbsd:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -96,7 +96,7 @@ jobs:
   build_openbsd:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -117,7 +117,7 @@ jobs:
   build_solaris:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
@@ -130,7 +130,7 @@ jobs:
   build_windows:
     defaults:
       run:
-        working-directory: ~/go/src/github.com/hashicorp/packer-plugin-vsphere
+        working-directory: ~/go/src/github.com/vmware/packer-plugin-vsphere
     runs-on: ubuntu-latest
     container:
       image: docker.mirror.hashicorp.services/cimg/go:1.21
