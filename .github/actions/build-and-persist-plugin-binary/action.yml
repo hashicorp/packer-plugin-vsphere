@@ -2,23 +2,25 @@
 # SPDX-License-Identifier: MPL-2.0
 
 name: build-and-persist-plugin-binary
+
 inputs:
   GOOS:
     required: true
   GOARCH:
     required: true
+
 runs:
   using: composite
   steps:
-  - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-  - run: "GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -o ./pkg/packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }} ."
-    shell: bash
-  - run: zip ./pkg/packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip ./pkg/packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }}
-    shell: bash
-  - run: rm ./pkg/packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }}
-    shell: bash
-  - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
-    with:
-      name: "packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip"
-      path: "pkg/packer_plugin_vsphere_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip"
-      retention-days: 30
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - run: "GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -o ./pkg/packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }} ."
+      shell: bash
+    - run: zip ./pkg/packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip ./pkg/packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }}
+      shell: bash
+    - run: rm ./pkg/packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }}
+      shell: bash
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: "packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip"
+        path: "pkg/packer_plugin_vmware_${{ inputs.GOOS }}_${{ inputs.GOARCH }}.zip"
+        retention-days: 30
