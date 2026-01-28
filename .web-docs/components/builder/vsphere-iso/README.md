@@ -11,7 +11,7 @@ their respective End of General Support dates. For detailed information, refer t
 
 ## Examples
 
-- Basic examples are available in the [examples](https://github.com/hashicorp/packer-plugin-vsphere/tree/main/examples/)
+- Basic examples are available in the [examples](https://github.com/vmware/packer-plugin-vsphere/tree/main/examples/)
   directory of the GitHub repository.
 
 - Additional examples are available in the [`vmware-samples/packer-examples-for-vsphere`](https://github.com/vmware-samples/packer-examples-for-vsphere)
