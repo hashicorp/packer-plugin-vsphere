@@ -21,7 +21,7 @@ packer {
   required_plugins {
     vsphere = {
       version = "~> 1"
-      source  = "github.com/hashicorp/vsphere"
+      source  = "github.com/vmware/vsphere"
     }
   }
 }
@@ -30,7 +30,7 @@ packer {
 Alternatively, you can use `packer plugins install` to manage installation of this plugin.
 
 ```sh
-packer plugins install github.com/hashicorp/vsphere
+packer plugins install github.com/vmware/vsphere
 ```
 
 ### Components
