@@ -1,13 +1,16 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
+---
+# This workflow builds the plugin binaries for all supported platforms.
 
-name: hashicorp/packer-plugin-vsphere/build_plugin_binaries
+name: Build Plugin Binaries
+
 permissions:
   contents: read
+
 on:
   push:
     branches:
-    - main
+      - main
+
 jobs:
   build_darwin:
     defaults:
