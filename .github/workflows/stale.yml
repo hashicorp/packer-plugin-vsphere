@@ -1,0 +1,49 @@
+---
+name: Stale
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+permissions:
+  contents: read
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d # v10.1.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 360
+          days-before-close: 30
+          exempt-issue-labels: needs-triage
+          exempt-pr-labels: needs-review
+          remove-stale-when-updated: true
+          delete-branch: false
+          stale-issue-label: stale
+          stale-issue-message: >
+            'Marking this issue as stale due to inactivity. This helps us focus
+            on the active issues. If this issue receives no comments in the next
+            30 days it will automatically be closed.
+
+
+            If this issue was automatically closed and you feel this issue
+            should be reopened, we encourage creating a new issue linking back
+            to this one for added context.
+
+            Thank you!'
+          stale-pr-label: stale
+          stale-pr-message: >
+            'Marking this pull request as stale due to inactivity. This helps us
+            focus on the active pull requests. If this pull request receives no
+            comments in the next 30 days it will automatically be closed.
+
+            If this pull request was automatically closed and you feel this pull
+            request should be reopened, we encourage creating a new pull request
+            linking back to this one for added context.
+
+            Thank you!'

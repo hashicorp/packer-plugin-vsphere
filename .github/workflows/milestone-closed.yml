@@ -1,0 +1,23 @@
+---
+name: Milestone Closed
+
+on:
+  milestone:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: bflad/action-milestone-comment@4618cbf8bf938d31af1c576beeaaa77f486f5af3 # v2.0.0
+        with:
+          body: |
+            This functionality has been released in [${{ github.event.milestone.title }}](${{ github.event.milestone.html_url }}) of the plugin.
+
+            For further feature requests or bug reports with this functionality, please create a [new GitHub issue](https://github.com/${{ github.repository }}/issues/new/choose) following the template. Thank you!
