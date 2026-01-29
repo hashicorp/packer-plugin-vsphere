@@ -1,25 +1,24 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
+---
 changelog:
   exclude:
     labels:
       - ignore-for-release
   categories:
-    - title: Breaking Changes 🛠
+    - title: Breaking Changes
       labels:
         - breaking-change
-    - title: Exciting New Features 🎉
+    - title: Enhancements
       labels:
         - enhancement
-    - title: Bug fixes🧑‍🔧 🐞
+    - title: Bug Fixes
       labels:
-        - bug 
-    - title: Doc improvements 📚
+        - bug
+    - title: Documentation
       labels:
-        - docs
         - documentation
-    - title: Other Changes
+    - title: Chore
+      labels:
+        - chore
+    - title: Other
       labels:
         - "*"
-
