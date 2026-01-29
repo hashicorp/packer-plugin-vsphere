@@ -5,6 +5,7 @@
 package driver
 
 import (
+	"context"
 	"fmt"
 
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -12,6 +13,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+// DriverMock provides a mock implementation of the Driver interface for testing.
 type DriverMock struct {
 	FindDatastoreCalled bool
 	DatastoreMock       *DatastoreMock
@@ -31,8 +33,24 @@ type DriverMock struct {
 
 	FindVMCalled bool
 	FindVMName   string
+
+	// OVF deployment mock fields.
+	DeployOvfCalled     bool
+	DeployOvfConfig     *OvfDeployConfig
+	DeployOvfShouldFail bool
+	DeployOvfError      error
+	DeployOvfVM         VirtualMachine
+
+	GetOvfOptionsCalled     bool
+	GetOvfOptionsURL        string
+	GetOvfOptionsAuth       *OvfAuthConfig
+	GetOvfOptionsLocale     string
+	GetOvfOptionsShouldFail bool
+	GetOvfOptionsError      error
+	GetOvfOptionsResult     []types.OvfOptionInfo
 }
 
+// NewDriverMock creates a new instance of DriverMock for testing.
 func NewDriverMock() *DriverMock {
 	return new(DriverMock)
 }
@@ -124,6 +142,59 @@ func (d *DriverMock) FindContentLibraryFileDatastorePath(isoPath string) (string
 
 func (d *DriverMock) UpdateContentLibraryItem(item *library.Item, name string, description string) error {
 	return nil
+}
+
+// DeployOvf mocks OVF deployment functionality for testing.
+func (d *DriverMock) DeployOvf(ctx context.Context, config *OvfDeployConfig, ui packersdk.Ui) (VirtualMachine, error) {
+	d.DeployOvfCalled = true
+	d.DeployOvfConfig = config
+
+	if d.DeployOvfShouldFail {
+		if d.DeployOvfError != nil {
+			return nil, d.DeployOvfError
+		}
+		return nil, fmt.Errorf("deploy OVF failed")
+	}
+
+	if d.DeployOvfVM == nil {
+		d.DeployOvfVM = new(VirtualMachineMock)
+	}
+	return d.DeployOvfVM, nil
+}
+
+// GetOvfOptions mocks OVF options retrieval functionality for testing.
+func (d *DriverMock) GetOvfOptions(ctx context.Context, url string, auth *OvfAuthConfig, locale string) ([]types.OvfOptionInfo, error) {
+	d.GetOvfOptionsCalled = true
+	d.GetOvfOptionsURL = url
+	d.GetOvfOptionsAuth = auth
+	d.GetOvfOptionsLocale = locale
+
+	if d.GetOvfOptionsShouldFail {
+		if d.GetOvfOptionsError != nil {
+			return nil, d.GetOvfOptionsError
+		}
+		return nil, fmt.Errorf("get OVF options failed")
+	}
+
+	if d.GetOvfOptionsResult == nil {
+		// Return default mock options.
+		d.GetOvfOptionsResult = []types.OvfOptionInfo{
+			{
+				Option: "small",
+				Description: types.LocalizableMessage{
+					Message: "Small configuration",
+				},
+			},
+			{
+				Option: "medium",
+				Description: types.LocalizableMessage{
+					Message: "Medium configuration",
+				},
+			},
+		}
+	}
+
+	return d.GetOvfOptionsResult, nil
 }
 
 func (d *DriverMock) Cleanup() (error, error) {
