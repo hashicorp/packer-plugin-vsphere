@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Copyright (c) HashiCorp, Inc.
+# © Broadcom. All Rights Reserved.
+# The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 # SPDX-License-Identifier: MPL-2.0
-
 
 # Converts the folder name that the component documentation file
 # is stored in into the integration slug of the component.
