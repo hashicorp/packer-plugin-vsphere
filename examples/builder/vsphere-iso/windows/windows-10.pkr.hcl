@@ -1,4 +1,5 @@
-# Copyright (c) HashiCorp, Inc.
+# © Broadcom. All Rights Reserved.
+# The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 # SPDX-License-Identifier: MPL-2.0
 
 # source blocks are generated from your builders; a source can be referenced in
